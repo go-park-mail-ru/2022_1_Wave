@@ -1,0 +1,116 @@
+definitions:
+  forms.Result:
+    properties:
+      status:
+        example: some status
+        type: string
+    type: object
+  forms.User:
+    properties:
+      email:
+        example: hello@example.com
+        type: string
+      id:
+        example: "5125112"
+        type: string
+      name:
+        example: Martin
+        type: string
+      password:
+        example: 1fsgh2rfafas
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /api/signUp:
+    post:
+      consumes:
+      - application/json
+      description: sign in user
+      parameters:
+      - description: new jwt data
+        in: body
+        name: UserForm
+        required: true
+        schema:
+          $ref: '#/definitions/forms.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/forms.Result'
+        "460":
+          description: Data is invalid
+          schema:
+            $ref: '#/definitions/forms.Result'
+        "521":
+          description: Cannot create session
+          schema:
+            $ref: '#/definitions/forms.Result'
+      summary: SignUp
+      tags:
+      - auth
+  /api/signin:
+    post:
+      consumes:
+      - application/json
+      description: sign in user
+      parameters:
+      - description: new jwt data
+        in: body
+        name: UserForm
+        required: true
+        schema:
+          $ref: '#/definitions/forms.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/forms.Result'
+        "460":
+          description: Data is invalid
+          schema:
+            $ref: '#/definitions/forms.Result'
+        "521":
+          description: Cannot create session
+          schema:
+            $ref: '#/definitions/forms.Result'
+      summary: SignIn
+      tags:
+      - auth
+  /api/signout:
+    post:
+      consumes:
+      - application/json
+      description: sign in user
+      parameters:
+      - description: new jwt data
+        in: body
+        name: UserForm
+        required: true
+        schema:
+          $ref: '#/definitions/forms.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/forms.Result'
+        "460":
+          description: Data is invalid
+          schema:
+            $ref: '#/definitions/forms.Result'
+        "521":
+          description: Cannot create session
+          schema:
+            $ref: '#/definitions/forms.Result'
+      summary: SignOut
+      tags:
+      - auth
+swagger: "2.0"

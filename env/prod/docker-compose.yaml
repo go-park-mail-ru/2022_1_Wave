@@ -1,0 +1,33 @@
+version: "3.5"
+services:
+  web:
+    image: nginx
+    ports:
+      - "80:80"
+    working_dir: /var/www/service/server
+    volumes:
+      - ../../../2022_1_Wave/public/build:/var/www/wave
+      - ../../config/nginx/nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - wave.music
+      - db
+
+  wave.music:
+    image: cosmtrek/air
+    expose:
+      - 5000
+    working_dir: /var/www/wave.music
+    volumes:
+      - ../../src:/var/www/wave.music
+
+  db:
+    image: postgres
+    container_name: "wave-db"
+    expose:
+      - 5432
+    volumes:
+      - ../../db_dump:/tmp
+    environment:
+      - POSTGRES_PASSWORD=music
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=wave
