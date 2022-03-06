@@ -1,10 +1,5 @@
 package api
 
-import (
-	"github.com/NNKulickov/wave.music_backend/middleware"
-	"github.com/gin-gonic/gin"
-)
-
 // @title           Swagger Example API
 // @version         1.0
 // @description     This is a sample server Petstore server.
@@ -18,7 +13,7 @@ import (
 // @license.url http://www.apache.org/licenses/LICENSE-2.0.html
 // @host localhost:5000
 // @BasePath /api/
-
+/*
 func DefineRoutes(router *gin.Engine) {
 	// Группа неаутентифицированных запросов. Клиент может выполнять эти запросы
 	// не обладая токеном аутентификации.
@@ -27,11 +22,11 @@ func DefineRoutes(router *gin.Engine) {
 	unauthenticated := router.Group("/")
 	{
 		// Вход в систему по email и паролю.
-		unauthenticated.POST("/signin", SignIn)
+		unauthenticated.POST("/signin", Login)
 		// Регистрация в системе.
 		unauthenticated.POST("/signup", SignUp)
 		// Выйти из системы.
-		unauthenticated.POST("/signout", SignOut)
+		unauthenticated.POST("/signout", Logout)
 	}
 
 	// Группа аутентифицированных запросов. Клиент должен прислать валидную куки
@@ -44,3 +39,4 @@ func DefineRoutes(router *gin.Engine) {
 	authenticated.GET("/csrf", Csrf)
 
 }
+*/

@@ -1,22 +1,19 @@
 package main
 
 import (
-	"database/sql"
 	"github.com/NNKulickov/wave.music_backend/api"
 	"github.com/NNKulickov/wave.music_backend/config"
 	docs "github.com/NNKulickov/wave.music_backend/docs"
-	"github.com/NNKulickov/wave.music_backend/service"
-	"github.com/gin-gonic/gin"
+	"github.com/NNKulickov/wave.music_backend/middleware"
+	"github.com/gorilla/mux"
 	_ "github.com/lib/pq"
-	swaggerfiles "github.com/swaggo/files"
-	ginSwagger "github.com/swaggo/gin-swagger"
 	"log"
+	"net/http"
 )
 
-const CONFIG_FILENAME = "config.toml"
+const CONFIG_FILENAME = "../config/config.toml"
 
 func main() {
-
 	var err error
 	if err = config.LoadConfig(CONFIG_FILENAME); err != nil {
 		log.Fatal(err)
@@ -25,16 +22,21 @@ func main() {
 	}
 	docs.SwaggerInfo.BasePath = "/api"
 
-	router := gin.Default()
-	api.DefineRoutes(router)
+	/*
+		if service.DB, err = sql.Open("postgres", config.C.DBConnectionString); err != nil {
+			log.Fatal(err)
+		}
+	*/
 
-	if service.DB, err = sql.Open("postgres", config.C.DBConnectionString); err != nil {
-		log.Fatal(err)
-	}
+	router := mux.NewRouter()
+	router.HandleFunc("/login/", api.Login).Methods(http.MethodPost)
+	router.HandleFunc("/logout/", middleware.Session(api.Logout)).Methods(http.MethodGet)
+	router.HandleFunc("/signup/", api.SignUp).Methods(http.MethodPost)
 
-	router.GET("/docs/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
+	http.ListenAndServe(":8080", router)
+
+	/*router.GET("/docs/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 	if err = router.Run(":5000"); err != nil {
 		log.Fatal(err)
-	}
-
+	}*/
 }

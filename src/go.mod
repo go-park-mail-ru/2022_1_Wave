@@ -3,9 +3,9 @@ module github.com/NNKulickov/wave.music_backend
 go 1.17
 
 require (
-	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/gin-gonic/gin v1.7.7
 	github.com/gorilla/csrf v1.7.1
+	github.com/gorilla/mux v1.8.0
 	github.com/gwatts/gin-adapter v0.0.0-20170508204228-c44433c485ad
 	github.com/lib/pq v1.10.4
 	github.com/pelletier/go-toml v1.9.4
