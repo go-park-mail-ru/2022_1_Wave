@@ -9,8 +9,6 @@ require (
 	github.com/gwatts/gin-adapter v0.0.0-20170508204228-c44433c485ad
 	github.com/lib/pq v1.10.4
 	github.com/pelletier/go-toml v1.9.4
-	github.com/swaggo/files v0.0.0-20210815190702-a29dd2bc99b2
-	github.com/swaggo/gin-swagger v1.4.1
 	github.com/swaggo/swag v1.7.9
 )
 

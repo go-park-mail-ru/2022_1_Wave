@@ -1,12 +1,14 @@
 package api
 
 import (
+	"fmt"
 	"github.com/NNKulickov/wave.music_backend/config"
 	"github.com/NNKulickov/wave.music_backend/db"
 	"github.com/NNKulickov/wave.music_backend/forms"
 	"github.com/NNKulickov/wave.music_backend/service"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/csrf"
+	"log"
 	"net/http"
 	"time"
 )
@@ -38,6 +40,7 @@ func Csrf(c *gin.Context) {
 // @Failure 521 {object} forms.Result "Cannot create session"
 // @Router   /api/login [post]
 func Login(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("in login")
 	_, err := service.GetSession(r)
 	if err == nil {
 		http.Error(w, `{"error": "already authorized"}`, http.StatusForbidden)
@@ -95,6 +98,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 // @Failure 521 {object} forms.Result "Cannot create session"
 // @Router   /api/signUp [post]
 func SignUp(w http.ResponseWriter, r *http.Request) {
+	log.Println("in sign up")
 	_, err := service.GetSession(r)
 	if err == nil {
 		http.Error(w, `{"error": "already authorized"}`, http.StatusForbidden)
@@ -146,6 +150,7 @@ func SignUp(w http.ResponseWriter, r *http.Request) {
 // @Failure 521 {object} forms.Result "Cannot create session"
 // @Router   /api/signout [post]
 func Logout(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("in logout")
 	_, err := service.GetSession(r)
 	if err != nil {
 		http.Error(w, `{"error": "no session"}`, 401)

@@ -12,7 +12,7 @@ func Session(next http.HandlerFunc) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		authorized := false
 		session, err := r.Cookie(config.C.SessionIDKey)
-		if session.Expires.Sub(time.Now()) <= 0 {
+		if err == nil && session.Expires.Sub(time.Now()) <= 0 {
 			service.DeleteSession(session.Value)
 		}
 

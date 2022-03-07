@@ -10,7 +10,7 @@ import (
 
 type userSessions map[string]uint
 
-var Sessions userSessions
+var Sessions userSessions = make(userSessions)
 var letterRunes = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
 
 func randStringRunes(n int) string {
