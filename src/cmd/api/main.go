@@ -40,6 +40,16 @@ const (
 	deleteArtistUrl = getArtistUrl
 )
 
+// auth urls
+const (
+	loginUrl       = "/" + apiSuffix + currentApiVersion + "login"
+	logoutUrl      = "/" + apiSuffix + currentApiVersion + "logout"
+	signUpUrl      = "/" + apiSuffix + currentApiVersion + "signup"
+	getUserUrl     = "/" + apiSuffix + currentApiVersion + "users/" + idSuffix
+	getSelfUserUrl = "/" + apiSuffix + currentApiVersion + "users/" + "/self"
+	getCSRFAuthUrl = "/" + apiSuffix + currentApiVersion + "get_csrf"
+)
+
 func main() {
 	router := mux.NewRouter()
 
@@ -56,12 +66,12 @@ func main() {
 	router.HandleFunc(deleteArtistUrl, api.DeleteArtist)
 
 	//auth
-	router.HandleFunc("/api/v1/login", middleware.CSRF(middleware.NotAuth(api.Login))).Methods(http.MethodPost)
-	router.HandleFunc("/api/v1/logout", middleware.CSRF(middleware.Auth(api.Logout))).Methods(http.MethodGet)
-	router.HandleFunc("/api/v1/signup", middleware.CSRF(middleware.NotAuth(api.SignUp))).Methods(http.MethodPost)
-	router.HandleFunc("/api/v1/users/{id:[0-9]+}", api.GetUser).Methods(http.MethodGet)
-	router.HandleFunc("/api/v1/users/self", middleware.CSRF(middleware.Auth(api.GetSelfUser))).Methods(http.MethodGet)
-	router.HandleFunc("/api/v1/get_csrf", api.GetCSRF).Methods(http.MethodGet)
+	router.HandleFunc(loginUrl, middleware.CSRF(middleware.NotAuth(api.Login))).Methods(http.MethodPost)
+	router.HandleFunc(logoutUrl, middleware.CSRF(middleware.Auth(api.Logout))).Methods(http.MethodPost)
+	router.HandleFunc(signUpUrl, middleware.CSRF(middleware.NotAuth(api.SignUp))).Methods(http.MethodPost)
+	router.HandleFunc(getUserUrl, api.GetUser).Methods(http.MethodGet)
+	router.HandleFunc(getSelfUserUrl, middleware.CSRF(middleware.Auth(api.GetSelfUser))).Methods(http.MethodGet)
+	router.HandleFunc(getCSRFAuthUrl, api.GetCSRF).Methods(http.MethodGet)
 
 	docs.SwaggerInfo.BasePath = "/"
 	router.PathPrefix("/docs").Handler(httpSwagger.WrapHandler)
