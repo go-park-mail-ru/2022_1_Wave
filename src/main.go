@@ -29,10 +29,6 @@ func main() {
 	*/
 
 	router := mux.NewRouter()
-	router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		log.Println("in aboba")
-		log.Println(r.Body)
-	})
 	router.HandleFunc("/login/", api.Login).Methods(http.MethodPost)
 	router.HandleFunc("/logout/", middleware.Session(api.Logout)).Methods(http.MethodGet)
 	router.HandleFunc("/signup/", api.SignUp).Methods(http.MethodPost)
