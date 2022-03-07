@@ -136,13 +136,20 @@ func Logout(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetCSRF(w http.ResponseWriter, r *http.Request) {
-	if !service.IsAuthorized(r) {
+	session, err := r.Cookie(config.C.SessionIDKey)
+	if err != nil { // если нет сессии, создаем
 		cookie, csrfToken := service.SetNewUnauthorizedSession()
 		http.SetCookie(w, cookie)
 		w.Header().Set("X-CSRF-TOKEN", csrfToken)
 	} else {
-		sessionID, _ := r.Cookie(config.C.SessionIDKey)
-		csrfToken := service.SetNewCSRFToken(sessionID.Value)
-		w.Header().Set("X-CSRF-TOKEN", csrfToken)
+		_, ok := service.Sessions[session.Value]
+		if ok { // если есть сессия, просто обновляем CSRF
+			csrfToken := service.SetNewCSRFToken(session.Value)
+			w.Header().Set("X-CSRF-TOKEN", csrfToken)
+		} else {
+			cookie, csrfToken := service.SetNewUnauthorizedSession()
+			http.SetCookie(w, cookie)
+			w.Header().Set("X-CSRF-TOKEN", csrfToken)
+		}
 	}
 }
