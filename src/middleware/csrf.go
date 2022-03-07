@@ -1,13 +1,12 @@
 package middleware
 
 import (
+	"github.com/NNKulickov/wave.music_backend/service"
 	"net/http"
 
 	"crypto/sha256"
 	"github.com/NNKulickov/wave.music_backend/config"
-	"github.com/gin-gonic/gin"
 	"github.com/gorilla/csrf"
-	adapter "github.com/gwatts/gin-adapter"
 )
 
 var csrfMiddleware func(http.Handler) http.Handler
@@ -28,6 +27,12 @@ func init() {
 }
 
 // Проверить POST запрос на наличие валидного CSRF токена.
-func CSRF() gin.HandlerFunc {
-	return adapter.Wrap(csrfMiddleware)
+func CSRF(next http.HandlerFunc) http.HandlerFunc {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if service.CheckCSRF(r) {
+			next.ServeHTTP(w, r)
+		} else {
+			http.Error(w, `{"error": "invalid csrf"}`, http.StatusUnauthorized)
+		}
+	})
 }

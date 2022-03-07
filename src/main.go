@@ -29,11 +29,14 @@ func main() {
 	*/
 
 	router := mux.NewRouter()
-	router.HandleFunc("/login/", api.Login).Methods(http.MethodPost)
-	router.HandleFunc("/logout/", middleware.Session(api.Logout)).Methods(http.MethodGet)
-	router.HandleFunc("/signup/", api.SignUp).Methods(http.MethodPost)
+	router.HandleFunc("/v1/login", middleware.CSRF(middleware.NotAuth(api.Login))).Methods(http.MethodPost)
+	router.HandleFunc("/v1/logout", middleware.CSRF(middleware.Auth(api.Logout))).Methods(http.MethodGet)
+	router.HandleFunc("/v1/signup", middleware.CSRF(middleware.NotAuth(api.SignUp))).Methods(http.MethodPost)
+	router.HandleFunc("/v1/users/{id:[0-9]+}", api.GetUser).Methods(http.MethodGet)
+	router.HandleFunc("/v1/users/self", middleware.CSRF(middleware.Auth(api.GetSelfUser))).Methods(http.MethodGet)
+	router.HandleFunc("/v1/get_csrf", api.GetCSRF).Methods(http.MethodGet)
 
-	http.ListenAndServe(":80", router)
+	http.ListenAndServe(":1234", router)
 
 	/*router.GET("/docs/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 	if err = router.Run(":5000"); err != nil {

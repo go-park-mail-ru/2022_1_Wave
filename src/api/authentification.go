@@ -1,14 +1,12 @@
 package api
 
 import (
-	"fmt"
 	"github.com/NNKulickov/wave.music_backend/config"
 	"github.com/NNKulickov/wave.music_backend/db"
 	"github.com/NNKulickov/wave.music_backend/forms"
 	"github.com/NNKulickov/wave.music_backend/service"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/csrf"
-	"log"
 	"net/http"
 	"time"
 )
@@ -40,13 +38,6 @@ func Csrf(c *gin.Context) {
 // @Failure 521 {object} forms.Result "Cannot create session"
 // @Router   /api/login [post]
 func Login(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("in login")
-	_, err := service.GetSession(r)
-	if err == nil {
-		http.Error(w, `{"error": "already authorized"}`, http.StatusForbidden)
-		return
-	}
-
 	userToLogin, err := forms.UserUnmarshal(r)
 	if err != nil {
 		http.Error(w, `{"error": "bad request"}`, http.StatusBadRequest)
@@ -66,23 +57,19 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// добавляем новую сессию
-	var userCookie string
+	// зайдя сюда мы уверены, что пользователь прислал нам куку неавторизованного пользователя (навешены специальные middleware)
+	var user *db.User
 	if userToLogin.Username != "" {
-		user, _ := db.MyUserStorage.SelectByUsername(userToLogin.Username)
-		userCookie = service.SetNewSession(user.ID)
+		user, _ = db.MyUserStorage.SelectByUsername(userToLogin.Username)
 	} else {
-		user, _ := db.MyUserStorage.SelectByEmail(userToLogin.Email)
-		userCookie = service.SetNewSession(user.ID)
+		user, _ = db.MyUserStorage.SelectByEmail(userToLogin.Email)
 	}
 
-	cookie := &http.Cookie{
-		Name:    config.C.SessionIDKey,
-		Value:   userCookie,
-		Expires: time.Now().Add(10 * time.Hour),
-	}
+	// и мы просто обновляем состояние текущей сессии
+	session, err := service.GetSession(r)
+	session.IsAuthorized = true
+	session.UserId = user.ID
 
-	http.SetCookie(w, cookie)
 	w.Write([]byte(`{"status": "you are login"}`))
 }
 
@@ -98,16 +85,14 @@ func Login(w http.ResponseWriter, r *http.Request) {
 // @Failure 521 {object} forms.Result "Cannot create session"
 // @Router   /api/signUp [post]
 func SignUp(w http.ResponseWriter, r *http.Request) {
-	log.Println("in sign up")
-	_, err := service.GetSession(r)
-	if err == nil {
-		http.Error(w, `{"error": "already authorized"}`, http.StatusForbidden)
-		return
-	}
-
 	userToLogin, err := forms.UserUnmarshal(r)
 	if err != nil {
 		http.Error(w, `{"error": "bad request"}`, http.StatusBadRequest)
+		return
+	}
+
+	if !userToLogin.IsValid() {
+		http.Error(w, `{"error": "invalid fields"}`, http.StatusBadRequest)
 		return
 	}
 
@@ -124,15 +109,10 @@ func SignUp(w http.ResponseWriter, r *http.Request) {
 
 	// теперь создаем для зарегистрированного пользователя сессию
 	nowUser, err := db.MyUserStorage.SelectByUsername(userToLogin.Username)
-	sessionId := service.SetNewSession(nowUser.ID)
+	sessionCookie, csrfToken := service.SetNewSession(nowUser.ID)
 
-	cookie := &http.Cookie{
-		Name:    config.C.SessionIDKey,
-		Value:   sessionId,
-		Expires: time.Now().Add(10 * time.Hour),
-	}
-
-	http.SetCookie(w, cookie)
+	http.SetCookie(w, sessionCookie)
+	w.Header().Set("X-CSRF-TOKEN", csrfToken)
 	w.Write([]byte(`{"status": "you are sign up"}`))
 
 	return
@@ -150,16 +130,21 @@ func SignUp(w http.ResponseWriter, r *http.Request) {
 // @Failure 521 {object} forms.Result "Cannot create session"
 // @Router   /api/signout [post]
 func Logout(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("in logout")
-	_, err := service.GetSession(r)
-	if err != nil {
-		http.Error(w, `{"error": "no session"}`, 401)
-		return
-	}
-
 	session, _ := r.Cookie(config.C.SessionIDKey)
 	service.DeleteSession(session.Value)
 
 	session.Expires = time.Now().AddDate(0, 0, -1)
 	http.SetCookie(w, session)
+}
+
+func GetCSRF(w http.ResponseWriter, r *http.Request) {
+	if !service.IsAuthorized(r) {
+		cookie, csrfToken := service.SetNewUnauthorizedSession()
+		http.SetCookie(w, cookie)
+		w.Header().Set("X-CSRF-TOKEN", csrfToken)
+	} else {
+		sessionID, _ := r.Cookie(config.C.SessionIDKey)
+		csrfToken := service.SetNewCSRFToken(sessionID.Value)
+		w.Header().Set("X-CSRF-TOKEN", csrfToken)
+	}
 }

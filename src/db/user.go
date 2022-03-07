@@ -14,10 +14,10 @@ const (
 )
 
 type User struct {
-	ID       uint
-	Username string
-	Email    string
-	Password string
+	ID       uint   `json:"id"`
+	Username string `json:"username"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
 }
 
 type UserStorage struct {

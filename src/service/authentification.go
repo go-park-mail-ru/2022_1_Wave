@@ -3,47 +3,92 @@ package service
 import (
 	"errors"
 	"github.com/NNKulickov/wave.music_backend/config"
-	"math/rand"
+	"github.com/google/uuid"
 	"net/http"
 	"time"
 )
 
-type userSessions map[string]uint
-
-var Sessions userSessions = make(userSessions)
-var letterRunes = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
-
-func randStringRunes(n int) string {
-	b := make([]rune, n)
-	for i := range b {
-		b[i] = letterRunes[rand.Intn(len(letterRunes))]
-	}
-	return string(b)
+type Session struct {
+	UserId       uint
+	CSRFToken    string
+	IsAuthorized bool
+	Expire       time.Time
 }
 
+type userSessions map[string]Session
+
+var Sessions userSessions = make(userSessions)
+
 // возвращает id пользователя по токену сессии
-func GetSession(r *http.Request) (uint, error) {
+func GetSession(r *http.Request) (*Session, error) {
 	session, err := r.Cookie(config.C.SessionIDKey)
 	if err == nil && session != nil {
-		session_id, err := Sessions[session.Value]
+		sessionAuth, err := Sessions[session.Value]
 		if err {
-			if session.Expires.Sub(time.Now()) > 0 {
-				return session_id, nil
+			if sessionAuth.Expire.Sub(time.Now()) > 0 {
+				return &sessionAuth, nil
 			} else {
-				return session_id, errors.New("")
+				DeleteSession(session.Value)
+				return &sessionAuth, errors.New("session expired")
 			}
 		}
 	}
 
-	return 0, errors.New("auth error")
+	return nil, errors.New("auth error")
 }
 
-// добавит запись о сессии и вернет сгенерированный идентификатор сессии
-func SetNewSession(userId uint) string {
-	sessionId := randStringRunes(32)
-	Sessions[sessionId] = userId
+func SetNewUnauthorizedSession() (*http.Cookie, string) {
+	sessionId := uuid.NewString()
+	csrfToken := uuid.NewString()
+	expireTime := time.Now().Add(10 * time.Hour)
 
-	return sessionId
+	Sessions[sessionId] = Session{
+		CSRFToken:    csrfToken,
+		IsAuthorized: false,
+		Expire:       expireTime,
+	}
+
+	cookie := &http.Cookie{
+		Name:     config.C.SessionIDKey,
+		Value:    sessionId,
+		Expires:  expireTime,
+		HttpOnly: true,
+	}
+
+	return cookie, csrfToken
+}
+
+// добавит запись о сессии и вернет сгенерированный идентификатор сессии и csrf-токен
+func SetNewSession(userId uint) (*http.Cookie, string) {
+	sessionId := uuid.NewString()
+	csrfToken := uuid.NewString()
+	expireTime := time.Now().Add(10 * time.Hour)
+
+	Sessions[sessionId] = Session{
+		UserId:       userId,
+		CSRFToken:    csrfToken,
+		IsAuthorized: true,
+		Expire:       expireTime,
+	}
+
+	cookie := &http.Cookie{
+		Name:     config.C.SessionIDKey,
+		Value:    sessionId,
+		Expires:  expireTime,
+		HttpOnly: true,
+	}
+
+	return cookie, csrfToken
+}
+
+func SetNewCSRFToken(sessionId string) string {
+	csrfToken := uuid.NewString()
+
+	session, _ := Sessions[sessionId]
+	session.CSRFToken = csrfToken
+	Sessions[sessionId] = session
+
+	return csrfToken
 }
 
 func DeleteSession(sessionId string) error {
@@ -56,40 +101,30 @@ func DeleteSession(sessionId string) error {
 	return nil
 }
 
-/*
-
-func SetSessionToken(req forms.SessionTokenRequest) (string, error) {
-	now := time.Now().Unix()
-	claims := forms.SessionClaims{
-		UserID:   4,
-		UserName: "some",
-		StandardClaims: jwt.StandardClaims{
-			IssuedAt:  now,
-			ExpiresAt: now + config.C.TokenMaxAge,
-		},
+func IsAuthorized(r *http.Request) bool {
+	authorized := false
+	session, err := r.Cookie(config.C.SessionIDKey)
+	if err == nil && session != nil {
+		val, ok := Sessions[session.Value]
+		if ok {
+			authorized = val.IsAuthorized
+		}
 	}
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	key := []byte(config.C.SessionKey)
-	ss, err := token.SignedString(key)
-	return ss, err
+
+	return authorized
 }
 
-func ParseSessionToken(subjectTokenString string) (*forms.SessionClaims, error) {
-	token, err := jwt.ParseWithClaims(subjectTokenString, &forms.SessionClaims{}, func(token *jwt.Token) (interface{}, error) {
-		return []byte(config.C.SessionKey), nil
-	})
+func CheckCSRF(r *http.Request) bool {
+	sessionID, err := r.Cookie(config.C.SessionIDKey)
 	if err != nil {
-		return nil, err
+		return false
 	}
-	if claims, ok := token.Claims.(*forms.SessionClaims); ok && token.Valid {
-		return claims, nil
-	} else {
-		return nil, errors.New("token is invalid")
+
+	session, ok := Sessions[sessionID.Value]
+	if !ok {
+		return false
 	}
-}
 
-func SetSessionSession(subjectSession *forms.Session, c *gin.Context) error {
-
-	return nil
+	csrfToken := r.Header.Get("X-CSRF-TOKEN")
+	return csrfToken != "" && session.CSRFToken == csrfToken
 }
-*/
