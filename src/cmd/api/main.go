@@ -47,11 +47,11 @@ const (
 	logoutUrl      = "/" + apiSuffix + currentApiVersion + "logout"
 	signUpUrl      = "/" + apiSuffix + currentApiVersion + "signup"
 	getUserUrl     = "/" + apiSuffix + currentApiVersion + "users/" + idSuffix
-	getSelfUserUrl = "/" + apiSuffix + currentApiVersion + "users/" + "/self"
+	getSelfUserUrl = "/" + apiSuffix + currentApiVersion + "users/" + "self"
 	getCSRFAuthUrl = "/" + apiSuffix + currentApiVersion + "get_csrf"
 )
 
-const CONFIG_FILENAME = "../../../config/config.toml"
+const CONFIG_FILENAME = "config.toml"
 
 func main() {
 	var err error

@@ -20,6 +20,7 @@ services:
     command: bash -c "go build -o wave cmd/api/main.go && ./wave"
     volumes:
       - ../../src:/var/www/wave.music
+      - ../../config/config.toml:/var/www/wave.music/config.toml
 
 #  db:
 #    image: postgres

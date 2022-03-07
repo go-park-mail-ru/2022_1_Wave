@@ -108,8 +108,10 @@ func IsAuthorized(r *http.Request) bool {
 	authorized := false
 	session, err := r.Cookie(config.C.SessionIDKey)
 	if err == nil && session != nil {
+        fmt.Println(session.Value)
 		val, ok := Sessions[session.Value]
 		if ok {
+            fmt.Println(val.IsAuthorized)
 			authorized = val.IsAuthorized
 		}
 	}
