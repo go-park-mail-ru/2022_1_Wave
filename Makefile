@@ -5,12 +5,7 @@ dev:
 	docker-compose -f env/dev/docker-compose.yaml up
 
 prod:
-	mkdir -p src/tmp
-	cd src
-	go get -u
-	go build .
-	swag init -g main.go
-	docker-compose -f env/prod/docker-compose.yaml
+	docker-compose -f env/prod/docker-compose.yaml up -d
 
 
 # Actions with db

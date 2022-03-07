@@ -4,19 +4,21 @@ services:
     image: nginx
     ports:
       - "80:80"
-    working_dir: /var/www/service/server
+    working_dir: /var/www/wave
     volumes:
-      - ../../../2022_1_Wave/public/build:/var/www/wave
+      - ../../../../front/2022_1_Wave/src:/var/www/wave
       - ../../config/nginx/nginx.conf:/etc/nginx/nginx.conf
-    depends_on:
-      - wave.music
-      - db
+  #  depends_on:
+  #    - wave.music
+  #    - db
 
   wave.music:
-    image: cosmtrek/air
+    image: golang
     expose:
       - 5000
     working_dir: /var/www/wave.music
+    command:
+      - bash -c "cd src && go get && go build -o wave main.go && ./wave"
     volumes:
       - ../../src:/var/www/wave.music
 
