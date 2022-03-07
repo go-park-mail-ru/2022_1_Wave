@@ -20,6 +20,58 @@ definitions:
         example: 1fsgh2rfafas
         type: string
     type: object
+  models.Album:
+    properties:
+      Date:
+        example: 0
+        type: integer
+      authorId:
+        example: 121
+        type: integer
+      countLikes:
+        example: 54
+        type: integer
+      countListening:
+        example: 15632
+        type: integer
+      coverId:
+        example: 254
+        type: integer
+      id:
+        example: 777
+        type: integer
+      title:
+        example: Mercury
+        type: string
+    type: object
+  models.Artist:
+    properties:
+      countFollowers:
+        example: 1001
+        type: integer
+      countListening:
+        example: 7654
+        type: integer
+      id:
+        example: 43
+        type: integer
+      name:
+        example: Imagine Dragons
+        type: string
+      photo:
+        example: /public/artists/photo/imagineDragons.png
+        type: string
+    type: object
+  utils.Error:
+    properties:
+      err:
+        type: string
+    type: object
+  utils.Success:
+    properties:
+      result:
+        type: string
+    type: object
 info:
   contact: {}
 paths:
@@ -113,4 +165,236 @@ paths:
       summary: SignOut
       tags:
       - auth
+  /api/v1/albums/:
+    post:
+      consumes:
+      - application/json
+      description: creating new album
+      parameters:
+      - description: params of new album. Id will be set automatically.
+        in: body
+        name: Album
+        required: true
+        schema:
+          $ref: '#/definitions/models.Album'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.Success'
+        "400":
+          description: Data is invalid
+          schema:
+            $ref: '#/definitions/utils.Error'
+        "405":
+          description: Method is not allowed
+          schema:
+            $ref: '#/definitions/utils.Error'
+      summary: CreateAlbum
+      tags:
+      - album
+    put:
+      consumes:
+      - application/json
+      description: updating album by id
+      parameters:
+      - description: id of updating album and params of it.
+        in: body
+        name: Album
+        required: true
+        schema:
+          $ref: '#/definitions/models.Album'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.Success'
+        "400":
+          description: Data is invalid
+          schema:
+            $ref: '#/definitions/utils.Error'
+        "405":
+          description: Method is not allowed
+          schema:
+            $ref: '#/definitions/utils.Error'
+      summary: UpdateAlbum
+      tags:
+      - album
+  /api/v1/albums/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: deleting album by id
+      parameters:
+      - description: id of album which need to be deleted
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.Success'
+        "400":
+          description: Data is invalid
+          schema:
+            $ref: '#/definitions/utils.Error'
+        "405":
+          description: Method is not allowed
+          schema:
+            $ref: '#/definitions/utils.Error'
+      summary: DeleteAlbum
+      tags:
+      - album
+    get:
+      consumes:
+      - application/json
+      description: getting album by id
+      parameters:
+      - description: id of album which need to be getted
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Album'
+        "400":
+          description: Data is invalid
+          schema:
+            $ref: '#/definitions/utils.Error'
+        "405":
+          description: Method is not allowed
+          schema:
+            $ref: '#/definitions/utils.Error'
+      summary: GetAlbum
+      tags:
+      - album
+  /api/v1/artists/:
+    post:
+      consumes:
+      - application/json
+      description: creating new artist
+      parameters:
+      - description: params of new artist. Id will be set automatically.
+        in: body
+        name: Artist
+        required: true
+        schema:
+          $ref: '#/definitions/models.Artist'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.Success'
+        "400":
+          description: Data is invalid
+          schema:
+            $ref: '#/definitions/utils.Error'
+        "405":
+          description: Method is not allowed
+          schema:
+            $ref: '#/definitions/utils.Error'
+      summary: CreateArtist
+      tags:
+      - artist
+    put:
+      consumes:
+      - application/json
+      description: updating artist by id
+      parameters:
+      - description: id of updating artist and params of it.
+        in: body
+        name: Artist
+        required: true
+        schema:
+          $ref: '#/definitions/models.Artist'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.Success'
+        "400":
+          description: Data is invalid
+          schema:
+            $ref: '#/definitions/utils.Error'
+        "405":
+          description: Method is not allowed
+          schema:
+            $ref: '#/definitions/utils.Error'
+      summary: UpdateArtist
+      tags:
+      - artist
+  /api/v1/artists/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: deleting album by id
+      parameters:
+      - description: id of artist which need to be deleted
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.Success'
+        "400":
+          description: Data is invalid
+          schema:
+            $ref: '#/definitions/utils.Error'
+        "405":
+          description: Method is not allowed
+          schema:
+            $ref: '#/definitions/utils.Error'
+      summary: DeleteArtist
+      tags:
+      - artist
+    get:
+      consumes:
+      - application/json
+      description: getting artist by id
+      parameters:
+      - description: id of artist which need to be getted
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Artist'
+        "400":
+          description: Data is invalid
+          schema:
+            $ref: '#/definitions/utils.Error'
+        "405":
+          description: Method is not allowed
+          schema:
+            $ref: '#/definitions/utils.Error'
+      summary: GetArtist
+      tags:
+      - artist
 swagger: "2.0"

@@ -49,6 +49,17 @@ func getAlbumByIDFromStorage(albumRep db.AlbumRep, id uint64) (*models.Album, er
 	return albumRep.SelectByID(id)
 }
 
+// CreateAlbum godoc
+// @Summary      CreateAlbum
+// @Description  creating new album
+// @Tags     album
+// @Accept	 application/json
+// @Produce  application/json
+// @Param    Album body models.Album true  "params of new album. Id will be set automatically."
+// @Success  200 {object} utils.Success
+// @Failure 400 {object} utils.Error "Data is invalid"
+// @Failure 405 {object} utils.Error "Method is not allowed"
+// @Router   /api/v1/albums/ [post]
 func CreateAlbum(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodPut {
 		UpdateAlbum(w, r)
@@ -87,6 +98,17 @@ func CreateAlbum(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("albums storage now:", db.Storage.AlbumStorage.Albums)
 }
 
+// UpdateAlbum godoc
+// @Summary      UpdateAlbum
+// @Description  updating album by id
+// @Tags     album
+// @Accept	 application/json
+// @Produce  application/json
+// @Param    Album body models.Album true  "id of updating album and params of it."
+// @Success  200 {object} utils.Success
+// @Failure 400 {object} utils.Error "Data is invalid"
+// @Failure 405 {object} utils.Error "Method is not allowed"
+// @Router   /api/v1/albums/ [put]
 func UpdateAlbum(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodPost {
 		CreateAlbum(w, r)
@@ -127,6 +149,17 @@ func UpdateAlbum(w http.ResponseWriter, r *http.Request) {
 
 }
 
+// GetAlbum godoc
+// @Summary      GetAlbum
+// @Description  getting album by id
+// @Tags     album
+// @Accept	 application/json
+// @Produce  application/json
+// @Param    id path integer true  "id of album which need to be getted"
+// @Success  200 {object} models.Album
+// @Failure 400 {object} utils.Error "Data is invalid"
+// @Failure 405 {object} utils.Error "Method is not allowed"
+// @Router   /api/v1/albums/{id} [get]
 func GetAlbum(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodDelete {
 		DeleteAlbum(w, r)
@@ -159,6 +192,17 @@ func GetAlbum(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("albums storage now:", db.Storage.AlbumStorage.Albums)
 }
 
+// DeleteAlbum godoc
+// @Summary      DeleteAlbum
+// @Description  deleting album by id
+// @Tags     album
+// @Accept	 application/json
+// @Produce  application/json
+// @Param    id path integer true  "id of album which need to be deleted"
+// @Success  200 {object} utils.Success
+// @Failure 400 {object} utils.Error "Data is invalid"
+// @Failure 405 {object} utils.Error "Method is not allowed"
+// @Router   /api/v1/albums/{id} [delete]
 func DeleteAlbum(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
 		GetAlbum(w, r)

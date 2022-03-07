@@ -2,7 +2,10 @@ package main
 
 import (
 	"github.com/go-park-mail-ru/2022_1_Wave/api"
+	docs "github.com/go-park-mail-ru/2022_1_Wave/docs"
 	"github.com/gorilla/mux"
+	"github.com/swaggo/gin-swagger/swaggerFiles"
+	httpSwagger "github.com/swaggo/http-swagger"
 	"log"
 	"net/http"
 )
@@ -16,22 +19,23 @@ const (
 
 //config
 const (
+	apiSuffix         = "api/"
 	currentApiVersion = v1
 )
 
 // albums urls
 const (
-	createAlbumUrl = "/" + currentApiVersion + albumsSuffix
+	createAlbumUrl = "/" + apiSuffix + currentApiVersion + albumsSuffix
 	updateAlbumUrl = createAlbumUrl
-	getAlbumUrl    = "/" + currentApiVersion + albumsSuffix + idSuffix
+	getAlbumUrl    = "/" + apiSuffix + currentApiVersion + albumsSuffix + idSuffix
 	deleteAlbumUrl = getAlbumUrl
 )
 
 // artists urls
 const (
-	createArtistUrl = "/" + currentApiVersion + artistsSuffix
+	createArtistUrl = "/" + apiSuffix + currentApiVersion + artistsSuffix
 	updateArtistUrl = createArtistUrl
-	getArtistUrl    = "/" + currentApiVersion + artistsSuffix + idSuffix
+	getArtistUrl    = "/" + apiSuffix + currentApiVersion + artistsSuffix + idSuffix
 	deleteArtistUrl = getArtistUrl
 )
 
@@ -50,6 +54,10 @@ func main() {
 	router.HandleFunc(getArtistUrl, api.GetArtist)
 	router.HandleFunc(deleteArtistUrl, api.DeleteArtist)
 
-	log.Println("start serving :8000")
-	http.ListenAndServe(":8000", router)
+	docs.SwaggerInfo.BasePath = "/"
+	router.PathPrefix("/docs").Handler(httpSwagger.WrapHandler)
+	router.PathPrefix("/docs/*any").Handler(swaggerFiles.Handler)
+
+	log.Println("start serving :5000")
+	http.ListenAndServe(":5000", router)
 }
