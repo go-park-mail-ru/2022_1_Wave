@@ -18,4 +18,5 @@
 src/.air.toml
 src/tmp
 /src/config.toml
+src/wave
 
