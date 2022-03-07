@@ -11,13 +11,13 @@ definitions:
         example: hello@example.com
         type: string
       id:
-        example: "5125112"
-        type: string
-      name:
-        example: Martin
-        type: string
+        example: 5125112
+        type: integer
       password:
         example: 1fsgh2rfafas
+        type: string
+      username:
+        example: Martin
         type: string
     type: object
   models.Album:
@@ -75,6 +75,36 @@ definitions:
 info:
   contact: {}
 paths:
+  /api/login:
+    post:
+      consumes:
+      - application/json
+      description: login user
+      parameters:
+      - description: new jwt data
+        in: body
+        name: UserForm
+        required: true
+        schema:
+          $ref: '#/definitions/forms.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/forms.Result'
+        "460":
+          description: Data is invalid
+          schema:
+            $ref: '#/definitions/forms.Result'
+        "521":
+          description: Cannot create session
+          schema:
+            $ref: '#/definitions/forms.Result'
+      summary: Login
+      tags:
+      - auth
   /api/signUp:
     post:
       consumes:
@@ -105,36 +135,6 @@ paths:
       summary: SignUp
       tags:
       - auth
-  /api/signin:
-    post:
-      consumes:
-      - application/json
-      description: sign in user
-      parameters:
-      - description: new jwt data
-        in: body
-        name: UserForm
-        required: true
-        schema:
-          $ref: '#/definitions/forms.User'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/forms.Result'
-        "460":
-          description: Data is invalid
-          schema:
-            $ref: '#/definitions/forms.Result'
-        "521":
-          description: Cannot create session
-          schema:
-            $ref: '#/definitions/forms.Result'
-      summary: SignIn
-      tags:
-      - auth
   /api/signout:
     post:
       consumes:
@@ -162,7 +162,7 @@ paths:
           description: Cannot create session
           schema:
             $ref: '#/definitions/forms.Result'
-      summary: SignOut
+      summary: Logout
       tags:
       - auth
   /api/v1/albums/:
