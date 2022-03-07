@@ -1,11 +1,11 @@
 package api
 
 import (
-	"github.com/NNKulickov/wave.music_backend/config"
-	"github.com/NNKulickov/wave.music_backend/db"
-	"github.com/NNKulickov/wave.music_backend/forms"
-	"github.com/NNKulickov/wave.music_backend/service"
 	"github.com/gin-gonic/gin"
+	"github.com/go-park-mail-ru/2022_1_Wave/config"
+	"github.com/go-park-mail-ru/2022_1_Wave/db"
+	"github.com/go-park-mail-ru/2022_1_Wave/forms"
+	"github.com/go-park-mail-ru/2022_1_Wave/service"
 	"github.com/gorilla/csrf"
 	"net/http"
 	"time"
@@ -109,13 +109,11 @@ func SignUp(w http.ResponseWriter, r *http.Request) {
 
 	// теперь создаем для зарегистрированного пользователя сессию
 	nowUser, err := db.MyUserStorage.SelectByUsername(userToLogin.Username)
-	sessionCookie, csrfToken := service.SetNewSession(nowUser.ID)
+	session, err := service.GetSession(r)
+	session.UserId = nowUser.ID
+	session.IsAuthorized = true
 
-	http.SetCookie(w, sessionCookie)
-	w.Header().Set("X-CSRF-TOKEN", csrfToken)
 	w.Write([]byte(`{"status": "you are sign up"}`))
-
-	return
 }
 
 // Logout godoc

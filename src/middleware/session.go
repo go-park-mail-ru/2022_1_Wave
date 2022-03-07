@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	"github.com/NNKulickov/wave.music_backend/service"
+	"github.com/go-park-mail-ru/2022_1_Wave/service"
 	"net/http"
 )
 

@@ -1,11 +1,11 @@
 package middleware
 
 import (
-	"github.com/NNKulickov/wave.music_backend/service"
+	"github.com/go-park-mail-ru/2022_1_Wave/service"
 	"net/http"
 
 	"crypto/sha256"
-	"github.com/NNKulickov/wave.music_backend/config"
+	"github.com/go-park-mail-ru/2022_1_Wave/config"
 	"github.com/gorilla/csrf"
 )
 

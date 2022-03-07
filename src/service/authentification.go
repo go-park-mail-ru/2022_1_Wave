@@ -2,7 +2,7 @@ package service
 
 import (
 	"errors"
-	"github.com/NNKulickov/wave.music_backend/config"
+	"github.com/go-park-mail-ru/2022_1_Wave/config"
 	"github.com/google/uuid"
 	"net/http"
 	"time"

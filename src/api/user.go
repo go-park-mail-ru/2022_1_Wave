@@ -2,8 +2,8 @@ package api
 
 import (
 	"encoding/json"
-	"github.com/NNKulickov/wave.music_backend/db"
-	"github.com/NNKulickov/wave.music_backend/service"
+	"github.com/go-park-mail-ru/2022_1_Wave/db"
+	"github.com/go-park-mail-ru/2022_1_Wave/service"
 	"github.com/gorilla/mux"
 	"net/http"
 	"strconv"

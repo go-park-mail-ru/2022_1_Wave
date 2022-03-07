@@ -1,10 +1,10 @@
 package main
 
 import (
-	"github.com/NNKulickov/wave.music_backend/api"
-	"github.com/NNKulickov/wave.music_backend/config"
-	docs "github.com/NNKulickov/wave.music_backend/docs"
-	"github.com/NNKulickov/wave.music_backend/middleware"
+	"github.com/go-park-mail-ru/2022_1_Wave/api"
+	"github.com/go-park-mail-ru/2022_1_Wave/config"
+	docs "github.com/go-park-mail-ru/2022_1_Wave/docs"
+	"github.com/go-park-mail-ru/2022_1_Wave/middleware"
 	"github.com/gorilla/mux"
 	_ "github.com/lib/pq"
 	"log"
