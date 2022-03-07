@@ -29,6 +29,17 @@ func getArtistByIDFromStorage(artistRep db.ArtistRep, id uint64) (*models.Artist
 	return artistRep.SelectByID(id)
 }
 
+// CreateArtist godoc
+// @Summary      CreateArtist
+// @Description  creating new artist
+// @Tags     artist
+// @Accept	 application/json
+// @Produce  application/json
+// @Param    Artist body models.Artist true  "params of new artist. Id will be set automatically."
+// @Success  200 {object} utils.Success
+// @Failure 400 {object} utils.Error "Data is invalid"
+// @Failure 405 {object} utils.Error "Method is not allowed"
+// @Router   /api/v1/artists/ [post]
 func CreateArtist(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodPut {
 		UpdateArtist(w, r)
@@ -67,6 +78,17 @@ func CreateArtist(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("artists storage now:", db.Storage.ArtistStorage.Artists)
 }
 
+// UpdateArtist godoc
+// @Summary      UpdateArtist
+// @Description  updating artist by id
+// @Tags     artist
+// @Accept	 application/json
+// @Produce  application/json
+// @Param    Artist body models.Artist true  "id of updating artist and params of it."
+// @Success  200 {object} utils.Success
+// @Failure 400 {object} utils.Error "Data is invalid"
+// @Failure 405 {object} utils.Error "Method is not allowed"
+// @Router   /api/v1/artists/ [put]
 func UpdateArtist(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodPost {
 		CreateArtist(w, r)
@@ -107,6 +129,17 @@ func UpdateArtist(w http.ResponseWriter, r *http.Request) {
 
 }
 
+// GetArtist godoc
+// @Summary      GetArtist
+// @Description  getting artist by id
+// @Tags     artist
+// @Accept	 application/json
+// @Produce  application/json
+// @Param    id path integer true  "id of artist which need to be getted"
+// @Success  200 {object} models.Artist
+// @Failure 400 {object} utils.Error "Data is invalid"
+// @Failure 405 {object} utils.Error "Method is not allowed"
+// @Router   /api/v1/artists/{id} [get]
 func GetArtist(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodDelete {
 		DeleteArtist(w, r)
@@ -139,6 +172,17 @@ func GetArtist(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("artist storage now:", db.Storage.ArtistStorage.Artists)
 }
 
+// DeleteArtist godoc
+// @Summary      DeleteArtist
+// @Description  deleting album by id
+// @Tags     artist
+// @Accept	 application/json
+// @Produce  application/json
+// @Param    id path integer true  "id of artist which need to be deleted"
+// @Success  200 {object} utils.Success
+// @Failure 400 {object} utils.Error "Data is invalid"
+// @Failure 405 {object} utils.Error "Method is not allowed"
+// @Router   /api/v1/artists/{id} [delete]
 func DeleteArtist(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
 		GetArtist(w, r)

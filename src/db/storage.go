@@ -27,20 +27,20 @@ type ArtistRep interface {
 }
 
 type albumStorage struct {
-	Albums []models.Album
-	Mutex  sync.RWMutex
+	Albums []models.Album `json:"albums"`
+	Mutex  sync.RWMutex   `json:"mutex"`
 }
 
 type artistStorage struct {
-	Artists []models.Artist
-	Mutex   sync.RWMutex
+	Artists []models.Artist `json:"artists"`
+	Mutex   sync.RWMutex    `json:"mutex"`
 }
 
 type globalStorage struct {
-	AlbumStorage  albumStorage
-	ArtistStorage artistStorage
+	AlbumStorage  albumStorage  `json:"albumStorage"`
+	ArtistStorage artistStorage `json:"artistStorage"`
 	//UserStorage userStorage
-	Mutex sync.RWMutex
+	Mutex sync.RWMutex `json:"mutex"`
 }
 
 var Storage = globalStorage{}

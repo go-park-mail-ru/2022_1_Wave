@@ -5,11 +5,11 @@ import (
 )
 
 type Artist struct {
-	Id             uint64
-	Name           string
-	Photo          string
-	CountFollowers uint64
-	CountListening uint64
+	Id             uint64 `json:"id" example:"43"`
+	Name           string `json:"name" example:"Imagine Dragons"`
+	Photo          string `json:"photo" example:"/public/artists/photo/imagineDragons.png"`
+	CountFollowers uint64 `json:"countFollowers" example:"1001"`
+	CountListening uint64 `json:"countListening" example:"7654"`
 }
 
 func (artist *Artist) CheckArtist() error {
