@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/go-park-mail-ru/2022_1_Wave/api"
+	"github.com/go-park-mail-ru/2022_1_Wave/config"
 	docs "github.com/go-park-mail-ru/2022_1_Wave/docs"
 	"github.com/go-park-mail-ru/2022_1_Wave/middleware"
 	"github.com/gorilla/mux"
@@ -50,7 +51,16 @@ const (
 	getCSRFAuthUrl = "/" + apiSuffix + currentApiVersion + "get_csrf"
 )
 
+const CONFIG_FILENAME = "../../../config/config.toml"
+
 func main() {
+	var err error
+	if err = config.LoadConfig(CONFIG_FILENAME); err != nil {
+		log.Fatal(err)
+	} else {
+		log.Println("config loaded successfuly: ", config.C)
+	}
+
 	router := mux.NewRouter()
 
 	// albums

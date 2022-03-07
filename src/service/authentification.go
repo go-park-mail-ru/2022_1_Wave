@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+	"fmt"
 	"github.com/go-park-mail-ru/2022_1_Wave/config"
 	"github.com/google/uuid"
 	"net/http"
@@ -54,6 +55,8 @@ func SetNewUnauthorizedSession() (*http.Cookie, string) {
 		Expires:  expireTime,
 		HttpOnly: true,
 	}
+
+	fmt.Println(config.C.Domain)
 
 	return cookie, csrfToken
 }
