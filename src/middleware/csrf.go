@@ -4,8 +4,8 @@ import (
 	"net/http"
 
 	"crypto/sha256"
-	"github.com/NNKulickov/wave.music_backend/config"
 	"github.com/gin-gonic/gin"
+	"github.com/go-park-mail-ru/2022_1_Wave/config"
 	"github.com/gorilla/csrf"
 	adapter "github.com/gwatts/gin-adapter"
 )

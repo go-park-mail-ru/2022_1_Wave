@@ -1,8 +1,8 @@
 package api
 
 import (
-	"github.com/NNKulickov/wave.music_backend/middleware"
 	"github.com/gin-gonic/gin"
+	"github.com/go-park-mail-ru/2022_1_Wave/middleware"
 )
 
 // @title           Swagger Example API

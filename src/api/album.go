@@ -5,99 +5,192 @@ import (
 	"errors"
 	"fmt"
 	"github.com/go-park-mail-ru/2022_1_Wave/db"
-	"io"
+	"github.com/go-park-mail-ru/2022_1_Wave/db/models"
+	"github.com/go-park-mail-ru/2022_1_Wave/pkg/utils"
+	"github.com/gorilla/mux"
+	"io/ioutil"
 	"net/http"
+	"strconv"
 )
 
-type Album struct {
-	id             int
-	title          string
-	authorId       int
-	countLikes     int
-	countListening int
-	date           int
-	coverId        int
+//func makeAlbum(id int, title string, authorId int, countLikes int, countListening int, date int, coverId int) (Album, error) {
+//	if id < 0 || authorId < 0 {
+//		return Album{}, errors.New("invalid id")
+//	}
+//
+//	if len(title) > db.AlbumTitleLen {
+//		title = title[:db.AlbumTitleLen]
+//	}
+//
+//	return Album{
+//		Id:             id,
+//		Title:          title,
+//		AuthorId:       authorId,
+//		CountLikes:     countLikes,
+//		CountListening: countListening,
+//		Date:           date,
+//		CoverId:        coverId,
+//	}, nil
+//}
+
+func addAlbumToStorage(albumRep db.AlbumRep, album models.Album) error {
+	return albumRep.Insert(&album)
 }
 
-func MakeAlbum(id int, title string, authorId int, countLikes int, countListening int, date int, coverId int) (Album, error) {
-	if id < 0 || authorId < 0 {
-		return Album{}, errors.New("invalid id")
-	}
-
-	if len(title) > db.AlbumTitleLen {
-		title = title[:db.AlbumTitleLen]
-	}
-
-	return Album{
-		id:             id,
-		title:          title,
-		authorId:       authorId,
-		countLikes:     countLikes,
-		countListening: countListening,
-		date:           date,
-		coverId:        coverId,
-	}, nil
+func updateAlbumInStorage(albumRep db.AlbumRep, album models.Album) error {
+	return albumRep.Update(&album)
 }
 
-type Success struct {
-	Result string `json:"result"`
+func deleteAlbumFromStorageByID(albumRep db.AlbumRep, id uint64) error {
+	return albumRep.Delete(id)
 }
 
-type Error struct {
-	Err string `json:"error"`
+func getAlbumByIDFromStorage(albumRep db.AlbumRep, id uint64) (*models.Album, error) {
+	return albumRep.SelectByID(id)
 }
 
-func (err Error) makeError(msg string) Error {
-	return Error{
-		Err: msg,
-	}
-}
-
-func writeError(w http.ResponseWriter, msg string, status int) {
-	response, _ := json.Marshal(Error{}.makeError(msg))
-	http.Error(w, string(response), status)
-	return
-}
-
-// expected
-const (
-	expectedPost = "Expected method POST."
-)
-
-// errors
-const (
-	invalidBody = "Invalid body format."
-	invalidJson = "Error to unpacking json."
-)
-
-// success
-const (
-	successCreatedAlbum = "Success created album."
-)
-
-func (api *Album) CreateAlbum(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
-	if r.Method != http.MethodPost {
-		writeError(w, expectedPost, http.StatusMethodNotAllowed)
+func CreateAlbum(w http.ResponseWriter, r *http.Request) {
+	if r.Method == http.MethodPut {
+		UpdateAlbum(w, r)
 		return
 	}
-	album := &Album{}
-	body, err := io.ReadAll(r.Body)
+	if !utils.MethodsIsEqual(w, r.Method, http.MethodPost) {
+		return
+	}
 
+	newAlbum := &models.Album{}
+	newAlbum.Id = uint64(len(db.Storage.AlbumStorage.Albums))
+	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		writeError(w, err.Error(), http.StatusBadRequest)
+		utils.WriteError(w, err, http.StatusBadRequest)
 		return
 	}
 
-	err = json.Unmarshal(body, album)
-	if err != nil {
-		writeError(w, err.Error(), http.StatusBadRequest)
+	if err = json.Unmarshal(body, newAlbum); err != nil {
+		utils.WriteError(w, err, http.StatusBadRequest)
 		return
 	}
 
-	fmt.Println("created album=", album.coverId, album.title, album.authorId)
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(Success{
-		Result: successCreatedAlbum,
+	if err = newAlbum.CheckAlbum(); err != nil {
+		utils.WriteError(w, err, http.StatusBadRequest)
+		return
+	}
+
+	if err = addAlbumToStorage(&db.Storage.AlbumStorage, *newAlbum); err != nil {
+		utils.WriteError(w, err, http.StatusBadRequest)
+		return
+	}
+
+	json.NewEncoder(w).Encode(utils.Success{
+		Result: db.SuccessCreatedAlbum + "(" + newAlbum.Title + ")",
 	})
+	fmt.Println("albums storage now:", db.Storage.AlbumStorage.Albums)
+}
+
+func UpdateAlbum(w http.ResponseWriter, r *http.Request) {
+	if r.Method == http.MethodPost {
+		CreateAlbum(w, r)
+		return
+	}
+	if !utils.MethodsIsEqual(w, r.Method, http.MethodPut) {
+		return
+	}
+
+	newAlbum := &models.Album{}
+	newAlbum.Id = uint64(len(db.Storage.AlbumStorage.Albums))
+	body, err := ioutil.ReadAll(r.Body)
+	defer r.Body.Close()
+
+	if err != nil {
+		utils.WriteError(w, err, http.StatusBadRequest)
+		return
+	}
+
+	if err = json.Unmarshal(body, newAlbum); err != nil {
+		utils.WriteError(w, err, http.StatusBadRequest)
+		return
+	}
+
+	if err = newAlbum.CheckAlbum(); err != nil {
+		utils.WriteError(w, err, http.StatusBadRequest)
+		return
+	}
+
+	if err = updateAlbumInStorage(&db.Storage.AlbumStorage, *newAlbum); err != nil {
+		utils.WriteError(w, err, http.StatusBadRequest)
+		return
+	}
+	json.NewEncoder(w).Encode(utils.Success{
+		Result: db.SuccessUpdatedAlbum + "(" + fmt.Sprint(newAlbum.Id) + ")",
+	})
+	fmt.Println("albums storage now:", db.Storage.AlbumStorage.Albums)
+
+}
+
+func GetAlbum(w http.ResponseWriter, r *http.Request) {
+	if r.Method == http.MethodDelete {
+		DeleteAlbum(w, r)
+		return
+	}
+	if r.Method == http.MethodPut {
+		UpdateAlbum(w, r)
+		return
+	}
+	if !utils.MethodsIsEqual(w, r.Method, http.MethodGet) {
+		return
+	}
+	vars := mux.Vars(r)
+	id, err := strconv.Atoi(vars[FieldId])
+	if err != nil {
+		utils.WriteError(w, err, http.StatusBadRequest)
+		return
+	}
+	//id--
+	if id < 0 {
+		utils.WriteError(w, errors.New(db.IndexOutOfRange), http.StatusBadRequest)
+		return
+	}
+	currentAlbum, err := getAlbumByIDFromStorage(&db.Storage.AlbumStorage, uint64(id))
+	if err != nil {
+		utils.WriteError(w, err, http.StatusBadRequest)
+		return
+	}
+	json.NewEncoder(w).Encode(currentAlbum)
+	fmt.Println("albums storage now:", db.Storage.AlbumStorage.Albums)
+}
+
+func DeleteAlbum(w http.ResponseWriter, r *http.Request) {
+	if r.Method == http.MethodGet {
+		GetAlbum(w, r)
+		return
+	}
+	if r.Method == http.MethodPut {
+		UpdateAlbum(w, r)
+		return
+	}
+	if !utils.MethodsIsEqual(w, r.Method, http.MethodDelete) {
+		return
+	}
+
+	vars := mux.Vars(r)
+	id, err := strconv.Atoi(vars[FieldId])
+	if err != nil {
+		utils.WriteError(w, err, http.StatusBadRequest)
+		return
+	}
+	//id--
+	if id < 0 {
+		utils.WriteError(w, errors.New(db.IndexOutOfRange), http.StatusBadRequest)
+		return
+	}
+	err = deleteAlbumFromStorageByID(&db.Storage.AlbumStorage, uint64(id))
+	if err != nil {
+		utils.WriteError(w, err, http.StatusBadRequest)
+		return
+	}
+	json.NewEncoder(w).Encode(utils.Success{
+		Result: db.SuccessDeletedAlbum + "(" + fmt.Sprint(id) + ")",
+	})
+
+	fmt.Println("albums storage now:", db.Storage.AlbumStorage.Albums)
 }

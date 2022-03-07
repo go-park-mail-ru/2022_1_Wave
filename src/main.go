@@ -2,11 +2,11 @@ package main
 
 import (
 	"database/sql"
-	"github.com/NNKulickov/wave.music_backend/api"
-	"github.com/NNKulickov/wave.music_backend/config"
-	docs "github.com/NNKulickov/wave.music_backend/docs"
-	"github.com/NNKulickov/wave.music_backend/service"
 	"github.com/gin-gonic/gin"
+	"github.com/go-park-mail-ru/2022_1_Wave/api"
+	"github.com/go-park-mail-ru/2022_1_Wave/config"
+	docs "github.com/go-park-mail-ru/2022_1_Wave/docs"
+	"github.com/go-park-mail-ru/2022_1_Wave/service"
 	_ "github.com/lib/pq"
 	swaggerfiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
