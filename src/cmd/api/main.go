@@ -54,16 +54,16 @@ func main() {
 	router := mux.NewRouter()
 
 	// albums
-	router.HandleFunc(createAlbumUrl, api.CreateAlbum)
-	router.HandleFunc(updateAlbumUrl, api.UpdateAlbum)
-	router.HandleFunc(getAlbumUrl, api.GetAlbum)
-	router.HandleFunc(deleteAlbumUrl, api.DeleteAlbum)
+	router.HandleFunc(createAlbumUrl, api.CreateAlbum).Methods(http.MethodPost)
+	router.HandleFunc(updateAlbumUrl, api.UpdateAlbum).Methods(http.MethodPut)
+	router.HandleFunc(getAlbumUrl, api.GetAlbum).Methods(http.MethodGet)
+	router.HandleFunc(deleteAlbumUrl, api.DeleteAlbum).Methods(http.MethodDelete)
 
 	// artists
-	router.HandleFunc(createArtistUrl, api.CreateArtist)
-	router.HandleFunc(updateArtistUrl, api.UpdateArtist)
-	router.HandleFunc(getArtistUrl, api.GetArtist)
-	router.HandleFunc(deleteArtistUrl, api.DeleteArtist)
+	router.HandleFunc(createArtistUrl, api.CreateArtist).Methods(http.MethodPost)
+	router.HandleFunc(updateArtistUrl, api.UpdateArtist).Methods(http.MethodPut)
+	router.HandleFunc(getArtistUrl, api.GetArtist).Methods(http.MethodGet)
+	router.HandleFunc(deleteArtistUrl, api.DeleteArtist).Methods(http.MethodDelete)
 
 	//auth
 	router.HandleFunc(loginUrl, middleware.CSRF(middleware.NotAuth(api.Login))).Methods(http.MethodPost)

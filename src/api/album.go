@@ -61,14 +61,6 @@ func getAlbumByIDFromStorage(albumRep db.AlbumRep, id uint64) (*models.Album, er
 // @Failure 405 {object} utils.Error "Method is not allowed"
 // @Router   /api/v1/albums/ [post]
 func CreateAlbum(w http.ResponseWriter, r *http.Request) {
-	if r.Method == http.MethodPut {
-		UpdateAlbum(w, r)
-		return
-	}
-	if !utils.MethodsIsEqual(w, r.Method, http.MethodPost) {
-		return
-	}
-
 	newAlbum := &models.Album{}
 	newAlbum.Id = uint64(len(db.Storage.AlbumStorage.Albums))
 	body, err := ioutil.ReadAll(r.Body)
@@ -110,14 +102,6 @@ func CreateAlbum(w http.ResponseWriter, r *http.Request) {
 // @Failure 405 {object} utils.Error "Method is not allowed"
 // @Router   /api/v1/albums/ [put]
 func UpdateAlbum(w http.ResponseWriter, r *http.Request) {
-	if r.Method == http.MethodPost {
-		CreateAlbum(w, r)
-		return
-	}
-	if !utils.MethodsIsEqual(w, r.Method, http.MethodPut) {
-		return
-	}
-
 	newAlbum := &models.Album{}
 	newAlbum.Id = uint64(len(db.Storage.AlbumStorage.Albums))
 	body, err := ioutil.ReadAll(r.Body)
@@ -161,17 +145,6 @@ func UpdateAlbum(w http.ResponseWriter, r *http.Request) {
 // @Failure 405 {object} utils.Error "Method is not allowed"
 // @Router   /api/v1/albums/{id} [get]
 func GetAlbum(w http.ResponseWriter, r *http.Request) {
-	if r.Method == http.MethodDelete {
-		DeleteAlbum(w, r)
-		return
-	}
-	if r.Method == http.MethodPut {
-		UpdateAlbum(w, r)
-		return
-	}
-	if !utils.MethodsIsEqual(w, r.Method, http.MethodGet) {
-		return
-	}
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars[FieldId])
 	if err != nil {
@@ -204,18 +177,6 @@ func GetAlbum(w http.ResponseWriter, r *http.Request) {
 // @Failure 405 {object} utils.Error "Method is not allowed"
 // @Router   /api/v1/albums/{id} [delete]
 func DeleteAlbum(w http.ResponseWriter, r *http.Request) {
-	if r.Method == http.MethodGet {
-		GetAlbum(w, r)
-		return
-	}
-	if r.Method == http.MethodPut {
-		UpdateAlbum(w, r)
-		return
-	}
-	if !utils.MethodsIsEqual(w, r.Method, http.MethodDelete) {
-		return
-	}
-
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars[FieldId])
 	if err != nil {
