@@ -1,10 +1,10 @@
 package middleware
 
 import (
+	"github.com/go-park-mail-ru/2022_1_Wave/service"
 	"net/http"
 
 	"crypto/sha256"
-	"github.com/gin-gonic/gin"
 	"github.com/go-park-mail-ru/2022_1_Wave/config"
 	"github.com/gorilla/csrf"
 )

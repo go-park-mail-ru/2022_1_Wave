@@ -1,12 +1,6 @@
 package main
 
 import (
-	"database/sql"
-	"github.com/gin-gonic/gin"
-	"github.com/go-park-mail-ru/2022_1_Wave/api"
-	"github.com/go-park-mail-ru/2022_1_Wave/config"
-	docs "github.com/go-park-mail-ru/2022_1_Wave/docs"
-	"github.com/go-park-mail-ru/2022_1_Wave/service"
 	"github.com/go-park-mail-ru/2022_1_Wave/api"
 	"github.com/go-park-mail-ru/2022_1_Wave/config"
 	docs "github.com/go-park-mail-ru/2022_1_Wave/docs"
