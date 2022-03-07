@@ -1,15 +1,27 @@
 package middleware
 
 import (
-	"github.com/gin-gonic/gin"
+	"github.com/go-park-mail-ru/2022_1_Wave/service"
 	"net/http"
 )
 
 // Проверить есть ли у клиента валидная сессия (токен сессии в куки).
-func Session() gin.HandlerFunc {
+func Auth(next http.HandlerFunc) http.HandlerFunc {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if service.IsAuthorized(r) {
+			next.ServeHTTP(w, r)
+		} else {
+			http.Error(w, `{"error": "unauthorized"}`, http.StatusUnauthorized)
+		}
+	})
+}
 
-	return func(c *gin.Context) {
-
-		c.JSON(http.StatusForbidden, gin.H{"error": "you are not logged in"})
-	}
+func NotAuth(next http.HandlerFunc) http.HandlerFunc {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if !service.IsAuthorized(r) {
+			next.ServeHTTP(w, r)
+		} else {
+			http.Error(w, `{"error": "available only to unauthorized users"}`, http.StatusBadRequest)
+		}
+	})
 }
