@@ -29,7 +29,7 @@ import (
 //		CountLikes:     countLikes,
 //		CountListening: countListening,
 //		Date:           date,
-//		CoverId:        coverId,
+//		Cover:        coverId,
 //	}, nil
 //}
 
@@ -82,7 +82,8 @@ func GetAlbums(w http.ResponseWriter, r *http.Request) {
 	}
 
 	result, _ := json.MarshalIndent(albums, "", "    ")
-	fmt.Println(string(result))
+	fmt.Println(utils.Success{
+		Result: string(result)})
 	json.NewEncoder(w).Encode(utils.Success{
 		Result: string(result)})
 

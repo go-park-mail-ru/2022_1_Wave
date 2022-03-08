@@ -40,9 +40,9 @@ definitions:
       countListening:
         example: 15632
         type: integer
-      coverId:
-        example: 254
-        type: integer
+      cover:
+        example: assets/album_1.png
+        type: string
       id:
         example: 777
         type: integer
@@ -65,10 +65,10 @@ definitions:
         example: Imagine Dragons
         type: string
       photo:
-        example: /public/artists/photo/imagineDragons.png
+        example: assets/artist_1.png
         type: string
     type: object
-  models.Song:
+  models.Track:
     properties:
       albumId:
         example: 143
@@ -82,6 +82,9 @@ definitions:
       countListening:
         example: 15632
         type: integer
+      cover:
+        example: assets/track_1.png
+        type: string
       duration:
         example: 180
         type: integer
@@ -89,7 +92,7 @@ definitions:
         example: 777
         type: integer
       mp4:
-        example: /public/songs/mp4/track1.mp4
+        example: assets/track_1.mp4
         type: string
       title:
         example: Rain
@@ -547,10 +550,10 @@ paths:
       parameters:
       - description: params of new song. Id will be set automatically.
         in: body
-        name: Song
+        name: Track
         required: true
         schema:
-          $ref: '#/definitions/models.Song'
+          $ref: '#/definitions/models.Track'
       produces:
       - application/json
       responses:
@@ -576,10 +579,10 @@ paths:
       parameters:
       - description: id of updating song and params of it.
         in: body
-        name: Song
+        name: Track
         required: true
         schema:
-          $ref: '#/definitions/models.Song'
+          $ref: '#/definitions/models.Track'
       produces:
       - application/json
       responses:
@@ -643,7 +646,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.Song'
+            $ref: '#/definitions/models.Track'
         "400":
           description: Data is invalid
           schema:

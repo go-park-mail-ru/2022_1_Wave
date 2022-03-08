@@ -13,15 +13,15 @@ import (
 	"strconv"
 )
 
-func getAllSongs(songRep db.SongRep) (*[]models.Song, error) {
+func getAllSongs(songRep db.SongRep) (*[]models.Track, error) {
 	return songRep.GetAllSongs()
 }
 
-func addSongToStorage(songRep db.SongRep, song models.Song) error {
+func addSongToStorage(songRep db.SongRep, song models.Track) error {
 	return songRep.Insert(&song)
 }
 
-func updateSongInStorage(songRep db.SongRep, song models.Song) error {
+func updateSongInStorage(songRep db.SongRep, song models.Track) error {
 	return songRep.Update(&song)
 }
 
@@ -29,11 +29,11 @@ func deleteSongFromStorageByID(songRep db.SongRep, id uint64) error {
 	return songRep.Delete(id)
 }
 
-func getSongByIDFromStorage(songRep db.SongRep, id uint64) (*models.Song, error) {
+func getSongByIDFromStorage(songRep db.SongRep, id uint64) (*models.Track, error) {
 	return songRep.SelectByID(id)
 }
 
-func getPopularSongs(songRep db.SongRep) (*[]models.Song, error) {
+func getPopularSongs(songRep db.SongRep) (*[]models.Track, error) {
 	return songRep.GetPopularSongs()
 }
 
@@ -57,7 +57,7 @@ func GetSongs(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if *songs == nil {
-		*songs = []models.Song{}
+		*songs = []models.Track{}
 	}
 	result, _ := json.MarshalIndent(songs, "", "    ")
 	json.NewEncoder(w).Encode(utils.Success{
@@ -70,14 +70,14 @@ func GetSongs(w http.ResponseWriter, r *http.Request) {
 // @Tags     song
 // @Accept	 application/json
 // @Produce  application/json
-// @Param    Song body models.Song true  "params of new song. Id will be set automatically."
+// @Param    Track body models.Track true  "params of new song. Id will be set automatically."
 // @Success  200 {object} utils.Success
 // @Failure 400 {object} utils.Error "Data is invalid"
 // @Failure 405 {object} utils.Error "Method is not allowed"
 // @Router   /api/v1/songs/ [post]
 func CreateSong(w http.ResponseWriter, r *http.Request) {
 	storage := &db.Storage.SongStorage
-	newSong := &models.Song{}
+	newSong := &models.Track{}
 	newSong.Id = uint64(len(storage.Songs))
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
@@ -111,14 +111,14 @@ func CreateSong(w http.ResponseWriter, r *http.Request) {
 // @Tags     song
 // @Accept	 application/json
 // @Produce  application/json
-// @Param    Song body models.Song true  "id of updating song and params of it."
+// @Param    Track body models.Track true  "id of updating song and params of it."
 // @Success  200 {object} utils.Success
 // @Failure 400 {object} utils.Error "Data is invalid"
 // @Failure 405 {object} utils.Error "Method is not allowed"
 // @Router   /api/v1/songs/ [put]
 func UpdateSong(w http.ResponseWriter, r *http.Request) {
 	storage := &db.Storage.SongStorage
-	newSong := &models.Song{}
+	newSong := &models.Track{}
 	newSong.Id = uint64(len(storage.Songs))
 	body, err := ioutil.ReadAll(r.Body)
 	defer r.Body.Close()
@@ -154,7 +154,7 @@ func UpdateSong(w http.ResponseWriter, r *http.Request) {
 // @Accept	 application/json
 // @Produce  application/json
 // @Param    id path integer true  "id of song which need to be getted"
-// @Success  200 {object} models.Song
+// @Success  200 {object} models.Track
 // @Failure 400 {object} utils.Error "Data is invalid"
 // @Failure 405 {object} utils.Error "Method is not allowed"
 // @Router   /api/v1/songs/{id} [get]

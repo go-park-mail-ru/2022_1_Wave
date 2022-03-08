@@ -686,11 +686,11 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "description": "id of updating song and params of it.",
-                        "name": "Song",
+                        "name": "Track",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.Song"
+                            "$ref": "#/definitions/models.Track"
                         }
                     }
                 ],
@@ -730,11 +730,11 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "description": "params of new song. Id will be set automatically.",
-                        "name": "Song",
+                        "name": "Track",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.Song"
+                            "$ref": "#/definitions/models.Track"
                         }
                     }
                 ],
@@ -821,7 +821,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.Song"
+                            "$ref": "#/definitions/models.Track"
                         }
                     },
                     "400": {
@@ -1013,9 +1013,9 @@ const docTemplate = `{
                     "type": "integer",
                     "example": 15632
                 },
-                "coverId": {
-                    "type": "integer",
-                    "example": 254
+                "cover": {
+                    "type": "string",
+                    "example": "assets/album_1.png"
                 },
                 "id": {
                     "type": "integer",
@@ -1048,11 +1048,11 @@ const docTemplate = `{
                 },
                 "photo": {
                     "type": "string",
-                    "example": "/public/artists/photo/imagineDragons.png"
+                    "example": "assets/artist_1.png"
                 }
             }
         },
-        "models.Song": {
+        "models.Track": {
             "type": "object",
             "properties": {
                 "albumId": {
@@ -1071,6 +1071,10 @@ const docTemplate = `{
                     "type": "integer",
                     "example": 15632
                 },
+                "cover": {
+                    "type": "string",
+                    "example": "assets/track_1.png"
+                },
                 "duration": {
                     "type": "integer",
                     "example": 180
@@ -1081,7 +1085,7 @@ const docTemplate = `{
                 },
                 "mp4": {
                     "type": "string",
-                    "example": "/public/songs/mp4/track1.mp4"
+                    "example": "assets/track_1.mp4"
                 },
                 "title": {
                     "type": "string",

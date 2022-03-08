@@ -2,6 +2,7 @@ package db
 
 import (
 	"errors"
+	"fmt"
 	"github.com/go-park-mail-ru/2022_1_Wave/db/models"
 	"log"
 	"math"
@@ -35,12 +36,12 @@ type ArtistRep interface {
 }
 
 type SongRep interface {
-	Insert(song *models.Song) error
-	Update(song *models.Song) error
+	Insert(song *models.Track) error
+	Update(song *models.Track) error
 	Delete(id uint64) error
-	SelectByID(id uint64) (*models.Song, error)
-	GetAllSongs() (*[]models.Song, error)
-	GetPopularSongs() (*[]models.Song, error)
+	SelectByID(id uint64) (*models.Track, error)
+	GetAllSongs() (*[]models.Track, error)
+	GetPopularSongs() (*[]models.Track, error)
 	//SelectByParam(count uint64, from uint64) ([]*models.Album, error)
 	//SelectByTitle(title string) (*models.Album, error)
 	//SelectByAuthor(author string) (*[]models.Album, error)
@@ -57,8 +58,8 @@ type artistStorage struct {
 }
 
 type songStorage struct {
-	Songs []models.Song `json:"songs"`
-	Mutex sync.RWMutex  `json:"mutex"`
+	Songs []models.Track `json:"songs"`
+	Mutex sync.RWMutex   `json:"mutex"`
 }
 
 type globalStorage struct {
@@ -75,44 +76,47 @@ func randomRune() string {
 }
 
 func (storage *globalStorage) InitStorage() {
-	const quantity = 50
+	const quantity = 10
 	storage.Mutex.Lock()
 	defer storage.Mutex.Unlock()
 
 	albums := make([]models.Album, quantity)
-	songs := make([]models.Song, quantity)
+	songs := make([]models.Track, quantity)
 	artists := make([]models.Artist, quantity)
 
 	const max = 10000
 	// albums and artists
 	for i := 0; i < quantity; i++ {
+		id := uint64(i)
 		artists[i] = models.Artist{
-			Id:             uint64(i),
+			Id:             id,
 			Name:           randomRune(),
-			Photo:          "/public/artists/photo/" + randomRune() + ".png",
+			Photo:          "assets/artist_" + fmt.Sprint(id) + ".png",
 			CountFollowers: uint64(rand.Int63n(max + 1)),
 			CountListening: uint64(rand.Int63n(max + 1)),
 		}
 		albums[i] = models.Album{
-			Id:             uint64(i),
+			Id:             id,
 			Title:          randomRune(),
 			AuthorId:       uint64(rand.Int63n(quantity + 1)),
 			CountLikes:     uint64(rand.Int63n(max + 1)),
 			CountListening: uint64(rand.Int63n(max + 1)),
 			Date:           0,
-			CoverId:        uint64(rand.Int63n(max + 1)),
+			Cover:          "assets/album_" + fmt.Sprint(id) + ".png",
 		}
 	}
 
 	// songs
 	for i := 0; i < quantity; i++ {
-		songs[i] = models.Song{
-			Id:             uint64(i),
+		id := uint64(i)
+		songs[i] = models.Track{
+			Id:             id,
 			AlbumId:        albums[rand.Intn(len(albums))].Id,
 			AuthorId:       artists[rand.Intn(len(artists))].Id,
 			Title:          string('a' + rune(rand.Intn('z'-'a'+1))),
 			Duration:       uint64(rand.Int63n(max + 1)),
-			Mp4:            "/public/songs/mp4/" + randomRune() + ".mp4",
+			Mp4:            "assets/track_" + fmt.Sprint(id) + ".mp4",
+			Cover:          "assets/track_" + fmt.Sprint(id) + ".png",
 			CountLikes:     uint64(rand.Int63n(max + 1)),
 			CountListening: uint64(rand.Int63n(max + 1)),
 		}
@@ -271,14 +275,14 @@ func (storage *artistStorage) GetPopularArtists() (*[]models.Artist, error) {
 
 // ------------------------------------------------------------------
 
-func (storage *songStorage) Insert(song *models.Song) error {
+func (storage *songStorage) Insert(song *models.Track) error {
 	storage.Mutex.Lock()
 	defer storage.Mutex.Unlock()
 	storage.Songs = append(storage.Songs, *song)
 	return nil
 }
 
-func (storage *songStorage) Update(song *models.Song) error {
+func (storage *songStorage) Update(song *models.Track) error {
 	songFromDB, err := storage.SelectByID(song.Id)
 	if err != nil {
 		return err
@@ -301,7 +305,7 @@ func (storage *songStorage) Delete(id uint64) error {
 	return nil
 }
 
-func (storage *songStorage) SelectByID(id uint64) (*models.Song, error) {
+func (storage *songStorage) SelectByID(id uint64) (*models.Track, error) {
 	storage.Mutex.RLock()
 	defer storage.Mutex.RUnlock()
 	if id+1 > uint64(len(storage.Songs)) {
@@ -310,18 +314,18 @@ func (storage *songStorage) SelectByID(id uint64) (*models.Song, error) {
 	return &storage.Songs[id], nil
 }
 
-func (storage *songStorage) GetAllSongs() (*[]models.Song, error) {
+func (storage *songStorage) GetAllSongs() (*[]models.Track, error) {
 	storage.Mutex.RLock()
 	defer storage.Mutex.RUnlock()
 	return &storage.Songs, nil
 }
 
-func (storage *songStorage) GetPopularSongs() (*[]models.Song, error) {
+func (storage *songStorage) GetPopularSongs() (*[]models.Track, error) {
 	const top = 20
 	storage.Mutex.RLock()
 	defer storage.Mutex.RUnlock()
 
-	var songsPtr = make([]*models.Song, len(storage.Songs))
+	var songsPtr = make([]*models.Track, len(storage.Songs))
 	for i := 0; i < len(storage.Songs); i++ {
 		songsPtr[i] = &storage.Songs[i]
 	}
@@ -332,7 +336,7 @@ func (storage *songStorage) GetPopularSongs() (*[]models.Song, error) {
 		return song1.CountListening > song2.CountListening
 	})
 
-	topChart := make([]models.Song, uint64(math.Min(top, float64(len(storage.Songs)))))
+	topChart := make([]models.Track, uint64(math.Min(top, float64(len(storage.Songs)))))
 	for i := 0; i < len(topChart); i++ {
 		topChart[i] = *songsPtr[i]
 	}
