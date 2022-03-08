@@ -51,7 +51,7 @@ const (
 	getUserUrl     = "/" + apiSuffix + currentApiVersion + "users/" + idSuffix
 	getSelfUserUrl = "/" + apiSuffix + currentApiVersion + "users/" + "self"
 	getCSRFAuthUrl = "/" + apiSuffix + currentApiVersion + "get_csrf"
-	getStaticUrl   = "/" + apiSuffix + currentApiVersion + "/data/"
+	getStaticUrl   = "/" + apiSuffix + currentApiVersion + "/static/"
 )
 
 const CONFIG_FILENAME = "config.toml"
