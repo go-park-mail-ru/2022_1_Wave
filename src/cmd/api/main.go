@@ -51,9 +51,11 @@ const (
 	getUserUrl     = "/" + apiSuffix + currentApiVersion + "users/" + idSuffix
 	getSelfUserUrl = "/" + apiSuffix + currentApiVersion + "users/" + "self"
 	getCSRFAuthUrl = "/" + apiSuffix + currentApiVersion + "get_csrf"
+	getStaticUrl   = "/" + apiSuffix + currentApiVersion + "/data/"
 )
 
 const CONFIG_FILENAME = "config.toml"
+const PATH_TO_STATIC = "./static"
 
 func main() {
 	var err error
@@ -86,6 +88,14 @@ func main() {
 	router.HandleFunc(getUserUrl, api.GetUser).Methods(http.MethodGet)
 	router.HandleFunc(getSelfUserUrl, middleware.CSRF(middleware.Auth(api.GetSelfUser))).Methods(http.MethodGet)
 	router.HandleFunc(getCSRFAuthUrl, api.GetCSRF).Methods(http.MethodGet)
+
+	// /api/v1/data/img/album/123.jpg -> ./static/img/album/123.jpg
+	staticHandler := http.StripPrefix(
+		getStaticUrl,
+		http.FileServer(http.Dir("./static")),
+	)
+
+	router.Handle(getStaticUrl, staticHandler)
 
 	docs.SwaggerInfo.BasePath = "/"
 	router.PathPrefix("/docs").Handler(httpSwagger.WrapHandler)
