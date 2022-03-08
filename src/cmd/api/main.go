@@ -16,6 +16,7 @@ const (
 
 //config
 const (
+	apiSuffix         = "api/"
 	currentApiVersion = v1
 )
 
@@ -29,10 +30,11 @@ const (
 
 // artists urls
 const (
-	createArtistUrl = "/" + currentApiVersion + artistsSuffix
-	updateArtistUrl = createArtistUrl
-	getArtistUrl    = "/" + currentApiVersion + artistsSuffix + idSuffix
-	deleteArtistUrl = getArtistUrl
+	createArtistUrl  = "/" + apiSuffix + currentApiVersion + artistsSuffix
+	updateArtistUrl  = createArtistUrl
+	getAllArtistsUrl = "/" + apiSuffix + currentApiVersion + artistsSuffix
+	getArtistUrl     = "/" + apiSuffix + currentApiVersion + artistsSuffix + idSuffix
+	deleteArtistUrl  = getArtistUrl
 )
 
 func main() {
@@ -45,10 +47,11 @@ func main() {
 	router.HandleFunc(deleteAlbumUrl, api.DeleteAlbum)
 
 	// artists
-	router.HandleFunc(createArtistUrl, api.CreateArtist)
-	router.HandleFunc(updateArtistUrl, api.UpdateArtist)
-	router.HandleFunc(getArtistUrl, api.GetArtist)
-	router.HandleFunc(deleteArtistUrl, api.DeleteArtist)
+	router.HandleFunc(getAllArtistsUrl, api.GetArtists).Methods(http.MethodGet)
+	router.HandleFunc(createArtistUrl, api.CreateArtist).Methods(http.MethodPost)
+	router.HandleFunc(updateArtistUrl, api.UpdateArtist).Methods(http.MethodPut)
+	router.HandleFunc(getArtistUrl, api.GetArtist).Methods(http.MethodGet)
+	router.HandleFunc(deleteArtistUrl, api.DeleteArtist).Methods(http.MethodDelete)
 
 	log.Println("start serving :8000")
 	http.ListenAndServe(":8000", router)
