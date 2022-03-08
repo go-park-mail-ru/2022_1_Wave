@@ -55,15 +55,14 @@ func getAllAlbums(albumRep db.AlbumRep) (*[]models.Album, error) {
 
 // GetAlbums godoc
 // @Summary      GetAlbums
-// @Description  creating new album
+// @Description  getting all albums
 // @Tags     album
 // @Accept	 application/json
 // @Produce  application/json
-// @Param    Album body models.Album true  "params of new album. Id will be set automatically."
 // @Success  200 {object} utils.Success
 // @Failure 400 {object} utils.Error "Data is invalid"
 // @Failure 405 {object} utils.Error "Method is not allowed"
-// @Router   /api/v1/albums/ [post]
+// @Router   /api/v1/albums/ [get]
 func GetAlbums(w http.ResponseWriter, r *http.Request) {
 	storage := &db.Storage.AlbumStorage
 	storage.Mutex.RLock()
