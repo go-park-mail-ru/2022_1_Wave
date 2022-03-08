@@ -15,7 +15,7 @@ import (
 // @Tags     auth
 // @Accept	 application/json
 // @Produce  application/json
-// @Param    UserForm body forms.User
+// @Param    UserForm body forms.User true "user params"
 // @Success  200 {object} forms.Result
 // @Failure 400 {object} forms.Result "the user is logged in (available only to unauthorized users)"
 // @Failure 400 {object} forms.Result "invalid fields in the request body"

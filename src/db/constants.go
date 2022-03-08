@@ -14,6 +14,13 @@ const (
 	SuccessDeletedAlbum = "success deleted album"
 )
 
+// success songs
+const (
+	SuccessCreatedSong = "success created song"
+	SuccessUpdatedSong = "success updated song"
+	SuccessDeletedSong = "success deleted song"
+)
+
 // success artists
 const (
 	SuccessCreatedArtist = "success created artist"

@@ -1,8 +1,14 @@
 definitions:
   forms.Result:
     properties:
+      error:
+        example: some error note
+        type: string
+      result:
+        example: some success note
+        type: string
       status:
-        example: some status
+        example: OK
         type: string
     type: object
   forms.User:
@@ -62,6 +68,33 @@ definitions:
         example: /public/artists/photo/imagineDragons.png
         type: string
     type: object
+  models.Song:
+    properties:
+      albumId:
+        example: 143
+        type: integer
+      authorId:
+        example: 121
+        type: integer
+      countLikes:
+        example: 54
+        type: integer
+      countListening:
+        example: 15632
+        type: integer
+      duration:
+        example: 180
+        type: integer
+      id:
+        example: 777
+        type: integer
+      mp4:
+        example: /public/songs/mp4/track1.mp4
+        type: string
+      title:
+        example: Rain
+        type: string
+    type: object
   utils.Error:
     properties:
       err:
@@ -75,97 +108,29 @@ definitions:
 info:
   contact: {}
 paths:
-  /api/login:
-    post:
-      consumes:
-      - application/json
-      description: login user
-      parameters:
-      - description: new jwt data
-        in: body
-        name: UserForm
-        required: true
-        schema:
-          $ref: '#/definitions/forms.User'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/forms.Result'
-        "460":
-          description: Data is invalid
-          schema:
-            $ref: '#/definitions/forms.Result'
-        "521":
-          description: Cannot create session
-          schema:
-            $ref: '#/definitions/forms.Result'
-      summary: Login
-      tags:
-      - auth
-  /api/signUp:
-    post:
-      consumes:
-      - application/json
-      description: sign in user
-      parameters:
-      - description: new jwt data
-        in: body
-        name: UserForm
-        required: true
-        schema:
-          $ref: '#/definitions/forms.User'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/forms.Result'
-        "460":
-          description: Data is invalid
-          schema:
-            $ref: '#/definitions/forms.Result'
-        "521":
-          description: Cannot create session
-          schema:
-            $ref: '#/definitions/forms.Result'
-      summary: SignUp
-      tags:
-      - auth
-  /api/signout:
-    post:
-      consumes:
-      - application/json
-      description: sign in user
-      parameters:
-      - description: new jwt data
-        in: body
-        name: UserForm
-        required: true
-        schema:
-          $ref: '#/definitions/forms.User'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/forms.Result'
-        "460":
-          description: Data is invalid
-          schema:
-            $ref: '#/definitions/forms.Result'
-        "521":
-          description: Cannot create session
-          schema:
-            $ref: '#/definitions/forms.Result'
-      summary: Logout
-      tags:
-      - auth
   /api/v1/albums/:
+    get:
+      consumes:
+      - application/json
+      description: getting all albums
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.Success'
+        "400":
+          description: Data is invalid
+          schema:
+            $ref: '#/definitions/utils.Error'
+        "405":
+          description: Method is not allowed
+          schema:
+            $ref: '#/definitions/utils.Error'
+      summary: GetAlbums
+      tags:
+      - album
     post:
       consumes:
       - application/json
@@ -282,6 +247,28 @@ paths:
       tags:
       - album
   /api/v1/artists/:
+    get:
+      consumes:
+      - application/json
+      description: getting all artists
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.Success'
+        "400":
+          description: Data is invalid
+          schema:
+            $ref: '#/definitions/utils.Error'
+        "405":
+          description: Method is not allowed
+          schema:
+            $ref: '#/definitions/utils.Error'
+      summary: GetArtists
+      tags:
+      - artist
     post:
       consumes:
       - application/json
@@ -344,7 +331,7 @@ paths:
     delete:
       consumes:
       - application/json
-      description: deleting album by id
+      description: deleting artist by id
       parameters:
       - description: id of artist which need to be deleted
         in: path
@@ -397,4 +384,300 @@ paths:
       summary: GetArtist
       tags:
       - artist
+  /api/v1/login:
+    post:
+      consumes:
+      - application/json
+      description: login user
+      parameters:
+      - description: user params
+        in: body
+        name: UserForm
+        required: true
+        schema:
+          $ref: '#/definitions/forms.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/forms.Result'
+        "400":
+          description: invalid login or password
+          schema:
+            $ref: '#/definitions/forms.Result'
+        "401":
+          description: invalid csrf
+          schema:
+            $ref: '#/definitions/forms.Result'
+      summary: Login
+      tags:
+      - auth
+  /api/v1/logout:
+    post:
+      consumes:
+      - application/json
+      description: sign in user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/forms.Result'
+        "401":
+          description: invalid csrf
+          schema:
+            $ref: '#/definitions/forms.Result'
+        "460":
+          description: Data is invalid
+          schema:
+            $ref: '#/definitions/forms.Result'
+        "521":
+          description: Cannot create session
+          schema:
+            $ref: '#/definitions/forms.Result'
+      summary: Logout
+      tags:
+      - auth
+  /api/v1/signup:
+    post:
+      consumes:
+      - application/json
+      description: login user
+      parameters:
+      - description: new jwt data
+        in: body
+        name: UserForm
+        required: true
+        schema:
+          $ref: '#/definitions/forms.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: success signup
+          schema:
+            $ref: '#/definitions/forms.Result'
+        "400":
+          description: user already exist
+          schema:
+            $ref: '#/definitions/forms.Result'
+        "401":
+          description: invalid csrf
+          schema:
+            $ref: '#/definitions/forms.Result'
+      summary: SignUp
+      tags:
+      - auth
+  /api/v1/songs/:
+    get:
+      consumes:
+      - application/json
+      description: getting all songs
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.Success'
+        "400":
+          description: Data is invalid
+          schema:
+            $ref: '#/definitions/utils.Error'
+        "405":
+          description: Method is not allowed
+          schema:
+            $ref: '#/definitions/utils.Error'
+      summary: GetSongs
+      tags:
+      - song
+    post:
+      consumes:
+      - application/json
+      description: creating new song
+      parameters:
+      - description: params of new song. Id will be set automatically.
+        in: body
+        name: Song
+        required: true
+        schema:
+          $ref: '#/definitions/models.Song'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.Success'
+        "400":
+          description: Data is invalid
+          schema:
+            $ref: '#/definitions/utils.Error'
+        "405":
+          description: Method is not allowed
+          schema:
+            $ref: '#/definitions/utils.Error'
+      summary: CreateSong
+      tags:
+      - song
+    put:
+      consumes:
+      - application/json
+      description: updating song by id
+      parameters:
+      - description: id of updating song and params of it.
+        in: body
+        name: Song
+        required: true
+        schema:
+          $ref: '#/definitions/models.Song'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.Success'
+        "400":
+          description: Data is invalid
+          schema:
+            $ref: '#/definitions/utils.Error'
+        "405":
+          description: Method is not allowed
+          schema:
+            $ref: '#/definitions/utils.Error'
+      summary: UpdateSong
+      tags:
+      - song
+  /api/v1/songs/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: deleting song by id
+      parameters:
+      - description: id of song which need to be deleted
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.Success'
+        "400":
+          description: Data is invalid
+          schema:
+            $ref: '#/definitions/utils.Error'
+        "405":
+          description: Method is not allowed
+          schema:
+            $ref: '#/definitions/utils.Error'
+      summary: DeleteSong
+      tags:
+      - song
+    get:
+      consumes:
+      - application/json
+      description: getting song by id
+      parameters:
+      - description: id of song which need to be getted
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Song'
+        "400":
+          description: Data is invalid
+          schema:
+            $ref: '#/definitions/utils.Error'
+        "405":
+          description: Method is not allowed
+          schema:
+            $ref: '#/definitions/utils.Error'
+      summary: GetSong
+      tags:
+      - song
+  /api/v1/songs/popular:
+    get:
+      consumes:
+      - application/json
+      description: getting popular songs
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.Success'
+        "400":
+          description: Data is invalid
+          schema:
+            $ref: '#/definitions/utils.Error'
+        "405":
+          description: Method is not allowed
+          schema:
+            $ref: '#/definitions/utils.Error'
+      summary: GetPopularSongs
+      tags:
+      - song
+  /api/v1/users/{id}:
+    get:
+      consumes:
+      - application/json
+      description: get user by cookie
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/forms.User'
+        "400":
+          description: invalid id
+          schema:
+            $ref: '#/definitions/forms.Result'
+        "404":
+          description: user not found
+          schema:
+            $ref: '#/definitions/forms.Result'
+      summary: GetUser
+      tags:
+      - user
+  /api/v1/users/self:
+    get:
+      consumes:
+      - application/json
+      description: get user
+      parameters:
+      - description: id of user which need to be getted
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/forms.User'
+        "401":
+          description: invalid csrf
+          schema:
+            $ref: '#/definitions/forms.Result'
+      summary: GetSelfUser
+      tags:
+      - user
 swagger: "2.0"
