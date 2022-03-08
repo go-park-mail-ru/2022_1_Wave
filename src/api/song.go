@@ -212,7 +212,7 @@ func DeleteSong(w http.ResponseWriter, r *http.Request) {
 
 // GetPopularSongs godoc
 // @Summary      GetPopularSongs
-// @Description  getting popular songs
+// @Description  getting top20 popular songs
 // @Tags     song
 // @Accept	 application/json
 // @Produce  application/json

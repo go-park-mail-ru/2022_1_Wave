@@ -228,7 +228,7 @@ func DeleteAlbum(w http.ResponseWriter, r *http.Request) {
 
 // GetPopularAlbums godoc
 // @Summary      GetPopularAlbums
-// @Description  getting popular albums
+// @Description  getting top20 popular albums
 // @Tags     album
 // @Accept	 application/json
 // @Produce  application/json

@@ -214,7 +214,7 @@ func DeleteArtist(w http.ResponseWriter, r *http.Request) {
 
 // GetPopularArtists godoc
 // @Summary      GetPopularArtists
-// @Description  getting popular artists
+// @Description  getting top20 popular artists
 // @Tags     artist
 // @Accept	 application/json
 // @Produce  application/json

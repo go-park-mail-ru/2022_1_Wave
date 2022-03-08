@@ -141,7 +141,7 @@ const docTemplate = `{
         },
         "/api/v1/albums/popular": {
             "get": {
-                "description": "getting popular albums",
+                "description": "getting top20 popular albums",
                 "consumes": [
                     "application/json"
                 ],
@@ -385,7 +385,7 @@ const docTemplate = `{
         },
         "/api/v1/artists/popular": {
             "get": {
-                "description": "getting popular artists",
+                "description": "getting top20top20 popular artists",
                 "consumes": [
                     "application/json"
                 ],
@@ -762,7 +762,7 @@ const docTemplate = `{
         },
         "/api/v1/songs/popular": {
             "get": {
-                "description": "getting popular songs",
+                "description": "getting top20 popular songs",
                 "consumes": [
                     "application/json"
                 ],

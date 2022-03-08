@@ -250,7 +250,7 @@ paths:
     get:
       consumes:
       - application/json
-      description: getting popular albums
+      description: getting top20 popular albums
       produces:
       - application/json
       responses:
@@ -411,7 +411,7 @@ paths:
     get:
       consumes:
       - application/json
-      description: getting popular artists
+      description: getting top20top20 popular artists
       produces:
       - application/json
       responses:
@@ -659,7 +659,7 @@ paths:
     get:
       consumes:
       - application/json
-      description: getting popular songs
+      description: getting top20 popular songs
       produces:
       - application/json
       responses:
