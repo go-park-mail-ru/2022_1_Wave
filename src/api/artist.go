@@ -13,6 +13,10 @@ import (
 	"strconv"
 )
 
+func getAllArtists(artistRep db.ArtistRep) (*[]models.Artist, error) {
+	return artistRep.GetAllArtists()
+}
+
 func addArtistToStorage(artistRep db.ArtistRep, artist models.Artist) error {
 	return artistRep.Insert(&artist)
 }
@@ -27,6 +31,30 @@ func deleteArtistFromStorageByID(artistRep db.ArtistRep, id uint64) error {
 
 func getArtistByIDFromStorage(artistRep db.ArtistRep, id uint64) (*models.Artist, error) {
 	return artistRep.SelectByID(id)
+}
+
+// GetArtists godoc
+// @Summary      GetArtists
+// @Description  getting all artists
+// @Tags     artist
+// @Accept	 application/json
+// @Produce  application/json
+// @Success  200 {object} utils.Success
+// @Failure 400 {object} utils.Error "Data is invalid"
+// @Failure 405 {object} utils.Error "Method is not allowed"
+// @Router   /api/v1/artists/ [get]
+func GetArtists(w http.ResponseWriter, r *http.Request) {
+	storage := &db.Storage.ArtistStorage
+	storage.Mutex.RLock()
+	defer storage.Mutex.RUnlock()
+	albums, err := getAllArtists(storage)
+	if err != nil {
+		utils.WriteError(w, err, http.StatusBadRequest)
+		return
+	}
+	result, _ := json.MarshalIndent(albums, "", "    ")
+	json.NewEncoder(w).Encode(utils.Success{
+		Result: string(result)})
 }
 
 // CreateArtist godoc
