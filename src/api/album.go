@@ -33,6 +33,10 @@ import (
 //	}, nil
 //}
 
+func getAllAlbums(albumRep db.AlbumRep) (*[]models.Album, error) {
+	return albumRep.GetAllAlbums()
+}
+
 func addAlbumToStorage(albumRep db.AlbumRep, album models.Album) error {
 	return albumRep.Insert(&album)
 }
@@ -47,6 +51,30 @@ func deleteAlbumFromStorageByID(albumRep db.AlbumRep, id uint64) error {
 
 func getAlbumByIDFromStorage(albumRep db.AlbumRep, id uint64) (*models.Album, error) {
 	return albumRep.SelectByID(id)
+}
+
+// GetAlbums godoc
+// @Summary      GetAlbums
+// @Description  getting all albums
+// @Tags     album
+// @Accept	 application/json
+// @Produce  application/json
+// @Success  200 {object} utils.Success
+// @Failure 400 {object} utils.Error "Data is invalid"
+// @Failure 405 {object} utils.Error "Method is not allowed"
+// @Router   /api/v1/albums/ [get]
+func GetAlbums(w http.ResponseWriter, r *http.Request) {
+	storage := &db.Storage.AlbumStorage
+	storage.Mutex.RLock()
+	defer storage.Mutex.RUnlock()
+	albums, err := getAllAlbums(storage)
+	if err != nil {
+		utils.WriteError(w, err, http.StatusBadRequest)
+		return
+	}
+	result, _ := json.MarshalIndent(albums, "", "    ")
+	json.NewEncoder(w).Encode(utils.Success{
+		Result: string(result)})
 }
 
 // CreateAlbum godoc
@@ -87,7 +115,6 @@ func CreateAlbum(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(utils.Success{
 		Result: db.SuccessCreatedAlbum + "(" + newAlbum.Title + ")",
 	})
-	fmt.Println("albums storage now:", db.Storage.AlbumStorage.Albums)
 }
 
 // UpdateAlbum godoc
@@ -129,8 +156,6 @@ func UpdateAlbum(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(utils.Success{
 		Result: db.SuccessUpdatedAlbum + "(" + fmt.Sprint(newAlbum.Id) + ")",
 	})
-	fmt.Println("albums storage now:", db.Storage.AlbumStorage.Albums)
-
 }
 
 // GetAlbum godoc
@@ -162,7 +187,6 @@ func GetAlbum(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	json.NewEncoder(w).Encode(currentAlbum)
-	fmt.Println("albums storage now:", db.Storage.AlbumStorage.Albums)
 }
 
 // DeleteAlbum godoc
@@ -196,6 +220,4 @@ func DeleteAlbum(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(utils.Success{
 		Result: db.SuccessDeletedAlbum + "(" + fmt.Sprint(id) + ")",
 	})
-
-	fmt.Println("albums storage now:", db.Storage.AlbumStorage.Albums)
 }

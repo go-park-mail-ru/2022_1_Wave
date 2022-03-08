@@ -27,18 +27,20 @@ const (
 
 // albums urls
 const (
-	createAlbumUrl = "/" + apiSuffix + currentApiVersion + albumsSuffix
-	updateAlbumUrl = createAlbumUrl
-	getAlbumUrl    = "/" + apiSuffix + currentApiVersion + albumsSuffix + idSuffix
-	deleteAlbumUrl = getAlbumUrl
+	createAlbumUrl  = "/" + apiSuffix + currentApiVersion + albumsSuffix
+	updateAlbumUrl  = createAlbumUrl
+	getAllAlbumsUrl = "/" + apiSuffix + currentApiVersion + albumsSuffix
+	getAlbumUrl     = getAllAlbumsUrl + idSuffix
+	deleteAlbumUrl  = getAlbumUrl
 )
 
 // artists urls
 const (
-	createArtistUrl = "/" + apiSuffix + currentApiVersion + artistsSuffix
-	updateArtistUrl = createArtistUrl
-	getArtistUrl    = "/" + apiSuffix + currentApiVersion + artistsSuffix + idSuffix
-	deleteArtistUrl = getArtistUrl
+	createArtistUrl  = "/" + apiSuffix + currentApiVersion + artistsSuffix
+	updateArtistUrl  = createArtistUrl
+	getAllArtistsUrl = "/" + apiSuffix + currentApiVersion + artistsSuffix
+	getArtistUrl     = "/" + apiSuffix + currentApiVersion + artistsSuffix + idSuffix
+	deleteArtistUrl  = getArtistUrl
 )
 
 // auth urls
@@ -64,12 +66,14 @@ func main() {
 	router := mux.NewRouter()
 
 	// albums
+	router.HandleFunc(getAllAlbumsUrl, api.GetAlbums).Methods(http.MethodGet)
 	router.HandleFunc(createAlbumUrl, api.CreateAlbum).Methods(http.MethodPost)
 	router.HandleFunc(updateAlbumUrl, api.UpdateAlbum).Methods(http.MethodPut)
 	router.HandleFunc(getAlbumUrl, api.GetAlbum).Methods(http.MethodGet)
 	router.HandleFunc(deleteAlbumUrl, api.DeleteAlbum).Methods(http.MethodDelete)
 
 	// artists
+	router.HandleFunc(getAllArtistsUrl, api.GetArtists).Methods(http.MethodGet)
 	router.HandleFunc(createArtistUrl, api.CreateArtist).Methods(http.MethodPost)
 	router.HandleFunc(updateArtistUrl, api.UpdateArtist).Methods(http.MethodPut)
 	router.HandleFunc(getArtistUrl, api.GetArtist).Methods(http.MethodGet)

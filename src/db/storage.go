@@ -11,6 +11,7 @@ type AlbumRep interface {
 	Update(album *models.Album) error
 	Delete(id uint64) error
 	SelectByID(id uint64) (*models.Album, error)
+	GetAllAlbums() (*[]models.Album, error)
 	//SelectByParam(count uint64, from uint64) ([]*models.Album, error)
 	//SelectByTitle(title string) (*models.Album, error)
 	//SelectByAuthor(author string) (*[]models.Album, error)
@@ -21,6 +22,7 @@ type ArtistRep interface {
 	Update(arist *models.Artist) error
 	Delete(id uint64) error
 	SelectByID(id uint64) (*models.Artist, error)
+	GetAllArtists() (*[]models.Artist, error)
 	//SelectByParam(count uint64, from uint64) ([]*models.Album, error)
 	//SelectByTitle(title string) (*models.Album, error)
 	//SelectByAuthor(author string) (*[]models.Album, error)
@@ -86,6 +88,12 @@ func (storage *albumStorage) SelectByID(id uint64) (*models.Album, error) {
 	return &storage.Albums[id], nil
 }
 
+func (storage *albumStorage) GetAllAlbums() (*[]models.Album, error) {
+	storage.Mutex.RLock()
+	defer storage.Mutex.RUnlock()
+	return &storage.Albums, nil
+}
+
 // ------------------------------------------------------------------
 
 func (storage *artistStorage) Insert(artist *models.Artist) error {
@@ -125,4 +133,10 @@ func (storage *artistStorage) SelectByID(id uint64) (*models.Artist, error) {
 		return nil, errors.New(IndexOutOfRange)
 	}
 	return &storage.Artists[id], nil
+}
+
+func (storage *artistStorage) GetAllArtists() (*[]models.Artist, error) {
+	storage.Mutex.RLock()
+	defer storage.Mutex.RUnlock()
+	return &storage.Artists, nil
 }
