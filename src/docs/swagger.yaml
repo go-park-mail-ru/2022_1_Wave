@@ -246,6 +246,29 @@ paths:
       summary: GetAlbum
       tags:
       - album
+  /api/v1/albums/popular:
+    get:
+      consumes:
+      - application/json
+      description: getting popular albums
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.Success'
+        "400":
+          description: Data is invalid
+          schema:
+            $ref: '#/definitions/utils.Error'
+        "405":
+          description: Method is not allowed
+          schema:
+            $ref: '#/definitions/utils.Error'
+      summary: GetPopularAlbums
+      tags:
+      - album
   /api/v1/artists/:
     get:
       consumes:
@@ -382,6 +405,29 @@ paths:
           schema:
             $ref: '#/definitions/utils.Error'
       summary: GetArtist
+      tags:
+      - artist
+  /api/v1/artists/popular:
+    get:
+      consumes:
+      - application/json
+      description: getting popular artists
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.Success'
+        "400":
+          description: Data is invalid
+          schema:
+            $ref: '#/definitions/utils.Error'
+        "405":
+          description: Method is not allowed
+          schema:
+            $ref: '#/definitions/utils.Error'
+      summary: GetPopularArtists
       tags:
       - artist
   /api/v1/login:

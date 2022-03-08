@@ -14,6 +14,7 @@ type AlbumRep interface {
 	Delete(id uint64) error
 	SelectByID(id uint64) (*models.Album, error)
 	GetAllAlbums() (*[]models.Album, error)
+	GetPopularAlbums() (*[]models.Album, error)
 	//SelectByParam(count uint64, from uint64) ([]*models.Album, error)
 	//SelectByTitle(title string) (*models.Album, error)
 	//SelectByAuthor(author string) (*[]models.Album, error)
@@ -25,6 +26,7 @@ type ArtistRep interface {
 	Delete(id uint64) error
 	SelectByID(id uint64) (*models.Artist, error)
 	GetAllArtists() (*[]models.Artist, error)
+	GetPopularArtists() (*[]models.Artist, error)
 	//SelectByParam(count uint64, from uint64) ([]*models.Album, error)
 	//SelectByTitle(title string) (*models.Album, error)
 	//SelectByAuthor(author string) (*[]models.Album, error)
@@ -113,6 +115,30 @@ func (storage *albumStorage) GetAllAlbums() (*[]models.Album, error) {
 	return &storage.Albums, nil
 }
 
+func (storage *albumStorage) GetPopularAlbums() (*[]models.Album, error) {
+	const top = 20
+	storage.Mutex.RLock()
+	defer storage.Mutex.RUnlock()
+
+	var albumsPtr = make([]*models.Album, len(storage.Albums))
+	for i := 0; i < len(storage.Albums); i++ {
+		albumsPtr[i] = &storage.Albums[i]
+	}
+
+	sort.SliceStable(albumsPtr, func(i int, j int) bool {
+		album1 := *(albumsPtr[i])
+		album2 := *(albumsPtr[j])
+		return album1.CountListening > album2.CountListening
+	})
+
+	topChart := make([]models.Album, uint64(math.Min(top, float64(len(storage.Albums)))))
+	for i := 0; i < len(topChart); i++ {
+		topChart[i] = *albumsPtr[i]
+	}
+
+	return &topChart, nil
+}
+
 // ------------------------------------------------------------------
 
 func (storage *artistStorage) Insert(artist *models.Artist) error {
@@ -158,6 +184,29 @@ func (storage *artistStorage) GetAllArtists() (*[]models.Artist, error) {
 	storage.Mutex.RLock()
 	defer storage.Mutex.RUnlock()
 	return &storage.Artists, nil
+}
+
+func (storage *artistStorage) GetPopularArtists() (*[]models.Artist, error) {
+	const top = 20
+	storage.Mutex.RLock()
+	defer storage.Mutex.RUnlock()
+
+	var artistsPtr = make([]*models.Artist, len(storage.Artists))
+	for i := 0; i < len(storage.Artists); i++ {
+		artistsPtr[i] = &storage.Artists[i]
+	}
+
+	sort.SliceStable(artistsPtr, func(i int, j int) bool {
+		artist1 := *(artistsPtr[i])
+		artist2 := *(artistsPtr[j])
+		return artist1.CountListening > artist2.CountListening
+	})
+
+	topChart := make([]models.Artist, uint64(math.Min(top, float64(len(storage.Artists)))))
+	for i := 0; i < len(topChart); i++ {
+		topChart[i] = *artistsPtr[i]
+	}
+	return &topChart, nil
 }
 
 // ------------------------------------------------------------------

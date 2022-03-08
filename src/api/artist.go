@@ -33,6 +33,10 @@ func getArtistByIDFromStorage(artistRep db.ArtistRep, id uint64) (*models.Artist
 	return artistRep.SelectByID(id)
 }
 
+func getPopularArtists(artistRep db.ArtistRep) (*[]models.Artist, error) {
+	return artistRep.GetPopularArtists()
+}
+
 // GetArtists godoc
 // @Summary      GetArtists
 // @Description  getting all artists
@@ -206,4 +210,28 @@ func DeleteArtist(w http.ResponseWriter, r *http.Request) {
 	})
 
 	fmt.Println("artists storage now:", db.Storage.ArtistStorage.Artists)
+}
+
+// GetPopularArtists godoc
+// @Summary      GetPopularArtists
+// @Description  getting popular artists
+// @Tags     artist
+// @Accept	 application/json
+// @Produce  application/json
+// @Success  200 {object} utils.Success
+// @Failure 400 {object} utils.Error "Data is invalid"
+// @Failure 405 {object} utils.Error "Method is not allowed"
+// @Router   /api/v1/artists/popular [get]
+func GetPopularArtists(w http.ResponseWriter, r *http.Request) {
+	storage := &db.Storage.ArtistStorage
+	storage.Mutex.RLock()
+	defer storage.Mutex.RUnlock()
+	songs, err := getPopularArtists(storage)
+	if err != nil {
+		utils.WriteError(w, err, http.StatusBadRequest)
+		return
+	}
+	result, _ := json.MarshalIndent(songs, "", "    ")
+	json.NewEncoder(w).Encode(utils.Success{
+		Result: string(result)})
 }

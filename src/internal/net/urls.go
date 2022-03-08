@@ -29,30 +29,32 @@ const (
 
 // albums urls
 const (
-	createAlbumUrl  = "/" + apiPath + albumsPrefix
-	updateAlbumUrl  = createAlbumUrl
-	getAllAlbumsUrl = "/" + apiPath + albumsPrefix
-	getAlbumUrl     = getAllAlbumsUrl + id
-	deleteAlbumUrl  = getAlbumUrl
+	createAlbumUrl      = "/" + apiPath + albumsPrefix
+	updateAlbumUrl      = createAlbumUrl
+	getAllAlbumsUrl     = "/" + apiPath + albumsPrefix
+	getAlbumUrl         = getAllAlbumsUrl + id
+	getPopularAlbumsUrl = getAllAlbumsUrl + popular
+	deleteAlbumUrl      = getAlbumUrl
 )
 
 // artists urls
 const (
-	createArtistUrl  = "/" + apiPath + artistsPrefix
-	updateArtistUrl  = createArtistUrl
-	getAllArtistsUrl = "/" + apiPath + artistsPrefix
-	getArtistUrl     = getAllArtistsUrl + id
-	deleteArtistUrl  = getArtistUrl
+	createArtistUrl      = "/" + apiPath + artistsPrefix
+	updateArtistUrl      = createArtistUrl
+	getAllArtistsUrl     = "/" + apiPath + artistsPrefix
+	getArtistUrl         = getAllArtistsUrl + id
+	getPopularArtistsUrl = getAllArtistsUrl + popular
+	deleteArtistUrl      = getArtistUrl
 )
 
 // songs urls
 const (
-	createSongUrl   = "/" + apiPath + songsPrefix
-	updateSongUrl   = createSongUrl
-	getAllSongsUrl  = "/" + apiPath + songsPrefix
-	getSongUrl      = getAllSongsUrl + id
-	getPopularSongs = getAllSongsUrl + popular
-	deleteSongUrl   = getSongUrl
+	createSongUrl      = "/" + apiPath + songsPrefix
+	updateSongUrl      = createSongUrl
+	getAllSongsUrl     = "/" + apiPath + songsPrefix
+	getSongUrl         = getAllSongsUrl + id
+	getPopularSongsUrl = getAllSongsUrl + popular
+	deleteSongUrl      = getSongUrl
 )
 
 // auth urls

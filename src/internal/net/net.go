@@ -16,6 +16,7 @@ func SetAlbumsRoutes(router *mux.Router) {
 	router.HandleFunc(createAlbumUrl, api.CreateAlbum).Methods(http.MethodPost)
 	router.HandleFunc(updateAlbumUrl, api.UpdateAlbum).Methods(http.MethodPut)
 	router.HandleFunc(getAlbumUrl, api.GetAlbum).Methods(http.MethodGet)
+	router.HandleFunc(getPopularAlbumsUrl, api.GetPopularAlbums).Methods(http.MethodGet)
 	router.HandleFunc(deleteAlbumUrl, api.DeleteAlbum).Methods(http.MethodDelete)
 }
 
@@ -25,6 +26,7 @@ func SetArtistsRoutes(router *mux.Router) {
 	router.HandleFunc(createArtistUrl, api.CreateArtist).Methods(http.MethodPost)
 	router.HandleFunc(updateArtistUrl, api.UpdateArtist).Methods(http.MethodPut)
 	router.HandleFunc(getArtistUrl, api.GetArtist).Methods(http.MethodGet)
+	router.HandleFunc(getPopularArtistsUrl, api.GetPopularArtists).Methods(http.MethodGet)
 	router.HandleFunc(deleteArtistUrl, api.DeleteArtist).Methods(http.MethodDelete)
 }
 
@@ -34,7 +36,7 @@ func SetSongsRoutes(router *mux.Router) {
 	router.HandleFunc(createSongUrl, api.CreateSong).Methods(http.MethodPost)
 	router.HandleFunc(updateSongUrl, api.UpdateSong).Methods(http.MethodPut)
 	router.HandleFunc(getSongUrl, api.GetSong).Methods(http.MethodGet)
-	router.HandleFunc(getPopularSongs, api.GetPopularSongs).Methods(http.MethodGet)
+	router.HandleFunc(getPopularSongsUrl, api.GetPopularSongs).Methods(http.MethodGet)
 	router.HandleFunc(deleteSongUrl, api.DeleteSong).Methods(http.MethodDelete)
 }
 

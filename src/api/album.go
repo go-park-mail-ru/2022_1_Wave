@@ -53,6 +53,10 @@ func getAlbumByIDFromStorage(albumRep db.AlbumRep, id uint64) (*models.Album, er
 	return albumRep.SelectByID(id)
 }
 
+func getPopularAlbums(albumRep db.AlbumRep) (*[]models.Album, error) {
+	return albumRep.GetPopularAlbums()
+}
+
 // GetAlbums godoc
 // @Summary      GetAlbums
 // @Description  getting all albums
@@ -220,4 +224,28 @@ func DeleteAlbum(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(utils.Success{
 		Result: db.SuccessDeletedAlbum + "(" + fmt.Sprint(id) + ")",
 	})
+}
+
+// GetPopularAlbums godoc
+// @Summary      GetPopularAlbums
+// @Description  getting popular albums
+// @Tags     album
+// @Accept	 application/json
+// @Produce  application/json
+// @Success  200 {object} utils.Success
+// @Failure 400 {object} utils.Error "Data is invalid"
+// @Failure 405 {object} utils.Error "Method is not allowed"
+// @Router   /api/v1/albums/popular [get]
+func GetPopularAlbums(w http.ResponseWriter, r *http.Request) {
+	storage := &db.Storage.AlbumStorage
+	storage.Mutex.RLock()
+	defer storage.Mutex.RUnlock()
+	songs, err := getPopularAlbums(storage)
+	if err != nil {
+		utils.WriteError(w, err, http.StatusBadRequest)
+		return
+	}
+	result, _ := json.MarshalIndent(songs, "", "    ")
+	json.NewEncoder(w).Encode(utils.Success{
+		Result: string(result)})
 }
