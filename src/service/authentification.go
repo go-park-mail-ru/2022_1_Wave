@@ -61,6 +61,13 @@ func SetNewUnauthorizedSession() (*http.Cookie, string) {
 	return cookie, csrfToken
 }
 
+func AuthorizeUser(sessionId string, userId uint) {
+	nowSession, _ := Sessions[sessionId]
+	nowSession.UserId = userId
+	nowSession.IsAuthorized = true
+	Sessions[sessionId] = nowSession
+}
+
 // добавит запись о сессии и вернет сгенерированный идентификатор сессии и csrf-токен
 func SetNewSession(userId uint) (*http.Cookie, string) {
 	sessionId := uuid.NewString()
@@ -108,10 +115,8 @@ func IsAuthorized(r *http.Request) bool {
 	authorized := false
 	session, err := r.Cookie(config.C.SessionIDKey)
 	if err == nil && session != nil {
-        fmt.Println(session.Value)
 		val, ok := Sessions[session.Value]
 		if ok {
-            fmt.Println(val.IsAuthorized)
 			authorized = val.IsAuthorized
 		}
 	}

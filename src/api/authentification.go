@@ -1,30 +1,13 @@
 package api
 
 import (
-	"github.com/gin-gonic/gin"
 	"github.com/go-park-mail-ru/2022_1_Wave/config"
 	"github.com/go-park-mail-ru/2022_1_Wave/db"
 	"github.com/go-park-mail-ru/2022_1_Wave/forms"
 	"github.com/go-park-mail-ru/2022_1_Wave/service"
-	"github.com/gorilla/csrf"
 	"net/http"
 	"time"
 )
-
-// GET /api/csrf
-//
-// Получить CSRF токен. Токен будет находиться заголовке "X-CSRF-Token" в теле
-// ответа.
-//
-// Заголовок X-CSRF-Token должен быть установлен в теле каждого
-// аутентифицированного POST запроса. Иначе сервер выдаст статус код 403
-// Forbidden.
-func Csrf(c *gin.Context) {
-	csrfToken := csrf.Token(c.Request)
-	c.SetCookie("X-CSRF-Token", csrfToken, 5, "/", config.C.Domain, true, false)
-	c.JSON(http.StatusOK, gin.H{"status": "csrf header was set"})
-	return
-}
 
 // Login godoc
 // @Summary      Login
@@ -66,9 +49,8 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// и мы просто обновляем состояние текущей сессии
-	session, err := service.GetSession(r)
-	session.IsAuthorized = true
-	session.UserId = user.ID
+	session, _ := r.Cookie(config.C.SessionIDKey)
+	service.AuthorizeUser(session.Value, user.ID)
 
 	w.Write([]byte(`{"status": "you are login"}`))
 }
@@ -107,11 +89,10 @@ func SignUp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// теперь создаем для зарегистрированного пользователя сессию
+	// теперь обновляем сессию - делаем пользователя авторизованным
 	nowUser, err := db.MyUserStorage.SelectByUsername(userToLogin.Username)
-	session, err := service.GetSession(r)
-	session.UserId = nowUser.ID
-	session.IsAuthorized = true
+	sessionId, _ := r.Cookie(config.C.SessionIDKey)
+	service.AuthorizeUser(sessionId.Value, nowUser.ID)
 
 	w.Write([]byte(`{"status": "you are sign up"}`))
 }

@@ -26,14 +26,11 @@ func GetSelfUser(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, `{"error": "no user with such id"}`, http.StatusNotFound)
 		return
 	}
-	userFromDb.Password = ""
 
-	response := &UserGetResponse{
-		Status: "OK",
-		Body:   *userFromDb,
-	}
+	userFromDbCopy := *userFromDb
+	userFromDbCopy.Password = ""
 
-	json.NewEncoder(w).Encode(response)
+	json.NewEncoder(w).Encode(userFromDbCopy)
 }
 
 // 127.0.0.1/api/v1/users/<id>
@@ -45,18 +42,15 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := db.MyUserStorage.SelectByID(uint(userId))
+	userFromDb, err := db.MyUserStorage.SelectByID(uint(userId))
 
 	if err != nil {
 		http.Error(w, `{"error": "user not found"}`, http.StatusNotFound)
 		return
 	}
-	user.Password = ""
 
-	response := &UserGetResponse{
-		Status: "OK",
-		Body:   *user,
-	}
+	userFromDbCopy := *userFromDb
+	userFromDbCopy.Password = ""
 
-	json.NewEncoder(w).Encode(response)
+	json.NewEncoder(w).Encode(userFromDbCopy)
 }
