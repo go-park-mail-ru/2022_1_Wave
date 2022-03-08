@@ -76,9 +76,16 @@ func GetAlbums(w http.ResponseWriter, r *http.Request) {
 		utils.WriteError(w, err, http.StatusBadRequest)
 		return
 	}
+
+	if *albums == nil {
+		*albums = []models.Album{}
+	}
+
 	result, _ := json.MarshalIndent(albums, "", "    ")
+	fmt.Println(string(result))
 	json.NewEncoder(w).Encode(utils.Success{
 		Result: string(result)})
+
 }
 
 // CreateAlbum godoc
@@ -240,12 +247,12 @@ func GetPopularAlbums(w http.ResponseWriter, r *http.Request) {
 	storage := &db.Storage.AlbumStorage
 	storage.Mutex.RLock()
 	defer storage.Mutex.RUnlock()
-	songs, err := getPopularAlbums(storage)
+	albums, err := getPopularAlbums(storage)
 	if err != nil {
 		utils.WriteError(w, err, http.StatusBadRequest)
 		return
 	}
-	result, _ := json.MarshalIndent(songs, "", "    ")
+	result, _ := json.MarshalIndent(albums, "", "    ")
 	json.NewEncoder(w).Encode(utils.Success{
 		Result: string(result)})
 }

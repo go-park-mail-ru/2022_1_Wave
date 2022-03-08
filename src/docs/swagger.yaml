@@ -411,7 +411,7 @@ paths:
     get:
       consumes:
       - application/json
-      description: getting top20top20 popular artists
+      description: getting top20 popular artists
       produces:
       - application/json
       responses:

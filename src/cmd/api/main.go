@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/go-park-mail-ru/2022_1_Wave/config"
+	"github.com/go-park-mail-ru/2022_1_Wave/db"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/net"
 	"github.com/gorilla/mux"
 	"log"
@@ -18,6 +19,8 @@ func main() {
 	} else {
 		log.Println("config loaded successfuly: ", config.C)
 	}
+
+	db.Storage.InitStorage()
 
 	router := mux.NewRouter()
 

@@ -3,7 +3,9 @@ package db
 import (
 	"errors"
 	"github.com/go-park-mail-ru/2022_1_Wave/db/models"
+	"log"
 	"math"
+	"math/rand"
 	"sort"
 	"sync"
 )
@@ -67,6 +69,64 @@ type globalStorage struct {
 }
 
 var Storage = globalStorage{}
+
+func randomRune() string {
+	return string('a' + rune(rand.Intn('z'-'a'+1)))
+}
+
+func (storage *globalStorage) InitStorage() {
+	const quantity = 50
+	storage.Mutex.Lock()
+	defer storage.Mutex.Unlock()
+
+	albums := make([]models.Album, quantity)
+	songs := make([]models.Song, quantity)
+	artists := make([]models.Artist, quantity)
+
+	const max = 10000
+	// albums and artists
+	for i := 0; i < quantity; i++ {
+		artists[i] = models.Artist{
+			Id:             uint64(i),
+			Name:           randomRune(),
+			Photo:          "/public/artists/photo/" + randomRune() + ".png",
+			CountFollowers: uint64(rand.Int63n(max + 1)),
+			CountListening: uint64(rand.Int63n(max + 1)),
+		}
+		albums[i] = models.Album{
+			Id:             uint64(i),
+			Title:          randomRune(),
+			AuthorId:       uint64(rand.Int63n(quantity + 1)),
+			CountLikes:     uint64(rand.Int63n(max + 1)),
+			CountListening: uint64(rand.Int63n(max + 1)),
+			Date:           0,
+			CoverId:        uint64(rand.Int63n(max + 1)),
+		}
+	}
+
+	// songs
+	for i := 0; i < quantity; i++ {
+		songs[i] = models.Song{
+			Id:             uint64(i),
+			AlbumId:        albums[rand.Intn(len(albums))].Id,
+			AuthorId:       artists[rand.Intn(len(artists))].Id,
+			Title:          string('a' + rune(rand.Intn('z'-'a'+1))),
+			Duration:       uint64(rand.Int63n(max + 1)),
+			Mp4:            "/public/songs/mp4/" + randomRune() + ".mp4",
+			CountLikes:     uint64(rand.Int63n(max + 1)),
+			CountListening: uint64(rand.Int63n(max + 1)),
+		}
+	}
+
+	storage.ArtistStorage.Artists = artists
+	storage.AlbumStorage.Albums = albums
+	storage.SongStorage.Songs = songs
+
+	log.Println("Success init local storage.")
+	log.Println("Artists:", len(storage.ArtistStorage.Artists))
+	log.Println("Albums:", len(storage.AlbumStorage.Albums))
+	log.Println("Songs:", len(storage.SongStorage.Songs))
+}
 
 // ------------------------------------------------------------------
 

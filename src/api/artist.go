@@ -56,6 +56,10 @@ func GetArtists(w http.ResponseWriter, r *http.Request) {
 		utils.WriteError(w, err, http.StatusBadRequest)
 		return
 	}
+	if *artists == nil {
+		*artists = []models.Artist{}
+	}
+
 	result, _ := json.MarshalIndent(artists, "", "    ")
 	json.NewEncoder(w).Encode(utils.Success{
 		Result: string(result)})

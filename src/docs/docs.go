@@ -385,7 +385,7 @@ const docTemplate = `{
         },
         "/api/v1/artists/popular": {
             "get": {
-                "description": "getting top20top20 popular artists",
+                "description": "getting top20 popular artists",
                 "consumes": [
                     "application/json"
                 ],

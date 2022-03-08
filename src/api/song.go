@@ -56,6 +56,9 @@ func GetSongs(w http.ResponseWriter, r *http.Request) {
 		utils.WriteError(w, err, http.StatusBadRequest)
 		return
 	}
+	if *songs == nil {
+		*songs = []models.Song{}
+	}
 	result, _ := json.MarshalIndent(songs, "", "    ")
 	json.NewEncoder(w).Encode(utils.Success{
 		Result: string(result)})
