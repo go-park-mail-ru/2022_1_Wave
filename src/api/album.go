@@ -33,6 +33,10 @@ import (
 //	}, nil
 //}
 
+func getAllAlbums(albumRep db.AlbumRep) (*[]models.Album, error) {
+	return albumRep.GetAllAlbums()
+}
+
 func addAlbumToStorage(albumRep db.AlbumRep, album models.Album) error {
 	return albumRep.Insert(&album)
 }
@@ -47,10 +51,6 @@ func deleteAlbumFromStorageByID(albumRep db.AlbumRep, id uint64) error {
 
 func getAlbumByIDFromStorage(albumRep db.AlbumRep, id uint64) (*models.Album, error) {
 	return albumRep.SelectByID(id)
-}
-
-func getAllAlbums(albumRep db.AlbumRep) (*[]models.Album, error) {
-	return albumRep.GetAllAlbums()
 }
 
 // GetAlbums godoc

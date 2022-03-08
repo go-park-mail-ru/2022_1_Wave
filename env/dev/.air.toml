@@ -7,9 +7,9 @@ tmp_dir = "tmp"
 
 [build]
 # Just plain old shell command. You could use `make` as well.
-cmd = "go build -o ./tmp/wave.music main.go"
+cmd = "go build -o ./tmp/wave.music ./cmd/api/main.go"
 # Binary file yields from `cmd`.
-bin = "tmp/main"
+bin = "tmp/wave.music"
 # Customize binary, can setup environment variables when run your app.
 full_bin = "APP_ENV=dev APP_USER=air ./tmp/wave.music"
 # Watch these filename extensions.

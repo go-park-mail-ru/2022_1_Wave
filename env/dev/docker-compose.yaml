@@ -22,7 +22,6 @@ services:
       - ../../src:/var/www/wave.music
       - ./.air.toml:/var/www/wave.music/.air.toml
 
-
   db:
     image: postgres
     container_name: "wave-db"

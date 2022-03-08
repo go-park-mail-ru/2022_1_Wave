@@ -6,12 +6,20 @@ import (
 	"net/http"
 )
 
+//type Success struct {
+//	Result string `json:"result" example:"success created album(Multitude)"`
+//}
+//
+//type Error struct {
+//	Err string `json:"error" example:"invalid character 'h' after object key:value pair"`
+//}
+
 type Success struct {
-	Result string `json:"result"`
+	Result string
 }
 
 type Error struct {
-	Err string `json:"error"`
+	Err string
 }
 
 func (err Error) makeError(msg string) Error {

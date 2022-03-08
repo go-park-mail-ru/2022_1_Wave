@@ -36,10 +36,11 @@ const (
 
 // artists urls
 const (
-	createArtistUrl = "/" + apiSuffix + currentApiVersion + artistsSuffix
-	updateArtistUrl = createArtistUrl
-	getArtistUrl    = "/" + apiSuffix + currentApiVersion + artistsSuffix + idSuffix
-	deleteArtistUrl = getArtistUrl
+	createArtistUrl  = "/" + apiSuffix + currentApiVersion + artistsSuffix
+	updateArtistUrl  = createArtistUrl
+	getAllArtistsUrl = "/" + apiSuffix + currentApiVersion + artistsSuffix
+	getArtistUrl     = "/" + apiSuffix + currentApiVersion + artistsSuffix + idSuffix
+	deleteArtistUrl  = getArtistUrl
 )
 
 // auth urls
@@ -72,6 +73,7 @@ func main() {
 	router.HandleFunc(deleteAlbumUrl, api.DeleteAlbum).Methods(http.MethodDelete)
 
 	// artists
+	router.HandleFunc(getAllArtistsUrl, api.GetArtists).Methods(http.MethodGet)
 	router.HandleFunc(createArtistUrl, api.CreateArtist).Methods(http.MethodPost)
 	router.HandleFunc(updateArtistUrl, api.UpdateArtist).Methods(http.MethodPut)
 	router.HandleFunc(getArtistUrl, api.GetArtist).Methods(http.MethodGet)

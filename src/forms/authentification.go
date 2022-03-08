@@ -1,10 +1,6 @@
 package forms
 
-import (
-	"github.com/dgrijalva/jwt-go"
-)
-
-type SessionTokenRequest struct {
+/*type SessionTokenRequest struct {
 	UserID   uint   `binding:"required"`
 	UserName string `binding:"required"`
 }
@@ -15,7 +11,7 @@ type SessionClaims struct {
 	jwt.StandardClaims
 }
 
-type Session struct {
-	SubjectID uint
-	PeriodID  uint
+type Sessions struct {
+	UserSessions map[string]uint
 }
+*/
