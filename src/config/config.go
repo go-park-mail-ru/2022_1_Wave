@@ -9,8 +9,9 @@ import (
 type Config struct {
 	Domain string `toml:"domain"` // Доменное имя
 
-	SessionKey string `toml:"session_key"` // Криптографический ключ для сессий
-	CSRFKey    string `toml:"csrf_key"`    // Криптографический ключ для CSRF защиты
+	SessionIDKey string `toml:"session_id"`  // как будет называться ключ сессии в cookie
+	SessionKey   string `toml:"session_key"` // Криптографический ключ для сессий
+	CSRFKey      string `toml:"csrf_key"`    // Криптографический ключ для CSRF защиты
 
 	TokenMaxAge int64 `toml:"token_max_age"` // время жизни токена
 

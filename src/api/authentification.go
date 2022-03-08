@@ -1,30 +1,17 @@
 package api
 
 import (
-	"github.com/gin-gonic/gin"
 	"github.com/go-park-mail-ru/2022_1_Wave/config"
-	"github.com/gorilla/csrf"
+	"github.com/go-park-mail-ru/2022_1_Wave/db"
+	"github.com/go-park-mail-ru/2022_1_Wave/forms"
+	"github.com/go-park-mail-ru/2022_1_Wave/service"
 	"net/http"
+	"time"
 )
 
-// GET /api/csrf
-//
-// Получить CSRF токен. Токен будет находиться заголовке "X-CSRF-Token" в теле
-// ответа.
-//
-// Заголовок X-CSRF-Token должен быть установлен в теле каждого
-// аутентифицированного POST запроса. Иначе сервер выдаст статус код 403
-// Forbidden.
-func Csrf(c *gin.Context) {
-	csrfToken := csrf.Token(c.Request)
-	c.SetCookie("X-CSRF-Token", csrfToken, 5, "/", config.C.Domain, true, false)
-	c.JSON(http.StatusOK, gin.H{"status": "csrf header was set"})
-	return
-}
-
-// SignIn godoc
-// @Summary      SignIn
-// @Description  sign in user
+// Login godoc
+// @Summary      Login
+// @Description  login user
 // @Tags     auth
 // @Accept	 application/json
 // @Produce  application/json
@@ -32,12 +19,40 @@ func Csrf(c *gin.Context) {
 // @Success  200 {object} forms.Result
 // @Failure 460 {object} forms.Result "Data is invalid"
 // @Failure 521 {object} forms.Result "Cannot create session"
-// @Router   /api/signin [post]
-func SignIn(c *gin.Context) {
+// @Router   /api/login [post]
+func Login(w http.ResponseWriter, r *http.Request) {
+	userToLogin, err := forms.UserUnmarshal(r)
+	if err != nil {
+		http.Error(w, `{"error": "bad request"}`, http.StatusBadRequest)
+		return
+	}
 
-	c.JSON(http.StatusOK, gin.H{"status": "you are signed in"})
-	return
+	// проверяем логин с паролем
+	var checkUser bool
+	if userToLogin.Username != "" {
+		checkUser = db.MyUserStorage.CheckUsernameAndPassword(userToLogin.Username, userToLogin.Password)
+	} else {
+		checkUser = db.MyUserStorage.CheckEmailAndPassword(userToLogin.Email, userToLogin.Password)
+	}
 
+	if !checkUser {
+		http.Error(w, `{"error": "invalid login or password"}`, http.StatusBadRequest)
+		return
+	}
+
+	// зайдя сюда мы уверены, что пользователь прислал нам куку неавторизованного пользователя (навешены специальные middleware)
+	var user *db.User
+	if userToLogin.Username != "" {
+		user, _ = db.MyUserStorage.SelectByUsername(userToLogin.Username)
+	} else {
+		user, _ = db.MyUserStorage.SelectByEmail(userToLogin.Email)
+	}
+
+	// и мы просто обновляем состояние текущей сессии
+	session, _ := r.Cookie(config.C.SessionIDKey)
+	service.AuthorizeUser(session.Value, user.ID)
+
+	w.Write([]byte(`{"status": "you are login"}`))
 }
 
 // SignUp godoc
@@ -51,14 +66,39 @@ func SignIn(c *gin.Context) {
 // @Failure 460 {object} forms.Result "Data is invalid"
 // @Failure 521 {object} forms.Result "Cannot create session"
 // @Router   /api/signUp [post]
-func SignUp(c *gin.Context) {
+func SignUp(w http.ResponseWriter, r *http.Request) {
+	userToLogin, err := forms.UserUnmarshal(r)
+	if err != nil {
+		http.Error(w, `{"error": "bad request"}`, http.StatusBadRequest)
+		return
+	}
 
-	c.JSON(http.StatusOK, gin.H{"status": "you are signed up"})
-	return
+	if !userToLogin.IsValid() {
+		http.Error(w, `{"error": "invalid fields"}`, http.StatusBadRequest)
+		return
+	}
+
+	err = db.MyUserStorage.Insert(&db.User{
+		Username: userToLogin.Username,
+		Email:    userToLogin.Email,
+		Password: userToLogin.Password,
+	})
+
+	if err != nil {
+		http.Error(w, `{"error": "user already exist"}`, http.StatusBadRequest)
+		return
+	}
+
+	// теперь обновляем сессию - делаем пользователя авторизованным
+	nowUser, err := db.MyUserStorage.SelectByUsername(userToLogin.Username)
+	sessionId, _ := r.Cookie(config.C.SessionIDKey)
+	service.AuthorizeUser(sessionId.Value, nowUser.ID)
+
+	w.Write([]byte(`{"status": "you are sign up"}`))
 }
 
-// SignOut godoc
-// @Summary      SignOut
+// Logout godoc
+// @Summary      Logout
 // @Description  sign in user
 // @Tags     auth
 // @Accept	 application/json
@@ -68,8 +108,29 @@ func SignUp(c *gin.Context) {
 // @Failure 460 {object} forms.Result "Data is invalid"
 // @Failure 521 {object} forms.Result "Cannot create session"
 // @Router   /api/signout [post]
-func SignOut(c *gin.Context) {
+func Logout(w http.ResponseWriter, r *http.Request) {
+	session, _ := r.Cookie(config.C.SessionIDKey)
+	service.DeleteSession(session.Value)
 
-	c.JSON(http.StatusOK, gin.H{"status": "you are signed out"})
-	return
+	session.Expires = time.Now().AddDate(0, 0, -1)
+	http.SetCookie(w, session)
+}
+
+func GetCSRF(w http.ResponseWriter, r *http.Request) {
+	session, err := r.Cookie(config.C.SessionIDKey)
+	if err != nil { // если нет сессии, создаем
+		cookie, csrfToken := service.SetNewUnauthorizedSession()
+		http.SetCookie(w, cookie)
+		w.Header().Set("X-CSRF-TOKEN", csrfToken)
+	} else {
+		_, ok := service.Sessions[session.Value]
+		if ok { // если есть сессия, просто обновляем CSRF
+			csrfToken := service.SetNewCSRFToken(session.Value)
+			w.Header().Set("X-CSRF-TOKEN", csrfToken)
+		} else {
+			cookie, csrfToken := service.SetNewUnauthorizedSession()
+			http.SetCookie(w, cookie)
+			w.Header().Set("X-CSRF-TOKEN", csrfToken)
+		}
+	}
 }
