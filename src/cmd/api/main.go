@@ -89,7 +89,7 @@ func main() {
 	router.HandleFunc(getSelfUserUrl, middleware.CSRF(middleware.Auth(api.GetSelfUser))).Methods(http.MethodGet)
 	router.HandleFunc(getCSRFAuthUrl, api.GetCSRF).Methods(http.MethodGet)
 
-	// /api/v1/data/img/album/123.jpg -> ./static/img/album/123.jpg
+	// /api/v1/static/img/album/123.jpg -> ./static/img/album/123.jpg
 	staticHandler := http.StripPrefix(
 		getStaticUrl,
 		http.FileServer(http.Dir("./static")),
