@@ -143,6 +143,39 @@
             }
         },
         "/api/v1/albums/": {
+            "get": {
+                "description": "getting all albums",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "album"
+                ],
+                "summary": "GetAlbums",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Success"
+                        }
+                    },
+                    "400": {
+                        "description": "Data is invalid",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Error"
+                        }
+                    },
+                    "405": {
+                        "description": "Method is not allowed",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Error"
+                        }
+                    }
+                }
+            },
             "put": {
                 "description": "updating album by id",
                 "consumes": [
@@ -319,6 +352,39 @@
             }
         },
         "/api/v1/artists/": {
+            "get": {
+                "description": "getting all artists",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "artist"
+                ],
+                "summary": "GetArtists",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Success"
+                        }
+                    },
+                    "400": {
+                        "description": "Data is invalid",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Error"
+                        }
+                    },
+                    "405": {
+                        "description": "Method is not allowed",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Error"
+                        }
+                    }
+                }
+            },
             "put": {
                 "description": "updating artist by id",
                 "consumes": [

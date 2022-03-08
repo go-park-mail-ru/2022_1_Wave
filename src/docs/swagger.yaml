@@ -166,6 +166,28 @@ paths:
       tags:
       - auth
   /api/v1/albums/:
+    get:
+      consumes:
+      - application/json
+      description: getting all albums
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.Success'
+        "400":
+          description: Data is invalid
+          schema:
+            $ref: '#/definitions/utils.Error'
+        "405":
+          description: Method is not allowed
+          schema:
+            $ref: '#/definitions/utils.Error'
+      summary: GetAlbums
+      tags:
+      - album
     post:
       consumes:
       - application/json
@@ -282,6 +304,28 @@ paths:
       tags:
       - album
   /api/v1/artists/:
+    get:
+      consumes:
+      - application/json
+      description: getting all artists
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.Success'
+        "400":
+          description: Data is invalid
+          schema:
+            $ref: '#/definitions/utils.Error'
+        "405":
+          description: Method is not allowed
+          schema:
+            $ref: '#/definitions/utils.Error'
+      summary: GetArtists
+      tags:
+      - artist
     post:
       consumes:
       - application/json
