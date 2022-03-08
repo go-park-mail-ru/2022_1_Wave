@@ -518,7 +518,7 @@
                 }
             },
             "delete": {
-                "description": "deleting album by id",
+                "description": "deleting artist by id",
                 "consumes": [
                     "application/json"
                 ],
@@ -533,6 +533,250 @@
                     {
                         "type": "integer",
                         "description": "id of artist which need to be deleted",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Success"
+                        }
+                    },
+                    "400": {
+                        "description": "Data is invalid",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Error"
+                        }
+                    },
+                    "405": {
+                        "description": "Method is not allowed",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/songs/": {
+            "get": {
+                "description": "getting all songs",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "song"
+                ],
+                "summary": "GetSongs",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Success"
+                        }
+                    },
+                    "400": {
+                        "description": "Data is invalid",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Error"
+                        }
+                    },
+                    "405": {
+                        "description": "Method is not allowed",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Error"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "updating song by id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "song"
+                ],
+                "summary": "UpdateSong",
+                "parameters": [
+                    {
+                        "description": "id of updating song and params of it.",
+                        "name": "Song",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Song"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Success"
+                        }
+                    },
+                    "400": {
+                        "description": "Data is invalid",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Error"
+                        }
+                    },
+                    "405": {
+                        "description": "Method is not allowed",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Error"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "creating new song",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "song"
+                ],
+                "summary": "CreateSong",
+                "parameters": [
+                    {
+                        "description": "params of new song. Id will be set automatically.",
+                        "name": "Song",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Song"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Success"
+                        }
+                    },
+                    "400": {
+                        "description": "Data is invalid",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Error"
+                        }
+                    },
+                    "405": {
+                        "description": "Method is not allowed",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/songs/popular": {
+            "get": {
+                "description": "getting popular songs",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "song"
+                ],
+                "summary": "GetPopularSongs",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Success"
+                        }
+                    },
+                    "400": {
+                        "description": "Data is invalid",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Error"
+                        }
+                    },
+                    "405": {
+                        "description": "Method is not allowed",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/songs/{id}": {
+            "get": {
+                "description": "getting song by id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "song"
+                ],
+                "summary": "GetSong",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "id of song which need to be getted",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Song"
+                        }
+                    },
+                    "400": {
+                        "description": "Data is invalid",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Error"
+                        }
+                    },
+                    "405": {
+                        "description": "Method is not allowed",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Error"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "deleting song by id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "song"
+                ],
+                "summary": "DeleteSong",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "id of song which need to be deleted",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -647,6 +891,43 @@
                 "photo": {
                     "type": "string",
                     "example": "/public/artists/photo/imagineDragons.png"
+                }
+            }
+        },
+        "models.Song": {
+            "type": "object",
+            "properties": {
+                "albumId": {
+                    "type": "integer",
+                    "example": 143
+                },
+                "authorId": {
+                    "type": "integer",
+                    "example": 121
+                },
+                "countLikes": {
+                    "type": "integer",
+                    "example": 54
+                },
+                "countListening": {
+                    "type": "integer",
+                    "example": 15632
+                },
+                "duration": {
+                    "type": "integer",
+                    "example": 180
+                },
+                "id": {
+                    "type": "integer",
+                    "example": 777
+                },
+                "mp4": {
+                    "type": "string",
+                    "example": "/public/songs/mp4/track1.mp4"
+                },
+                "title": {
+                    "type": "string",
+                    "example": "Rain"
                 }
             }
         },

@@ -62,6 +62,33 @@ definitions:
         example: /public/artists/photo/imagineDragons.png
         type: string
     type: object
+  models.Song:
+    properties:
+      albumId:
+        example: 143
+        type: integer
+      authorId:
+        example: 121
+        type: integer
+      countLikes:
+        example: 54
+        type: integer
+      countListening:
+        example: 15632
+        type: integer
+      duration:
+        example: 180
+        type: integer
+      id:
+        example: 777
+        type: integer
+      mp4:
+        example: /public/songs/mp4/track1.mp4
+        type: string
+      title:
+        example: Rain
+        type: string
+    type: object
   utils.Error:
     properties:
       err:
@@ -388,7 +415,7 @@ paths:
     delete:
       consumes:
       - application/json
-      description: deleting album by id
+      description: deleting artist by id
       parameters:
       - description: id of artist which need to be deleted
         in: path
@@ -441,4 +468,165 @@ paths:
       summary: GetArtist
       tags:
       - artist
+  /api/v1/songs/:
+    get:
+      consumes:
+      - application/json
+      description: getting all songs
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.Success'
+        "400":
+          description: Data is invalid
+          schema:
+            $ref: '#/definitions/utils.Error'
+        "405":
+          description: Method is not allowed
+          schema:
+            $ref: '#/definitions/utils.Error'
+      summary: GetSongs
+      tags:
+      - song
+    post:
+      consumes:
+      - application/json
+      description: creating new song
+      parameters:
+      - description: params of new song. Id will be set automatically.
+        in: body
+        name: Song
+        required: true
+        schema:
+          $ref: '#/definitions/models.Song'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.Success'
+        "400":
+          description: Data is invalid
+          schema:
+            $ref: '#/definitions/utils.Error'
+        "405":
+          description: Method is not allowed
+          schema:
+            $ref: '#/definitions/utils.Error'
+      summary: CreateSong
+      tags:
+      - song
+    put:
+      consumes:
+      - application/json
+      description: updating song by id
+      parameters:
+      - description: id of updating song and params of it.
+        in: body
+        name: Song
+        required: true
+        schema:
+          $ref: '#/definitions/models.Song'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.Success'
+        "400":
+          description: Data is invalid
+          schema:
+            $ref: '#/definitions/utils.Error'
+        "405":
+          description: Method is not allowed
+          schema:
+            $ref: '#/definitions/utils.Error'
+      summary: UpdateSong
+      tags:
+      - song
+  /api/v1/songs/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: deleting song by id
+      parameters:
+      - description: id of song which need to be deleted
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.Success'
+        "400":
+          description: Data is invalid
+          schema:
+            $ref: '#/definitions/utils.Error'
+        "405":
+          description: Method is not allowed
+          schema:
+            $ref: '#/definitions/utils.Error'
+      summary: DeleteSong
+      tags:
+      - song
+    get:
+      consumes:
+      - application/json
+      description: getting song by id
+      parameters:
+      - description: id of song which need to be getted
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Song'
+        "400":
+          description: Data is invalid
+          schema:
+            $ref: '#/definitions/utils.Error'
+        "405":
+          description: Method is not allowed
+          schema:
+            $ref: '#/definitions/utils.Error'
+      summary: GetSong
+      tags:
+      - song
+  /api/v1/songs/popular:
+    get:
+      consumes:
+      - application/json
+      description: getting popular songs
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.Success'
+        "400":
+          description: Data is invalid
+          schema:
+            $ref: '#/definitions/utils.Error'
+        "405":
+          description: Method is not allowed
+          schema:
+            $ref: '#/definitions/utils.Error'
+      summary: GetPopularSongs
+      tags:
+      - song
 swagger: "2.0"

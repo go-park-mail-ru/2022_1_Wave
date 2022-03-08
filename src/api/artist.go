@@ -47,12 +47,12 @@ func GetArtists(w http.ResponseWriter, r *http.Request) {
 	storage := &db.Storage.ArtistStorage
 	storage.Mutex.RLock()
 	defer storage.Mutex.RUnlock()
-	albums, err := getAllArtists(storage)
+	artists, err := getAllArtists(storage)
 	if err != nil {
 		utils.WriteError(w, err, http.StatusBadRequest)
 		return
 	}
-	result, _ := json.MarshalIndent(albums, "", "    ")
+	result, _ := json.MarshalIndent(artists, "", "    ")
 	json.NewEncoder(w).Encode(utils.Success{
 		Result: string(result)})
 }
@@ -175,7 +175,7 @@ func GetArtist(w http.ResponseWriter, r *http.Request) {
 
 // DeleteArtist godoc
 // @Summary      DeleteArtist
-// @Description  deleting album by id
+// @Description  deleting artist by id
 // @Tags     artist
 // @Accept	 application/json
 // @Produce  application/json
