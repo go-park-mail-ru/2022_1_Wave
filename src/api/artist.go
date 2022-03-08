@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/go-park-mail-ru/2022_1_Wave/db"
 	"github.com/go-park-mail-ru/2022_1_Wave/db/models"
+	"github.com/go-park-mail-ru/2022_1_Wave/db/views"
 	"github.com/go-park-mail-ru/2022_1_Wave/pkg/utils"
 	"github.com/gorilla/mux"
 	"io/ioutil"
@@ -60,9 +61,15 @@ func GetArtists(w http.ResponseWriter, r *http.Request) {
 		*artists = []models.Artist{}
 	}
 
-	result, _ := json.MarshalIndent(artists, "", "    ")
+	artistsViews := make([]views.Artist, len(*artists))
+
+	for i, artist := range *artists {
+		artistsViews[i].Name = artist.Name
+		artistsViews[i].Cover = "assets/" + "artist_" + fmt.Sprint(artist.Id) + ".png"
+		fmt.Println(artistsViews[i])
+	}
 	json.NewEncoder(w).Encode(utils.Success{
-		Result: string(result)})
+		Result: artistsViews})
 }
 
 // CreateArtist godoc
@@ -173,12 +180,17 @@ func GetArtist(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	currentArtist, err := getArtistByIDFromStorage(&db.Storage.ArtistStorage, uint64(id))
+
+	currentArtistView := views.Artist{
+		Name:  currentArtist.Name,
+		Cover: "assets/" + "artist_" + fmt.Sprint(currentArtist.Id) + ".png",
+	}
+
 	if err != nil {
 		utils.WriteError(w, err, http.StatusBadRequest)
 		return
 	}
-	json.NewEncoder(w).Encode(currentArtist)
-	fmt.Println("artist storage now:", db.Storage.ArtistStorage.Artists)
+	json.NewEncoder(w).Encode(currentArtistView)
 }
 
 // DeleteArtist godoc
@@ -230,12 +242,18 @@ func GetPopularArtists(w http.ResponseWriter, r *http.Request) {
 	storage := &db.Storage.ArtistStorage
 	storage.Mutex.RLock()
 	defer storage.Mutex.RUnlock()
-	songs, err := getPopularArtists(storage)
+	artists, err := getPopularArtists(storage)
 	if err != nil {
 		utils.WriteError(w, err, http.StatusBadRequest)
 		return
 	}
-	result, _ := json.MarshalIndent(songs, "", "    ")
+
+	artistsViews := make([]views.Artist, len(*artists))
+
+	for i, artist := range *artists {
+		artistsViews[i].Name = artist.Name
+		artistsViews[i].Cover = "assets/" + "artist_" + fmt.Sprint(artist.Id) + ".png"
+	}
 	json.NewEncoder(w).Encode(utils.Success{
-		Result: string(result)})
+		Result: artistsViews})
 }

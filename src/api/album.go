@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/go-park-mail-ru/2022_1_Wave/db"
 	"github.com/go-park-mail-ru/2022_1_Wave/db/models"
+	"github.com/go-park-mail-ru/2022_1_Wave/db/views"
 	"github.com/go-park-mail-ru/2022_1_Wave/pkg/utils"
 	"github.com/gorilla/mux"
 	"io/ioutil"
@@ -29,7 +30,7 @@ import (
 //		CountLikes:     countLikes,
 //		CountListening: countListening,
 //		Date:           date,
-//		Cover:        coverId,
+//		CoverId:        coverId,
 //	}, nil
 //}
 
@@ -81,12 +82,17 @@ func GetAlbums(w http.ResponseWriter, r *http.Request) {
 		*albums = []models.Album{}
 	}
 
-	result, _ := json.MarshalIndent(albums, "", "    ")
-	fmt.Println(utils.Success{
-		Result: string(result)})
-	json.NewEncoder(w).Encode(utils.Success{
-		Result: string(result)})
+	albumViews := make([]views.Album, len(*albums))
 
+	for i, album := range *albums {
+		albumViews[i].Title = album.Title
+		artist, _ := getArtistByIDFromStorage(&db.Storage.ArtistStorage, album.AuthorId)
+		albumViews[i].Artist = artist.Name
+		albumViews[i].Cover = "assets/" + "album_" + fmt.Sprint(album.CoverId) + ".png"
+		fmt.Println(albumViews[i])
+	}
+	json.NewEncoder(w).Encode(utils.Success{
+		Result: albumViews})
 }
 
 // CreateAlbum godoc
@@ -194,11 +200,19 @@ func GetAlbum(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	currentAlbum, err := getAlbumByIDFromStorage(&db.Storage.AlbumStorage, uint64(id))
+	currentAlbumArtist, _ := getArtistByIDFromStorage(&db.Storage.ArtistStorage, currentAlbum.AuthorId)
+
+	currentAlbumView := views.Album{
+		Title:  currentAlbum.Title,
+		Artist: currentAlbumArtist.Name,
+		Cover:  "assets/" + "album_" + fmt.Sprint(currentAlbum.CoverId) + ".png",
+	}
+
 	if err != nil {
 		utils.WriteError(w, err, http.StatusBadRequest)
 		return
 	}
-	json.NewEncoder(w).Encode(currentAlbum)
+	json.NewEncoder(w).Encode(currentAlbumView)
 }
 
 // DeleteAlbum godoc
@@ -253,7 +267,15 @@ func GetPopularAlbums(w http.ResponseWriter, r *http.Request) {
 		utils.WriteError(w, err, http.StatusBadRequest)
 		return
 	}
-	result, _ := json.MarshalIndent(albums, "", "    ")
+
+	albumViews := make([]views.Album, len(*albums))
+
+	for i, album := range *albums {
+		albumViews[i].Title = album.Title
+		artist, _ := getArtistByIDFromStorage(&db.Storage.ArtistStorage, album.AuthorId)
+		albumViews[i].Artist = artist.Name
+		albumViews[i].Cover = "assets/" + "album_" + fmt.Sprint(album.CoverId) + ".png"
+	}
 	json.NewEncoder(w).Encode(utils.Success{
-		Result: string(result)})
+		Result: albumViews})
 }

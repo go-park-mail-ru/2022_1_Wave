@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/go-park-mail-ru/2022_1_Wave/db"
 	"github.com/go-park-mail-ru/2022_1_Wave/db/models"
+	"github.com/go-park-mail-ru/2022_1_Wave/db/views"
 	"github.com/go-park-mail-ru/2022_1_Wave/pkg/utils"
 	"github.com/gorilla/mux"
 	"io/ioutil"
@@ -29,7 +30,7 @@ func deleteSongFromStorageByID(songRep db.SongRep, id uint64) error {
 	return songRep.Delete(id)
 }
 
-func getSongByIDFromStorage(songRep db.SongRep, id uint64) (*models.Track, error) {
+func getTrackByIDFromStorage(songRep db.SongRep, id uint64) (*models.Track, error) {
 	return songRep.SelectByID(id)
 }
 
@@ -51,17 +52,26 @@ func GetSongs(w http.ResponseWriter, r *http.Request) {
 	storage := &db.Storage.SongStorage
 	storage.Mutex.RLock()
 	defer storage.Mutex.RUnlock()
-	songs, err := getAllSongs(storage)
+	tracks, err := getAllSongs(storage)
 	if err != nil {
 		utils.WriteError(w, err, http.StatusBadRequest)
 		return
 	}
-	if *songs == nil {
-		*songs = []models.Track{}
+	if *tracks == nil {
+		*tracks = []models.Track{}
 	}
-	result, _ := json.MarshalIndent(songs, "", "    ")
+
+	tracksViews := make([]views.Track, len(*tracks))
+
+	for i, track := range *tracks {
+		tracksViews[i].Title = track.Title
+		artist, _ := getArtistByIDFromStorage(&db.Storage.ArtistStorage, track.AuthorId)
+		tracksViews[i].Artist = artist.Name
+		tracksViews[i].Cover = "assets/" + "track_" + fmt.Sprint(track.CoverId) + ".png"
+		fmt.Println(tracksViews[i])
+	}
 	json.NewEncoder(w).Encode(utils.Success{
-		Result: string(result)})
+		Result: tracksViews})
 }
 
 // CreateSong godoc
@@ -171,12 +181,20 @@ func GetSong(w http.ResponseWriter, r *http.Request) {
 		utils.WriteError(w, errors.New(db.IndexOutOfRange), http.StatusBadRequest)
 		return
 	}
-	currentSong, err := getSongByIDFromStorage(storage, uint64(id))
+	currentTrack, err := getTrackByIDFromStorage(storage, uint64(id))
+	currentTrackArtist, _ := getArtistByIDFromStorage(&db.Storage.ArtistStorage, currentTrack.AuthorId)
+
+	currentTrackView := views.Track{
+		Title:  currentTrack.Title,
+		Artist: currentTrackArtist.Name,
+		Cover:  "assets/" + "track_" + fmt.Sprint(currentTrack.CoverId) + ".png",
+	}
+
 	if err != nil {
 		utils.WriteError(w, err, http.StatusBadRequest)
 		return
 	}
-	json.NewEncoder(w).Encode(currentSong)
+	json.NewEncoder(w).Encode(currentTrackView)
 }
 
 // DeleteSong godoc
@@ -227,12 +245,19 @@ func GetPopularSongs(w http.ResponseWriter, r *http.Request) {
 	storage := &db.Storage.SongStorage
 	storage.Mutex.RLock()
 	defer storage.Mutex.RUnlock()
-	songs, err := getPopularSongs(storage)
+	tracks, err := getPopularSongs(storage)
 	if err != nil {
 		utils.WriteError(w, err, http.StatusBadRequest)
 		return
 	}
-	result, _ := json.MarshalIndent(songs, "", "    ")
+	trackViews := make([]views.Album, len(*tracks))
+
+	for i, track := range *tracks {
+		trackViews[i].Title = track.Title
+		artist, _ := getArtistByIDFromStorage(&db.Storage.ArtistStorage, track.AuthorId)
+		trackViews[i].Artist = artist.Name
+		trackViews[i].Cover = "assets/" + "track_" + fmt.Sprint(track.CoverId) + ".png"
+	}
 	json.NewEncoder(w).Encode(utils.Success{
-		Result: string(result)})
+		Result: trackViews})
 }

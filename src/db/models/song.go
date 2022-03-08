@@ -11,7 +11,7 @@ type Track struct {
 	Title          string `json:"title" example:"Rain"`
 	Duration       uint64 `json:"duration" example:"180"`
 	Mp4            string `json:"mp4" example:"assets/track_1.mp4"`
-	Cover          string `json:"cover" example:"assets/track_1.png"`
+	CoverId        uint64 `json:"coverId" example:"254"`
 	CountLikes     uint64 `json:"countLikes" example:"54"`
 	CountListening uint64 `json:"countListening" example:"15632"`
 }

@@ -11,7 +11,7 @@ type Album struct {
 	CountLikes     uint64 `json:"countLikes" example:"54"`
 	CountListening uint64 `json:"countListening" example:"15632"`
 	Date           int    `json:"Date" example:"0"`
-	Cover          string `json:"cover" example:"assets/album_1.png"`
+	CoverId        uint64 `json:"coverId" example:"254"`
 }
 
 func (album *Album) CheckAlbum() error {
@@ -31,7 +31,7 @@ func (album *Album) CheckAlbum() error {
 	//	return errors.New(ErrorCountListeningIsNegative)
 	//}
 	//
-	//if album.Cover < 0 {
+	//if album.CoverId < 0 {
 	//	return errors.New(ErrorCoverIdIsNegative)
 	//}
 

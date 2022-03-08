@@ -75,6 +75,14 @@ func randomRune() string {
 	return string('a' + rune(rand.Intn('z'-'a'+1)))
 }
 
+func randomWord(maxLen int) string {
+	word := ""
+	for i := 0; i < maxLen; i++ {
+		word += randomRune()
+	}
+	return word
+}
+
 func (storage *globalStorage) InitStorage() {
 	const quantity = 10
 	storage.Mutex.Lock()
@@ -85,24 +93,29 @@ func (storage *globalStorage) InitStorage() {
 	artists := make([]models.Artist, quantity)
 
 	const max = 10000
+	const nameLen = 10
+	const albumLen = 10
+	const songLen = 10
 	// albums and artists
 	for i := 0; i < quantity; i++ {
 		id := uint64(i)
+
 		artists[i] = models.Artist{
 			Id:             id,
-			Name:           randomRune(),
+			Name:           randomWord(nameLen),
 			Photo:          "assets/artist_" + fmt.Sprint(id) + ".png",
 			CountFollowers: uint64(rand.Int63n(max + 1)),
 			CountListening: uint64(rand.Int63n(max + 1)),
 		}
 		albums[i] = models.Album{
 			Id:             id,
-			Title:          randomRune(),
-			AuthorId:       uint64(rand.Int63n(quantity + 1)),
+			Title:          randomWord(albumLen),
+			AuthorId:       uint64(rand.Int63n(quantity)),
 			CountLikes:     uint64(rand.Int63n(max + 1)),
 			CountListening: uint64(rand.Int63n(max + 1)),
 			Date:           0,
-			Cover:          "assets/album_" + fmt.Sprint(id) + ".png",
+			CoverId:        id,
+			//CoverId:        "assets/album_" + fmt.Sprint(id) + ".png",
 		}
 	}
 
@@ -113,10 +126,10 @@ func (storage *globalStorage) InitStorage() {
 			Id:             id,
 			AlbumId:        albums[rand.Intn(len(albums))].Id,
 			AuthorId:       artists[rand.Intn(len(artists))].Id,
-			Title:          string('a' + rune(rand.Intn('z'-'a'+1))),
+			Title:          randomWord(songLen),
 			Duration:       uint64(rand.Int63n(max + 1)),
 			Mp4:            "assets/track_" + fmt.Sprint(id) + ".mp4",
-			Cover:          "assets/track_" + fmt.Sprint(id) + ".png",
+			CoverId:        id,
 			CountLikes:     uint64(rand.Int63n(max + 1)),
 			CountListening: uint64(rand.Int63n(max + 1)),
 		}

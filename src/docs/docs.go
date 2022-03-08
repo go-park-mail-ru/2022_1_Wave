@@ -1013,9 +1013,9 @@ const docTemplate = `{
                     "type": "integer",
                     "example": 15632
                 },
-                "cover": {
-                    "type": "string",
-                    "example": "assets/album_1.png"
+                "coverId": {
+                    "type": "integer",
+                    "example": 254
                 },
                 "id": {
                     "type": "integer",
@@ -1071,9 +1071,9 @@ const docTemplate = `{
                     "type": "integer",
                     "example": 15632
                 },
-                "cover": {
-                    "type": "string",
-                    "example": "assets/track_1.png"
+                "coverId": {
+                    "type": "integer",
+                    "example": 254
                 },
                 "duration": {
                     "type": "integer",
@@ -1104,9 +1104,7 @@ const docTemplate = `{
         "utils.Success": {
             "type": "object",
             "properties": {
-                "result": {
-                    "type": "string"
-                }
+                "result": {}
             }
         }
     }

@@ -15,7 +15,7 @@ import (
 //}
 
 type Success struct {
-	Result string
+	Result interface{}
 }
 
 type Error struct {
