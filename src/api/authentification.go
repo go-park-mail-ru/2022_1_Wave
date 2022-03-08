@@ -15,15 +15,17 @@ import (
 // @Tags     auth
 // @Accept	 application/json
 // @Produce  application/json
-// @Param    UserForm body forms.User true  "new jwt data"
+// @Param    UserForm body forms.User
 // @Success  200 {object} forms.Result
-// @Failure 460 {object} forms.Result "Data is invalid"
-// @Failure 521 {object} forms.Result "Cannot create session"
-// @Router   /api/login [post]
+// @Failure 400 {object} forms.Result "the user is logged in (available only to unauthorized users)"
+// @Failure 400 {object} forms.Result "invalid fields in the request body"
+// @Failure 400 {object} forms.Result "invalid login or password"
+// @Failure 401 {object} forms.Result "invalid csrf"
+// @Router   /api/v1/login [post]
 func Login(w http.ResponseWriter, r *http.Request) {
 	userToLogin, err := forms.UserUnmarshal(r)
 	if err != nil {
-		http.Error(w, `{"error": "bad request"}`, http.StatusBadRequest)
+		http.Error(w, `{"status": "FAIL", "error": "invalid fields"}`, http.StatusBadRequest)
 		return
 	}
 
@@ -36,7 +38,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if !checkUser {
-		http.Error(w, `{"error": "invalid login or password"}`, http.StatusBadRequest)
+		http.Error(w, `{"status": "FAIL", "error": "invalid login or password"}`, http.StatusBadRequest)
 		return
 	}
 
@@ -52,29 +54,32 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	session, _ := r.Cookie(config.C.SessionIDKey)
 	service.AuthorizeUser(session.Value, user.ID)
 
-	w.Write([]byte(`{"status": "you are login"}`))
+	w.Write([]byte(`{"status": "OK", "result": "you are login"}`))
 }
 
 // SignUp godoc
 // @Summary      SignUp
-// @Description  sign in user
+// @Description  login user
 // @Tags     auth
 // @Accept	 application/json
 // @Produce  application/json
 // @Param    UserForm body forms.User true  "new jwt data"
-// @Success  200 {object} forms.Result
-// @Failure 460 {object} forms.Result "Data is invalid"
-// @Failure 521 {object} forms.Result "Cannot create session"
-// @Router   /api/signUp [post]
+// @Success  200 {object} forms.Result "success signup"
+// @Failure 400 {object} forms.Result "the user is logged in (available only to unauthorized users)"
+// @Failure 400 {object} forms.Result "invalid fields in the request body"
+// @Failure 400 {object} forms.Result "user already exist"
+// @Failure 401 {object} forms.Result "unauthorized"
+// @Failure 401 {object} forms.Result "invalid csrf"
+// @Router   /api/v1/signup [post]
 func SignUp(w http.ResponseWriter, r *http.Request) {
 	userToLogin, err := forms.UserUnmarshal(r)
 	if err != nil {
-		http.Error(w, `{"error": "bad request"}`, http.StatusBadRequest)
+		http.Error(w, `{"status": "FAIL", "error": "invalid fields"}`, http.StatusBadRequest)
 		return
 	}
 
 	if !userToLogin.IsValid() {
-		http.Error(w, `{"error": "invalid fields"}`, http.StatusBadRequest)
+		http.Error(w, `{"status": "FAIL", "error": "invalid fields"}`, http.StatusBadRequest)
 		return
 	}
 
@@ -85,7 +90,7 @@ func SignUp(w http.ResponseWriter, r *http.Request) {
 	})
 
 	if err != nil {
-		http.Error(w, `{"error": "user already exist"}`, http.StatusBadRequest)
+		http.Error(w, `{"status": "FAIL", "error": "user already exist"}`, http.StatusBadRequest)
 		return
 	}
 
@@ -94,7 +99,7 @@ func SignUp(w http.ResponseWriter, r *http.Request) {
 	sessionId, _ := r.Cookie(config.C.SessionIDKey)
 	service.AuthorizeUser(sessionId.Value, nowUser.ID)
 
-	w.Write([]byte(`{"status": "you are sign up"}`))
+	w.Write([]byte(`{"status": "FAIL", "result": "you are sign up"}`))
 }
 
 // Logout godoc
@@ -103,11 +108,12 @@ func SignUp(w http.ResponseWriter, r *http.Request) {
 // @Tags     auth
 // @Accept	 application/json
 // @Produce  application/json
-// @Param    UserForm body forms.User true  "new jwt data"
 // @Success  200 {object} forms.Result
 // @Failure 460 {object} forms.Result "Data is invalid"
 // @Failure 521 {object} forms.Result "Cannot create session"
-// @Router   /api/signout [post]
+// @Failure 401 {object} forms.Result "unauthorized"
+// @Failure 401 {object} forms.Result "invalid csrf"
+// @Router   /api/v1/logout [post]
 func Logout(w http.ResponseWriter, r *http.Request) {
 	session, _ := r.Cookie(config.C.SessionIDKey)
 	service.DeleteSession(session.Value)
