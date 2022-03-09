@@ -17,7 +17,7 @@ func Auth(next http.HandlerFunc) http.HandlerFunc {
 			sessionSD, err := service.GetSession(r)
 			fmt.Println("user ", session.Value, " csrf token ", r.Header.Get("X-CSRF-TOKEN"))
 			fmt.Println("sessionSD = ", sessionSD, " err = ", err)
-			http.Error(w, `{"error": "unauthorized"}`, http.StatusUnauthorized)
+			http.Error(w, `{"status": "FAIL", "error": "unauthorized"}`, http.StatusUnauthorized)
 		}
 	})
 }
@@ -27,7 +27,7 @@ func NotAuth(next http.HandlerFunc) http.HandlerFunc {
 		if !service.IsAuthorized(r) {
 			next.ServeHTTP(w, r)
 		} else {
-			http.Error(w, `{"error": "available only to unauthorized users"}`, http.StatusBadRequest)
+			http.Error(w, `{"status": "FAIL", "error": "available only to unauthorized users"}`, http.StatusBadRequest)
 		}
 	})
 }
