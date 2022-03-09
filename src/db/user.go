@@ -96,9 +96,11 @@ func (storage *UserStorage) SelectByUsername(username string) (*User, error) {
 func (storage *UserStorage) Insert(user *User) error {
 	storage.m.RLock()
 	if _, err := storage.SelectByUsername(user.Username); err == nil {
+		storage.m.RUnlock()
 		return errors.New(UserWithUsernameAlreadyExist)
 	}
 	if _, err := storage.SelectByEmail(user.Email); err == nil {
+		storage.m.RUnlock()
 		return errors.New(UserWithEmailAlreadyExist)
 	}
 	storage.m.RUnlock()
