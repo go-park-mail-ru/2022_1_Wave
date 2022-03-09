@@ -31,7 +31,7 @@ func SetArtistsRoutes(router *mux.Router) {
 }
 
 // songs
-func SetSongsRoutes(router *mux.Router) {
+func SetTracksRoutes(router *mux.Router) {
 	router.HandleFunc(api.GetAllTracksUrl, api.GetTracks).Methods(http.MethodGet)
 	router.HandleFunc(api.CreateTrackUrl, api.CreateTrack).Methods(http.MethodPost)
 	router.HandleFunc(api.UpdateTrackUrl, api.UpdateTrack).Methods(http.MethodPut)

@@ -27,7 +27,7 @@ func main() {
 
 	routes.SetAlbumsRoutes(router)
 	routes.SetArtistsRoutes(router)
-	routes.SetSongsRoutes(router)
+	routes.SetTracksRoutes(router)
 	routes.SetAuthRoutes(router)
 	routes.SetDocsPath(router)
 	routes.SetStaticHandle(router)

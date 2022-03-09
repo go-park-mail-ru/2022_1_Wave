@@ -16,6 +16,250 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/api/v1/tracks/": {
+            "get": {
+                "description": "getting all tracks",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "track"
+                ],
+                "summary": "GetTracks",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Success"
+                        }
+                    },
+                    "400": {
+                        "description": "Data is invalid",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Error"
+                        }
+                    },
+                    "405": {
+                        "description": "Method is not allowed",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Error"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "updating track by id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "track"
+                ],
+                "summary": "UpdateTrack",
+                "parameters": [
+                    {
+                        "description": "id of updating song and params of it.",
+                        "name": "Track",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Track"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Success"
+                        }
+                    },
+                    "400": {
+                        "description": "Data is invalid",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Error"
+                        }
+                    },
+                    "405": {
+                        "description": "Method is not allowed",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Error"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "creating new track",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "track"
+                ],
+                "summary": "CreateTrack",
+                "parameters": [
+                    {
+                        "description": "params of new track. Id will be set automatically.",
+                        "name": "Track",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Track"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Success"
+                        }
+                    },
+                    "400": {
+                        "description": "Data is invalid",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Error"
+                        }
+                    },
+                    "405": {
+                        "description": "Method is not allowed",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/tracks/popular": {
+            "get": {
+                "description": "getting top20 popular tracks",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "track"
+                ],
+                "summary": "GetPopularTracks",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Success"
+                        }
+                    },
+                    "400": {
+                        "description": "Data is invalid",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Error"
+                        }
+                    },
+                    "405": {
+                        "description": "Method is not allowed",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/tracks/{id}": {
+            "get": {
+                "description": "getting track by id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "track"
+                ],
+                "summary": "GetTrack",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "id of track which need to be getted",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Track"
+                        }
+                    },
+                    "400": {
+                        "description": "Data is invalid",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Error"
+                        }
+                    },
+                    "405": {
+                        "description": "Method is not allowed",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Error"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "deleting track by id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "track"
+                ],
+                "summary": "DeleteTrack",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "id of track which need to be deleted",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Success"
+                        }
+                    },
+                    "400": {
+                        "description": "Data is invalid",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Error"
+                        }
+                    },
+                    "405": {
+                        "description": "Method is not allowed",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Error"
+                        }
+                    }
+                }
+            }
+        },
         "/net/v1/albums/": {
             "get": {
                 "description": "getting all albums",
@@ -632,250 +876,6 @@ const docTemplate = `{
                         "description": "invalid csrf",
                         "schema": {
                             "$ref": "#/definitions/forms.Result"
-                        }
-                    }
-                }
-            }
-        },
-        "/net/v1/track/": {
-            "get": {
-                "description": "getting all tracks",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "track"
-                ],
-                "summary": "GetTracks",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/utils.Success"
-                        }
-                    },
-                    "400": {
-                        "description": "Data is invalid",
-                        "schema": {
-                            "$ref": "#/definitions/utils.Error"
-                        }
-                    },
-                    "405": {
-                        "description": "Method is not allowed",
-                        "schema": {
-                            "$ref": "#/definitions/utils.Error"
-                        }
-                    }
-                }
-            },
-            "put": {
-                "description": "updating track by id",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "track"
-                ],
-                "summary": "UpdateTrack",
-                "parameters": [
-                    {
-                        "description": "id of updating song and params of it.",
-                        "name": "Track",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.Track"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/utils.Success"
-                        }
-                    },
-                    "400": {
-                        "description": "Data is invalid",
-                        "schema": {
-                            "$ref": "#/definitions/utils.Error"
-                        }
-                    },
-                    "405": {
-                        "description": "Method is not allowed",
-                        "schema": {
-                            "$ref": "#/definitions/utils.Error"
-                        }
-                    }
-                }
-            },
-            "post": {
-                "description": "creating new track",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "track"
-                ],
-                "summary": "CreateTrack",
-                "parameters": [
-                    {
-                        "description": "params of new track. Id will be set automatically.",
-                        "name": "Track",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.Track"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/utils.Success"
-                        }
-                    },
-                    "400": {
-                        "description": "Data is invalid",
-                        "schema": {
-                            "$ref": "#/definitions/utils.Error"
-                        }
-                    },
-                    "405": {
-                        "description": "Method is not allowed",
-                        "schema": {
-                            "$ref": "#/definitions/utils.Error"
-                        }
-                    }
-                }
-            }
-        },
-        "/net/v1/track/popular": {
-            "get": {
-                "description": "getting top20 popular tracks",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "track"
-                ],
-                "summary": "GetPopularTracks",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/utils.Success"
-                        }
-                    },
-                    "400": {
-                        "description": "Data is invalid",
-                        "schema": {
-                            "$ref": "#/definitions/utils.Error"
-                        }
-                    },
-                    "405": {
-                        "description": "Method is not allowed",
-                        "schema": {
-                            "$ref": "#/definitions/utils.Error"
-                        }
-                    }
-                }
-            }
-        },
-        "/net/v1/track/{id}": {
-            "get": {
-                "description": "getting track by id",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "track"
-                ],
-                "summary": "GetTrack",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "id of track which need to be getted",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/models.Track"
-                        }
-                    },
-                    "400": {
-                        "description": "Data is invalid",
-                        "schema": {
-                            "$ref": "#/definitions/utils.Error"
-                        }
-                    },
-                    "405": {
-                        "description": "Method is not allowed",
-                        "schema": {
-                            "$ref": "#/definitions/utils.Error"
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "description": "deleting track by id",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "track"
-                ],
-                "summary": "DeleteTrack",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "id of track which need to be deleted",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/utils.Success"
-                        }
-                    },
-                    "400": {
-                        "description": "Data is invalid",
-                        "schema": {
-                            "$ref": "#/definitions/utils.Error"
-                        }
-                    },
-                    "405": {
-                        "description": "Method is not allowed",
-                        "schema": {
-                            "$ref": "#/definitions/utils.Error"
                         }
                     }
                 }

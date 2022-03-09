@@ -66,7 +66,7 @@ func GetTrackView(id uint64) *views.Track {
 // @Success  200 {object} utils.Success
 // @Failure 400 {object} utils.Error "Data is invalid"
 // @Failure 405 {object} utils.Error "Method is not allowed"
-// @Router   /net/v1/track/ [get]
+// @Router   /api/v1/tracks/ [get]
 func GetTracks(w http.ResponseWriter, r *http.Request) {
 	storage := &db.Storage.TrackStorage
 	storage.Mutex.RLock()
@@ -103,7 +103,7 @@ func GetTracks(w http.ResponseWriter, r *http.Request) {
 // @Success  200 {object} utils.Success
 // @Failure 400 {object} utils.Error "Data is invalid"
 // @Failure 405 {object} utils.Error "Method is not allowed"
-// @Router   /net/v1/track/ [post]
+// @Router   /api/v1/tracks/ [post]
 func CreateTrack(w http.ResponseWriter, r *http.Request) {
 	storage := &db.Storage.TrackStorage
 	newSong := &models.Track{}
@@ -144,7 +144,7 @@ func CreateTrack(w http.ResponseWriter, r *http.Request) {
 // @Success  200 {object} utils.Success
 // @Failure 400 {object} utils.Error "Data is invalid"
 // @Failure 405 {object} utils.Error "Method is not allowed"
-// @Router   /net/v1/track/ [put]
+// @Router   /api/v1/tracks/ [put]
 func UpdateTrack(w http.ResponseWriter, r *http.Request) {
 	storage := &db.Storage.TrackStorage
 	newSong := &models.Track{}
@@ -186,7 +186,7 @@ func UpdateTrack(w http.ResponseWriter, r *http.Request) {
 // @Success  200 {object} models.Track
 // @Failure 400 {object} utils.Error "Data is invalid"
 // @Failure 405 {object} utils.Error "Method is not allowed"
-// @Router   /net/v1/track/{id} [get]
+// @Router   /api/v1/tracks/{id} [get]
 func GetTrack(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars[FieldId])
@@ -219,7 +219,7 @@ func GetTrack(w http.ResponseWriter, r *http.Request) {
 // @Success  200 {object} utils.Success
 // @Failure 400 {object} utils.Error "Data is invalid"
 // @Failure 405 {object} utils.Error "Method is not allowed"
-// @Router   /net/v1/track/{id} [delete]
+// @Router   /api/v1/tracks/{id} [delete]
 func DeleteTrack(w http.ResponseWriter, r *http.Request) {
 	storage := &db.Storage.TrackStorage
 	vars := mux.Vars(r)
@@ -252,7 +252,7 @@ func DeleteTrack(w http.ResponseWriter, r *http.Request) {
 // @Success  200 {object} utils.Success
 // @Failure 400 {object} utils.Error "Data is invalid"
 // @Failure 405 {object} utils.Error "Method is not allowed"
-// @Router   /net/v1/track/popular [get]
+// @Router   /api/v1/tracks/popular [get]
 func GetPopularTracks(w http.ResponseWriter, r *http.Request) {
 	storage := &db.Storage.TrackStorage
 	storage.Mutex.RLock()

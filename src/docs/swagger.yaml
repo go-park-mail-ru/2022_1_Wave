@@ -110,6 +110,167 @@ definitions:
 info:
   contact: {}
 paths:
+  /api/v1/tracks/:
+    get:
+      consumes:
+        - application/json
+      description: getting all tracks
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.Success'
+        "400":
+          description: Data is invalid
+          schema:
+            $ref: '#/definitions/utils.Error'
+        "405":
+          description: Method is not allowed
+          schema:
+            $ref: '#/definitions/utils.Error'
+      summary: GetTracks
+      tags:
+        - track
+    post:
+      consumes:
+        - application/json
+      description: creating new track
+      parameters:
+        - description: params of new track. Id will be set automatically.
+          in: body
+          name: Track
+          required: true
+          schema:
+            $ref: '#/definitions/models.Track'
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.Success'
+        "400":
+          description: Data is invalid
+          schema:
+            $ref: '#/definitions/utils.Error'
+        "405":
+          description: Method is not allowed
+          schema:
+            $ref: '#/definitions/utils.Error'
+      summary: CreateTrack
+      tags:
+        - track
+    put:
+      consumes:
+        - application/json
+      description: updating track by id
+      parameters:
+        - description: id of updating song and params of it.
+          in: body
+          name: Track
+          required: true
+          schema:
+            $ref: '#/definitions/models.Track'
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.Success'
+        "400":
+          description: Data is invalid
+          schema:
+            $ref: '#/definitions/utils.Error'
+        "405":
+          description: Method is not allowed
+          schema:
+            $ref: '#/definitions/utils.Error'
+      summary: UpdateTrack
+      tags:
+        - track
+  /api/v1/tracks/{id}:
+    delete:
+      consumes:
+        - application/json
+      description: deleting track by id
+      parameters:
+        - description: id of track which need to be deleted
+          in: path
+          name: id
+          required: true
+          type: integer
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.Success'
+        "400":
+          description: Data is invalid
+          schema:
+            $ref: '#/definitions/utils.Error'
+        "405":
+          description: Method is not allowed
+          schema:
+            $ref: '#/definitions/utils.Error'
+      summary: DeleteTrack
+      tags:
+        - track
+    get:
+      consumes:
+        - application/json
+      description: getting track by id
+      parameters:
+        - description: id of track which need to be getted
+          in: path
+          name: id
+          required: true
+          type: integer
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Track'
+        "400":
+          description: Data is invalid
+          schema:
+            $ref: '#/definitions/utils.Error'
+        "405":
+          description: Method is not allowed
+          schema:
+            $ref: '#/definitions/utils.Error'
+      summary: GetTrack
+      tags:
+        - track
+  /api/v1/tracks/popular:
+    get:
+      consumes:
+        - application/json
+      description: getting top20 popular tracks
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.Success'
+        "400":
+          description: Data is invalid
+          schema:
+            $ref: '#/definitions/utils.Error'
+        "405":
+          description: Method is not allowed
+          schema:
+            $ref: '#/definitions/utils.Error'
+      summary: GetPopularTracks
+      tags:
+        - track
   /net/v1/albums/:
     get:
       consumes:
@@ -443,7 +604,7 @@ paths:
           name: UserForm
           required: true
           schema:
-          $ref: '#/definitions/forms.User'
+            $ref: '#/definitions/forms.User'
       produces:
       - application/json
       responses:
@@ -500,7 +661,7 @@ paths:
           name: UserForm
           required: true
           schema:
-          $ref: '#/definitions/forms.User'
+            $ref: '#/definitions/forms.User'
       produces:
       - application/json
       responses:
@@ -519,167 +680,6 @@ paths:
       summary: SignUp
       tags:
       - auth
-  /net/v1/track/:
-    get:
-      consumes:
-        - application/json
-      description: getting all tracks
-      produces:
-        - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/utils.Success'
-        "400":
-          description: Data is invalid
-          schema:
-            $ref: '#/definitions/utils.Error'
-        "405":
-          description: Method is not allowed
-          schema:
-            $ref: '#/definitions/utils.Error'
-      summary: GetTracks
-      tags:
-        - track
-    post:
-      consumes:
-      - application/json
-      description: creating new track
-      parameters:
-        - description: params of new track. Id will be set automatically.
-          in: body
-          name: Track
-          required: true
-          schema:
-            $ref: '#/definitions/models.Track'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/utils.Success'
-        "400":
-          description: Data is invalid
-          schema:
-            $ref: '#/definitions/utils.Error'
-        "405":
-          description: Method is not allowed
-          schema:
-            $ref: '#/definitions/utils.Error'
-      summary: CreateTrack
-      tags:
-        - track
-    put:
-      consumes:
-      - application/json
-      description: updating track by id
-      parameters:
-      - description: id of updating song and params of it.
-        in: body
-        name: Track
-        required: true
-        schema:
-          $ref: '#/definitions/models.Track'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/utils.Success'
-        "400":
-          description: Data is invalid
-          schema:
-            $ref: '#/definitions/utils.Error'
-        "405":
-          description: Method is not allowed
-          schema:
-            $ref: '#/definitions/utils.Error'
-      summary: UpdateTrack
-      tags:
-        - track
-  /net/v1/track/{id}:
-    delete:
-      consumes:
-        - application/json
-      description: deleting track by id
-      parameters:
-        - description: id of track which need to be deleted
-          in: path
-          name: id
-          required: true
-          type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/utils.Success'
-        "400":
-          description: Data is invalid
-          schema:
-            $ref: '#/definitions/utils.Error'
-        "405":
-          description: Method is not allowed
-          schema:
-            $ref: '#/definitions/utils.Error'
-      summary: DeleteTrack
-      tags:
-        - track
-    get:
-      consumes:
-      - application/json
-      description: getting track by id
-      parameters:
-        - description: id of track which need to be getted
-          in: path
-          name: id
-          required: true
-          type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.Track'
-        "400":
-          description: Data is invalid
-          schema:
-            $ref: '#/definitions/utils.Error'
-        "405":
-          description: Method is not allowed
-          schema:
-            $ref: '#/definitions/utils.Error'
-      summary: GetTrack
-      tags:
-        - track
-  /net/v1/track/popular:
-    get:
-      consumes:
-        - application/json
-      description: getting top20 popular tracks
-      produces:
-        - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/utils.Success'
-        "400":
-          description: Data is invalid
-          schema:
-            $ref: '#/definitions/utils.Error'
-        "405":
-          description: Method is not allowed
-          schema:
-            $ref: '#/definitions/utils.Error'
-      summary: GetPopularTracks
-      tags:
-        - track
   /net/v1/users/{id}:
     get:
       consumes:
