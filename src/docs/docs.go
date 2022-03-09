@@ -16,7 +16,7 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/api/v1/albums/": {
+        "/net/v1/albums/": {
             "get": {
                 "description": "getting all albums",
                 "consumes": [
@@ -139,7 +139,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/albums/popular": {
+        "/net/v1/albums/popular": {
             "get": {
                 "description": "getting top20 popular albums",
                 "consumes": [
@@ -174,7 +174,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/albums/{id}": {
+        "/net/v1/albums/{id}": {
             "get": {
                 "description": "getting album by id",
                 "consumes": [
@@ -260,7 +260,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/artists/": {
+        "/net/v1/artists/": {
             "get": {
                 "description": "getting all artists",
                 "consumes": [
@@ -383,7 +383,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/artists/popular": {
+        "/net/v1/artists/popular": {
             "get": {
                 "description": "getting top20 popular artists",
                 "consumes": [
@@ -418,7 +418,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/artists/{id}": {
+        "/net/v1/artists/{id}": {
             "get": {
                 "description": "getting artist by id",
                 "consumes": [
@@ -504,7 +504,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/login": {
+        "/net/v1/login": {
             "post": {
                 "description": "login user",
                 "consumes": [
@@ -550,7 +550,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/logout": {
+        "/net/v1/logout": {
             "post": {
                 "description": "sign in user",
                 "consumes": [
@@ -591,7 +591,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/signup": {
+        "/net/v1/signup": {
             "post": {
                 "description": "login user",
                 "consumes": [
@@ -637,9 +637,9 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/songs/": {
+        "/net/v1/track/": {
             "get": {
-                "description": "getting all songs",
+                "description": "getting all tracks",
                 "consumes": [
                     "application/json"
                 ],
@@ -647,9 +647,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "song"
+                    "track"
                 ],
-                "summary": "GetSongs",
+                "summary": "GetTracks",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -672,7 +672,7 @@ const docTemplate = `{
                 }
             },
             "put": {
-                "description": "updating song by id",
+                "description": "updating track by id",
                 "consumes": [
                     "application/json"
                 ],
@@ -680,9 +680,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "song"
+                    "track"
                 ],
-                "summary": "UpdateSong",
+                "summary": "UpdateTrack",
                 "parameters": [
                     {
                         "description": "id of updating song and params of it.",
@@ -716,7 +716,7 @@ const docTemplate = `{
                 }
             },
             "post": {
-                "description": "creating new song",
+                "description": "creating new track",
                 "consumes": [
                     "application/json"
                 ],
@@ -724,12 +724,12 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "song"
+                    "track"
                 ],
-                "summary": "CreateSong",
+                "summary": "CreateTrack",
                 "parameters": [
                     {
-                        "description": "params of new song. Id will be set automatically.",
+                        "description": "params of new track. Id will be set automatically.",
                         "name": "Track",
                         "in": "body",
                         "required": true,
@@ -760,9 +760,9 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/songs/popular": {
+        "/net/v1/track/popular": {
             "get": {
-                "description": "getting top20 popular songs",
+                "description": "getting top20 popular tracks",
                 "consumes": [
                     "application/json"
                 ],
@@ -770,9 +770,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "song"
+                    "track"
                 ],
-                "summary": "GetPopularSongs",
+                "summary": "GetPopularTracks",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -795,9 +795,9 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/songs/{id}": {
+        "/net/v1/track/{id}": {
             "get": {
-                "description": "getting song by id",
+                "description": "getting track by id",
                 "consumes": [
                     "application/json"
                 ],
@@ -805,13 +805,13 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "song"
+                    "track"
                 ],
-                "summary": "GetSong",
+                "summary": "GetTrack",
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "id of song which need to be getted",
+                        "description": "id of track which need to be getted",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -839,7 +839,7 @@ const docTemplate = `{
                 }
             },
             "delete": {
-                "description": "deleting song by id",
+                "description": "deleting track by id",
                 "consumes": [
                     "application/json"
                 ],
@@ -847,13 +847,13 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "song"
+                    "track"
                 ],
-                "summary": "DeleteSong",
+                "summary": "DeleteTrack",
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "id of song which need to be deleted",
+                        "description": "id of track which need to be deleted",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -881,7 +881,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/users/self": {
+        "/net/v1/users/self": {
             "get": {
                 "description": "get user",
                 "consumes": [
@@ -919,7 +919,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/users/{id}": {
+        "/net/v1/users/{id}": {
             "get": {
                 "description": "get user by cookie",
                 "consumes": [

@@ -16,7 +16,7 @@ func main() {
 	} else {
 		log.Println("config loaded successfuly: ", config.C)
 	}
-	docs.SwaggerInfo.BasePath = "/api"
+	docs.SwaggerInfo.BasePath = "/net"
 
 	/*
 		if service.DB, err = sql.Open("postgres", config.C.DBConnectionString); err != nil {

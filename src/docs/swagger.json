@@ -4,17 +4,17 @@
         "contact": {}
     },
     "paths": {
-        "/api/v1/albums/": {
-            "get": {
-                "description": "getting all albums",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "album"
+        "/net/v1/albums/": {
+          "get": {
+            "description": "getting all albums",
+            "consumes": [
+              "application/json"
+            ],
+            "produces": [
+              "application/json"
+            ],
+            "tags": [
+              "album"
                 ],
                 "summary": "GetAlbums",
                 "responses": {
@@ -127,17 +127,17 @@
                 }
             }
         },
-        "/api/v1/albums/popular": {
-            "get": {
-                "description": "getting top20 popular albums",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "album"
+      "/net/v1/albums/popular": {
+        "get": {
+          "description": "getting top20 popular albums",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "tags": [
+            "album"
                 ],
                 "summary": "GetPopularAlbums",
                 "responses": {
@@ -162,17 +162,17 @@
                 }
             }
         },
-        "/api/v1/albums/{id}": {
-            "get": {
-                "description": "getting album by id",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "album"
+      "/net/v1/albums/{id}": {
+        "get": {
+          "description": "getting album by id",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "tags": [
+            "album"
                 ],
                 "summary": "GetAlbum",
                 "parameters": [
@@ -248,17 +248,17 @@
                 }
             }
         },
-        "/api/v1/artists/": {
-            "get": {
-                "description": "getting all artists",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "artist"
+      "/net/v1/artists/": {
+        "get": {
+          "description": "getting all artists",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "tags": [
+            "artist"
                 ],
                 "summary": "GetArtists",
                 "responses": {
@@ -371,17 +371,17 @@
                 }
             }
         },
-        "/api/v1/artists/popular": {
-            "get": {
-                "description": "getting top20 popular artists",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "artist"
+      "/net/v1/artists/popular": {
+        "get": {
+          "description": "getting top20 popular artists",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "tags": [
+            "artist"
                 ],
                 "summary": "GetPopularArtists",
                 "responses": {
@@ -406,17 +406,17 @@
                 }
             }
         },
-        "/api/v1/artists/{id}": {
-            "get": {
-                "description": "getting artist by id",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "artist"
+      "/net/v1/artists/{id}": {
+        "get": {
+          "description": "getting artist by id",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "tags": [
+            "artist"
                 ],
                 "summary": "GetArtist",
                 "parameters": [
@@ -492,17 +492,17 @@
                 }
             }
         },
-        "/api/v1/login": {
-            "post": {
-                "description": "login user",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "auth"
+      "/net/v1/login": {
+        "post": {
+          "description": "login user",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "tags": [
+            "auth"
                 ],
                 "summary": "Login",
                 "parameters": [
@@ -538,17 +538,17 @@
                 }
             }
         },
-        "/api/v1/logout": {
-            "post": {
-                "description": "sign in user",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "auth"
+      "/net/v1/logout": {
+        "post": {
+          "description": "sign in user",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "tags": [
+            "auth"
                 ],
                 "summary": "Logout",
                 "responses": {
@@ -579,17 +579,17 @@
                 }
             }
         },
-        "/api/v1/signup": {
-            "post": {
-                "description": "login user",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "auth"
+      "/net/v1/signup": {
+        "post": {
+          "description": "login user",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "tags": [
+            "auth"
                 ],
                 "summary": "SignUp",
                 "parameters": [
@@ -625,29 +625,29 @@
                 }
             }
         },
-        "/api/v1/songs/": {
-            "get": {
-                "description": "getting all songs",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "song"
-                ],
-                "summary": "GetSongs",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/utils.Success"
-                        }
-                    },
-                    "400": {
-                        "description": "Data is invalid",
-                        "schema": {
+      "/net/v1/track/": {
+        "get": {
+          "description": "getting all tracks",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "tags": [
+            "track"
+          ],
+          "summary": "GetTracks",
+          "responses": {
+            "200": {
+              "description": "OK",
+              "schema": {
+                "$ref": "#/definitions/utils.Success"
+              }
+            },
+            "400": {
+              "description": "Data is invalid",
+              "schema": {
                             "$ref": "#/definitions/utils.Error"
                         }
                     },
@@ -660,27 +660,27 @@
                 }
             },
             "put": {
-                "description": "updating song by id",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "song"
-                ],
-                "summary": "UpdateSong",
-                "parameters": [
-                    {
-                        "description": "id of updating song and params of it.",
-                        "name": "Track",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.Track"
-                        }
-                    }
+              "description": "updating track by id",
+              "consumes": [
+                "application/json"
+              ],
+              "produces": [
+                "application/json"
+              ],
+              "tags": [
+                "track"
+              ],
+              "summary": "UpdateTrack",
+              "parameters": [
+                {
+                  "description": "id of updating song and params of it.",
+                  "name": "Track",
+                  "in": "body",
+                  "required": true,
+                  "schema": {
+                    "$ref": "#/definitions/models.Track"
+                  }
+                }
                 ],
                 "responses": {
                     "200": {
@@ -704,27 +704,27 @@
                 }
             },
             "post": {
-                "description": "creating new song",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "song"
-                ],
-                "summary": "CreateSong",
-                "parameters": [
-                    {
-                        "description": "params of new song. Id will be set automatically.",
-                        "name": "Track",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.Track"
-                        }
-                    }
+              "description": "creating new track",
+              "consumes": [
+                "application/json"
+              ],
+              "produces": [
+                "application/json"
+              ],
+              "tags": [
+                "track"
+              ],
+              "summary": "CreateTrack",
+              "parameters": [
+                {
+                  "description": "params of new track. Id will be set automatically.",
+                  "name": "Track",
+                  "in": "body",
+                  "required": true,
+                  "schema": {
+                    "$ref": "#/definitions/models.Track"
+                  }
+                }
                 ],
                 "responses": {
                     "200": {
@@ -748,29 +748,29 @@
                 }
             }
         },
-        "/api/v1/songs/popular": {
-            "get": {
-                "description": "getting top20 popular songs",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "song"
-                ],
-                "summary": "GetPopularSongs",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/utils.Success"
-                        }
-                    },
-                    "400": {
-                        "description": "Data is invalid",
-                        "schema": {
+      "/net/v1/track/popular": {
+        "get": {
+          "description": "getting top20 popular tracks",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "tags": [
+            "track"
+          ],
+          "summary": "GetPopularTracks",
+          "responses": {
+            "200": {
+              "description": "OK",
+              "schema": {
+                "$ref": "#/definitions/utils.Success"
+              }
+            },
+            "400": {
+              "description": "Data is invalid",
+              "schema": {
                             "$ref": "#/definitions/utils.Error"
                         }
                     },
@@ -783,29 +783,29 @@
                 }
             }
         },
-        "/api/v1/songs/{id}": {
-            "get": {
-                "description": "getting song by id",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "song"
-                ],
-                "summary": "GetSong",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "id of song which need to be getted",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
+      "/net/v1/track/{id}": {
+        "get": {
+          "description": "getting track by id",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "tags": [
+            "track"
+          ],
+          "summary": "GetTrack",
+          "parameters": [
+            {
+              "type": "integer",
+              "description": "id of track which need to be getted",
+              "name": "id",
+              "in": "path",
+              "required": true
+            }
+          ],
+          "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
@@ -827,27 +827,27 @@
                 }
             },
             "delete": {
-                "description": "deleting song by id",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "song"
-                ],
-                "summary": "DeleteSong",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "id of song which need to be deleted",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
+              "description": "deleting track by id",
+              "consumes": [
+                "application/json"
+              ],
+              "produces": [
+                "application/json"
+              ],
+              "tags": [
+                "track"
+              ],
+              "summary": "DeleteTrack",
+              "parameters": [
+                {
+                  "type": "integer",
+                  "description": "id of track which need to be deleted",
+                  "name": "id",
+                  "in": "path",
+                  "required": true
+                }
+              ],
+              "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
@@ -869,17 +869,17 @@
                 }
             }
         },
-        "/api/v1/users/self": {
-            "get": {
-                "description": "get user",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "user"
+      "/net/v1/users/self": {
+        "get": {
+          "description": "get user",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "tags": [
+            "user"
                 ],
                 "summary": "GetSelfUser",
                 "parameters": [
@@ -907,17 +907,17 @@
                 }
             }
         },
-        "/api/v1/users/{id}": {
-            "get": {
-                "description": "get user by cookie",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "user"
+      "/net/v1/users/{id}": {
+        "get": {
+          "description": "get user by cookie",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "tags": [
+            "user"
                 ],
                 "summary": "GetUser",
                 "responses": {

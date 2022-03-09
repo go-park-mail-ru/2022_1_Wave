@@ -14,6 +14,10 @@ import (
 //	Err string `json:"error" example:"invalid character 'h' after object key:value pair"`
 //}
 
+//type Success struct {
+//	Result interface{}
+//}
+
 type Success struct {
 	Result interface{}
 }

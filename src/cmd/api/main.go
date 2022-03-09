@@ -3,7 +3,7 @@ package main
 import (
 	"github.com/go-park-mail-ru/2022_1_Wave/config"
 	"github.com/go-park-mail-ru/2022_1_Wave/db"
-	"github.com/go-park-mail-ru/2022_1_Wave/internal/net"
+	"github.com/go-park-mail-ru/2022_1_Wave/internal/routes"
 	"github.com/gorilla/mux"
 	"log"
 	"net/http"
@@ -20,16 +20,17 @@ func main() {
 		log.Println("config loaded successfuly: ", config.C)
 	}
 
-	db.Storage.InitStorage()
+	const quantity = 10
+	db.Storage.InitStorage(quantity)
 
 	router := mux.NewRouter()
 
-	net.SetAlbumsRoutes(router)
-	net.SetArtistsRoutes(router)
-	net.SetSongsRoutes(router)
-	net.SetAuthRoutes(router)
-	net.SetDocsPath(router)
-	net.SetStaticHandle(router)
+	routes.SetAlbumsRoutes(router)
+	routes.SetArtistsRoutes(router)
+	routes.SetSongsRoutes(router)
+	routes.SetAuthRoutes(router)
+	routes.SetDocsPath(router)
+	routes.SetStaticHandle(router)
 
 	log.Println("start serving :5000")
 	http.ListenAndServe(":5000", router)

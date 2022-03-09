@@ -14,26 +14,6 @@ import (
 	"strconv"
 )
 
-//func makeAlbum(id int, title string, authorId int, countLikes int, countListening int, date int, coverId int) (Album, error) {
-//	if id < 0 || authorId < 0 {
-//		return Album{}, errors.New("invalid id")
-//	}
-//
-//	if len(title) > db.AlbumTitleLen {
-//		title = title[:db.AlbumTitleLen]
-//	}
-//
-//	return Album{
-//		Id:             id,
-//		Title:          title,
-//		AuthorId:       authorId,
-//		CountLikes:     countLikes,
-//		CountListening: countListening,
-//		Date:           date,
-//		CoverId:        coverId,
-//	}, nil
-//}
-
 func getAllAlbums(albumRep db.AlbumRep) (*[]models.Album, error) {
 	return albumRep.GetAllAlbums()
 }
@@ -58,6 +38,25 @@ func getPopularAlbums(albumRep db.AlbumRep) (*[]models.Album, error) {
 	return albumRep.GetPopularAlbums()
 }
 
+func GetAlbumView(id uint64) *views.Album {
+	album, err := getAlbumByIDFromStorage(&db.Storage.AlbumStorage, id)
+
+	if err != nil {
+		//utils.WriteError(w, err, http.StatusBadRequest)
+		return nil
+	}
+
+	artist, _ := getArtistByIDFromStorage(&db.Storage.ArtistStorage, album.AuthorId)
+
+	currentAlbumView := views.Album{
+		Title:  album.Title,
+		Artist: artist.Name,
+		Cover:  "assets/" + "album_" + fmt.Sprint(album.CoverId) + ".png",
+	}
+
+	return &currentAlbumView
+}
+
 // GetAlbums godoc
 // @Summary      GetAlbums
 // @Description  getting all albums
@@ -67,7 +66,7 @@ func getPopularAlbums(albumRep db.AlbumRep) (*[]models.Album, error) {
 // @Success  200 {object} utils.Success
 // @Failure 400 {object} utils.Error "Data is invalid"
 // @Failure 405 {object} utils.Error "Method is not allowed"
-// @Router   /api/v1/albums/ [get]
+// @Router   /net/v1/albums/ [get]
 func GetAlbums(w http.ResponseWriter, r *http.Request) {
 	storage := &db.Storage.AlbumStorage
 	storage.Mutex.RLock()
@@ -85,11 +84,11 @@ func GetAlbums(w http.ResponseWriter, r *http.Request) {
 	albumViews := make([]views.Album, len(*albums))
 
 	for i, album := range *albums {
-		albumViews[i].Title = album.Title
-		artist, _ := getArtistByIDFromStorage(&db.Storage.ArtistStorage, album.AuthorId)
-		albumViews[i].Artist = artist.Name
-		albumViews[i].Cover = "assets/" + "album_" + fmt.Sprint(album.CoverId) + ".png"
-		fmt.Println(albumViews[i])
+		view := GetAlbumView(album.Id)
+		if view == nil {
+			utils.WriteError(w, errors.New(db.AlbumIsNotExist), http.StatusBadRequest)
+		}
+		albumViews[i] = *view
 	}
 	json.NewEncoder(w).Encode(utils.Success{
 		Result: albumViews})
@@ -105,7 +104,7 @@ func GetAlbums(w http.ResponseWriter, r *http.Request) {
 // @Success  200 {object} utils.Success
 // @Failure 400 {object} utils.Error "Data is invalid"
 // @Failure 405 {object} utils.Error "Method is not allowed"
-// @Router   /api/v1/albums/ [post]
+// @Router   /net/v1/albums/ [post]
 func CreateAlbum(w http.ResponseWriter, r *http.Request) {
 	newAlbum := &models.Album{}
 	newAlbum.Id = uint64(len(db.Storage.AlbumStorage.Albums))
@@ -145,7 +144,7 @@ func CreateAlbum(w http.ResponseWriter, r *http.Request) {
 // @Success  200 {object} utils.Success
 // @Failure 400 {object} utils.Error "Data is invalid"
 // @Failure 405 {object} utils.Error "Method is not allowed"
-// @Router   /api/v1/albums/ [put]
+// @Router   /net/v1/albums/ [put]
 func UpdateAlbum(w http.ResponseWriter, r *http.Request) {
 	newAlbum := &models.Album{}
 	newAlbum.Id = uint64(len(db.Storage.AlbumStorage.Albums))
@@ -186,7 +185,7 @@ func UpdateAlbum(w http.ResponseWriter, r *http.Request) {
 // @Success  200 {object} models.Album
 // @Failure 400 {object} utils.Error "Data is invalid"
 // @Failure 405 {object} utils.Error "Method is not allowed"
-// @Router   /api/v1/albums/{id} [get]
+// @Router   /net/v1/albums/{id} [get]
 func GetAlbum(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars[FieldId])
@@ -194,24 +193,20 @@ func GetAlbum(w http.ResponseWriter, r *http.Request) {
 		utils.WriteError(w, err, http.StatusBadRequest)
 		return
 	}
+
 	//id--
 	if id < 0 {
 		utils.WriteError(w, errors.New(db.IndexOutOfRange), http.StatusBadRequest)
 		return
 	}
-	currentAlbum, err := getAlbumByIDFromStorage(&db.Storage.AlbumStorage, uint64(id))
-	currentAlbumArtist, _ := getArtistByIDFromStorage(&db.Storage.ArtistStorage, currentAlbum.AuthorId)
 
-	currentAlbumView := views.Album{
-		Title:  currentAlbum.Title,
-		Artist: currentAlbumArtist.Name,
-		Cover:  "assets/" + "album_" + fmt.Sprint(currentAlbum.CoverId) + ".png",
-	}
+	currentAlbumView := GetAlbumView(uint64(id))
 
-	if err != nil {
-		utils.WriteError(w, err, http.StatusBadRequest)
+	if currentAlbumView == nil {
+		utils.WriteError(w, errors.New(db.AlbumIsNotExist), http.StatusBadRequest)
 		return
 	}
+
 	json.NewEncoder(w).Encode(currentAlbumView)
 }
 
@@ -225,7 +220,7 @@ func GetAlbum(w http.ResponseWriter, r *http.Request) {
 // @Success  200 {object} utils.Success
 // @Failure 400 {object} utils.Error "Data is invalid"
 // @Failure 405 {object} utils.Error "Method is not allowed"
-// @Router   /api/v1/albums/{id} [delete]
+// @Router   /net/v1/albums/{id} [delete]
 func DeleteAlbum(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars[FieldId])
@@ -257,7 +252,7 @@ func DeleteAlbum(w http.ResponseWriter, r *http.Request) {
 // @Success  200 {object} utils.Success
 // @Failure 400 {object} utils.Error "Data is invalid"
 // @Failure 405 {object} utils.Error "Method is not allowed"
-// @Router   /api/v1/albums/popular [get]
+// @Router   /net/v1/albums/popular [get]
 func GetPopularAlbums(w http.ResponseWriter, r *http.Request) {
 	storage := &db.Storage.AlbumStorage
 	storage.Mutex.RLock()
@@ -270,11 +265,12 @@ func GetPopularAlbums(w http.ResponseWriter, r *http.Request) {
 
 	albumViews := make([]views.Album, len(*albums))
 
-	for i, album := range *albums {
-		albumViews[i].Title = album.Title
-		artist, _ := getArtistByIDFromStorage(&db.Storage.ArtistStorage, album.AuthorId)
-		albumViews[i].Artist = artist.Name
-		albumViews[i].Cover = "assets/" + "album_" + fmt.Sprint(album.CoverId) + ".png"
+	for i, _ := range *albums {
+		view := GetAlbumView(uint64(i))
+		if view == nil {
+			utils.WriteError(w, errors.New(db.AlbumIsNotExist), http.StatusBadRequest)
+		}
+		albumViews[i] = *view
 	}
 	json.NewEncoder(w).Encode(utils.Success{
 		Result: albumViews})

@@ -24,7 +24,7 @@ type UserGetResponse struct {
 // @Success  200 {object} forms.User
 // @Failure 401 {object} forms.Result "unauthorized"
 // @Failure 401 {object} forms.Result "invalid csrf"
-// @Router   /api/v1/users/self [get]
+// @Router   /net/v1/users/self [get]
 func GetSelfUser(w http.ResponseWriter, r *http.Request) {
 	user, _ := service.GetSession(r)
 	/*if err != nil {
@@ -58,7 +58,7 @@ func GetSelfUser(w http.ResponseWriter, r *http.Request) {
 // @Success  200 {object} forms.User
 // @Failure 400 {object} forms.Result "invalid id"
 // @Failure 404 {object} forms.Result "user not found"
-// @Router   /api/v1/users/{id} [get]
+// @Router   /net/v1/users/{id} [get]
 func GetUser(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	userId, err := strconv.Atoi(vars["id"])

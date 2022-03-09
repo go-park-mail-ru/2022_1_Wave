@@ -110,13 +110,13 @@ definitions:
 info:
   contact: {}
 paths:
-  /api/v1/albums/:
+  /net/v1/albums/:
     get:
       consumes:
-      - application/json
+        - application/json
       description: getting all albums
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: OK
@@ -191,17 +191,17 @@ paths:
       summary: UpdateAlbum
       tags:
       - album
-  /api/v1/albums/{id}:
+  /net/v1/albums/{id}:
     delete:
       consumes:
-      - application/json
+        - application/json
       description: deleting album by id
       parameters:
-      - description: id of album which need to be deleted
-        in: path
-        name: id
-        required: true
-        type: integer
+        - description: id of album which need to be deleted
+          in: path
+          name: id
+          required: true
+          type: integer
       produces:
       - application/json
       responses:
@@ -248,13 +248,13 @@ paths:
       summary: GetAlbum
       tags:
       - album
-  /api/v1/albums/popular:
+  /net/v1/albums/popular:
     get:
       consumes:
-      - application/json
+        - application/json
       description: getting top20 popular albums
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: OK
@@ -271,13 +271,13 @@ paths:
       summary: GetPopularAlbums
       tags:
       - album
-  /api/v1/artists/:
+  /net/v1/artists/:
     get:
       consumes:
-      - application/json
+        - application/json
       description: getting all artists
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: OK
@@ -352,17 +352,17 @@ paths:
       summary: UpdateArtist
       tags:
       - artist
-  /api/v1/artists/{id}:
+  /net/v1/artists/{id}:
     delete:
       consumes:
-      - application/json
+        - application/json
       description: deleting artist by id
       parameters:
-      - description: id of artist which need to be deleted
-        in: path
-        name: id
-        required: true
-        type: integer
+        - description: id of artist which need to be deleted
+          in: path
+          name: id
+          required: true
+          type: integer
       produces:
       - application/json
       responses:
@@ -409,13 +409,13 @@ paths:
       summary: GetArtist
       tags:
       - artist
-  /api/v1/artists/popular:
+  /net/v1/artists/popular:
     get:
       consumes:
-      - application/json
+        - application/json
       description: getting top20 popular artists
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: OK
@@ -432,17 +432,17 @@ paths:
       summary: GetPopularArtists
       tags:
       - artist
-  /api/v1/login:
+  /net/v1/login:
     post:
       consumes:
-      - application/json
+        - application/json
       description: login user
       parameters:
-      - description: user params
-        in: body
-        name: UserForm
-        required: true
-        schema:
+        - description: user params
+          in: body
+          name: UserForm
+          required: true
+          schema:
           $ref: '#/definitions/forms.User'
       produces:
       - application/json
@@ -462,13 +462,13 @@ paths:
       summary: Login
       tags:
       - auth
-  /api/v1/logout:
+  /net/v1/logout:
     post:
       consumes:
-      - application/json
+        - application/json
       description: sign in user
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: OK
@@ -489,17 +489,17 @@ paths:
       summary: Logout
       tags:
       - auth
-  /api/v1/signup:
+  /net/v1/signup:
     post:
       consumes:
-      - application/json
+        - application/json
       description: login user
       parameters:
-      - description: new jwt data
-        in: body
-        name: UserForm
-        required: true
-        schema:
+        - description: new jwt data
+          in: body
+          name: UserForm
+          required: true
+          schema:
           $ref: '#/definitions/forms.User'
       produces:
       - application/json
@@ -519,13 +519,13 @@ paths:
       summary: SignUp
       tags:
       - auth
-  /api/v1/songs/:
+  /net/v1/track/:
     get:
       consumes:
-      - application/json
-      description: getting all songs
+        - application/json
+      description: getting all tracks
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: OK
@@ -539,20 +539,20 @@ paths:
           description: Method is not allowed
           schema:
             $ref: '#/definitions/utils.Error'
-      summary: GetSongs
+      summary: GetTracks
       tags:
-      - song
+        - track
     post:
       consumes:
       - application/json
-      description: creating new song
+      description: creating new track
       parameters:
-      - description: params of new song. Id will be set automatically.
-        in: body
-        name: Track
-        required: true
-        schema:
-          $ref: '#/definitions/models.Track'
+        - description: params of new track. Id will be set automatically.
+          in: body
+          name: Track
+          required: true
+          schema:
+            $ref: '#/definitions/models.Track'
       produces:
       - application/json
       responses:
@@ -568,13 +568,13 @@ paths:
           description: Method is not allowed
           schema:
             $ref: '#/definitions/utils.Error'
-      summary: CreateSong
+      summary: CreateTrack
       tags:
-      - song
+        - track
     put:
       consumes:
       - application/json
-      description: updating song by id
+      description: updating track by id
       parameters:
       - description: id of updating song and params of it.
         in: body
@@ -597,20 +597,20 @@ paths:
           description: Method is not allowed
           schema:
             $ref: '#/definitions/utils.Error'
-      summary: UpdateSong
+      summary: UpdateTrack
       tags:
-      - song
-  /api/v1/songs/{id}:
+        - track
+  /net/v1/track/{id}:
     delete:
       consumes:
-      - application/json
-      description: deleting song by id
+        - application/json
+      description: deleting track by id
       parameters:
-      - description: id of song which need to be deleted
-        in: path
-        name: id
-        required: true
-        type: integer
+        - description: id of track which need to be deleted
+          in: path
+          name: id
+          required: true
+          type: integer
       produces:
       - application/json
       responses:
@@ -626,19 +626,19 @@ paths:
           description: Method is not allowed
           schema:
             $ref: '#/definitions/utils.Error'
-      summary: DeleteSong
+      summary: DeleteTrack
       tags:
-      - song
+        - track
     get:
       consumes:
       - application/json
-      description: getting song by id
+      description: getting track by id
       parameters:
-      - description: id of song which need to be getted
-        in: path
-        name: id
-        required: true
-        type: integer
+        - description: id of track which need to be getted
+          in: path
+          name: id
+          required: true
+          type: integer
       produces:
       - application/json
       responses:
@@ -654,16 +654,16 @@ paths:
           description: Method is not allowed
           schema:
             $ref: '#/definitions/utils.Error'
-      summary: GetSong
+      summary: GetTrack
       tags:
-      - song
-  /api/v1/songs/popular:
+        - track
+  /net/v1/track/popular:
     get:
       consumes:
-      - application/json
-      description: getting top20 popular songs
+        - application/json
+      description: getting top20 popular tracks
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: OK
@@ -677,16 +677,16 @@ paths:
           description: Method is not allowed
           schema:
             $ref: '#/definitions/utils.Error'
-      summary: GetPopularSongs
+      summary: GetPopularTracks
       tags:
-      - song
-  /api/v1/users/{id}:
+        - track
+  /net/v1/users/{id}:
     get:
       consumes:
-      - application/json
+        - application/json
       description: get user by cookie
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: OK
@@ -703,17 +703,17 @@ paths:
       summary: GetUser
       tags:
       - user
-  /api/v1/users/self:
+  /net/v1/users/self:
     get:
       consumes:
-      - application/json
+        - application/json
       description: get user
       parameters:
-      - description: id of user which need to be getted
-        in: path
-        name: id
-        required: true
-        type: integer
+        - description: id of user which need to be getted
+          in: path
+          name: id
+          required: true
+          type: integer
       produces:
       - application/json
       responses:

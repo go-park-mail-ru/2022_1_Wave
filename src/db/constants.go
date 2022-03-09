@@ -5,6 +5,10 @@ const (
 	InvalidBody     = "invalid body format"
 	InvalidJson     = "error to unpacking json"
 	IndexOutOfRange = "index out of range"
+
+	AlbumIsNotExist  = "album is not exist"
+	TrackIsNotExist  = "track is not exist"
+	ArtistIsNotExist = "artist is not exist"
 )
 
 // success albums
@@ -14,11 +18,11 @@ const (
 	SuccessDeletedAlbum = "success deleted album"
 )
 
-// success songs
+// success tracks
 const (
-	SuccessCreatedSong = "success created song"
-	SuccessUpdatedSong = "success updated song"
-	SuccessDeletedSong = "success deleted song"
+	SuccessCreatedTrack = "success created track"
+	SuccessUpdatedTrack = "success updated track"
+	SuccessDeletedTrack = "success deleted track"
 )
 
 // success artists
