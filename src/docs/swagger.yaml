@@ -1,4 +1,11 @@
 definitions:
+  api.UserGetResponse:
+    properties:
+      result:
+        $ref: '#/definitions/models.User'
+      status:
+        type: string
+    type: object
   forms.Result:
     properties:
       error:
@@ -96,6 +103,17 @@ definitions:
         type: string
       title:
         example: Rain
+        type: string
+    type: object
+  models.User:
+    properties:
+      email:
+        type: string
+      id:
+        type: integer
+      password:
+        type: string
+      username:
         type: string
     type: object
   utils.Error:
@@ -693,7 +711,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/forms.User'
+            $ref: '#/definitions/api.UserGetResponse'
         "400":
           description: invalid id
           schema:
@@ -722,7 +740,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/forms.User'
+            $ref: '#/definitions/api.UserGetResponse'
         "401":
           description: invalid csrf
           schema:

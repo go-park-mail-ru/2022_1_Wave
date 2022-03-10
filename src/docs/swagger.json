@@ -279,16 +279,16 @@
               "schema": {
                 "$ref": "#/definitions/utils.Error"
               }
-                    }
-                }
-            },
-            "put": {
-                "description": "updating album by id",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
+            }
+          }
+        },
+        "put": {
+          "description": "updating album by id",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
                 ],
                 "tags": [
                     "album"
@@ -350,12 +350,12 @@
                     }
                 ],
                 "responses": {
-                    "200": {
-                        "description": "OK",
-                      "schema": {
-                        "$ref": "#/definitions/utils.Success"
-                      }
-                    },
+                  "200": {
+                    "description": "OK",
+                    "schema": {
+                      "$ref": "#/definitions/utils.Success"
+                    }
+                  },
                   "400": {
                     "description": "Data is invalid",
                     "schema": {
@@ -437,16 +437,16 @@
             },
             "400": {
               "description": "Data is invalid",
-                        "schema": {
-                            "$ref": "#/definitions/utils.Error"
-                        }
-                    },
-                    "405": {
-                        "description": "Method is not allowed",
-                        "schema": {
-                            "$ref": "#/definitions/utils.Error"
-                        }
-                    }
+              "schema": {
+                "$ref": "#/definitions/utils.Error"
+              }
+            },
+            "405": {
+              "description": "Method is not allowed",
+              "schema": {
+                "$ref": "#/definitions/utils.Error"
+              }
+            }
                 }
             },
             "delete": {
@@ -471,12 +471,12 @@
                     }
                 ],
                 "responses": {
-                    "200": {
-                        "description": "OK",
-                      "schema": {
-                        "$ref": "#/definitions/utils.Success"
-                      }
-                    },
+                  "200": {
+                    "description": "OK",
+                    "schema": {
+                      "$ref": "#/definitions/utils.Success"
+                    }
+                  },
                   "400": {
                     "description": "Data is invalid",
                     "schema": {
@@ -523,16 +523,16 @@
               "schema": {
                 "$ref": "#/definitions/utils.Error"
               }
-                    }
-                }
-            },
-            "put": {
-                "description": "updating artist by id",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
+            }
+          }
+        },
+        "put": {
+          "description": "updating artist by id",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
                 ],
                 "tags": [
                     "artist"
@@ -594,12 +594,12 @@
                     }
                 ],
                 "responses": {
-                    "200": {
-                        "description": "OK",
-                      "schema": {
-                        "$ref": "#/definitions/utils.Success"
-                      }
-                    },
+                  "200": {
+                    "description": "OK",
+                    "schema": {
+                      "$ref": "#/definitions/utils.Success"
+                    }
+                  },
                   "400": {
                     "description": "Data is invalid",
                     "schema": {
@@ -681,16 +681,16 @@
             },
             "400": {
               "description": "Data is invalid",
-                        "schema": {
-                            "$ref": "#/definitions/utils.Error"
-                        }
-                    },
-                    "405": {
-                        "description": "Method is not allowed",
-                        "schema": {
-                            "$ref": "#/definitions/utils.Error"
-                        }
-                    }
+              "schema": {
+                "$ref": "#/definitions/utils.Error"
+              }
+            },
+            "405": {
+              "description": "Method is not allowed",
+              "schema": {
+                "$ref": "#/definitions/utils.Error"
+              }
+            }
                 }
             },
             "delete": {
@@ -715,12 +715,12 @@
                     }
                 ],
                 "responses": {
-                    "200": {
-                        "description": "OK",
-                      "schema": {
-                        "$ref": "#/definitions/utils.Success"
-                      }
-                    },
+                  "200": {
+                    "description": "OK",
+                    "schema": {
+                      "$ref": "#/definitions/utils.Success"
+                    }
+                  },
                   "400": {
                     "description": "Data is invalid",
                     "schema": {
@@ -895,7 +895,7 @@
             "200": {
               "description": "OK",
               "schema": {
-                "$ref": "#/definitions/forms.User"
+                "$ref": "#/definitions/api.UserGetResponse"
               }
             },
             "401": {
@@ -924,7 +924,7 @@
             "200": {
               "description": "OK",
               "schema": {
-                "$ref": "#/definitions/forms.User"
+                "$ref": "#/definitions/api.UserGetResponse"
               }
             },
             "400": {
@@ -938,22 +938,33 @@
               "schema": {
                 "$ref": "#/definitions/forms.Result"
               }
-                    }
-                }
             }
+          }
         }
+      }
     },
     "definitions": {
-        "forms.Result": {
-            "type": "object",
-            "properties": {
-                "error": {
-                    "type": "string",
-                    "example": "some error note"
-                },
-                "result": {
-                    "type": "string",
-                    "example": "some success note"
+      "api.UserGetResponse": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "$ref": "#/definitions/models.User"
+          },
+          "status": {
+            "type": "string"
+          }
+        }
+      },
+      "forms.Result": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string",
+            "example": "some error note"
+          },
+          "result": {
+            "type": "string",
+            "example": "some success note"
                 },
                 "status": {
                     "type": "string",
@@ -1071,26 +1082,43 @@
                     "type": "integer",
                     "example": 777
                 },
-                "mp4": {
-                    "type": "string",
-                    "example": "assets/track_1.mp4"
-                },
-                "title": {
-                    "type": "string",
-                    "example": "Rain"
-                }
+              "mp4": {
+                "type": "string",
+                "example": "assets/track_1.mp4"
+              },
+              "title": {
+                "type": "string",
+                "example": "Rain"
+              }
             }
         },
-        "utils.Error": {
-            "type": "object",
-            "properties": {
-                "err": {
-                    "type": "string"
-                }
-            }
-        },
-        "utils.Success": {
-            "type": "object",
+      "models.User": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "id": {
+            "type": "integer"
+          },
+          "password": {
+            "type": "string"
+          },
+          "username": {
+            "type": "string"
+          }
+        }
+      },
+      "utils.Error": {
+        "type": "object",
+        "properties": {
+          "err": {
+            "type": "string"
+          }
+        }
+      },
+      "utils.Success": {
+        "type": "object",
             "properties": {
               "result": {},
               "status": {

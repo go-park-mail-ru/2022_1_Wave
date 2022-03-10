@@ -907,7 +907,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/forms.User"
+                            "$ref": "#/definitions/api.UserGetResponse"
                         }
                     },
                     "401": {
@@ -936,7 +936,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/forms.User"
+                            "$ref": "#/definitions/api.UserGetResponse"
                         }
                     },
                     "400": {
@@ -956,6 +956,17 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "api.UserGetResponse": {
+            "type": "object",
+            "properties": {
+                "result": {
+                    "$ref": "#/definitions/models.User"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
         "forms.Result": {
             "type": "object",
             "properties": {
@@ -1090,6 +1101,23 @@ const docTemplate = `{
                 "title": {
                     "type": "string",
                     "example": "Rain"
+                }
+            }
+        },
+        "models.User": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
                 }
             }
         },
