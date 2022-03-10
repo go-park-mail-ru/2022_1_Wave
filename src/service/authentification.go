@@ -62,7 +62,10 @@ func SetNewUnauthorizedSession() (*http.Cookie, string) {
 }
 
 func AuthorizeUser(sessionId string, userId uint) {
-	nowSession, _ := Sessions[sessionId]
+	nowSession, ok := Sessions[sessionId]
+	if !ok {
+		return
+	}
 	nowSession.UserId = userId
 	nowSession.IsAuthorized = true
 	Sessions[sessionId] = nowSession

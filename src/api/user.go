@@ -27,10 +27,6 @@ type UserGetResponse struct {
 // @Router   /api/v1/users/self [get]
 func GetSelfUser(w http.ResponseWriter, r *http.Request) {
 	user, _ := service.GetSession(r)
-	/*if err != nil {
-		http.Error(w, `{"status": "FAIL", "error": "no auth"}`, http.StatusForbidden)
-		return
-	}*/
 
 	userFromDb, _ := db.MyUserStorage.SelectByID(user.UserId)
 	/*if err != nil {

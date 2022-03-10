@@ -74,7 +74,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 func SignUp(w http.ResponseWriter, r *http.Request) {
 	userToLogin, err := forms.UserUnmarshal(r)
 	if err != nil {
-		http.Error(w, `{"status": "FAIL", "error": "invalid fields"}`, http.StatusBadRequest)
+		http.Error(w, `{"status": "FAIL", "error": "invalid json"}`, http.StatusBadRequest)
 		return
 	}
 
@@ -99,7 +99,7 @@ func SignUp(w http.ResponseWriter, r *http.Request) {
 	sessionId, _ := r.Cookie(config.C.SessionIDKey)
 	service.AuthorizeUser(sessionId.Value, nowUser.ID)
 
-	w.Write([]byte(`{"status": "FAIL", "result": "you are sign up"}`))
+	w.Write([]byte(`{"status": "OK", "result": "you are sign up"}`))
 }
 
 // Logout godoc
@@ -120,6 +120,7 @@ func Logout(w http.ResponseWriter, r *http.Request) {
 
 	session.Expires = time.Now().AddDate(0, 0, -1)
 	http.SetCookie(w, session)
+	w.Write([]byte(`{"status": "OK", "result": "you are logout"}`))
 }
 
 func GetCSRF(w http.ResponseWriter, r *http.Request) {
