@@ -11,7 +11,6 @@ import (
 
 //config
 const CONFIG_FILENAME = "config.toml"
-const PATH_TO_STATIC = "./static"
 
 func main() {
 	if err := config.LoadConfig(CONFIG_FILENAME); err != nil {
@@ -30,7 +29,6 @@ func main() {
 	routes.SetTracksRoutes(router)
 	routes.SetAuthRoutes(router)
 	routes.SetDocsPath(router)
-	routes.SetStaticHandle(router)
 
 	log.Println("start serving :5000")
 	http.ListenAndServe(":5000", router)

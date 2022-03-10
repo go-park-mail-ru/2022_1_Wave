@@ -56,13 +56,3 @@ func SetDocsPath(router *mux.Router) {
 	router.PathPrefix("/docs").Handler(httpSwagger.WrapHandler)
 	router.PathPrefix("/docs/*any").Handler(swaggerFiles.Handler)
 }
-
-// static
-func SetStaticHandle(router *mux.Router) {
-	// /net/v1/static/img/album/123.jpg -> ./static/img/album/123.jpg
-	staticHandler := http.StripPrefix(
-		api.GetStaticUrl,
-		http.FileServer(http.Dir("./static")),
-	)
-	router.Handle(api.GetStaticUrl, staticHandler)
-}
