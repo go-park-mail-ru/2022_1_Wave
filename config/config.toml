@@ -1,0 +1,10 @@
+domain = "localhost"
+
+session_key = "very_secret_session_key"
+csrf_key = "asfasfkalsaas"
+
+token_max_age = 3600
+
+db_connection_string = "host=db port=5432 user=postgres password=music dbname=wave sslmode=disable TimeZone=Europe/Moscow"
+
+session_id = "session_id"
