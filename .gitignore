@@ -19,8 +19,7 @@ src/.air.toml
 src/tmp
 /src/config.toml
 src/wave
-src/assets/*
 
-*png
-*jpeg
+*.png
+*.jp*
 
