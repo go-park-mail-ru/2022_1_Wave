@@ -5,14 +5,19 @@ type Artist struct {
 	Cover string `json:"cover" example:"assets/artist_1.png"`
 }
 
-func SetArtistsViewsFromInterfaces(data []interface{}) []Artist {
+func FromInterfaceToArtistView(data interface{}) Artist {
+	temp := data.(map[string]interface{})
+	artist := Artist{
+		Name:  temp["name"].(string),
+		Cover: temp["cover"].(string),
+	}
+	return artist
+}
+
+func GetArtistsViewsFromInterfaces(data []interface{}) []Artist {
 	artists := make([]Artist, len(data))
 	for idx, it := range data {
-		temp := it.(map[string]interface{})
-		artists[idx] = Artist{
-			Name:  temp["name"].(string),
-			Cover: temp["cover"].(string),
-		}
+		artists[idx] = FromInterfaceToArtistView(it)
 	}
 	return artists
 }

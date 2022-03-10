@@ -152,6 +152,8 @@ func (storage *globalStorage) InitStorage(quantity int) {
 func (storage *albumStorage) Insert(album *models.Album) error {
 	storage.Mutex.Lock()
 	defer storage.Mutex.Unlock()
+	id := len(storage.Albums)
+	album.Id = uint64(id)
 	storage.Albums = append(storage.Albums, *album)
 	return nil
 }
@@ -223,6 +225,8 @@ func (storage *albumStorage) GetPopularAlbums() (*[]models.Album, error) {
 func (storage *artistStorage) Insert(artist *models.Artist) error {
 	storage.Mutex.Lock()
 	defer storage.Mutex.Unlock()
+	id := len(storage.Artists)
+	artist.Id = uint64(id)
 	storage.Artists = append(storage.Artists, *artist)
 	return nil
 }
@@ -293,6 +297,8 @@ func (storage *artistStorage) GetPopularArtists() (*[]models.Artist, error) {
 func (storage *songStorage) Insert(song *models.Track) error {
 	storage.Mutex.Lock()
 	defer storage.Mutex.Unlock()
+	id := len(storage.Tracks)
+	song.Id = uint64(id)
 	storage.Tracks = append(storage.Tracks, *song)
 	return nil
 }
@@ -357,4 +363,51 @@ func (storage *songStorage) GetPopularSongs() (*[]models.Track, error) {
 	}
 
 	return &topChart, nil
+}
+
+// ---------------------------------------------------------
+func CheckSong(track *models.Track) error {
+
+	if track.AuthorId >= uint64(len(Storage.ArtistStorage.Artists)) {
+		return errors.New(ArtistIsNotExist)
+	}
+
+	if track.AlbumId >= uint64(len(Storage.AlbumStorage.Albums)) {
+		return errors.New(AlbumIsNotExist)
+	}
+
+	if len(track.Title) > SongTitleLen {
+		return errors.New(ErrorSongMaxNameLen)
+	}
+
+	if len(track.Mp4) > SongLinkLen {
+		return errors.New(ErrorSongMaxPhotoLinkLen)
+	}
+
+	return nil
+}
+
+// -----------------------------------------------------------
+func CheckAlbum(album *models.Album) error {
+	if album.AuthorId >= uint64(len(Storage.ArtistStorage.Artists)) {
+		return errors.New(ArtistIsNotExist)
+	}
+
+	if len(album.Title) > AlbumTitleLen {
+		return errors.New(ErrorAlbumMaxTitleLen)
+	}
+	return nil
+}
+
+// -----------------------------------------------------------
+func CheckArtist(artist *models.Artist) error {
+	if len(artist.Name) > ArtistNameLen {
+		return errors.New(ErrorArtistMaxNameLen)
+	}
+
+	if len(artist.Photo) > ArtistPhotoLinkLen {
+		return errors.New(ErrorArtistsMaxPhotoLinkLen)
+	}
+
+	return nil
 }

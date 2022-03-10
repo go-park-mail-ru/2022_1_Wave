@@ -7,7 +7,7 @@ import (
 	"github.com/go-park-mail-ru/2022_1_Wave/db"
 	"github.com/go-park-mail-ru/2022_1_Wave/db/models"
 	"github.com/go-park-mail-ru/2022_1_Wave/db/views"
-	"github.com/go-park-mail-ru/2022_1_Wave/pkg/utils"
+	"github.com/go-park-mail-ru/2022_1_Wave/pkg/status"
 	"github.com/gorilla/mux"
 	"github.com/stretchr/testify/require"
 	"io/ioutil"
@@ -55,7 +55,7 @@ type getAlbumTestCase struct {
 //	resp := w.Result()
 //	body, _ := ioutil.ReadAll(resp.Body)
 //
-//	var result utils.Success
+//	var result status.Success
 //
 //	json.Unmarshal(body, &result)
 //
@@ -103,11 +103,12 @@ func TestGetAlbum(t *testing.T) {
 		resp := w.Result()
 		body, _ := ioutil.ReadAll(resp.Body)
 
-		var result views.Album
-		json.Unmarshal(body, &result)
+		var response status.Success
+		json.Unmarshal(body, &response)
+		result := views.FromInterfaceToAlbumView(response.Result)
 		if result != item.album {
 			t.Errorf("[%d] wrong Response: got %+v, expected %+v",
-				caseNum, resp, item.album)
+				caseNum, result, item.album)
 		}
 	}
 }
@@ -147,11 +148,10 @@ func TestGetAlbums(t *testing.T) {
 	resp := w.Result()
 	body, _ := ioutil.ReadAll(resp.Body)
 
-	var result utils.Success
+	var response status.Success
 
-	json.Unmarshal(body, &result)
-
-	data := result.Result.([]interface{})
+	json.Unmarshal(body, &response)
+	data := response.Result.([]interface{})
 	albums := views.GetAlbumsViewsFromInterfaces(data)
 	for idx, view := range testCase.albums {
 		if albums[idx] != view {
@@ -194,15 +194,15 @@ func TestCreateAlbum(t *testing.T) {
 		t.Errorf("wrong StatusCode: got %d, expected %d", w.Code, testCase.status)
 	}
 
-	expected := utils.Success{
-		Result: db.SuccessCreatedAlbum + "(" + album.Title + ")",
-	}
 	resp := w.Result()
 	body, _ := ioutil.ReadAll(resp.Body)
 
-	var result utils.Success
+	var result status.Success
 	json.Unmarshal(body, &result)
-	if result != expected {
+
+	expected := db.SuccessWrapper(album.Title, db.SuccessCreatedAlbum)
+
+	if result != status.MakeSuccess(expected) {
 		t.Errorf("wrong Response: got %+v, expected %+v",
 			result, expected)
 	}
@@ -241,15 +241,13 @@ func TestDeleteAlbum(t *testing.T) {
 		t.Errorf("wrong StatusCode: got %d, expected %d", w.Code, testCase.status)
 	}
 
-	expected := utils.Success{
-		Result: db.SuccessDeletedAlbum + "(" + fmt.Sprint(albumToDelete.Id) + ")",
-	}
 	resp := w.Result()
 	body, _ := ioutil.ReadAll(resp.Body)
 
-	var result utils.Success
+	var result status.Success
 	json.Unmarshal(body, &result)
-	if result != expected {
+	expected := db.SuccessWrapper(albumToDelete.Id, db.SuccessDeletedAlbum)
+	if result != status.MakeSuccess(expected) {
 		t.Errorf("wrong Response: got %+v, expected %+v",
 			result, expected)
 	}
@@ -290,15 +288,13 @@ func TestUpdateAlbum(t *testing.T) {
 		t.Errorf("wrong StatusCode: got %d, expected %d", w.Code, testCase.status)
 	}
 
-	expected := utils.Success{
-		Result: db.SuccessUpdatedAlbum + "(" + fmt.Sprint(album.Id) + ")",
-	}
 	resp := w.Result()
 	body, _ := ioutil.ReadAll(resp.Body)
 
-	var result utils.Success
+	var result status.Success
 	json.Unmarshal(body, &result)
-	if result != expected {
+	expected := db.SuccessWrapper(album.Id, db.SuccessUpdatedAlbum)
+	if result != status.MakeSuccess(expected) {
 		t.Errorf("wrong Response: got %+v, expected %+v",
 			result, expected)
 	}
@@ -344,7 +340,7 @@ func TestPopularAlbums(t *testing.T) {
 	resp := w.Result()
 	body, _ := ioutil.ReadAll(resp.Body)
 
-	var result utils.Success
+	var result status.Success
 
 	json.Unmarshal(body, &result)
 

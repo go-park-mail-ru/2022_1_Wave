@@ -7,7 +7,7 @@ import (
 	"github.com/go-park-mail-ru/2022_1_Wave/db"
 	"github.com/go-park-mail-ru/2022_1_Wave/db/models"
 	"github.com/go-park-mail-ru/2022_1_Wave/db/views"
-	"github.com/go-park-mail-ru/2022_1_Wave/pkg/utils"
+	"github.com/go-park-mail-ru/2022_1_Wave/pkg/status"
 	"github.com/gorilla/mux"
 	"io/ioutil"
 	"net/http"
@@ -42,7 +42,7 @@ func GetArtistView(id uint64) *views.Artist {
 	currentArtist, err := getArtistByIDFromStorage(&db.Storage.ArtistStorage, id)
 
 	if err != nil {
-		//utils.WriteError(w, err, http.StatusBadRequest)
+		//status.WriteError(w, err, http.StatusBadRequest)
 		return nil
 	}
 
@@ -60,20 +60,21 @@ func GetArtistView(id uint64) *views.Artist {
 // @Tags     artist
 // @Accept	 application/json
 // @Produce  application/json
-// @Success  200 {object} utils.Success
-// @Failure 400 {object} utils.Error "Data is invalid"
-// @Failure 405 {object} utils.Error "Method is not allowed"
-// @Router   /net/v1/artists/ [get]
-func GetArtists(w http.ResponseWriter, r *http.Request) {
-	storage := &db.Storage.ArtistStorage
-	storage.Mutex.RLock()
-	defer storage.Mutex.RUnlock()
-	artists, err := getAllArtists(storage)
+// @Success  200 {object} status.Success
+// @Failure 400 {object} status.Error "Data is invalid"
+// @Failure 405 {object} status.Error "Method is not allowed"
+// @Router   /api/v1/artists/ [get]
+func GetArtists(w http.ResponseWriter, _ *http.Request) {
+	artistStorage := &db.Storage.ArtistStorage
+	artistStorage.Mutex.RLock()
+	defer artistStorage.Mutex.RUnlock()
+	artists, err := getAllArtists(artistStorage)
 	if err != nil {
-		utils.WriteError(w, err, http.StatusBadRequest)
+		status.WriteError(w, err, http.StatusBadRequest)
 		return
 	}
-	if *artists == nil {
+
+	if artists == nil {
 		*artists = []models.Artist{}
 	}
 
@@ -82,12 +83,11 @@ func GetArtists(w http.ResponseWriter, r *http.Request) {
 	for i, artist := range *artists {
 		view := GetArtistView(artist.Id)
 		if view == nil {
-			utils.WriteError(w, errors.New(db.ArtistIsNotExist), http.StatusBadRequest)
+			status.WriteError(w, errors.New(db.ArtistIsNotExist), http.StatusBadRequest)
 		}
 		artistViews[i] = *view
 	}
-	json.NewEncoder(w).Encode(utils.Success{
-		Result: artistViews})
+	status.WriteSuccess(w, artistViews)
 }
 
 // CreateArtist godoc
@@ -97,37 +97,34 @@ func GetArtists(w http.ResponseWriter, r *http.Request) {
 // @Accept	 application/json
 // @Produce  application/json
 // @Param    Artist body models.Artist true  "params of new artist. Id will be set automatically."
-// @Success  200 {object} utils.Success
-// @Failure 400 {object} utils.Error "Data is invalid"
-// @Failure 405 {object} utils.Error "Method is not allowed"
-// @Router   /net/v1/artists/ [post]
+// @Success  200 {object} status.Success
+// @Failure 400 {object} status.Error "Data is invalid"
+// @Failure 405 {object} status.Error "Method is not allowed"
+// @Router   /api/v1/artists/ [post]
 func CreateArtist(w http.ResponseWriter, r *http.Request) {
 	newArtist := &models.Artist{}
-	newArtist.Id = uint64(len(db.Storage.ArtistStorage.Artists))
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		utils.WriteError(w, err, http.StatusBadRequest)
+		status.WriteError(w, err, http.StatusBadRequest)
 		return
 	}
 
 	if err = json.Unmarshal(body, newArtist); err != nil {
-		utils.WriteError(w, err, http.StatusBadRequest)
+		status.WriteError(w, err, http.StatusBadRequest)
 		return
 	}
 
-	if err = newArtist.CheckArtist(); err != nil {
-		utils.WriteError(w, err, http.StatusBadRequest)
+	if err = db.CheckArtist(newArtist); err != nil {
+		status.WriteError(w, err, http.StatusBadRequest)
 		return
 	}
 
 	if err = addArtistToStorage(&db.Storage.ArtistStorage, *newArtist); err != nil {
-		utils.WriteError(w, err, http.StatusBadRequest)
+		status.WriteError(w, err, http.StatusBadRequest)
 		return
 	}
 
-	json.NewEncoder(w).Encode(utils.Success{
-		Result: db.SuccessCreatedArtist + "(" + newArtist.Name + ")",
-	})
+	status.WriteSuccess(w, db.SuccessWrapper(newArtist.Name, db.SuccessCreatedArtist))
 }
 
 // UpdateArtist godoc
@@ -137,10 +134,10 @@ func CreateArtist(w http.ResponseWriter, r *http.Request) {
 // @Accept	 application/json
 // @Produce  application/json
 // @Param    Artist body models.Artist true  "id of updating artist and params of it."
-// @Success  200 {object} utils.Success
-// @Failure 400 {object} utils.Error "Data is invalid"
-// @Failure 405 {object} utils.Error "Method is not allowed"
-// @Router   /net/v1/artists/ [put]
+// @Success  200 {object} status.Success
+// @Failure 400 {object} status.Error "Data is invalid"
+// @Failure 405 {object} status.Error "Method is not allowed"
+// @Router   /api/v1/artists/ [put]
 func UpdateArtist(w http.ResponseWriter, r *http.Request) {
 	newArtist := &models.Artist{}
 	newArtist.Id = uint64(len(db.Storage.ArtistStorage.Artists))
@@ -148,27 +145,26 @@ func UpdateArtist(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
 	if err != nil {
-		utils.WriteError(w, err, http.StatusBadRequest)
+		status.WriteError(w, err, http.StatusBadRequest)
 		return
 	}
 
 	if err = json.Unmarshal(body, newArtist); err != nil {
-		utils.WriteError(w, err, http.StatusBadRequest)
+		status.WriteError(w, err, http.StatusBadRequest)
 		return
 	}
 
-	if err = newArtist.CheckArtist(); err != nil {
-		utils.WriteError(w, err, http.StatusBadRequest)
+	if err = db.CheckArtist(newArtist); err != nil {
+		status.WriteError(w, err, http.StatusBadRequest)
 		return
 	}
 
 	if err = updateArtistInStorage(&db.Storage.ArtistStorage, *newArtist); err != nil {
-		utils.WriteError(w, err, http.StatusBadRequest)
+		status.WriteError(w, err, http.StatusBadRequest)
 		return
 	}
-	json.NewEncoder(w).Encode(utils.Success{
-		Result: db.SuccessUpdatedArtist + "(" + fmt.Sprint(newArtist.Id) + ")",
-	})
+
+	status.WriteSuccess(w, db.SuccessWrapper(newArtist.Id, db.SuccessUpdatedArtist))
 }
 
 // GetArtist godoc
@@ -179,29 +175,29 @@ func UpdateArtist(w http.ResponseWriter, r *http.Request) {
 // @Produce  application/json
 // @Param    id path integer true  "id of artist which need to be getted"
 // @Success  200 {object} models.Artist
-// @Failure 400 {object} utils.Error "Data is invalid"
-// @Failure 405 {object} utils.Error "Method is not allowed"
-// @Router   /net/v1/artists/{id} [get]
+// @Failure 400 {object} status.Error "Data is invalid"
+// @Failure 405 {object} status.Error "Method is not allowed"
+// @Router   /api/v1/artists/{id} [get]
 func GetArtist(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars[FieldId])
 	if err != nil {
-		utils.WriteError(w, err, http.StatusBadRequest)
+		status.WriteError(w, err, http.StatusBadRequest)
 		return
 	}
 	//id--
 	if id < 0 {
-		utils.WriteError(w, errors.New(db.IndexOutOfRange), http.StatusBadRequest)
+		status.WriteError(w, errors.New(db.IndexOutOfRange), http.StatusBadRequest)
 		return
 	}
 	currentArtistView := GetArtistView(uint64(id))
 
 	if currentArtistView == nil {
-		utils.WriteError(w, errors.New(db.ArtistIsNotExist), http.StatusBadRequest)
+		status.WriteError(w, errors.New(db.ArtistIsNotExist), http.StatusBadRequest)
 		return
 	}
 
-	json.NewEncoder(w).Encode(currentArtistView)
+	status.WriteSuccess(w, currentArtistView)
 }
 
 // DeleteArtist godoc
@@ -211,30 +207,28 @@ func GetArtist(w http.ResponseWriter, r *http.Request) {
 // @Accept	 application/json
 // @Produce  application/json
 // @Param    id path integer true  "id of artist which need to be deleted"
-// @Success  200 {object} utils.Success
-// @Failure 400 {object} utils.Error "Data is invalid"
-// @Failure 405 {object} utils.Error "Method is not allowed"
-// @Router   /net/v1/artists/{id} [delete]
+// @Success  200 {object} status.Success
+// @Failure 400 {object} status.Error "Data is invalid"
+// @Failure 405 {object} status.Error "Method is not allowed"
+// @Router   /api/v1/artists/{id} [delete]
 func DeleteArtist(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars[FieldId])
 	if err != nil {
-		utils.WriteError(w, err, http.StatusBadRequest)
+		status.WriteError(w, err, http.StatusBadRequest)
 		return
 	}
 	//id--
 	if id < 0 {
-		utils.WriteError(w, errors.New(db.IndexOutOfRange), http.StatusBadRequest)
+		status.WriteError(w, errors.New(db.IndexOutOfRange), http.StatusBadRequest)
 		return
 	}
 	err = deleteArtistFromStorageByID(&db.Storage.ArtistStorage, uint64(id))
 	if err != nil {
-		utils.WriteError(w, err, http.StatusBadRequest)
+		status.WriteError(w, err, http.StatusBadRequest)
 		return
 	}
-	json.NewEncoder(w).Encode(utils.Success{
-		Result: db.SuccessDeletedArtist + "(" + fmt.Sprint(id) + ")",
-	})
+	status.WriteSuccess(w, db.SuccessWrapper(id, db.SuccessDeletedArtist))
 }
 
 // GetPopularArtists godoc
@@ -243,17 +237,17 @@ func DeleteArtist(w http.ResponseWriter, r *http.Request) {
 // @Tags     artist
 // @Accept	 application/json
 // @Produce  application/json
-// @Success  200 {object} utils.Success
-// @Failure 400 {object} utils.Error "Data is invalid"
-// @Failure 405 {object} utils.Error "Method is not allowed"
-// @Router   /net/v1/artists/popular [get]
+// @Success  200 {object} status.Success
+// @Failure 400 {object} status.Error "Data is invalid"
+// @Failure 405 {object} status.Error "Method is not allowed"
+// @Router   /api/v1/artists/popular [get]
 func GetPopularArtists(w http.ResponseWriter, r *http.Request) {
 	storage := &db.Storage.ArtistStorage
 	storage.Mutex.RLock()
 	defer storage.Mutex.RUnlock()
 	artists, err := getPopularArtists(storage)
 	if err != nil {
-		utils.WriteError(w, err, http.StatusBadRequest)
+		status.WriteError(w, err, http.StatusBadRequest)
 		return
 	}
 
@@ -262,10 +256,9 @@ func GetPopularArtists(w http.ResponseWriter, r *http.Request) {
 	for i, _ := range *artists {
 		view := GetArtistView(uint64(i))
 		if view == nil {
-			utils.WriteError(w, errors.New(db.ArtistIsNotExist), http.StatusBadRequest)
+			status.WriteError(w, errors.New(db.ArtistIsNotExist), http.StatusBadRequest)
 		}
 		artistViews[i] = *view
 	}
-	json.NewEncoder(w).Encode(utils.Success{
-		Result: artistViews})
+	status.WriteSuccess(w, artistViews)
 }

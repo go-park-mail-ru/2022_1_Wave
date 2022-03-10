@@ -7,7 +7,7 @@ import (
 	"github.com/go-park-mail-ru/2022_1_Wave/db"
 	"github.com/go-park-mail-ru/2022_1_Wave/db/models"
 	"github.com/go-park-mail-ru/2022_1_Wave/db/views"
-	"github.com/go-park-mail-ru/2022_1_Wave/pkg/utils"
+	"github.com/go-park-mail-ru/2022_1_Wave/pkg/status"
 	"github.com/gorilla/mux"
 	"io/ioutil"
 	"net/http"
@@ -42,7 +42,7 @@ func GetAlbumView(id uint64) *views.Album {
 	album, err := getAlbumByIDFromStorage(&db.Storage.AlbumStorage, id)
 
 	if err != nil {
-		//utils.WriteError(w, err, http.StatusBadRequest)
+		//status.WriteError(w, err, http.StatusBadRequest)
 		return nil
 	}
 
@@ -63,21 +63,19 @@ func GetAlbumView(id uint64) *views.Album {
 // @Tags     album
 // @Accept	 application/json
 // @Produce  application/json
-// @Success  200 {object} utils.Success
-// @Failure 400 {object} utils.Error "Data is invalid"
-// @Failure 405 {object} utils.Error "Method is not allowed"
-// @Router   /net/v1/albums/ [get]
+// @Success  200 {object} status.Success
+// @Failure 400 {object} status.Error "Data is invalid"
+// @Failure 405 {object} status.Error "Method is not allowed"
+// @Router   /api/v1/albums/ [get]
 func GetAlbums(w http.ResponseWriter, r *http.Request) {
 	storage := &db.Storage.AlbumStorage
-	storage.Mutex.RLock()
-	defer storage.Mutex.RUnlock()
 	albums, err := getAllAlbums(storage)
 	if err != nil {
-		utils.WriteError(w, err, http.StatusBadRequest)
+		status.WriteError(w, err, http.StatusBadRequest)
 		return
 	}
 
-	if *albums == nil {
+	if albums == nil {
 		*albums = []models.Album{}
 	}
 
@@ -86,13 +84,12 @@ func GetAlbums(w http.ResponseWriter, r *http.Request) {
 	for i, album := range *albums {
 		view := GetAlbumView(album.Id)
 		if view == nil {
-			utils.WriteError(w, errors.New(db.AlbumIsNotExist), http.StatusBadRequest)
+			status.WriteError(w, errors.New(db.AlbumIsNotExist), http.StatusBadRequest)
 		}
 		albumViews[i] = *view
 	}
 
-	json.NewEncoder(w).Encode(utils.Success{
-		Result: albumViews})
+	status.WriteSuccess(w, albumViews)
 }
 
 // CreateAlbum godoc
@@ -102,37 +99,34 @@ func GetAlbums(w http.ResponseWriter, r *http.Request) {
 // @Accept	 application/json
 // @Produce  application/json
 // @Param    Album body models.Album true  "params of new album. Id will be set automatically."
-// @Success  200 {object} utils.Success
-// @Failure 400 {object} utils.Error "Data is invalid"
-// @Failure 405 {object} utils.Error "Method is not allowed"
-// @Router   /net/v1/albums/ [post]
+// @Success  200 {object} status.Success
+// @Failure 400 {object} status.Error "Data is invalid"
+// @Failure 405 {object} status.Error "Method is not allowed"
+// @Router   /api/v1/albums/ [post]
 func CreateAlbum(w http.ResponseWriter, r *http.Request) {
 	newAlbum := &models.Album{}
-	newAlbum.Id = uint64(len(db.Storage.AlbumStorage.Albums))
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		utils.WriteError(w, err, http.StatusBadRequest)
+		status.WriteError(w, err, http.StatusBadRequest)
 		return
 	}
 
 	if err = json.Unmarshal(body, newAlbum); err != nil {
-		utils.WriteError(w, err, http.StatusBadRequest)
+		status.WriteError(w, err, http.StatusBadRequest)
 		return
 	}
 
-	if err = newAlbum.CheckAlbum(); err != nil {
-		utils.WriteError(w, err, http.StatusBadRequest)
+	if err = db.CheckAlbum(newAlbum); err != nil {
+		status.WriteError(w, err, http.StatusBadRequest)
 		return
 	}
 
 	if err = addAlbumToStorage(&db.Storage.AlbumStorage, *newAlbum); err != nil {
-		utils.WriteError(w, err, http.StatusBadRequest)
+		status.WriteError(w, err, http.StatusBadRequest)
 		return
 	}
 
-	json.NewEncoder(w).Encode(utils.Success{
-		Result: db.SuccessCreatedAlbum + "(" + newAlbum.Title + ")",
-	})
+	status.WriteSuccess(w, db.SuccessWrapper(newAlbum.Title, db.SuccessCreatedAlbum))
 }
 
 // UpdateAlbum godoc
@@ -142,38 +136,35 @@ func CreateAlbum(w http.ResponseWriter, r *http.Request) {
 // @Accept	 application/json
 // @Produce  application/json
 // @Param    Album body models.Album true  "id of updating album and params of it."
-// @Success  200 {object} utils.Success
-// @Failure 400 {object} utils.Error "Data is invalid"
-// @Failure 405 {object} utils.Error "Method is not allowed"
-// @Router   /net/v1/albums/ [put]
+// @Success  200 {object} status.Success
+// @Failure 400 {object} status.Error "Data is invalid"
+// @Failure 405 {object} status.Error "Method is not allowed"
+// @Router   /api/v1/albums/ [put]
 func UpdateAlbum(w http.ResponseWriter, r *http.Request) {
 	newAlbum := &models.Album{}
-	newAlbum.Id = uint64(len(db.Storage.AlbumStorage.Albums))
 	body, err := ioutil.ReadAll(r.Body)
 	defer r.Body.Close()
 
 	if err != nil {
-		utils.WriteError(w, err, http.StatusBadRequest)
+		status.WriteError(w, err, http.StatusBadRequest)
 		return
 	}
 
 	if err = json.Unmarshal(body, newAlbum); err != nil {
-		utils.WriteError(w, err, http.StatusBadRequest)
+		status.WriteError(w, err, http.StatusBadRequest)
 		return
 	}
 
-	if err = newAlbum.CheckAlbum(); err != nil {
-		utils.WriteError(w, err, http.StatusBadRequest)
+	if err = db.CheckAlbum(newAlbum); err != nil {
+		status.WriteError(w, err, http.StatusBadRequest)
 		return
 	}
 
 	if err = updateAlbumInStorage(&db.Storage.AlbumStorage, *newAlbum); err != nil {
-		utils.WriteError(w, err, http.StatusBadRequest)
+		status.WriteError(w, err, http.StatusBadRequest)
 		return
 	}
-	json.NewEncoder(w).Encode(utils.Success{
-		Result: db.SuccessUpdatedAlbum + "(" + fmt.Sprint(newAlbum.Id) + ")",
-	})
+	status.WriteSuccess(w, db.SuccessWrapper(newAlbum.Id, db.SuccessUpdatedAlbum))
 }
 
 // GetAlbum godoc
@@ -184,31 +175,31 @@ func UpdateAlbum(w http.ResponseWriter, r *http.Request) {
 // @Produce  application/json
 // @Param    id path integer true  "id of album which need to be getted"
 // @Success  200 {object} models.Album
-// @Failure 400 {object} utils.Error "Data is invalid"
-// @Failure 405 {object} utils.Error "Method is not allowed"
-// @Router   /net/v1/albums/{id} [get]
+// @Failure 400 {object} status.Error "Data is invalid"
+// @Failure 405 {object} status.Error "Method is not allowed"
+// @Router   /api/v1/albums/{id} [get]
 func GetAlbum(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars[FieldId])
 	if err != nil {
-		utils.WriteError(w, err, http.StatusBadRequest)
+		status.WriteError(w, err, http.StatusBadRequest)
 		return
 	}
 
 	//id--
 	if id < 0 {
-		utils.WriteError(w, errors.New(db.IndexOutOfRange), http.StatusBadRequest)
+		status.WriteError(w, errors.New(db.IndexOutOfRange), http.StatusBadRequest)
 		return
 	}
 
 	currentAlbumView := GetAlbumView(uint64(id))
 
 	if currentAlbumView == nil {
-		utils.WriteError(w, errors.New(db.AlbumIsNotExist), http.StatusBadRequest)
+		status.WriteError(w, errors.New(db.AlbumIsNotExist), http.StatusBadRequest)
 		return
 	}
 
-	json.NewEncoder(w).Encode(currentAlbumView)
+	status.WriteSuccess(w, currentAlbumView)
 }
 
 // DeleteAlbum godoc
@@ -218,30 +209,28 @@ func GetAlbum(w http.ResponseWriter, r *http.Request) {
 // @Accept	 application/json
 // @Produce  application/json
 // @Param    id path integer true  "id of album which need to be deleted"
-// @Success  200 {object} utils.Success
-// @Failure 400 {object} utils.Error "Data is invalid"
-// @Failure 405 {object} utils.Error "Method is not allowed"
-// @Router   /net/v1/albums/{id} [delete]
+// @Success  200 {object} status.Success
+// @Failure 400 {object} status.Error "Data is invalid"
+// @Failure 405 {object} status.Error "Method is not allowed"
+// @Router   /api/v1/albums/{id} [delete]
 func DeleteAlbum(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars[FieldId])
 	if err != nil {
-		utils.WriteError(w, err, http.StatusBadRequest)
+		status.WriteError(w, err, http.StatusBadRequest)
 		return
 	}
 	//id--
 	if id < 0 {
-		utils.WriteError(w, errors.New(db.IndexOutOfRange), http.StatusBadRequest)
+		status.WriteError(w, errors.New(db.IndexOutOfRange), http.StatusBadRequest)
 		return
 	}
 	err = deleteAlbumFromStorageByID(&db.Storage.AlbumStorage, uint64(id))
 	if err != nil {
-		utils.WriteError(w, err, http.StatusBadRequest)
+		status.WriteError(w, err, http.StatusBadRequest)
 		return
 	}
-	json.NewEncoder(w).Encode(utils.Success{
-		Result: db.SuccessDeletedAlbum + "(" + fmt.Sprint(id) + ")",
-	})
+	status.WriteSuccess(w, db.SuccessWrapper(id, db.SuccessDeletedAlbum))
 }
 
 // GetPopularAlbums godoc
@@ -250,17 +239,17 @@ func DeleteAlbum(w http.ResponseWriter, r *http.Request) {
 // @Tags     album
 // @Accept	 application/json
 // @Produce  application/json
-// @Success  200 {object} utils.Success
-// @Failure 400 {object} utils.Error "Data is invalid"
-// @Failure 405 {object} utils.Error "Method is not allowed"
-// @Router   /net/v1/albums/popular [get]
+// @Success  200 {object} status.Success
+// @Failure 400 {object} status.Error "Data is invalid"
+// @Failure 405 {object} status.Error "Method is not allowed"
+// @Router   /api/v1/albums/popular [get]
 func GetPopularAlbums(w http.ResponseWriter, r *http.Request) {
 	storage := &db.Storage.AlbumStorage
 	storage.Mutex.RLock()
 	defer storage.Mutex.RUnlock()
 	albums, err := getPopularAlbums(storage)
 	if err != nil {
-		utils.WriteError(w, err, http.StatusBadRequest)
+		status.WriteError(w, err, http.StatusBadRequest)
 		return
 	}
 
@@ -269,10 +258,9 @@ func GetPopularAlbums(w http.ResponseWriter, r *http.Request) {
 	for i, _ := range *albums {
 		view := GetAlbumView(uint64(i))
 		if view == nil {
-			utils.WriteError(w, errors.New(db.AlbumIsNotExist), http.StatusBadRequest)
+			status.WriteError(w, errors.New(db.AlbumIsNotExist), http.StatusBadRequest)
 		}
 		albumViews[i] = *view
 	}
-	json.NewEncoder(w).Encode(utils.Success{
-		Result: albumViews})
+	status.WriteSuccess(w, albumViews)
 }

@@ -7,7 +7,7 @@ import (
 	"github.com/go-park-mail-ru/2022_1_Wave/db"
 	"github.com/go-park-mail-ru/2022_1_Wave/db/models"
 	"github.com/go-park-mail-ru/2022_1_Wave/db/views"
-	"github.com/go-park-mail-ru/2022_1_Wave/pkg/utils"
+	"github.com/go-park-mail-ru/2022_1_Wave/pkg/status"
 	"github.com/gorilla/mux"
 	"github.com/stretchr/testify/require"
 	"io/ioutil"
@@ -58,8 +58,9 @@ func TestGetTrack(t *testing.T) {
 		resp := w.Result()
 		body, _ := ioutil.ReadAll(resp.Body)
 
-		var result views.Track
-		json.Unmarshal(body, &result)
+		var response status.Success
+		json.Unmarshal(body, &response)
+		result := views.FromInterfaceToTrackView(response.Result)
 		if result != item.track {
 			t.Errorf("[%d] wrong Response: got %+v, expected %+v",
 				caseNum, resp, item.track)
@@ -102,12 +103,11 @@ func TestGetTracks(t *testing.T) {
 	resp := w.Result()
 	body, _ := ioutil.ReadAll(resp.Body)
 
-	var result utils.Success
+	var result status.Success
 
 	json.Unmarshal(body, &result)
-
 	data := result.Result.([]interface{})
-	tracks := views.SetTracksViewsFromInterfaces(data)
+	tracks := views.GetTracksViewsFromInterfaces(data)
 	for idx, view := range testCase.tracks {
 		if tracks[idx] != view {
 			t.Errorf("wrong Response: got %+v, expected %+v", tracks, view)
@@ -127,7 +127,7 @@ func TestCreateTrack(t *testing.T) {
 	track := models.Track{
 		Id:             0,
 		AlbumId:        5,
-		AuthorId:       500,
+		AuthorId:       8,
 		Title:          "what are you want?",
 		Duration:       0,
 		Mp4:            "some source",
@@ -151,15 +151,13 @@ func TestCreateTrack(t *testing.T) {
 		t.Errorf("wrong StatusCode: got %d, expected %d", w.Code, testCase.status)
 	}
 
-	expected := utils.Success{
-		Result: db.SuccessCreatedTrack + "(" + track.Title + ")",
-	}
 	resp := w.Result()
 	body, _ := ioutil.ReadAll(resp.Body)
 
-	var result utils.Success
+	var result status.Success
 	json.Unmarshal(body, &result)
-	if result != expected {
+	expected := db.SuccessWrapper(track.Title, db.SuccessCreatedTrack)
+	if result != status.MakeSuccess(expected) {
 		t.Errorf("wrong Response: got %+v, expected %+v",
 			result, expected)
 	}
@@ -198,15 +196,13 @@ func TestDeleteTrack(t *testing.T) {
 		t.Errorf("wrong StatusCode: got %d, expected %d", w.Code, testCase.status)
 	}
 
-	expected := utils.Success{
-		Result: db.SuccessDeletedTrack + "(" + fmt.Sprint(trackToDelete.Id) + ")",
-	}
 	resp := w.Result()
 	body, _ := ioutil.ReadAll(resp.Body)
 
-	var result utils.Success
+	var result status.Success
 	json.Unmarshal(body, &result)
-	if result != expected {
+	expected := db.SuccessWrapper(trackToDelete.Id, db.SuccessDeletedTrack)
+	if result != status.MakeSuccess(expected) {
 		t.Errorf("wrong Response: got %+v, expected %+v",
 			result, expected)
 	}
@@ -225,7 +221,7 @@ func TestUpdateTrack(t *testing.T) {
 	track := models.Track{
 		Id:             0,
 		AlbumId:        5,
-		AuthorId:       500,
+		AuthorId:       8,
 		Title:          "what are you want?",
 		Duration:       0,
 		Mp4:            "some source",
@@ -249,15 +245,13 @@ func TestUpdateTrack(t *testing.T) {
 		t.Errorf("wrong StatusCode: got %d, expected %d", w.Code, testCase.status)
 	}
 
-	expected := utils.Success{
-		Result: db.SuccessUpdatedTrack + "(" + fmt.Sprint(track.Id) + ")",
-	}
 	resp := w.Result()
 	body, _ := ioutil.ReadAll(resp.Body)
 
-	var result utils.Success
+	var result status.Success
 	json.Unmarshal(body, &result)
-	if result != expected {
+	expected := db.SuccessWrapper(track.Id, db.SuccessUpdatedTrack)
+	if result != status.MakeSuccess(expected) {
 		t.Errorf("wrong Response: got %+v, expected %+v",
 			result, expected)
 	}
@@ -303,12 +297,12 @@ func TestPopularTracks(t *testing.T) {
 	resp := w.Result()
 	body, _ := ioutil.ReadAll(resp.Body)
 
-	var result utils.Success
+	var result status.Success
 
 	json.Unmarshal(body, &result)
 
 	data := result.Result.([]interface{})
-	tracks := views.SetTracksViewsFromInterfaces(data)
+	tracks := views.GetTracksViewsFromInterfaces(data)
 	for idx, track := range testCase.tracks {
 		if tracks[idx] != track {
 			t.Errorf("wrong Response: got %+v, expected %+v", tracks, track)

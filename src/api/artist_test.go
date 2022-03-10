@@ -7,7 +7,7 @@ import (
 	"github.com/go-park-mail-ru/2022_1_Wave/db"
 	"github.com/go-park-mail-ru/2022_1_Wave/db/models"
 	"github.com/go-park-mail-ru/2022_1_Wave/db/views"
-	"github.com/go-park-mail-ru/2022_1_Wave/pkg/utils"
+	"github.com/go-park-mail-ru/2022_1_Wave/pkg/status"
 	"github.com/gorilla/mux"
 	"github.com/stretchr/testify/require"
 	"io/ioutil"
@@ -58,8 +58,9 @@ func TestGetArtist(t *testing.T) {
 		resp := w.Result()
 		body, _ := ioutil.ReadAll(resp.Body)
 
-		var result views.Artist
-		json.Unmarshal(body, &result)
+		var response status.Success
+		json.Unmarshal(body, &response)
+		result := views.FromInterfaceToArtistView(response.Result)
 		if result != item.artist {
 			t.Errorf("[%d] wrong Response: got %+v, expected %+v",
 				caseNum, resp, item.artist)
@@ -102,15 +103,14 @@ func TestGetArtists(t *testing.T) {
 	resp := w.Result()
 	body, _ := ioutil.ReadAll(resp.Body)
 
-	var result utils.Success
+	var response status.Success
 
-	json.Unmarshal(body, &result)
-
-	data := result.Result.([]interface{})
-	albums := views.SetArtistsViewsFromInterfaces(data)
+	json.Unmarshal(body, &response)
+	data := response.Result.([]interface{})
+	artists := views.GetArtistsViewsFromInterfaces(data)
 	for idx, view := range testCase.artists {
-		if albums[idx] != view {
-			t.Errorf("wrong Response: got %+v, expected %+v", albums, view)
+		if artists[idx] != view {
+			t.Errorf("wrong Response: got %+v, expected %+v", artists, view)
 		}
 	}
 }
@@ -147,15 +147,15 @@ func TestCreateArtist(t *testing.T) {
 		t.Errorf("wrong StatusCode: got %d, expected %d", w.Code, testCase.status)
 	}
 
-	expected := utils.Success{
-		Result: db.SuccessCreatedArtist + "(" + artist.Name + ")",
-	}
 	resp := w.Result()
 	body, _ := ioutil.ReadAll(resp.Body)
 
-	var result utils.Success
+	var result status.Success
 	json.Unmarshal(body, &result)
-	if result != expected {
+
+	expected := db.SuccessWrapper(artist.Name, db.SuccessCreatedArtist)
+
+	if result != status.MakeSuccess(expected) {
 		t.Errorf("wrong Response: got %+v, expected %+v",
 			result, expected)
 	}
@@ -194,15 +194,13 @@ func TestDeleteArtist(t *testing.T) {
 		t.Errorf("wrong StatusCode: got %d, expected %d", w.Code, testCase.status)
 	}
 
-	expected := utils.Success{
-		Result: db.SuccessDeletedArtist + "(" + fmt.Sprint(artistToDelete.Id) + ")",
-	}
 	resp := w.Result()
 	body, _ := ioutil.ReadAll(resp.Body)
 
-	var result utils.Success
+	var result status.Success
 	json.Unmarshal(body, &result)
-	if result != expected {
+	expected := db.SuccessWrapper(artistToDelete.Id, db.SuccessDeletedArtist)
+	if result != status.MakeSuccess(expected) {
 		t.Errorf("wrong Response: got %+v, expected %+v",
 			result, expected)
 	}
@@ -241,15 +239,13 @@ func TestUpdateArtist(t *testing.T) {
 		t.Errorf("wrong StatusCode: got %d, expected %d", w.Code, testCase.status)
 	}
 
-	expected := utils.Success{
-		Result: db.SuccessUpdatedArtist + "(" + fmt.Sprint(artist.Id) + ")",
-	}
 	resp := w.Result()
 	body, _ := ioutil.ReadAll(resp.Body)
 
-	var result utils.Success
+	var result status.Success
 	json.Unmarshal(body, &result)
-	if result != expected {
+	expected := db.SuccessWrapper(artist.Id, db.SuccessUpdatedArtist)
+	if result != status.MakeSuccess(expected) {
 		t.Errorf("wrong Response: got %+v, expected %+v",
 			result, expected)
 	}
@@ -295,12 +291,12 @@ func TestPopularArtists(t *testing.T) {
 	resp := w.Result()
 	body, _ := ioutil.ReadAll(resp.Body)
 
-	var result utils.Success
+	var result status.Success
 
 	json.Unmarshal(body, &result)
 
 	data := result.Result.([]interface{})
-	albums := views.SetArtistsViewsFromInterfaces(data)
+	albums := views.GetArtistsViewsFromInterfaces(data)
 	for idx, artist := range testCase.artists {
 		if albums[idx] != artist {
 			t.Errorf("wrong Response: got %+v, expected %+v", albums, artist)
