@@ -2,7 +2,6 @@ package service
 
 import (
 	"errors"
-	"fmt"
 	"github.com/go-park-mail-ru/2022_1_Wave/config"
 	"github.com/google/uuid"
 	"net/http"
@@ -28,9 +27,9 @@ func GetSession(r *http.Request) (*Session, error) {
 	session, err := r.Cookie(config.C.SessionIDKey)
 	if err == nil && session != nil {
 		sessionMutex.RLock()
-		sessionAuth, err := Sessions[session.Value]
+		sessionAuth, ok := Sessions[session.Value]
 		sessionMutex.RUnlock()
-		if err {
+		if ok {
 			if sessionAuth.Expire.Sub(time.Now()) > 0 {
 				return &sessionAuth, nil
 			} else {
@@ -62,8 +61,6 @@ func SetNewUnauthorizedSession() (*http.Cookie, string) {
 		Expires:  expireTime,
 		HttpOnly: true,
 	}
-
-	fmt.Println(config.C.Domain)
 
 	return cookie, csrfToken
 }
