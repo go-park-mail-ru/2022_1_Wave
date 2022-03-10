@@ -21,7 +21,7 @@ type UserGetResponse struct {
 // @Accept	 application/json
 // @Produce  application/json
 // @Param    id path integer true  "id of user which need to be getted"
-// @Success  200 {object} forms.User
+// @Success  200 {object} UserGetResponse
 // @Failure 401 {object} forms.Result "unauthorized"
 // @Failure 401 {object} forms.Result "invalid csrf"
 // @Router   /net/v1/users/self [get]
@@ -51,7 +51,7 @@ func GetSelfUser(w http.ResponseWriter, r *http.Request) {
 // @Tags     user
 // @Accept	 application/json
 // @Produce  application/json
-// @Success  200 {object} forms.User
+// @Success  200 {object} UserGetResponse
 // @Failure 400 {object} forms.Result "invalid id"
 // @Failure 404 {object} forms.Result "user not found"
 // @Router   /net/v1/users/{id} [get]
