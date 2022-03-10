@@ -25,7 +25,7 @@ import (
 func Login(w http.ResponseWriter, r *http.Request) {
 	userToLogin, err := forms.UserUnmarshal(r)
 	if err != nil {
-		http.Error(w, `{"status": "FAIL", "error": "invalid fields"}`, http.StatusBadRequest)
+		http.Error(w, `{"status": "FAIL", "error": "invalid json"}`, http.StatusBadRequest)
 		return
 	}
 

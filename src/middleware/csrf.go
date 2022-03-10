@@ -11,7 +11,7 @@ func CSRF(next http.HandlerFunc) http.HandlerFunc {
 		if service.CheckCSRF(r) {
 			next.ServeHTTP(w, r)
 		} else {
-			http.Error(w, `{"error": "invalid csrf"}`, http.StatusUnauthorized)
+			http.Error(w, `{"status": "FAIL", "error": "invalid csrf"}`, http.StatusUnauthorized)
 		}
 	})
 }
