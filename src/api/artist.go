@@ -253,8 +253,8 @@ func GetPopularArtists(w http.ResponseWriter, r *http.Request) {
 
 	artistViews := make([]views.Artist, len(*artists))
 
-	for i, _ := range *artists {
-		view := GetArtistView(uint64(i))
+	for i, artist := range *artists {
+		view := GetArtistView(artist.Id)
 		if view == nil {
 			status.WriteError(w, errors.New(db.ArtistIsNotExist), http.StatusBadRequest)
 		}

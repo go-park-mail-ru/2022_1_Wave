@@ -258,8 +258,8 @@ func GetPopularTracks(w http.ResponseWriter, r *http.Request) {
 	}
 	trackViews := make([]views.Track, len(*tracks))
 
-	for i, _ := range *tracks {
-		view := GetTrackView(uint64(i))
+	for i, track := range *tracks {
+		view := GetTrackView(track.Id)
 		if view == nil {
 			status.WriteError(w, errors.New(db.TrackIsNotExist), http.StatusBadRequest)
 		}

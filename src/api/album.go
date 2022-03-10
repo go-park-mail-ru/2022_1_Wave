@@ -255,8 +255,8 @@ func GetPopularAlbums(w http.ResponseWriter, r *http.Request) {
 
 	albumViews := make([]views.Album, len(*albums))
 
-	for i, _ := range *albums {
-		view := GetAlbumView(uint64(i))
+	for i, album := range *albums {
+		view := GetAlbumView(album.Id)
 		if view == nil {
 			status.WriteError(w, errors.New(db.AlbumIsNotExist), http.StatusBadRequest)
 		}
