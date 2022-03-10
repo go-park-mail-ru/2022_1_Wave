@@ -12,7 +12,7 @@ package api
 // @license.name Apache 2.0
 // @license.url http://www.apache.org/licenses/LICENSE-2.0.html
 // @host localhost:5000
-// @BasePath /api/
+// @BasePath /net/
 /*
 func DefineRoutes(router *gin.Engine) {
 	// Группа неаутентифицированных запросов. Клиент может выполнять эти запросы

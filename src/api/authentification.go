@@ -21,7 +21,7 @@ import (
 // @Failure 400 {object} forms.Result "invalid fields in the request body"
 // @Failure 400 {object} forms.Result "invalid login or password"
 // @Failure 401 {object} forms.Result "invalid csrf"
-// @Router   /api/v1/login [post]
+// @Router   /net/v1/login [post]
 func Login(w http.ResponseWriter, r *http.Request) {
 	userToLogin, err := forms.UserUnmarshal(r)
 	if err != nil {
@@ -70,7 +70,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 // @Failure 400 {object} forms.Result "user already exist"
 // @Failure 401 {object} forms.Result "unauthorized"
 // @Failure 401 {object} forms.Result "invalid csrf"
-// @Router   /api/v1/signup [post]
+// @Router   /net/v1/signup [post]
 func SignUp(w http.ResponseWriter, r *http.Request) {
 	userToLogin, err := forms.UserUnmarshal(r)
 	if err != nil {
@@ -113,7 +113,7 @@ func SignUp(w http.ResponseWriter, r *http.Request) {
 // @Failure 521 {object} forms.Result "Cannot create session"
 // @Failure 401 {object} forms.Result "unauthorized"
 // @Failure 401 {object} forms.Result "invalid csrf"
-// @Router   /api/v1/logout [post]
+// @Router   /net/v1/logout [post]
 func Logout(w http.ResponseWriter, r *http.Request) {
 	session, _ := r.Cookie(config.C.SessionIDKey)
 	service.DeleteSession(session.Value)

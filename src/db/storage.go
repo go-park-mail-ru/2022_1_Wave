@@ -35,7 +35,7 @@ type ArtistRep interface {
 	//SelectByAuthor(author string) (*[]models.Album, error)
 }
 
-type SongRep interface {
+type TrackRep interface {
 	Insert(song *models.Track) error
 	Update(song *models.Track) error
 	Delete(id uint64) error
@@ -58,14 +58,14 @@ type artistStorage struct {
 }
 
 type songStorage struct {
-	Songs []models.Track `json:"songs"`
-	Mutex sync.RWMutex   `json:"mutex"`
+	Tracks []models.Track `json:"songs"`
+	Mutex  sync.RWMutex   `json:"mutex"`
 }
 
 type globalStorage struct {
 	AlbumStorage  albumStorage  `json:"albumStorage"`
 	ArtistStorage artistStorage `json:"artistStorage"`
-	SongStorage   songStorage   `json:"songStorage"`
+	TrackStorage  songStorage   `json:"songStorage"`
 	Mutex         sync.RWMutex  `json:"mutex"`
 }
 
@@ -83,8 +83,7 @@ func randomWord(maxLen int) string {
 	return word
 }
 
-func (storage *globalStorage) InitStorage() {
-	const quantity = 10
+func (storage *globalStorage) InitStorage(quantity int) {
 	storage.Mutex.Lock()
 	defer storage.Mutex.Unlock()
 
@@ -110,7 +109,7 @@ func (storage *globalStorage) InitStorage() {
 		albums[i] = models.Album{
 			Id:             id,
 			Title:          randomWord(albumLen),
-			AuthorId:       uint64(rand.Int63n(quantity)),
+			AuthorId:       uint64(rand.Int63n(int64(quantity))),
 			CountLikes:     uint64(rand.Int63n(max + 1)),
 			CountListening: uint64(rand.Int63n(max + 1)),
 			Date:           0,
@@ -137,12 +136,12 @@ func (storage *globalStorage) InitStorage() {
 
 	storage.ArtistStorage.Artists = artists
 	storage.AlbumStorage.Albums = albums
-	storage.SongStorage.Songs = songs
+	storage.TrackStorage.Tracks = songs
 
 	log.Println("Success init local storage.")
 	log.Println("Artists:", len(storage.ArtistStorage.Artists))
 	log.Println("Albums:", len(storage.AlbumStorage.Albums))
-	log.Println("Songs:", len(storage.SongStorage.Songs))
+	log.Println("Tracks:", len(storage.TrackStorage.Tracks))
 }
 
 // ------------------------------------------------------------------
@@ -291,7 +290,7 @@ func (storage *artistStorage) GetPopularArtists() (*[]models.Artist, error) {
 func (storage *songStorage) Insert(song *models.Track) error {
 	storage.Mutex.Lock()
 	defer storage.Mutex.Unlock()
-	storage.Songs = append(storage.Songs, *song)
+	storage.Tracks = append(storage.Tracks, *song)
 	return nil
 }
 
@@ -307,13 +306,13 @@ func (storage *songStorage) Update(song *models.Track) error {
 func (storage *songStorage) Delete(id uint64) error {
 	storage.Mutex.Lock()
 	defer storage.Mutex.Unlock()
-	if id+1 > uint64(len(storage.Songs)) {
+	if id+1 > uint64(len(storage.Tracks)) {
 		return errors.New(IndexOutOfRange)
 	}
 
-	storage.Songs = append(storage.Songs[:id], storage.Songs[id+1:]...)
-	for i := id; i < uint64(len(storage.Songs)); i++ {
-		storage.Songs[i].Id = i
+	storage.Tracks = append(storage.Tracks[:id], storage.Tracks[id+1:]...)
+	for i := id; i < uint64(len(storage.Tracks)); i++ {
+		storage.Tracks[i].Id = i
 	}
 	return nil
 }
@@ -321,16 +320,16 @@ func (storage *songStorage) Delete(id uint64) error {
 func (storage *songStorage) SelectByID(id uint64) (*models.Track, error) {
 	storage.Mutex.RLock()
 	defer storage.Mutex.RUnlock()
-	if id+1 > uint64(len(storage.Songs)) {
+	if id+1 > uint64(len(storage.Tracks)) {
 		return nil, errors.New(IndexOutOfRange)
 	}
-	return &storage.Songs[id], nil
+	return &storage.Tracks[id], nil
 }
 
 func (storage *songStorage) GetAllSongs() (*[]models.Track, error) {
 	storage.Mutex.RLock()
 	defer storage.Mutex.RUnlock()
-	return &storage.Songs, nil
+	return &storage.Tracks, nil
 }
 
 func (storage *songStorage) GetPopularSongs() (*[]models.Track, error) {
@@ -338,9 +337,9 @@ func (storage *songStorage) GetPopularSongs() (*[]models.Track, error) {
 	storage.Mutex.RLock()
 	defer storage.Mutex.RUnlock()
 
-	var songsPtr = make([]*models.Track, len(storage.Songs))
-	for i := 0; i < len(storage.Songs); i++ {
-		songsPtr[i] = &storage.Songs[i]
+	var songsPtr = make([]*models.Track, len(storage.Tracks))
+	for i := 0; i < len(storage.Tracks); i++ {
+		songsPtr[i] = &storage.Tracks[i]
 	}
 
 	sort.SliceStable(songsPtr, func(i int, j int) bool {
@@ -349,7 +348,7 @@ func (storage *songStorage) GetPopularSongs() (*[]models.Track, error) {
 		return song1.CountListening > song2.CountListening
 	})
 
-	topChart := make([]models.Track, uint64(math.Min(top, float64(len(storage.Songs)))))
+	topChart := make([]models.Track, uint64(math.Min(top, float64(len(storage.Tracks)))))
 	for i := 0; i < len(topChart); i++ {
 		topChart[i] = *songsPtr[i]
 	}

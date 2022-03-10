@@ -38,6 +38,22 @@ func getPopularArtists(artistRep db.ArtistRep) (*[]models.Artist, error) {
 	return artistRep.GetPopularArtists()
 }
 
+func GetArtistView(id uint64) *views.Artist {
+	currentArtist, err := getArtistByIDFromStorage(&db.Storage.ArtistStorage, id)
+
+	if err != nil {
+		//utils.WriteError(w, err, http.StatusBadRequest)
+		return nil
+	}
+
+	currentArtistView := views.Artist{
+		Name:  currentArtist.Name,
+		Cover: "assets/" + "artist_" + fmt.Sprint(currentArtist.Id) + ".png",
+	}
+
+	return &currentArtistView
+}
+
 // GetArtists godoc
 // @Summary      GetArtists
 // @Description  getting all artists
@@ -47,7 +63,7 @@ func getPopularArtists(artistRep db.ArtistRep) (*[]models.Artist, error) {
 // @Success  200 {object} utils.Success
 // @Failure 400 {object} utils.Error "Data is invalid"
 // @Failure 405 {object} utils.Error "Method is not allowed"
-// @Router   /api/v1/artists/ [get]
+// @Router   /net/v1/artists/ [get]
 func GetArtists(w http.ResponseWriter, r *http.Request) {
 	storage := &db.Storage.ArtistStorage
 	storage.Mutex.RLock()
@@ -61,15 +77,17 @@ func GetArtists(w http.ResponseWriter, r *http.Request) {
 		*artists = []models.Artist{}
 	}
 
-	artistsViews := make([]views.Artist, len(*artists))
+	artistViews := make([]views.Artist, len(*artists))
 
 	for i, artist := range *artists {
-		artistsViews[i].Name = artist.Name
-		artistsViews[i].Cover = "assets/" + "artist_" + fmt.Sprint(artist.Id) + ".png"
-		fmt.Println(artistsViews[i])
+		view := GetArtistView(artist.Id)
+		if view == nil {
+			utils.WriteError(w, errors.New(db.ArtistIsNotExist), http.StatusBadRequest)
+		}
+		artistViews[i] = *view
 	}
 	json.NewEncoder(w).Encode(utils.Success{
-		Result: artistsViews})
+		Result: artistViews})
 }
 
 // CreateArtist godoc
@@ -82,7 +100,7 @@ func GetArtists(w http.ResponseWriter, r *http.Request) {
 // @Success  200 {object} utils.Success
 // @Failure 400 {object} utils.Error "Data is invalid"
 // @Failure 405 {object} utils.Error "Method is not allowed"
-// @Router   /api/v1/artists/ [post]
+// @Router   /net/v1/artists/ [post]
 func CreateArtist(w http.ResponseWriter, r *http.Request) {
 	newArtist := &models.Artist{}
 	newArtist.Id = uint64(len(db.Storage.ArtistStorage.Artists))
@@ -110,7 +128,6 @@ func CreateArtist(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(utils.Success{
 		Result: db.SuccessCreatedArtist + "(" + newArtist.Name + ")",
 	})
-	fmt.Println("artists storage now:", db.Storage.ArtistStorage.Artists)
 }
 
 // UpdateArtist godoc
@@ -123,7 +140,7 @@ func CreateArtist(w http.ResponseWriter, r *http.Request) {
 // @Success  200 {object} utils.Success
 // @Failure 400 {object} utils.Error "Data is invalid"
 // @Failure 405 {object} utils.Error "Method is not allowed"
-// @Router   /api/v1/artists/ [put]
+// @Router   /net/v1/artists/ [put]
 func UpdateArtist(w http.ResponseWriter, r *http.Request) {
 	newArtist := &models.Artist{}
 	newArtist.Id = uint64(len(db.Storage.ArtistStorage.Artists))
@@ -152,8 +169,6 @@ func UpdateArtist(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(utils.Success{
 		Result: db.SuccessUpdatedArtist + "(" + fmt.Sprint(newArtist.Id) + ")",
 	})
-	fmt.Println("artists storage now:", db.Storage.ArtistStorage.Artists)
-
 }
 
 // GetArtist godoc
@@ -166,7 +181,7 @@ func UpdateArtist(w http.ResponseWriter, r *http.Request) {
 // @Success  200 {object} models.Artist
 // @Failure 400 {object} utils.Error "Data is invalid"
 // @Failure 405 {object} utils.Error "Method is not allowed"
-// @Router   /api/v1/artists/{id} [get]
+// @Router   /net/v1/artists/{id} [get]
 func GetArtist(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars[FieldId])
@@ -179,17 +194,13 @@ func GetArtist(w http.ResponseWriter, r *http.Request) {
 		utils.WriteError(w, errors.New(db.IndexOutOfRange), http.StatusBadRequest)
 		return
 	}
-	currentArtist, err := getArtistByIDFromStorage(&db.Storage.ArtistStorage, uint64(id))
+	currentArtistView := GetArtistView(uint64(id))
 
-	currentArtistView := views.Artist{
-		Name:  currentArtist.Name,
-		Cover: "assets/" + "artist_" + fmt.Sprint(currentArtist.Id) + ".png",
-	}
-
-	if err != nil {
-		utils.WriteError(w, err, http.StatusBadRequest)
+	if currentArtistView == nil {
+		utils.WriteError(w, errors.New(db.ArtistIsNotExist), http.StatusBadRequest)
 		return
 	}
+
 	json.NewEncoder(w).Encode(currentArtistView)
 }
 
@@ -203,7 +214,7 @@ func GetArtist(w http.ResponseWriter, r *http.Request) {
 // @Success  200 {object} utils.Success
 // @Failure 400 {object} utils.Error "Data is invalid"
 // @Failure 405 {object} utils.Error "Method is not allowed"
-// @Router   /api/v1/artists/{id} [delete]
+// @Router   /net/v1/artists/{id} [delete]
 func DeleteArtist(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars[FieldId])
@@ -224,8 +235,6 @@ func DeleteArtist(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(utils.Success{
 		Result: db.SuccessDeletedArtist + "(" + fmt.Sprint(id) + ")",
 	})
-
-	fmt.Println("artists storage now:", db.Storage.ArtistStorage.Artists)
 }
 
 // GetPopularArtists godoc
@@ -237,7 +246,7 @@ func DeleteArtist(w http.ResponseWriter, r *http.Request) {
 // @Success  200 {object} utils.Success
 // @Failure 400 {object} utils.Error "Data is invalid"
 // @Failure 405 {object} utils.Error "Method is not allowed"
-// @Router   /api/v1/artists/popular [get]
+// @Router   /net/v1/artists/popular [get]
 func GetPopularArtists(w http.ResponseWriter, r *http.Request) {
 	storage := &db.Storage.ArtistStorage
 	storage.Mutex.RLock()
@@ -248,12 +257,15 @@ func GetPopularArtists(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	artistsViews := make([]views.Artist, len(*artists))
+	artistViews := make([]views.Artist, len(*artists))
 
-	for i, artist := range *artists {
-		artistsViews[i].Name = artist.Name
-		artistsViews[i].Cover = "assets/" + "artist_" + fmt.Sprint(artist.Id) + ".png"
+	for i, _ := range *artists {
+		view := GetArtistView(uint64(i))
+		if view == nil {
+			utils.WriteError(w, errors.New(db.ArtistIsNotExist), http.StatusBadRequest)
+		}
+		artistViews[i] = *view
 	}
 	json.NewEncoder(w).Encode(utils.Success{
-		Result: artistsViews})
+		Result: artistViews})
 }

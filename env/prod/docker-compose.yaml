@@ -6,7 +6,7 @@ services:
       - "80:80"
     working_dir: /var/www/wave
     volumes:
-      - ../../../front/2022_1_Wave/src:/var/www/wave
+      - ../../../../front/2022_1_Wave/src:/var/www/wave
       - ../../config/nginx/nginx.conf:/etc/nginx/nginx.conf
     depends_on:
       - wave_music
