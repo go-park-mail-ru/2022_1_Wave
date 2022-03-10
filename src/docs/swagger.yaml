@@ -78,10 +78,10 @@ definitions:
   models.Track:
     properties:
       albumId:
-        example: 143
+        example: 3
         type: integer
       authorId:
-        example: 121
+        example: 5
         type: integer
       countLikes:
         example: 54

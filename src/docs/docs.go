@@ -1068,11 +1068,11 @@ const docTemplate = `{
             "properties": {
                 "albumId": {
                     "type": "integer",
-                    "example": 143
+                    "example": 3
                 },
                 "authorId": {
                     "type": "integer",
-                    "example": 121
+                    "example": 5
                 },
                 "countLikes": {
                     "type": "integer",
