@@ -3,7 +3,7 @@ package api
 import (
 	"encoding/json"
 	"github.com/go-park-mail-ru/2022_1_Wave/config"
-	"github.com/go-park-mail-ru/2022_1_Wave/db"
+	"github.com/go-park-mail-ru/2022_1_Wave/db/models"
 	"github.com/go-park-mail-ru/2022_1_Wave/forms"
 	"github.com/go-park-mail-ru/2022_1_Wave/middleware"
 	"github.com/go-park-mail-ru/2022_1_Wave/service"
@@ -55,7 +55,7 @@ func TestSelfUserSuccessCase(t *testing.T) {
 			Status: http.StatusOK,
 			Result: &UserGetResponse{
 				Status: "OK",
-				Result: db.User{
+				Result: models.User{
 					ID:       1,
 					Username: "admin",
 					Email:    "admin@samsabaka.ru",
@@ -68,7 +68,7 @@ func TestSelfUserSuccessCase(t *testing.T) {
 					return nil, err
 				}
 
-				db.MyUserStorage.Insert(&db.User{
+				models.MyUserStorage.Insert(&models.User{
 					ID:       1,
 					Username: "admin",
 					Email:    "admin@samsabaka.ru",
@@ -99,7 +99,7 @@ func TestSelfUserSuccessCase(t *testing.T) {
 		}
 	}
 
-	db.MyUserStorage.Delete(1)
+	models.MyUserStorage.Delete(1)
 }
 
 func TestUserErrorCase(t *testing.T) {
@@ -154,7 +154,7 @@ func TestUserSuccessCase(t *testing.T) {
 			Status: http.StatusNotFound,
 			Result: &UserGetResponse{
 				Status: "OK",
-				Result: db.User{
+				Result: models.User{
 					ID:       1,
 					Username: "admin",
 					Email:    "admin@samsabaka.ru",
@@ -162,7 +162,7 @@ func TestUserSuccessCase(t *testing.T) {
 				},
 			},
 			RequestFunc: func(url string) (*UserGetResponse, error) {
-				db.MyUserStorage.Insert(&db.User{
+				models.MyUserStorage.Insert(&models.User{
 					ID:       1,
 					Username: "admin",
 					Email:    "admin@samsabaka.ru",
@@ -191,5 +191,5 @@ func TestUserSuccessCase(t *testing.T) {
 		}
 	}
 
-	db.MyUserStorage.Delete(1)
+	models.MyUserStorage.Delete(1)
 }

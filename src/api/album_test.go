@@ -24,6 +24,51 @@ type getAlbumTestCase struct {
 	status int
 }
 
+//func TestGetAlbumsServer(t *testing.T) {
+//	const testDataBaseSize = 20
+//	db.Storage.InitStorage(testDataBaseSize)
+//	storage := db.Storage.AlbumStorage.Albums
+//
+//	albumsViews := make([]views.Album, len(storage))
+//	for idx, album := range storage {
+//		albumsViews[idx] = *GetAlbumView(album.Id)
+//	}
+//
+//	router := InitRouter()
+//	apiServer := httptest.NewServer(router)
+//	defer apiServer.Close()
+//	res, err := http.Get(apiServer.URL + GetAllAlbumsUrl)
+//
+//	if err != nil {
+//		t.Errorf("err: %#v", err)
+//	}
+//
+//	testCase := allAlbumTestCase{
+//		albums: albumsViews,
+//		status: http.StatusOK,
+//	}
+//
+//	if res.StatusCode != testCase.status {
+//		t.Errorf("wrong StatusCode: got %d, expected %d", w.Code, testCase.status)
+//	}
+//
+//	resp := w.Result()
+//	body, _ := ioutil.ReadAll(resp.Body)
+//
+//	var result utils.Success
+//
+//	json.Unmarshal(body, &result)
+//
+//	data := result.Result.([]interface{})
+//	albums := views.GetAlbumsViewsFromInterfaces(data)
+//	for idx, view := range testCase.albums {
+//		if albums[idx] != view {
+//			t.Errorf("wrong Response: got %+v, expected %+v", albums, view)
+//		}
+//	}
+//
+//}
+
 func TestGetAlbum(t *testing.T) {
 	const testDataBaseSize = 20
 	db.Storage.InitStorage(testDataBaseSize)
@@ -107,25 +152,12 @@ func TestGetAlbums(t *testing.T) {
 	json.Unmarshal(body, &result)
 
 	data := result.Result.([]interface{})
-	albums := setAlbumsViewsFromInterfaces(data)
+	albums := views.GetAlbumsViewsFromInterfaces(data)
 	for idx, view := range testCase.albums {
 		if albums[idx] != view {
 			t.Errorf("wrong Response: got %+v, expected %+v", albums, view)
 		}
 	}
-}
-
-func setAlbumsViewsFromInterfaces(data []interface{}) []views.Album {
-	albums := make([]views.Album, len(data))
-	for idx, it := range data {
-		temp := it.(map[string]interface{})
-		albums[idx] = views.Album{
-			Title:  temp["title"].(string),
-			Artist: temp["artist"].(string),
-			Cover:  temp["cover"].(string),
-		}
-	}
-	return albums
 }
 
 // ----------------------------------------------------------------------
@@ -317,7 +349,7 @@ func TestPopularAlbums(t *testing.T) {
 	json.Unmarshal(body, &result)
 
 	data := result.Result.([]interface{})
-	albums := setAlbumsViewsFromInterfaces(data)
+	albums := views.GetAlbumsViewsFromInterfaces(data)
 	for idx, album := range testCase.albums {
 		if albums[idx] != album {
 			t.Errorf("wrong Response: got %+v, expected %+v", albums, album)

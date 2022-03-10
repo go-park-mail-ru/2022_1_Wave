@@ -107,24 +107,12 @@ func TestGetArtists(t *testing.T) {
 	json.Unmarshal(body, &result)
 
 	data := result.Result.([]interface{})
-	albums := setArtistsViewsFromInterfaces(data)
+	albums := views.SetArtistsViewsFromInterfaces(data)
 	for idx, view := range testCase.artists {
 		if albums[idx] != view {
 			t.Errorf("wrong Response: got %+v, expected %+v", albums, view)
 		}
 	}
-}
-
-func setArtistsViewsFromInterfaces(data []interface{}) []views.Artist {
-	artists := make([]views.Artist, len(data))
-	for idx, it := range data {
-		temp := it.(map[string]interface{})
-		artists[idx] = views.Artist{
-			Name:  temp["name"].(string),
-			Cover: temp["cover"].(string),
-		}
-	}
-	return artists
 }
 
 // ----------------------------------------------------------------------
@@ -312,7 +300,7 @@ func TestPopularArtists(t *testing.T) {
 	json.Unmarshal(body, &result)
 
 	data := result.Result.([]interface{})
-	albums := setArtistsViewsFromInterfaces(data)
+	albums := views.SetArtistsViewsFromInterfaces(data)
 	for idx, artist := range testCase.artists {
 		if albums[idx] != artist {
 			t.Errorf("wrong Response: got %+v, expected %+v", albums, artist)

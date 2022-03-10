@@ -19,6 +19,7 @@ import (
 //}
 
 type Success struct {
+	Status string `json:"status"`
 	Result interface{}
 }
 

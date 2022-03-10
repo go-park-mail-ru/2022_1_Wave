@@ -47,6 +47,9 @@ type TrackRep interface {
 	//SelectByAuthor(author string) (*[]models.Album, error)
 }
 
+// ---------------------------------------------------------------
+//local storage
+
 type albumStorage struct {
 	Albums []models.Album `json:"albums"`
 	Mutex  sync.RWMutex   `json:"mutex"`

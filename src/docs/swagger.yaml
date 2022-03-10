@@ -105,7 +105,9 @@ definitions:
     type: object
   utils.Success:
     properties:
-      result: {}
+      result: { }
+      status:
+        type: string
     type: object
 info:
   contact: {}

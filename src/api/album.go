@@ -90,6 +90,7 @@ func GetAlbums(w http.ResponseWriter, r *http.Request) {
 		}
 		albumViews[i] = *view
 	}
+
 	json.NewEncoder(w).Encode(utils.Success{
 		Result: albumViews})
 }

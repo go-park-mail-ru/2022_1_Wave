@@ -3,7 +3,7 @@ package api
 import (
 	"encoding/json"
 	"github.com/go-park-mail-ru/2022_1_Wave/config"
-	"github.com/go-park-mail-ru/2022_1_Wave/db"
+	"github.com/go-park-mail-ru/2022_1_Wave/db/models"
 	"github.com/go-park-mail-ru/2022_1_Wave/forms"
 	"github.com/go-park-mail-ru/2022_1_Wave/middleware"
 	"github.com/go-park-mail-ru/2022_1_Wave/service"
@@ -164,7 +164,7 @@ func TestLoginErrorCase(t *testing.T) {
 					return nil, err
 				}
 
-				db.MyUserStorage.Insert(&db.User{
+				models.MyUserStorage.Insert(&models.User{
 					ID:       1,
 					Username: "admin",
 					Email:    "admin@samsabaka.ru",
@@ -199,7 +199,7 @@ func TestLoginErrorCase(t *testing.T) {
 		}
 	}
 
-	db.MyUserStorage.Delete(1)
+	models.MyUserStorage.Delete(1)
 }
 
 func TestLoginSuccessCase(t *testing.T) {
@@ -222,7 +222,7 @@ func TestLoginSuccessCase(t *testing.T) {
 					return nil, err
 				}
 
-				db.MyUserStorage.Insert(&db.User{
+				models.MyUserStorage.Insert(&models.User{
 					ID:       1,
 					Username: "admin",
 					Email:    "admin@samsabaka.ru",
@@ -250,7 +250,7 @@ func TestLoginSuccessCase(t *testing.T) {
 					return nil, err
 				}
 
-				db.MyUserStorage.Insert(&db.User{
+				models.MyUserStorage.Insert(&models.User{
 					ID:       2,
 					Username: "admin2",
 					Email:    "admin2@samsabaka.ru",
@@ -280,8 +280,8 @@ func TestLoginSuccessCase(t *testing.T) {
 		}
 	}
 
-	db.MyUserStorage.Delete(1)
-	db.MyUserStorage.Delete(2)
+	models.MyUserStorage.Delete(1)
+	models.MyUserStorage.Delete(2)
 }
 
 func TestSignUpErrorCase(t *testing.T) {
@@ -313,7 +313,7 @@ func TestSignUpErrorCase(t *testing.T) {
 				Error:  "invalid fields",
 			},
 			RequestFunc: func(url string) (*forms.Result, error) {
-				db.MyUserStorage.Insert(&db.User{
+				models.MyUserStorage.Insert(&models.User{
 					ID:       1,
 					Username: "admin",
 					Email:    "admin@samsabaka",
@@ -336,7 +336,7 @@ func TestSignUpErrorCase(t *testing.T) {
 				Error:  "user already exist",
 			},
 			RequestFunc: func(url string) (*forms.Result, error) {
-				db.MyUserStorage.Insert(&db.User{
+				models.MyUserStorage.Insert(&models.User{
 					ID:       1,
 					Username: "admin",
 					Email:    "admin@samsabaka.ru",
@@ -366,7 +366,7 @@ func TestSignUpErrorCase(t *testing.T) {
 		}
 	}
 
-	db.MyUserStorage.Delete(1)
+	models.MyUserStorage.Delete(1)
 }
 
 func TestSignUpSuccessCase(t *testing.T) {
@@ -423,7 +423,7 @@ func TestSignUpSuccessCase(t *testing.T) {
 	require.Equal(t, session.CSRFToken, signupCSRFToken)
 	require.True(t, session.IsAuthorized)
 
-	db.MyUserStorage.Delete(1)
+	models.MyUserStorage.Delete(1)
 }
 
 func TestLogoutErrorCase(t *testing.T) {
@@ -508,7 +508,7 @@ func TestLogoutSuccessCase(t *testing.T) {
 					return nil, err
 				}
 
-				db.MyUserStorage.Insert(&db.User{
+				models.MyUserStorage.Insert(&models.User{
 					ID:       1,
 					Username: "admin3",
 					Email:    "admin3@samsabaka.ru",
@@ -546,5 +546,5 @@ func TestLogoutSuccessCase(t *testing.T) {
 	_, ok := service.Sessions[logoutCookie.Value]
 	require.False(t, ok)
 
-	db.MyUserStorage.Delete(1)
+	models.MyUserStorage.Delete(1)
 }

@@ -107,25 +107,12 @@ func TestGetTracks(t *testing.T) {
 	json.Unmarshal(body, &result)
 
 	data := result.Result.([]interface{})
-	tracks := setTracksViewsFromInterfaces(data)
+	tracks := views.SetTracksViewsFromInterfaces(data)
 	for idx, view := range testCase.tracks {
 		if tracks[idx] != view {
 			t.Errorf("wrong Response: got %+v, expected %+v", tracks, view)
 		}
 	}
-}
-
-func setTracksViewsFromInterfaces(data []interface{}) []views.Track {
-	tracks := make([]views.Track, len(data))
-	for idx, it := range data {
-		temp := it.(map[string]interface{})
-		tracks[idx] = views.Track{
-			Title:  temp["title"].(string),
-			Artist: temp["artist"].(string),
-			Cover:  temp["cover"].(string),
-		}
-	}
-	return tracks
 }
 
 // ----------------------------------------------------------------------
@@ -321,7 +308,7 @@ func TestPopularTracks(t *testing.T) {
 	json.Unmarshal(body, &result)
 
 	data := result.Result.([]interface{})
-	tracks := setTracksViewsFromInterfaces(data)
+	tracks := views.SetTracksViewsFromInterfaces(data)
 	for idx, track := range testCase.tracks {
 		if tracks[idx] != track {
 			t.Errorf("wrong Response: got %+v, expected %+v", tracks, track)

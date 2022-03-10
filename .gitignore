@@ -20,3 +20,6 @@ src/tmp
 /src/config.toml
 src/wave
 
+*png
+*jpeg
+

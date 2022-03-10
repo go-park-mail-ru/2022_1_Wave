@@ -2,7 +2,7 @@ package api
 
 import (
 	"github.com/go-park-mail-ru/2022_1_Wave/config"
-	"github.com/go-park-mail-ru/2022_1_Wave/db"
+	"github.com/go-park-mail-ru/2022_1_Wave/db/models"
 	"github.com/go-park-mail-ru/2022_1_Wave/forms"
 	"github.com/go-park-mail-ru/2022_1_Wave/service"
 	"net/http"
@@ -32,9 +32,9 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	// проверяем логин с паролем
 	var checkUser bool
 	if userToLogin.Username != "" {
-		checkUser = db.MyUserStorage.CheckUsernameAndPassword(userToLogin.Username, userToLogin.Password)
+		checkUser = models.MyUserStorage.CheckUsernameAndPassword(userToLogin.Username, userToLogin.Password)
 	} else {
-		checkUser = db.MyUserStorage.CheckEmailAndPassword(userToLogin.Email, userToLogin.Password)
+		checkUser = models.MyUserStorage.CheckEmailAndPassword(userToLogin.Email, userToLogin.Password)
 	}
 
 	if !checkUser {
@@ -43,11 +43,11 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// зайдя сюда мы уверены, что пользователь прислал нам куку неавторизованного пользователя (навешены специальные middleware)
-	var user *db.User
+	var user *models.User
 	if userToLogin.Username != "" {
-		user, _ = db.MyUserStorage.SelectByUsername(userToLogin.Username)
+		user, _ = models.MyUserStorage.SelectByUsername(userToLogin.Username)
 	} else {
-		user, _ = db.MyUserStorage.SelectByEmail(userToLogin.Email)
+		user, _ = models.MyUserStorage.SelectByEmail(userToLogin.Email)
 	}
 
 	// и мы просто обновляем состояние текущей сессии
@@ -83,7 +83,7 @@ func SignUp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = db.MyUserStorage.Insert(&db.User{
+	err = models.MyUserStorage.Insert(&models.User{
 		Username: userToLogin.Username,
 		Email:    userToLogin.Email,
 		Password: userToLogin.Password,
@@ -95,7 +95,7 @@ func SignUp(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// теперь обновляем сессию - делаем пользователя авторизованным
-	nowUser, err := db.MyUserStorage.SelectByUsername(userToLogin.Username)
+	nowUser, err := models.MyUserStorage.SelectByUsername(userToLogin.Username)
 	sessionId, _ := r.Cookie(config.C.SessionIDKey)
 	service.AuthorizeUser(sessionId.Value, nowUser.ID)
 

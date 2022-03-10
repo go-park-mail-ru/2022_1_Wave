@@ -1104,7 +1104,10 @@ const docTemplate = `{
         "utils.Success": {
             "type": "object",
             "properties": {
-                "result": {}
+                "result": {},
+                "status": {
+                    "type": "string"
+                }
             }
         }
     }

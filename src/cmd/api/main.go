@@ -1,10 +1,9 @@
 package main
 
 import (
+	"github.com/go-park-mail-ru/2022_1_Wave/api"
 	"github.com/go-park-mail-ru/2022_1_Wave/config"
 	"github.com/go-park-mail-ru/2022_1_Wave/db"
-	"github.com/go-park-mail-ru/2022_1_Wave/internal/routes"
-	"github.com/gorilla/mux"
 	"log"
 	"net/http"
 )
@@ -12,6 +11,7 @@ import (
 //config
 const CONFIG_FILENAME = "config.toml"
 const PATH_TO_STATIC = "./static"
+const port = ":5000"
 
 func main() {
 	if err := config.LoadConfig(CONFIG_FILENAME); err != nil {
@@ -23,15 +23,9 @@ func main() {
 	const quantity = 10
 	db.Storage.InitStorage(quantity)
 
-	router := mux.NewRouter()
-
-	routes.SetAlbumsRoutes(router)
-	routes.SetArtistsRoutes(router)
-	routes.SetTracksRoutes(router)
-	routes.SetAuthRoutes(router)
-	routes.SetDocsPath(router)
-	routes.SetStaticHandle(router)
+	router := api.InitRouter()
 
 	log.Println("start serving :5000")
-	http.ListenAndServe(":5000", router)
+
+	http.ListenAndServe(port, router)
 }

@@ -269,16 +269,16 @@
               }
             },
             "400": {
-                        "description": "Data is invalid",
-                        "schema": {
-                            "$ref": "#/definitions/utils.Error"
-                        }
-                    },
-                    "405": {
-                        "description": "Method is not allowed",
-                        "schema": {
-                            "$ref": "#/definitions/utils.Error"
-                        }
+              "description": "Data is invalid",
+              "schema": {
+                "$ref": "#/definitions/utils.Error"
+              }
+            },
+            "405": {
+              "description": "Method is not allowed",
+              "schema": {
+                "$ref": "#/definitions/utils.Error"
+              }
                     }
                 }
             },
@@ -352,16 +352,16 @@
                 "responses": {
                     "200": {
                         "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/utils.Success"
-                        }
+                      "schema": {
+                        "$ref": "#/definitions/utils.Success"
+                      }
                     },
-                    "400": {
-                        "description": "Data is invalid",
-                        "schema": {
-                            "$ref": "#/definitions/utils.Error"
-                        }
-                    },
+                  "400": {
+                    "description": "Data is invalid",
+                    "schema": {
+                      "$ref": "#/definitions/utils.Error"
+                    }
+                  },
                   "405": {
                     "description": "Method is not allowed",
                     "schema": {
@@ -392,10 +392,10 @@
               }
             },
             "400": {
-                        "description": "Data is invalid",
-                        "schema": {
-                            "$ref": "#/definitions/utils.Error"
-                        }
+              "description": "Data is invalid",
+              "schema": {
+                "$ref": "#/definitions/utils.Error"
+              }
             },
             "405": {
               "description": "Method is not allowed",
@@ -427,16 +427,16 @@
               "in": "path",
               "required": true
             }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/models.Album"
-                        }
-                    },
-                    "400": {
-                        "description": "Data is invalid",
+          ],
+          "responses": {
+            "200": {
+              "description": "OK",
+              "schema": {
+                "$ref": "#/definitions/models.Album"
+              }
+            },
+            "400": {
+              "description": "Data is invalid",
                         "schema": {
                             "$ref": "#/definitions/utils.Error"
                         }
@@ -473,16 +473,16 @@
                 "responses": {
                     "200": {
                         "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/utils.Success"
-                        }
+                      "schema": {
+                        "$ref": "#/definitions/utils.Success"
+                      }
                     },
-                    "400": {
-                        "description": "Data is invalid",
-                        "schema": {
-                            "$ref": "#/definitions/utils.Error"
-                        }
-                    },
+                  "400": {
+                    "description": "Data is invalid",
+                    "schema": {
+                      "$ref": "#/definitions/utils.Error"
+                    }
+                  },
                   "405": {
                     "description": "Method is not allowed",
                     "schema": {
@@ -513,16 +513,16 @@
               }
             },
             "400": {
-                        "description": "Data is invalid",
-                        "schema": {
-                            "$ref": "#/definitions/utils.Error"
-                        }
-                    },
-                    "405": {
-                        "description": "Method is not allowed",
-                        "schema": {
-                            "$ref": "#/definitions/utils.Error"
-                        }
+              "description": "Data is invalid",
+              "schema": {
+                "$ref": "#/definitions/utils.Error"
+              }
+            },
+            "405": {
+              "description": "Method is not allowed",
+              "schema": {
+                "$ref": "#/definitions/utils.Error"
+              }
                     }
                 }
             },
@@ -596,16 +596,16 @@
                 "responses": {
                     "200": {
                         "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/utils.Success"
-                        }
+                      "schema": {
+                        "$ref": "#/definitions/utils.Success"
+                      }
                     },
-                    "400": {
-                        "description": "Data is invalid",
-                        "schema": {
-                            "$ref": "#/definitions/utils.Error"
-                        }
-                    },
+                  "400": {
+                    "description": "Data is invalid",
+                    "schema": {
+                      "$ref": "#/definitions/utils.Error"
+                    }
+                  },
                   "405": {
                     "description": "Method is not allowed",
                     "schema": {
@@ -636,10 +636,10 @@
               }
             },
             "400": {
-                        "description": "Data is invalid",
-                        "schema": {
-                            "$ref": "#/definitions/utils.Error"
-                        }
+              "description": "Data is invalid",
+              "schema": {
+                "$ref": "#/definitions/utils.Error"
+              }
             },
             "405": {
               "description": "Method is not allowed",
@@ -671,16 +671,16 @@
               "in": "path",
               "required": true
             }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/models.Artist"
-                        }
-                    },
-                    "400": {
-                        "description": "Data is invalid",
+          ],
+          "responses": {
+            "200": {
+              "description": "OK",
+              "schema": {
+                "$ref": "#/definitions/models.Artist"
+              }
+            },
+            "400": {
+              "description": "Data is invalid",
                         "schema": {
                             "$ref": "#/definitions/utils.Error"
                         }
@@ -717,16 +717,16 @@
                 "responses": {
                     "200": {
                         "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/utils.Success"
-                        }
+                      "schema": {
+                        "$ref": "#/definitions/utils.Success"
+                      }
                     },
-                    "400": {
-                        "description": "Data is invalid",
-                        "schema": {
-                            "$ref": "#/definitions/utils.Error"
-                        }
-                    },
+                  "400": {
+                    "description": "Data is invalid",
+                    "schema": {
+                      "$ref": "#/definitions/utils.Error"
+                    }
+                  },
                   "405": {
                     "description": "Method is not allowed",
                     "schema": {
@@ -757,29 +757,29 @@
               "required": true,
               "schema": {
                 "$ref": "#/definitions/forms.User"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/forms.Result"
-                        }
-                    },
-                    "400": {
-                        "description": "invalid login or password",
-                        "schema": {
-                            "$ref": "#/definitions/forms.Result"
-                        }
-                    },
-                  "401": {
-                    "description": "invalid csrf",
-                    "schema": {
-                      "$ref": "#/definitions/forms.Result"
-                    }
-                  }
-                }
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "OK",
+              "schema": {
+                "$ref": "#/definitions/forms.Result"
+              }
+            },
+            "400": {
+              "description": "invalid login or password",
+              "schema": {
+                "$ref": "#/definitions/forms.Result"
+              }
+            },
+            "401": {
+              "description": "invalid csrf",
+              "schema": {
+                "$ref": "#/definitions/forms.Result"
+              }
+            }
+          }
         }
       },
       "/net/v1/logout": {
@@ -803,17 +803,17 @@
               }
             },
             "401": {
-                        "description": "invalid csrf",
-                        "schema": {
-                            "$ref": "#/definitions/forms.Result"
-                        }
-                    },
-                    "460": {
-                        "description": "Data is invalid",
-                        "schema": {
-                            "$ref": "#/definitions/forms.Result"
-                        }
-                    },
+              "description": "invalid csrf",
+              "schema": {
+                "$ref": "#/definitions/forms.Result"
+              }
+            },
+            "460": {
+              "description": "Data is invalid",
+              "schema": {
+                "$ref": "#/definitions/forms.Result"
+              }
+            },
             "521": {
               "description": "Cannot create session",
               "schema": {
@@ -844,29 +844,29 @@
               "required": true,
               "schema": {
                 "$ref": "#/definitions/forms.User"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "success signup",
-                        "schema": {
-                            "$ref": "#/definitions/forms.Result"
-                        }
-                    },
-                    "400": {
-                        "description": "user already exist",
-                        "schema": {
-                            "$ref": "#/definitions/forms.Result"
-                        }
-                    },
-                  "401": {
-                    "description": "invalid csrf",
-                    "schema": {
-                      "$ref": "#/definitions/forms.Result"
-                    }
-                  }
-                }
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "success signup",
+              "schema": {
+                "$ref": "#/definitions/forms.Result"
+              }
+            },
+            "400": {
+              "description": "user already exist",
+              "schema": {
+                "$ref": "#/definitions/forms.Result"
+              }
+            },
+            "401": {
+              "description": "invalid csrf",
+              "schema": {
+                "$ref": "#/definitions/forms.Result"
+              }
+            }
+          }
         }
       },
       "/net/v1/users/self": {
@@ -890,21 +890,21 @@
               "in": "path",
               "required": true
             }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/forms.User"
-                        }
-                    },
-                  "401": {
-                    "description": "invalid csrf",
-                    "schema": {
-                      "$ref": "#/definitions/forms.Result"
-                    }
-                  }
-                }
+          ],
+          "responses": {
+            "200": {
+              "description": "OK",
+              "schema": {
+                "$ref": "#/definitions/forms.User"
+              }
+            },
+            "401": {
+              "description": "invalid csrf",
+              "schema": {
+                "$ref": "#/definitions/forms.Result"
+              }
+            }
+          }
         }
       },
       "/net/v1/users/{id}": {
@@ -928,16 +928,16 @@
               }
             },
             "400": {
-                        "description": "invalid id",
-                        "schema": {
-                            "$ref": "#/definitions/forms.Result"
-                        }
-                    },
-                    "404": {
-                        "description": "user not found",
-                        "schema": {
-                            "$ref": "#/definitions/forms.Result"
-                        }
+              "description": "invalid id",
+              "schema": {
+                "$ref": "#/definitions/forms.Result"
+              }
+            },
+            "404": {
+              "description": "user not found",
+              "schema": {
+                "$ref": "#/definitions/forms.Result"
+              }
                     }
                 }
             }
@@ -1092,7 +1092,10 @@
         "utils.Success": {
             "type": "object",
             "properties": {
-                "result": {}
+              "result": {},
+              "status": {
+                "type": "string"
+              }
             }
         }
     }

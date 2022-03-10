@@ -2,7 +2,7 @@ package api
 
 import (
 	"encoding/json"
-	"github.com/go-park-mail-ru/2022_1_Wave/db"
+	"github.com/go-park-mail-ru/2022_1_Wave/db/models"
 	"github.com/go-park-mail-ru/2022_1_Wave/service"
 	"github.com/gorilla/mux"
 	"net/http"
@@ -10,8 +10,8 @@ import (
 )
 
 type UserGetResponse struct {
-	Status string  `json:"status"`
-	Result db.User `json:"result"`
+	Status string      `json:"status"`
+	Result models.User `json:"result"`
 }
 
 // GetSelfUser godoc
@@ -28,7 +28,7 @@ type UserGetResponse struct {
 func GetSelfUser(w http.ResponseWriter, r *http.Request) {
 	user, _ := service.GetSession(r)
 
-	userFromDb, _ := db.MyUserStorage.SelectByID(user.UserId)
+	userFromDb, _ := models.MyUserStorage.SelectByID(user.UserId)
 	/*if err != nil {
 		http.Error(w, `{"status": "FAIL", "error": "no user with such id"}`, http.StatusNotFound)
 		return
@@ -63,7 +63,7 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userFromDb, err := db.MyUserStorage.SelectByID(uint(userId))
+	userFromDb, err := models.MyUserStorage.SelectByID(uint(userId))
 
 	if err != nil {
 		http.Error(w, `{"status": "FAIL", "error": "user not found"}`, http.StatusNotFound)

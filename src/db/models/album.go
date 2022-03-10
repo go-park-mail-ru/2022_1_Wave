@@ -15,26 +15,6 @@ type Album struct {
 }
 
 func (album *Album) CheckAlbum() error {
-	//if album.Id < 0 {
-	//	return errors.New(ErrorAlbumIdIsNegative)
-	//}
-	//
-	//if album.AuthorId < 0 {
-	//	return errors.New(ErrorAuthorIdIsNegative)
-	//}
-	//
-	//if album.CountLikes < 0 {
-	//	return errors.New(ErrorCountLikesIsNegative)
-	//}
-	//
-	//if album.CountListening < 0 {
-	//	return errors.New(ErrorCountListeningIsNegative)
-	//}
-	//
-	//if album.CoverId < 0 {
-	//	return errors.New(ErrorCoverIdIsNegative)
-	//}
-
 	if len(album.Title) > AlbumTitleLen {
 		return errors.New(ErrorAlbumMaxTitleLen)
 	}
