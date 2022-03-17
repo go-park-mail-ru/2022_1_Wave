@@ -24,4 +24,4 @@ src/wave
 *.jp*
 
 *cover.out*
-
+logs/
