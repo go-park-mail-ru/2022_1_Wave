@@ -13,10 +13,11 @@ type Config struct {
 	SessionKey   string `toml:"session_key"` // Криптографический ключ для сессий
 	CSRFKey      string `toml:"csrf_key"`    // Криптографический ключ для CSRF защиты
 
-	TokenMaxAge int64 `toml:"token_max_age"` // время жизни токена
+	SessionExpires string `toml:"session_expires"` // время жизни сессии
 
 	DBConnectionString string `toml:"db_connection_string"` // Строка для соединения с БД PostgreSQL
 
+	RedisAddress string `toml:"redis_address"`
 }
 
 var C Config

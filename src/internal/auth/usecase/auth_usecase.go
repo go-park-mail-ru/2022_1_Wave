@@ -1,13 +1,17 @@
 package usecase
 
 import (
+	"github.com/go-park-mail-ru/2022_1_Wave/config"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/domain"
+	"time"
 )
 
 type authUseCase struct {
 	sessionRepo domain.SessionRepo
 	userRepo    domain.UserRepo
 }
+
+var sessionExpire, _ = time.ParseDuration(config.C.SessionExpires)
 
 func NewAuthUseCase(sessionRepo domain.SessionRepo, userRepo domain.UserRepo) domain.AuthUseCase {
 	return &authUseCase{
@@ -17,6 +21,7 @@ func NewAuthUseCase(sessionRepo domain.SessionRepo, userRepo domain.UserRepo) do
 }
 
 func (a *authUseCase) Login(login string, password string) (string, error) {
+
 	if !a.userRepo.CheckEmailAndPassword(login, password) && !a.userRepo.CheckUsernameAndPassword(login, password) {
 		return "", domain.ErrInvalidLoginOrPassword
 	}
@@ -26,7 +31,7 @@ func (a *authUseCase) Login(login string, password string) (string, error) {
 		user, _ = a.userRepo.SelectByEmail(login)
 	}
 
-	sessionId, err := a.sessionRepo.SetNewSession(user.ID)
+	sessionId, err := a.sessionRepo.SetNewSession(sessionExpire, user.ID)
 	if err != nil {
 		return "", domain.ErrWhileSetNewSession
 	}
@@ -61,10 +66,14 @@ func (a *authUseCase) SignUp(user *domain.User) (string, error) {
 		return "", domain.ErrDatabaseUnexpected
 	}
 
-	sessionId, err := a.sessionRepo.SetNewSession(userToId.ID)
+	sessionId, err := a.sessionRepo.SetNewSession(sessionExpire, userToId.ID)
 	if err != nil {
 		return "", domain.ErrSessionStorageUnexpected
 	}
 
 	return sessionId, nil
+}
+
+func (a *authUseCase) GetUnauthorizedSession() (string, error) {
+	return a.sessionRepo.SetNewUnauthorizedSession(sessionExpire)
 }
