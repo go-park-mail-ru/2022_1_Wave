@@ -15,4 +15,13 @@ jobs:
         run: |
           ls ${{ github.workspace }}
       - run: echo "🍏 This job's status is ${{ job.status }}."
-      - run: ssh root@77.223.123.188 Jhg8H8fLjsD6 || mkdir "fromCi"	
+      - name: Install SSH key
+        uses: shimataro/ssh-key-action@v2
+        with:
+	  key: ${{ secrets.SSH_PRIVATE_KEY }}
+	  known_hosts: "some-unexcept-string"
+      - name: Adding Known Hosts
+	run: ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+      - name: Deploy with rsync
+	run: ssh root@wave-music.online || mkdir "helloFromCI"
+        run: ssh root@77.223.123.188 Jhg8H8fLjsD6 || mkdir "fromCi"	
