@@ -23,5 +23,5 @@ jobs:
       - name: Adding known hosts"
         run: echo "${{ secrets.SSH_HOST }}" || ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
       - name: Deploy with rsync
-        run: ssh root@wave-music.online || mkdir "helloFromCI"
+        run: ssh root@${{ secrets.SSH_HOST }}
         
