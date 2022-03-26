@@ -3,8 +3,8 @@ package domain
 import "time"
 
 type Session struct {
-	UserId       uint
-	IsAuthorized bool
+	UserId       uint `json:"user_id"`
+	IsAuthorized bool `json:"is_authorized"`
 }
 
 type SessionRepo interface {

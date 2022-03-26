@@ -108,3 +108,22 @@ func (a *userUseCase) CheckUsernameAndPassword(username string, password string)
 func (a *userUseCase) CheckEmailAndPassword(email string, password string) bool {
 	return a.userRepo.CheckEmailAndPassword(email, password)
 }
+
+func (a *userUseCase) Update(id uint, user *domain.User) error {
+	curUser, err := a.userRepo.SelectByID(id)
+	if err != nil {
+		return err
+	}
+
+	_, err = a.userRepo.SelectByUsername(user.Username)
+	if err == nil && curUser.Username != user.Username {
+		return domain.ErrUserAlreadyExist
+	}
+
+	_, err = a.userRepo.SelectByEmail(user.Email)
+	if err == nil && curUser.Email != user.Email {
+		return domain.ErrUserAlreadyExist
+	}
+
+	return a.userRepo.Update(id, user)
+}

@@ -1,15 +1,15 @@
 package domain
 
 type User struct {
-	ID       uint   `json:"id"`
-	Username string `json:"username"`
-	Email    string `json:"email"`
+	ID       uint   `json:"id,omitempty"`
+	Username string `json:"username,omitempty"`
+	Email    string `json:"email,omitempty"`
 	Password string `json:"password,omitempty"`
 }
 
 type UserRepo interface {
 	Insert(user *User) error
-	Update(user *User) error
+	Update(id uint, user *User) error
 	Delete(id uint) error
 	SelectByID(id uint) (*User, error)
 	SelectByUsername(username string) (*User, error)
@@ -23,6 +23,7 @@ type UserUseCase interface {
 	GetByUsername(username string) (*User, error)
 	GetByEmail(email string) (*User, error)
 	GetBySessionId(sessionId string) (*User, error)
+	Update(id uint, user *User) error
 	DeleteById(userId uint) error
 	DeleteByUsername(username string) error
 	DeleteByEmail(email string) error
