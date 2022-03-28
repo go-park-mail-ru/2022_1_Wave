@@ -1,10 +1,11 @@
 package domain
 
 type User struct {
-	ID       uint   `json:"id,omitempty"`
-	Username string `json:"username,omitempty"`
-	Email    string `json:"email,omitempty"`
-	Password string `json:"password,omitempty"`
+	ID             uint   `json:"id,omitempty" db:"id"`
+	Username       string `json:"username,omitempty" db:"username"`
+	Email          string `json:"email,omitempty" db:"email"`
+	Password       string `json:"password,omitempty" db:"password_hash"`
+	CountFollowing int    `json:"count_following,omitempty" db:"count_following"`
 }
 
 type UserRepo interface {

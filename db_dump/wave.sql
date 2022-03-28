@@ -310,9 +310,9 @@ CREATE TABLE public.users (
     id integer NOT NULL,
     email character varying(255) NOT NULL,
     username character varying(128) NOT NULL,
-    avatar character varying(255),
-    password_hash character varying(64),
-    count_following integer NOT NULL
+    avatar character varying(255) NOT NULL,
+    password_hash character varying(64) NOT NULL,
+    count_following integer NOT NULL default 0
 );
 
 
