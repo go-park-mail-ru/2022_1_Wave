@@ -3,6 +3,7 @@ package http
 import (
 	"errors"
 	"github.com/go-park-mail-ru/2022_1_Wave/config"
+	"github.com/go-park-mail-ru/2022_1_Wave/internal/auth/delivery/http/middleware"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/domain"
 	"github.com/labstack/echo"
 	"net/http"
@@ -19,7 +20,7 @@ const (
 	invalidUserJSON = "invalid json"
 )
 
-func NewUserHandler(e *echo.Echo, userUseCase domain.UserUseCase) {
+func NewUserHandler(e *echo.Echo, userUseCase domain.UserUseCase, m *middleware.HttpMiddleware) {
 	handler := &UserHandler{
 		userUseCase: userUseCase,
 	}
@@ -28,10 +29,10 @@ func NewUserHandler(e *echo.Echo, userUseCase domain.UserUseCase) {
 
 	// TODO: навесить мидлвары
 	g.GET("/users/:id", handler.GetUser)
-	g.GET("/users/self", handler.GetSelfUser)
+	g.GET("/users/self", handler.GetSelfUser, m.Auth, m.CSRF)
 
 	//g.PUT("/users/:id", handler.UpdateUser)
-	g.PUT("/users/self", handler.UpdateSelfUser)
+	g.PUT("/users/self", handler.UpdateSelfUser, m.Auth, m.CSRF)
 }
 
 func (a *UserHandler) GetUser(c echo.Context) error {

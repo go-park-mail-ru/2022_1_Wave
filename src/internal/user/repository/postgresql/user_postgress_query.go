@@ -3,11 +3,11 @@ package postgresql
 import "errors"
 
 const (
-	insertUserCommand           = `INSERT INTO users (email, username, password_hash) VALUES (:email, :username, :password_hash) RETURNING id`
+	insertUserCommand           = `INSERT INTO users (username, email, avatar, password_hash) VALUES (:username, :email, avatar, :password_hash) RETURNING id`
 	deleteUserCommand           = `DELETE FROM users WHERE id = $1`
-	selectUserByIdCommand       = `SELECT id, email, username, count_following FROM users WHERE id = $1`
-	selectUserByUsernameCommand = `SELECT id, email, username, count_following FROM users WHERE username = $1`
-	selectUserByEmailCommand    = `SELECT id, email, username, count_following FROM users WHERE email = $1`
+	selectUserByIdCommand       = `SELECT id, username, email, avatar, count_following FROM users WHERE id = $1`
+	selectUserByUsernameCommand = `SELECT id, username, email, avatar, count_following FROM users WHERE username = $1`
+	selectUserByEmailCommand    = `SELECT id, username, email, avatar, count_following FROM users WHERE email = $1`
 )
 
 var (

@@ -122,7 +122,7 @@ func (a *redisSessionRepo) SetNewUnauthorizedSession(expires time.Duration) (str
 	return sessionId, nil
 }
 
-func (a *redisSessionRepo) SetNewSession(expires time.Duration, userId uint) (string, error) {
+/*func (a *redisSessionRepo) SetNewSession(expires time.Duration, userId uint) (string, error) {
 	client := a.pool.Get()
 	defer client.Close()
 
@@ -135,6 +135,37 @@ func (a *redisSessionRepo) SetNewSession(expires time.Duration, userId uint) (st
 	}
 
 	return sessionId, nil
+}*/
+
+func (a *redisSessionRepo) changeSession(sessionId string, isAuthorized bool, userId uint) error {
+	session, err := a.GetSession(sessionId)
+	if err != nil {
+		return domain.ErrGetSession
+	}
+	session.IsAuthorized = isAuthorized
+	session.UserId = userId
+	tableValue, _ := json.Marshal(session)
+
+	client := a.pool.Get()
+	defer client.Close()
+
+	// sessions:<user_id> -> <session_id> -> need session
+	sessionHashTableName := getSessionHashTableName(getUserIdFromSessionId(sessionId))
+
+	_, err = client.Do("HSET", sessionHashTableName, sessionId, tableValue)
+	if err != nil {
+		return domain.ErrSetSession
+	}
+
+	return nil
+}
+
+func (a *redisSessionRepo) MakeSessionAuthorized(sessionId string, userId uint) error {
+	return a.changeSession(sessionId, true, userId)
+}
+
+func (a *redisSessionRepo) MakeSessionUnauthorized(sessionId string) error {
+	return a.changeSession(sessionId, false, 0)
 }
 
 func (a *redisSessionRepo) DeleteSession(sessionId string) error {

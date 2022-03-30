@@ -68,6 +68,11 @@ func (a *UserPostrgesRepo) Update(id uint, user *domain.User) error {
 		updateParams = append(updateParams, user.Password)
 		i++
 	}
+	if user.Avatar != "" {
+		updateQuery += fmt.Sprintf(`username = $%d`, i)
+		updateParams = append(updateParams, user.Avatar)
+		i++
+	}
 
 	updateQuery = updateQuery[:len(updateQuery)-2]
 

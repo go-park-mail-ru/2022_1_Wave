@@ -11,6 +11,7 @@ var (
 	ErrDatabaseUnexpected = errors.New("database unexpected error")
 
 	ErrWhileSetNewSession       = errors.New("error while set new session")
+	ErrWhileChangeSession       = errors.New("error while change session")
 	ErrSessionStorageUnexpected = errors.New("session storage unexpected error")
 	ErrSessionDoesNotExist      = errors.New("session does not exist")
 
