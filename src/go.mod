@@ -15,6 +15,8 @@ require (
 	github.com/swaggo/gin-swagger v1.4.1
 	github.com/swaggo/http-swagger v1.2.5
 	github.com/swaggo/swag v1.8.0
+	golang.org/x/crypto v0.0.0-20200622213623-75b288015ac9
+	gopkg.in/DATA-DOG/go-sqlmock.v1 v1.3.0
 )
 
 require (
@@ -40,7 +42,6 @@ require (
 	github.com/swaggo/files v0.0.0-20210815190702-a29dd2bc99b2 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasttemplate v1.2.1 // indirect
-	golang.org/x/crypto v0.0.0-20200622213623-75b288015ac9 // indirect
 	golang.org/x/net v0.0.0-20220225172249-27dd8689420f // indirect
 	golang.org/x/sys v0.0.0-20220307203707-22a9840ba4d7 // indirect
 	golang.org/x/text v0.3.7 // indirect

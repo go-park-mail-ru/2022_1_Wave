@@ -8,6 +8,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+// TODO: вынести эту логику в usecase
 func getPasswordHash(password string) ([]byte, error) {
 	return bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 }

@@ -3,7 +3,7 @@ package postgresql
 import "errors"
 
 const (
-	insertUserCommand           = `INSERT INTO users (username, email, avatar, password_hash) VALUES (:username, :email, avatar, :password_hash) RETURNING id`
+	insertUserCommand           = `INSERT INTO users (username, email, avatar, password_hash) VALUES (:username, :email, :avatar, :password_hash) RETURNING id`
 	deleteUserCommand           = `DELETE FROM users WHERE id = $1`
 	selectUserByIdCommand       = `SELECT id, username, email, avatar, count_following FROM users WHERE id = $1`
 	selectUserByUsernameCommand = `SELECT id, username, email, avatar, count_following FROM users WHERE username = $1`
