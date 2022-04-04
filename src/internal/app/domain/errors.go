@@ -1,6 +1,8 @@
 package domain
 
-import "errors"
+import (
+	"errors"
+)
 
 var (
 	ErrInvalidLoginOrPassword = errors.New("invalid login or password")

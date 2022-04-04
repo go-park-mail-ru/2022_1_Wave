@@ -1,6 +1,8 @@
 package http
 
-import "github.com/go-park-mail-ru/2022_1_Wave/internal/domain"
+import (
+	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/domain"
+)
 
 type UserHandler struct {
 	UserUseCase domain.UserUseCase

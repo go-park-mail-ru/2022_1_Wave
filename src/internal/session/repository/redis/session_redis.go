@@ -2,7 +2,7 @@ package redis
 
 import (
 	"github.com/go-park-mail-ru/2022_1_Wave/config"
-	"github.com/go-park-mail-ru/2022_1_Wave/internal/domain"
+	domain2 "github.com/go-park-mail-ru/2022_1_Wave/internal/app/domain"
 	"github.com/gomodule/redigo/redis"
 	"github.com/google/uuid"
 	"time"
@@ -30,17 +30,17 @@ func setSession(client redis.Conn, sessionId string, authorizedSign uint, userId
 
 	_, err := client.Do("HSET", sessionHashTableName, SessionsIsAuthorizedKey, authorizedSign)
 	if err != nil {
-		return domain.ErrSetSession
+		return domain2.ErrSetSession
 	}
 
 	_, err = client.Do("HSET", sessionHashTableName, SessionsUserIdKey, userId)
 	if err != nil {
-		return domain.ErrSetSession
+		return domain2.ErrSetSession
 	}
 
 	_, err = client.Do("EXPIRE", sessionHashTableName, expires.Seconds())
 	if err != nil {
-		return domain.ErrSetSession
+		return domain2.ErrSetSession
 	}
 
 	return nil
@@ -50,7 +50,7 @@ type redisSessionRepo struct {
 	pool *redis.Pool
 }
 
-func NewRedisSessionRepo() domain.SessionRepo {
+func NewRedisSessionRepo() domain2.SessionRepo {
 	return &redisSessionRepo{
 		pool: &redis.Pool{
 			Dial: func() (redis.Conn, error) {
@@ -60,7 +60,7 @@ func NewRedisSessionRepo() domain.SessionRepo {
 	}
 }
 
-func (a *redisSessionRepo) GetSession(sessionId string) (*domain.Session, error) {
+func (a *redisSessionRepo) GetSession(sessionId string) (*domain2.Session, error) {
 	client := a.pool.Get()
 	defer client.Close()
 
@@ -69,12 +69,12 @@ func (a *redisSessionRepo) GetSession(sessionId string) (*domain.Session, error)
 
 	userId, err := client.Do("HGET", sessionHashTableName, SessionsUserIdKey)
 	if err != nil {
-		return nil, domain.ErrGetSession
+		return nil, domain2.ErrGetSession
 	}
 
 	isAuthorized, err := client.Do("HGET", sessionHashTableName, SessionsIsAuthorizedKey)
 	if err != nil {
-		return nil, domain.ErrGetSession
+		return nil, domain2.ErrGetSession
 	}
 
 	var isAuthorizedBool bool
@@ -84,7 +84,7 @@ func (a *redisSessionRepo) GetSession(sessionId string) (*domain.Session, error)
 		isAuthorizedBool = true
 	}
 
-	return &domain.Session{
+	return &domain2.Session{
 		UserId:       userId.(uint),
 		IsAuthorized: isAuthorizedBool,
 	}, nil
@@ -99,7 +99,7 @@ func (a *redisSessionRepo) SetNewUnauthorizedSession(expires time.Duration) (str
 	err := setSession(client, sessionId, UnauthorizedIntSign, 0, expires)
 
 	if err != nil {
-		return "", domain.ErrSetSession
+		return "", domain2.ErrSetSession
 	}
 
 	return sessionId, nil
@@ -114,7 +114,7 @@ func (a *redisSessionRepo) SetNewSession(expires time.Duration, userId uint) (st
 	err := setSession(client, sessionId, AuthorizedIntSign, userId, expires)
 
 	if err != nil {
-		return "", domain.ErrSetSession
+		return "", domain2.ErrSetSession
 	}
 
 	return sessionId, nil
@@ -129,7 +129,7 @@ func (a *redisSessionRepo) DeleteSession(sessionId string) error {
 
 	_, err := client.Do("DEL", sessionHashTableName)
 	if err != nil {
-		return domain.ErrDeleteSession
+		return domain2.ErrDeleteSession
 	}
 
 	return nil

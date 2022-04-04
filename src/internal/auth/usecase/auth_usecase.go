@@ -2,18 +2,18 @@ package usecase
 
 import (
 	"github.com/go-park-mail-ru/2022_1_Wave/config"
-	"github.com/go-park-mail-ru/2022_1_Wave/internal/domain"
+	domain2 "github.com/go-park-mail-ru/2022_1_Wave/internal/app/domain"
 	"time"
 )
 
 type authUseCase struct {
-	sessionRepo domain.SessionRepo
-	userRepo    domain.UserRepo
+	sessionRepo domain2.SessionRepo
+	userRepo    domain2.UserRepo
 }
 
 var sessionExpire, _ = time.ParseDuration(config.C.SessionExpires)
 
-func NewAuthUseCase(sessionRepo domain.SessionRepo, userRepo domain.UserRepo) domain.AuthUseCase {
+func NewAuthUseCase(sessionRepo domain2.SessionRepo, userRepo domain2.UserRepo) domain2.AuthUseCase {
 	return &authUseCase{
 		sessionRepo: sessionRepo,
 		userRepo:    userRepo,
@@ -23,7 +23,7 @@ func NewAuthUseCase(sessionRepo domain.SessionRepo, userRepo domain.UserRepo) do
 func (a *authUseCase) Login(login string, password string) (string, error) {
 
 	if !a.userRepo.CheckEmailAndPassword(login, password) && !a.userRepo.CheckUsernameAndPassword(login, password) {
-		return "", domain.ErrInvalidLoginOrPassword
+		return "", domain2.ErrInvalidLoginOrPassword
 	}
 
 	user, err := a.userRepo.SelectByUsername(login)
@@ -33,7 +33,7 @@ func (a *authUseCase) Login(login string, password string) (string, error) {
 
 	sessionId, err := a.sessionRepo.SetNewSession(sessionExpire, user.ID)
 	if err != nil {
-		return "", domain.ErrWhileSetNewSession
+		return "", domain2.ErrWhileSetNewSession
 	}
 
 	return sessionId, nil
@@ -45,30 +45,30 @@ func (a *authUseCase) Logout(sessionId string) error {
 	return nil
 }
 
-func (a *authUseCase) SignUp(user *domain.User) (string, error) {
+func (a *authUseCase) SignUp(user *domain2.User) (string, error) {
 	_, err := a.userRepo.SelectByEmail(user.Email)
 	if err != nil {
-		return "", domain.ErrUserAlreadyExist
+		return "", domain2.ErrUserAlreadyExist
 	}
 
 	_, err = a.userRepo.SelectByUsername(user.Username)
 	if err != nil {
-		return "", domain.ErrUserAlreadyExist
+		return "", domain2.ErrUserAlreadyExist
 	}
 
 	err = a.userRepo.Insert(user)
 	if err != nil {
-		return "", domain.ErrInsert
+		return "", domain2.ErrInsert
 	}
 
 	userToId, err := a.userRepo.SelectByEmail(user.Email)
 	if err != nil {
-		return "", domain.ErrDatabaseUnexpected
+		return "", domain2.ErrDatabaseUnexpected
 	}
 
 	sessionId, err := a.sessionRepo.SetNewSession(sessionExpire, userToId.ID)
 	if err != nil {
-		return "", domain.ErrSessionStorageUnexpected
+		return "", domain2.ErrSessionStorageUnexpected
 	}
 
 	return sessionId, nil

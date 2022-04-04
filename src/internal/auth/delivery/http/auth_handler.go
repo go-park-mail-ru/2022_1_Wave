@@ -2,19 +2,19 @@ package http
 
 import (
 	"github.com/go-park-mail-ru/2022_1_Wave/config"
-	"github.com/go-park-mail-ru/2022_1_Wave/internal/domain"
+	domain2 "github.com/go-park-mail-ru/2022_1_Wave/internal/app/domain"
 	"github.com/labstack/echo"
 	"net/http"
 	"time"
 )
 
 type AuthHandler struct {
-	authUseCase domain.AuthUseCase
+	authUseCase domain2.AuthUseCase
 }
 
 var sessionExpire, _ = time.ParseDuration(config.C.SessionExpires)
 
-func NewAuthHandler(e *echo.Echo, authUseCase domain.AuthUseCase) {
+func NewAuthHandler(e *echo.Echo, authUseCase domain2.AuthUseCase) {
 	handler := &AuthHandler{
 		authUseCase: authUseCase,
 	}
@@ -25,7 +25,7 @@ func NewAuthHandler(e *echo.Echo, authUseCase domain.AuthUseCase) {
 // TODO: функции, реализующие взаимодействие с AuthUseCase (бизнес логикой) посредством http
 
 func (a *AuthHandler) Login(c echo.Context) error {
-	var user domain.User
+	var user domain2.User
 	err := c.Bind(&user)
 	if err != nil {
 		return c.JSON(http.StatusUnprocessableEntity, getErrorAuthResponse(err))
