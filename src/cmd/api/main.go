@@ -1,31 +1,35 @@
 package main
 
 import (
-	"github.com/go-park-mail-ru/2022_1_Wave/api"
-	"github.com/go-park-mail-ru/2022_1_Wave/config"
-	"github.com/go-park-mail-ru/2022_1_Wave/db"
+	"github.com/go-park-mail-ru/2022_1_Wave/init/router"
+	"github.com/go-park-mail-ru/2022_1_Wave/init/storage"
+	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/structs/interfaces"
+	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/structs/storage/local"
 	"log"
 	"net/http"
 )
 
-//config
-const CONFIG_FILENAME = "config.toml"
-const PATH_TO_STATIC = "./static"
+// ConfigFilename config
+const ConfigFilename = "config.toml"
 const port = ":5000"
 
 func main() {
-	if err := config.LoadConfig(CONFIG_FILENAME); err != nil {
-		log.Fatal(err)
-	} else {
-		log.Println("config loaded successfuly: ", config.C)
-	}
+	//if err := config.LoadConfig(ConfigFilename); err != nil {
+	//	log.Fatal(err)
+	//} else {
+	//	log.Println("config loaded successfuly: ", config.C)
+	//}
 
 	const quantity = 10
-	db.Storage.InitStorage(quantity)
+	localStorage := utilsInterfaces.GlobalStorageInterface(structStorageLocal.LocalStorage{})
+	storage.InitStorage(quantity, &localStorage)
 
-	router := api.InitRouter()
+	rout := router.Router()
 
 	log.Println("start serving :5000")
 
-	http.ListenAndServe(port, router)
+	err := http.ListenAndServe(port, rout)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
