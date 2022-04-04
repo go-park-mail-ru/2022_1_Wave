@@ -16,6 +16,494 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/api/v1/albums/": {
+            "get": {
+                "description": "getting all albums",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "album"
+                ],
+                "summary": "GetAll",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/webUtils.Success"
+                        }
+                    },
+                    "400": {
+                        "description": "Data is invalid",
+                        "schema": {
+                            "$ref": "#/definitions/webUtils.Error"
+                        }
+                    },
+                    "405": {
+                        "description": "Method is not allowed",
+                        "schema": {
+                            "$ref": "#/definitions/webUtils.Error"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "updating album by id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "album"
+                ],
+                "summary": "Update",
+                "parameters": [
+                    {
+                        "description": "id of updating album and params of it.",
+                        "name": "Album",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/domain.Album"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/webUtils.Success"
+                        }
+                    },
+                    "400": {
+                        "description": "Data is invalid",
+                        "schema": {
+                            "$ref": "#/definitions/webUtils.Error"
+                        }
+                    },
+                    "405": {
+                        "description": "Method is not allowed",
+                        "schema": {
+                            "$ref": "#/definitions/webUtils.Error"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "creating new album",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "album"
+                ],
+                "summary": "Create",
+                "parameters": [
+                    {
+                        "description": "params of new album. Id will be set automatically.",
+                        "name": "Album",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/domain.Album"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/webUtils.Success"
+                        }
+                    },
+                    "400": {
+                        "description": "Data is invalid",
+                        "schema": {
+                            "$ref": "#/definitions/webUtils.Error"
+                        }
+                    },
+                    "405": {
+                        "description": "Method is not allowed",
+                        "schema": {
+                            "$ref": "#/definitions/webUtils.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/albums/popular": {
+            "get": {
+                "description": "getting top20 popular albums",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "album"
+                ],
+                "summary": "GetPopular",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/webUtils.Success"
+                        }
+                    },
+                    "400": {
+                        "description": "Data is invalid",
+                        "schema": {
+                            "$ref": "#/definitions/webUtils.Error"
+                        }
+                    },
+                    "405": {
+                        "description": "Method is not allowed",
+                        "schema": {
+                            "$ref": "#/definitions/webUtils.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/albums/{id}": {
+            "get": {
+                "description": "getting album by id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "album"
+                ],
+                "summary": "Get",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "id of album which need to be getted",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/domain.Album"
+                        }
+                    },
+                    "400": {
+                        "description": "Data is invalid",
+                        "schema": {
+                            "$ref": "#/definitions/webUtils.Error"
+                        }
+                    },
+                    "405": {
+                        "description": "Method is not allowed",
+                        "schema": {
+                            "$ref": "#/definitions/webUtils.Error"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "deleting album by id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "album"
+                ],
+                "summary": "Delete",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "id of album which need to be deleted",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/webUtils.Success"
+                        }
+                    },
+                    "400": {
+                        "description": "Data is invalid",
+                        "schema": {
+                            "$ref": "#/definitions/webUtils.Error"
+                        }
+                    },
+                    "405": {
+                        "description": "Method is not allowed",
+                        "schema": {
+                            "$ref": "#/definitions/webUtils.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/artists/": {
+            "get": {
+                "description": "getting all artists",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "artist"
+                ],
+                "summary": "GetAll",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/webUtils.Success"
+                        }
+                    },
+                    "400": {
+                        "description": "Data is invalid",
+                        "schema": {
+                            "$ref": "#/definitions/webUtils.Error"
+                        }
+                    },
+                    "405": {
+                        "description": "Method is not allowed",
+                        "schema": {
+                            "$ref": "#/definitions/webUtils.Error"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "updating artist by id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "artist"
+                ],
+                "summary": "Update",
+                "parameters": [
+                    {
+                        "description": "id of updating artist and params of it.",
+                        "name": "Artist",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/domain.Artist"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/webUtils.Success"
+                        }
+                    },
+                    "400": {
+                        "description": "Data is invalid",
+                        "schema": {
+                            "$ref": "#/definitions/webUtils.Error"
+                        }
+                    },
+                    "405": {
+                        "description": "Method is not allowed",
+                        "schema": {
+                            "$ref": "#/definitions/webUtils.Error"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "creating new artist",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "artist"
+                ],
+                "summary": "Create",
+                "parameters": [
+                    {
+                        "description": "params of new artist. Id will be set automatically.",
+                        "name": "Artist",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/domain.Artist"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/webUtils.Success"
+                        }
+                    },
+                    "400": {
+                        "description": "Data is invalid",
+                        "schema": {
+                            "$ref": "#/definitions/webUtils.Error"
+                        }
+                    },
+                    "405": {
+                        "description": "Method is not allowed",
+                        "schema": {
+                            "$ref": "#/definitions/webUtils.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/artists/popular": {
+            "get": {
+                "description": "getting top20 popular artists",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "artist"
+                ],
+                "summary": "GetPopular",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/webUtils.Success"
+                        }
+                    },
+                    "400": {
+                        "description": "Data is invalid",
+                        "schema": {
+                            "$ref": "#/definitions/webUtils.Error"
+                        }
+                    },
+                    "405": {
+                        "description": "Method is not allowed",
+                        "schema": {
+                            "$ref": "#/definitions/webUtils.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/artists/{id}": {
+            "get": {
+                "description": "getting artist by id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "artist"
+                ],
+                "summary": "Get",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "id of artist which need to be getted",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/domain.Artist"
+                        }
+                    },
+                    "400": {
+                        "description": "Data is invalid",
+                        "schema": {
+                            "$ref": "#/definitions/webUtils.Error"
+                        }
+                    },
+                    "405": {
+                        "description": "Method is not allowed",
+                        "schema": {
+                            "$ref": "#/definitions/webUtils.Error"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "deleting artist by id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "artist"
+                ],
+                "summary": "Delete",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "id of artist which need to be deleted",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/webUtils.Success"
+                        }
+                    },
+                    "400": {
+                        "description": "Data is invalid",
+                        "schema": {
+                            "$ref": "#/definitions/webUtils.Error"
+                        }
+                    },
+                    "405": {
+                        "description": "Method is not allowed",
+                        "schema": {
+                            "$ref": "#/definitions/webUtils.Error"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/tracks/": {
             "get": {
                 "description": "getting all tracks",
@@ -28,24 +516,24 @@ const docTemplate = `{
                 "tags": [
                     "track"
                 ],
-                "summary": "GetTracks",
+                "summary": "GetAll",
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/utils.Success"
+                            "$ref": "#/definitions/webUtils.Success"
                         }
                     },
                     "400": {
                         "description": "Data is invalid",
                         "schema": {
-                            "$ref": "#/definitions/utils.Error"
+                            "$ref": "#/definitions/webUtils.Error"
                         }
                     },
                     "405": {
                         "description": "Method is not allowed",
                         "schema": {
-                            "$ref": "#/definitions/utils.Error"
+                            "$ref": "#/definitions/webUtils.Error"
                         }
                     }
                 }
@@ -61,15 +549,15 @@ const docTemplate = `{
                 "tags": [
                     "track"
                 ],
-                "summary": "UpdateTrack",
+                "summary": "Update",
                 "parameters": [
                     {
-                        "description": "id of updating song and params of it.",
+                        "description": "id of updating track and params of it.",
                         "name": "Track",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.Track"
+                            "$ref": "#/definitions/domain.Track"
                         }
                     }
                 ],
@@ -77,19 +565,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/utils.Success"
+                            "$ref": "#/definitions/webUtils.Success"
                         }
                     },
                     "400": {
                         "description": "Data is invalid",
                         "schema": {
-                            "$ref": "#/definitions/utils.Error"
+                            "$ref": "#/definitions/webUtils.Error"
                         }
                     },
                     "405": {
                         "description": "Method is not allowed",
                         "schema": {
-                            "$ref": "#/definitions/utils.Error"
+                            "$ref": "#/definitions/webUtils.Error"
                         }
                     }
                 }
@@ -105,7 +593,7 @@ const docTemplate = `{
                 "tags": [
                     "track"
                 ],
-                "summary": "CreateTrack",
+                "summary": "Create",
                 "parameters": [
                     {
                         "description": "params of new track. Id will be set automatically.",
@@ -113,7 +601,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.Track"
+                            "$ref": "#/definitions/domain.Track"
                         }
                     }
                 ],
@@ -121,19 +609,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/utils.Success"
+                            "$ref": "#/definitions/webUtils.Success"
                         }
                     },
                     "400": {
                         "description": "Data is invalid",
                         "schema": {
-                            "$ref": "#/definitions/utils.Error"
+                            "$ref": "#/definitions/webUtils.Error"
                         }
                     },
                     "405": {
                         "description": "Method is not allowed",
                         "schema": {
-                            "$ref": "#/definitions/utils.Error"
+                            "$ref": "#/definitions/webUtils.Error"
                         }
                     }
                 }
@@ -151,24 +639,24 @@ const docTemplate = `{
                 "tags": [
                     "track"
                 ],
-                "summary": "GetPopularTracks",
+                "summary": "GetPopular",
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/utils.Success"
+                            "$ref": "#/definitions/webUtils.Success"
                         }
                     },
                     "400": {
                         "description": "Data is invalid",
                         "schema": {
-                            "$ref": "#/definitions/utils.Error"
+                            "$ref": "#/definitions/webUtils.Error"
                         }
                     },
                     "405": {
                         "description": "Method is not allowed",
                         "schema": {
-                            "$ref": "#/definitions/utils.Error"
+                            "$ref": "#/definitions/webUtils.Error"
                         }
                     }
                 }
@@ -186,7 +674,7 @@ const docTemplate = `{
                 "tags": [
                     "track"
                 ],
-                "summary": "GetTrack",
+                "summary": "Get",
                 "parameters": [
                     {
                         "type": "integer",
@@ -200,19 +688,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.Track"
+                            "$ref": "#/definitions/domain.Track"
                         }
                     },
                     "400": {
                         "description": "Data is invalid",
                         "schema": {
-                            "$ref": "#/definitions/utils.Error"
+                            "$ref": "#/definitions/webUtils.Error"
                         }
                     },
                     "405": {
                         "description": "Method is not allowed",
                         "schema": {
-                            "$ref": "#/definitions/utils.Error"
+                            "$ref": "#/definitions/webUtils.Error"
                         }
                     }
                 }
@@ -228,7 +716,7 @@ const docTemplate = `{
                 "tags": [
                     "track"
                 ],
-                "summary": "DeleteTrack",
+                "summary": "Delete",
                 "parameters": [
                     {
                         "type": "integer",
@@ -242,713 +730,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/utils.Success"
+                            "$ref": "#/definitions/webUtils.Success"
                         }
                     },
                     "400": {
                         "description": "Data is invalid",
                         "schema": {
-                            "$ref": "#/definitions/utils.Error"
+                            "$ref": "#/definitions/webUtils.Error"
                         }
                     },
                     "405": {
                         "description": "Method is not allowed",
                         "schema": {
-                            "$ref": "#/definitions/utils.Error"
-                        }
-                    }
-                }
-            }
-        },
-        "/net/v1/albums/": {
-            "get": {
-                "description": "getting all albums",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "album"
-                ],
-                "summary": "GetAlbums",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/utils.Success"
-                        }
-                    },
-                    "400": {
-                        "description": "Data is invalid",
-                        "schema": {
-                            "$ref": "#/definitions/utils.Error"
-                        }
-                    },
-                    "405": {
-                        "description": "Method is not allowed",
-                        "schema": {
-                            "$ref": "#/definitions/utils.Error"
-                        }
-                    }
-                }
-            },
-            "put": {
-                "description": "updating album by id",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "album"
-                ],
-                "summary": "UpdateAlbum",
-                "parameters": [
-                    {
-                        "description": "id of updating album and params of it.",
-                        "name": "Album",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.Album"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/utils.Success"
-                        }
-                    },
-                    "400": {
-                        "description": "Data is invalid",
-                        "schema": {
-                            "$ref": "#/definitions/utils.Error"
-                        }
-                    },
-                    "405": {
-                        "description": "Method is not allowed",
-                        "schema": {
-                            "$ref": "#/definitions/utils.Error"
-                        }
-                    }
-                }
-            },
-            "post": {
-                "description": "creating new album",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "album"
-                ],
-                "summary": "CreateAlbum",
-                "parameters": [
-                    {
-                        "description": "params of new album. Id will be set automatically.",
-                        "name": "Album",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.Album"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/utils.Success"
-                        }
-                    },
-                    "400": {
-                        "description": "Data is invalid",
-                        "schema": {
-                            "$ref": "#/definitions/utils.Error"
-                        }
-                    },
-                    "405": {
-                        "description": "Method is not allowed",
-                        "schema": {
-                            "$ref": "#/definitions/utils.Error"
-                        }
-                    }
-                }
-            }
-        },
-        "/net/v1/albums/popular": {
-            "get": {
-                "description": "getting top20 popular albums",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "album"
-                ],
-                "summary": "GetPopularAlbums",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/utils.Success"
-                        }
-                    },
-                    "400": {
-                        "description": "Data is invalid",
-                        "schema": {
-                            "$ref": "#/definitions/utils.Error"
-                        }
-                    },
-                    "405": {
-                        "description": "Method is not allowed",
-                        "schema": {
-                            "$ref": "#/definitions/utils.Error"
-                        }
-                    }
-                }
-            }
-        },
-        "/net/v1/albums/{id}": {
-            "get": {
-                "description": "getting album by id",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "album"
-                ],
-                "summary": "GetAlbum",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "id of album which need to be getted",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/models.Album"
-                        }
-                    },
-                    "400": {
-                        "description": "Data is invalid",
-                        "schema": {
-                            "$ref": "#/definitions/utils.Error"
-                        }
-                    },
-                    "405": {
-                        "description": "Method is not allowed",
-                        "schema": {
-                            "$ref": "#/definitions/utils.Error"
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "description": "deleting album by id",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "album"
-                ],
-                "summary": "DeleteAlbum",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "id of album which need to be deleted",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/utils.Success"
-                        }
-                    },
-                    "400": {
-                        "description": "Data is invalid",
-                        "schema": {
-                            "$ref": "#/definitions/utils.Error"
-                        }
-                    },
-                    "405": {
-                        "description": "Method is not allowed",
-                        "schema": {
-                            "$ref": "#/definitions/utils.Error"
-                        }
-                    }
-                }
-            }
-        },
-        "/net/v1/artists/": {
-            "get": {
-                "description": "getting all artists",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "artist"
-                ],
-                "summary": "GetArtists",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/utils.Success"
-                        }
-                    },
-                    "400": {
-                        "description": "Data is invalid",
-                        "schema": {
-                            "$ref": "#/definitions/utils.Error"
-                        }
-                    },
-                    "405": {
-                        "description": "Method is not allowed",
-                        "schema": {
-                            "$ref": "#/definitions/utils.Error"
-                        }
-                    }
-                }
-            },
-            "put": {
-                "description": "updating artist by id",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "artist"
-                ],
-                "summary": "UpdateArtist",
-                "parameters": [
-                    {
-                        "description": "id of updating artist and params of it.",
-                        "name": "Artist",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.Artist"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/utils.Success"
-                        }
-                    },
-                    "400": {
-                        "description": "Data is invalid",
-                        "schema": {
-                            "$ref": "#/definitions/utils.Error"
-                        }
-                    },
-                    "405": {
-                        "description": "Method is not allowed",
-                        "schema": {
-                            "$ref": "#/definitions/utils.Error"
-                        }
-                    }
-                }
-            },
-            "post": {
-                "description": "creating new artist",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "artist"
-                ],
-                "summary": "CreateArtist",
-                "parameters": [
-                    {
-                        "description": "params of new artist. Id will be set automatically.",
-                        "name": "Artist",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.Artist"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/utils.Success"
-                        }
-                    },
-                    "400": {
-                        "description": "Data is invalid",
-                        "schema": {
-                            "$ref": "#/definitions/utils.Error"
-                        }
-                    },
-                    "405": {
-                        "description": "Method is not allowed",
-                        "schema": {
-                            "$ref": "#/definitions/utils.Error"
-                        }
-                    }
-                }
-            }
-        },
-        "/net/v1/artists/popular": {
-            "get": {
-                "description": "getting top20 popular artists",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "artist"
-                ],
-                "summary": "GetPopularArtists",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/utils.Success"
-                        }
-                    },
-                    "400": {
-                        "description": "Data is invalid",
-                        "schema": {
-                            "$ref": "#/definitions/utils.Error"
-                        }
-                    },
-                    "405": {
-                        "description": "Method is not allowed",
-                        "schema": {
-                            "$ref": "#/definitions/utils.Error"
-                        }
-                    }
-                }
-            }
-        },
-        "/net/v1/artists/{id}": {
-            "get": {
-                "description": "getting artist by id",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "artist"
-                ],
-                "summary": "GetArtist",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "id of artist which need to be getted",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/models.Artist"
-                        }
-                    },
-                    "400": {
-                        "description": "Data is invalid",
-                        "schema": {
-                            "$ref": "#/definitions/utils.Error"
-                        }
-                    },
-                    "405": {
-                        "description": "Method is not allowed",
-                        "schema": {
-                            "$ref": "#/definitions/utils.Error"
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "description": "deleting artist by id",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "artist"
-                ],
-                "summary": "DeleteArtist",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "id of artist which need to be deleted",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/utils.Success"
-                        }
-                    },
-                    "400": {
-                        "description": "Data is invalid",
-                        "schema": {
-                            "$ref": "#/definitions/utils.Error"
-                        }
-                    },
-                    "405": {
-                        "description": "Method is not allowed",
-                        "schema": {
-                            "$ref": "#/definitions/utils.Error"
-                        }
-                    }
-                }
-            }
-        },
-        "/net/v1/login": {
-            "post": {
-                "description": "login user",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "auth"
-                ],
-                "summary": "Login",
-                "parameters": [
-                    {
-                        "description": "user params",
-                        "name": "UserForm",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/forms.User"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/forms.Result"
-                        }
-                    },
-                    "400": {
-                        "description": "invalid login or password",
-                        "schema": {
-                            "$ref": "#/definitions/forms.Result"
-                        }
-                    },
-                    "401": {
-                        "description": "invalid csrf",
-                        "schema": {
-                            "$ref": "#/definitions/forms.Result"
-                        }
-                    }
-                }
-            }
-        },
-        "/net/v1/logout": {
-            "post": {
-                "description": "sign in user",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "auth"
-                ],
-                "summary": "Logout",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/forms.Result"
-                        }
-                    },
-                    "401": {
-                        "description": "invalid csrf",
-                        "schema": {
-                            "$ref": "#/definitions/forms.Result"
-                        }
-                    },
-                    "460": {
-                        "description": "Data is invalid",
-                        "schema": {
-                            "$ref": "#/definitions/forms.Result"
-                        }
-                    },
-                    "521": {
-                        "description": "Cannot create session",
-                        "schema": {
-                            "$ref": "#/definitions/forms.Result"
-                        }
-                    }
-                }
-            }
-        },
-        "/net/v1/signup": {
-            "post": {
-                "description": "login user",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "auth"
-                ],
-                "summary": "SignUp",
-                "parameters": [
-                    {
-                        "description": "new jwt data",
-                        "name": "UserForm",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/forms.User"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "success signup",
-                        "schema": {
-                            "$ref": "#/definitions/forms.Result"
-                        }
-                    },
-                    "400": {
-                        "description": "user already exist",
-                        "schema": {
-                            "$ref": "#/definitions/forms.Result"
-                        }
-                    },
-                    "401": {
-                        "description": "invalid csrf",
-                        "schema": {
-                            "$ref": "#/definitions/forms.Result"
-                        }
-                    }
-                }
-            }
-        },
-        "/net/v1/users/self": {
-            "get": {
-                "description": "get user",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "user"
-                ],
-                "summary": "GetSelfUser",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "id of user which need to be getted",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/api.UserGetResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "invalid csrf",
-                        "schema": {
-                            "$ref": "#/definitions/forms.Result"
-                        }
-                    }
-                }
-            }
-        },
-        "/net/v1/users/{id}": {
-            "get": {
-                "description": "get user by cookie",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "user"
-                ],
-                "summary": "GetUser",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/api.UserGetResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "invalid id",
-                        "schema": {
-                            "$ref": "#/definitions/forms.Result"
-                        }
-                    },
-                    "404": {
-                        "description": "user not found",
-                        "schema": {
-                            "$ref": "#/definitions/forms.Result"
+                            "$ref": "#/definitions/webUtils.Error"
                         }
                     }
                 }
@@ -956,65 +750,12 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "api.UserGetResponse": {
+        "domain.Album": {
             "type": "object",
             "properties": {
-                "result": {
-                    "$ref": "#/definitions/models.User"
-                },
-                "status": {
-                    "type": "string"
-                }
-            }
-        },
-        "forms.Result": {
-            "type": "object",
-            "properties": {
-                "error": {
-                    "type": "string",
-                    "example": "some error note"
-                },
-                "result": {
-                    "type": "string",
-                    "example": "some success note"
-                },
-                "status": {
-                    "type": "string",
-                    "example": "OK"
-                }
-            }
-        },
-        "forms.User": {
-            "type": "object",
-            "properties": {
-                "email": {
-                    "type": "string",
-                    "example": "hello@example.com"
-                },
-                "id": {
-                    "type": "integer",
-                    "example": 5125112
-                },
-                "password": {
-                    "type": "string",
-                    "example": "1fsgh2rfafas"
-                },
-                "username": {
-                    "type": "string",
-                    "example": "Martin"
-                }
-            }
-        },
-        "models.Album": {
-            "type": "object",
-            "properties": {
-                "Date": {
-                    "type": "integer",
-                    "example": 0
-                },
                 "authorId": {
                     "type": "integer",
-                    "example": 121
+                    "example": 4
                 },
                 "countLikes": {
                     "type": "integer",
@@ -1026,11 +767,15 @@ const docTemplate = `{
                 },
                 "coverId": {
                     "type": "integer",
-                    "example": 254
+                    "example": 8
+                },
+                "date": {
+                    "type": "integer",
+                    "example": 0
                 },
                 "id": {
                     "type": "integer",
-                    "example": 777
+                    "example": 8
                 },
                 "title": {
                     "type": "string",
@@ -1038,7 +783,7 @@ const docTemplate = `{
                 }
             }
         },
-        "models.Artist": {
+        "domain.Artist": {
             "type": "object",
             "properties": {
                 "countFollowers": {
@@ -1063,16 +808,16 @@ const docTemplate = `{
                 }
             }
         },
-        "models.Track": {
+        "domain.Track": {
             "type": "object",
             "properties": {
                 "albumId": {
                     "type": "integer",
-                    "example": 143
+                    "example": 6
                 },
                 "authorId": {
                     "type": "integer",
-                    "example": 121
+                    "example": 8
                 },
                 "countLikes": {
                     "type": "integer",
@@ -1084,7 +829,7 @@ const docTemplate = `{
                 },
                 "coverId": {
                     "type": "integer",
-                    "example": 254
+                    "example": 4
                 },
                 "duration": {
                     "type": "integer",
@@ -1092,7 +837,7 @@ const docTemplate = `{
                 },
                 "id": {
                     "type": "integer",
-                    "example": 777
+                    "example": 4
                 },
                 "mp4": {
                     "type": "string",
@@ -1104,32 +849,18 @@ const docTemplate = `{
                 }
             }
         },
-        "models.User": {
-            "type": "object",
-            "properties": {
-                "email": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "password": {
-                    "type": "string"
-                },
-                "username": {
-                    "type": "string"
-                }
-            }
-        },
-        "utils.Error": {
+        "webUtils.Error": {
             "type": "object",
             "properties": {
                 "err": {
                     "type": "string"
+                },
+                "status": {
+                    "type": "string"
                 }
             }
         },
-        "utils.Success": {
+        "webUtils.Success": {
             "type": "object",
             "properties": {
                 "result": {},
