@@ -28,14 +28,15 @@ func NewUserPostgresRepo(db *sqlx.DB) domain.UserRepo {
 }
 
 func (a *UserPostrgesRepo) Insert(user *domain.User) error {
-	passwordHash, err := getPasswordHash(string(user.Password))
+	/*passwordHash, err := getPasswordHash(string(user.Password))
 	if err != nil {
 		return ErrorGetPasswordHash
 	}
 
-	user.Password = string(passwordHash)
+	user.Password = string(passwordHash)*/
 
-	_, err = a.DB.NamedQuery(insertUserCommand, user)
+	_, err := a.DB.Exec(insertUserCommand, user.Username, user.Email, user.Avatar, user.Password)
+	//_, err := a.DB.NamedQuery(insertUserCommand, user)
 	if err != nil {
 		return ErrorInsertUser
 	}
@@ -127,22 +128,4 @@ func (a *UserPostrgesRepo) SelectByEmail(email string) (*domain.User, error) {
 	}
 
 	return &user, nil
-}
-
-func (a *UserPostrgesRepo) CheckUsernameAndPassword(username string, password string) bool {
-	user, err := a.SelectByUsername(username)
-	if err != nil {
-		return false
-	}
-
-	return checkPassword(password, user.Password)
-}
-
-func (a *UserPostrgesRepo) CheckEmailAndPassword(email string, password string) bool {
-	user, err := a.SelectByEmail(email)
-	if err != nil {
-		return false
-	}
-
-	return checkPassword(password, user.Password)
 }

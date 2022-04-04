@@ -1,7 +1,6 @@
 package postgresql
 
 import (
-	"fmt"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/domain"
 	_ "github.com/jackc/pgx"
 	"github.com/jmoiron/sqlx"
@@ -16,6 +15,7 @@ func TestInsertSuccess(t *testing.T) {
 		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
 	}
 	defer db.Close()
+	sqlxDb := sqlx.NewDb(db, "sqlmock")
 
 	user := &domain.User{
 		ID:             1,
@@ -26,15 +26,15 @@ func TestInsertSuccess(t *testing.T) {
 		CountFollowing: 0,
 	}
 
-	query := `INSERT INTO users (username, email, avatar, password_hash) VALUES ($1, $2, $3, $4) RETURNING id`
-	//query := `INSERT INTO users \(username, email, avatar, password_hash\) VALUES \(\:username, \:email, \:avatar, \:password_hash\) RETURNING id`
+	//query := `INSERT INTO users \(username, email, avatar, password_hash\) VALUES \(\$1, \$2, \$3, \$4\)`
+	query := `INSERT INTO users \(username, email, avatar, password_hash\) VALUES \(\:username, \:email, \:avatar, \:password_hash\) RETURNING id`
 
-	prep := mock.ExpectPrepare(query)
-	prep.ExpectExec().WithArgs(user.Username, user.Email, user.Avatar, user.Password).WillReturnResult(sqlmock.NewResult(1, 1))
+	//mock.ExpectExec("INSERT INTO users").WillReturnResult(sqlmock.NewResult(1, 1))
+	//prep := mock.ExpectPrepare(query)
+	//prep.ExpectExec().WithArgs(user.Username, user.Email, user.Avatar, user.Password).WillReturnResult(sqlmock.NewResult(1, 1))
+	mock.ExpectExec(query).WithArgs(user.Username, user.Email, user.Avatar, user.Password).WillReturnResult(sqlmock.NewResult(1, 1))
 
-	db_sqlx := sqlx.NewDb(db, "sql")
-	fmt.Println(db_sqlx)
-	a := NewUserPostgresRepo(db_sqlx)
+	a := NewUserPostgresRepo(sqlxDb)
 
 	err = a.Insert(user)
 	assert.NoError(t, err)

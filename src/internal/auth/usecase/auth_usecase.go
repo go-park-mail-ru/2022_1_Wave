@@ -3,6 +3,7 @@ package usecase
 import (
 	"github.com/go-park-mail-ru/2022_1_Wave/config"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/domain"
+	"github.com/go-park-mail-ru/2022_1_Wave/internal/helpers"
 	"time"
 )
 
@@ -21,13 +22,16 @@ func NewAuthUseCase(sessionRepo domain.SessionRepo, userRepo domain.UserRepo) do
 }
 
 func (a *authUseCase) Login(login string, password string, sessionId string) error {
-	if !a.userRepo.CheckEmailAndPassword(login, password) && !a.userRepo.CheckUsernameAndPassword(login, password) {
-		return domain.ErrInvalidLoginOrPassword
-	}
-
+	var user *domain.User
 	user, err := a.userRepo.SelectByUsername(login)
 	if err != nil {
-		user, _ = a.userRepo.SelectByEmail(login)
+		user, err = a.userRepo.SelectByEmail(login)
+		if err != nil {
+			return domain.ErrUserDoesNotExist
+		}
+	}
+	if !helpers.CheckPassword(password, user.Password) {
+		return domain.ErrInvalidLoginOrPassword
 	}
 
 	err = a.sessionRepo.MakeSessionAuthorized(sessionId, user.ID)
@@ -53,6 +57,12 @@ func (a *authUseCase) SignUp(user *domain.User, sessionId string) error {
 	if err != nil {
 		return domain.ErrUserAlreadyExist
 	}
+
+	passwordHash, err := helpers.GetPasswordHash(user.Password)
+	if err != nil {
+		return domain.Err
+	}
+	user.Password = helper.G
 
 	err = a.userRepo.Insert(user)
 	if err != nil {

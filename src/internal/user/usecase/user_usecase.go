@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/domain"
+	"github.com/go-park-mail-ru/2022_1_Wave/internal/helpers"
 )
 
 type userUseCase struct {
@@ -102,11 +103,21 @@ func (a *userUseCase) DeleteBySessionId(sessionId string) error {
 }
 
 func (a *userUseCase) CheckUsernameAndPassword(username string, password string) bool {
-	return a.userRepo.CheckUsernameAndPassword(username, password)
+	user, err := a.userRepo.SelectByUsername(username)
+	if err != nil {
+		return false
+	}
+
+	return helpers.CheckPassword(user.Password, password)
 }
 
 func (a *userUseCase) CheckEmailAndPassword(email string, password string) bool {
-	return a.userRepo.CheckEmailAndPassword(email, password)
+	user, err := a.userRepo.SelectByEmail(email)
+	if err != nil {
+		return false
+	}
+
+	return helpers.CheckPassword(user.Password, password)
 }
 
 func (a *userUseCase) Update(id uint, user *domain.User) error {

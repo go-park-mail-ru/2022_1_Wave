@@ -16,8 +16,6 @@ type UserRepo interface {
 	SelectByID(id uint) (*User, error)
 	SelectByUsername(username string) (*User, error)
 	SelectByEmail(email string) (*User, error)
-	CheckUsernameAndPassword(username string, password string) bool
-	CheckEmailAndPassword(email string, password string) bool
 }
 
 type UserUseCase interface {
