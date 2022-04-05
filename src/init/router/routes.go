@@ -1,59 +1,65 @@
 package router
 
 import (
-	docs "github.com/go-park-mail-ru/2022_1_Wave/docs"
+	_ "github.com/go-park-mail-ru/2022_1_Wave/docs"
 	albumDeliveryHttp "github.com/go-park-mail-ru/2022_1_Wave/internal/app/album/delivery/http"
 	artistDeliveryHttp "github.com/go-park-mail-ru/2022_1_Wave/internal/app/artist/delivery/http"
 	trackDeliveryHttp "github.com/go-park-mail-ru/2022_1_Wave/internal/app/track/delivery/http"
-	"github.com/gorilla/mux"
-	"github.com/swaggo/gin-swagger/swaggerFiles"
-	httpSwagger "github.com/swaggo/http-swagger"
-	"net/http"
+	"github.com/labstack/echo/v4"
+	"github.com/swaggo/echo-swagger"
 )
 
-func Router() (router *mux.Router) {
-	router = mux.NewRouter()
-	SetAlbumsRoutes(router)
-	SetArtistsRoutes(router)
-	SetTracksRoutes(router)
-	SetAuthRoutes(router)
-	SetDocsPath(router)
-	SetStaticHandle(router)
-	return
+func Router(e *echo.Echo) {
+
+	api := e.Group(apiPrefix)
+	v1 := api.Group(v1Prefix)
+
+	SetAlbumsRoutes(v1)
+	SetArtistsRoutes(v1)
+	SetTracksRoutes(v1)
+	SetAuthRoutes(v1)
+	SetDocsPath(v1)
+	SetStaticHandle(v1)
 }
 
 // SetAlbumsRoutes albums
-func SetAlbumsRoutes(router *mux.Router) {
-	router.HandleFunc(GetAllAlbumsUrl, albumDeliveryHttp.GetAll).Methods(http.MethodGet)
-	router.HandleFunc(CreateAlbumUrl, albumDeliveryHttp.Create).Methods(http.MethodPost)
-	router.HandleFunc(UpdateAlbumUrl, albumDeliveryHttp.Update).Methods(http.MethodPut)
-	router.HandleFunc(GetAlbumUrl, albumDeliveryHttp.Get).Methods(http.MethodGet)
-	router.HandleFunc(GetPopularAlbumsUrl, albumDeliveryHttp.GetPopular).Methods(http.MethodGet)
-	router.HandleFunc(DeleteAlbumUrl, albumDeliveryHttp.Delete).Methods(http.MethodDelete)
+func SetAlbumsRoutes(apiVersion *echo.Group) {
+	albumRoutes := apiVersion.Group(albumsPrefix)
+
+	albumRoutes.GET(idEchoPattern, albumDeliveryHttp.Get)
+	albumRoutes.GET(locate, albumDeliveryHttp.GetAll)
+	albumRoutes.POST(locate, albumDeliveryHttp.Create)
+	albumRoutes.PUT(locate, albumDeliveryHttp.Update)
+	albumRoutes.GET(popularPrefix, albumDeliveryHttp.GetPopular)
+	albumRoutes.DELETE(locate, albumDeliveryHttp.Delete)
 }
 
 // SetArtistsRoutes artists
-func SetArtistsRoutes(router *mux.Router) {
-	router.HandleFunc(GetAllArtistsUrl, artistDeliveryHttp.GetAll).Methods(http.MethodGet)
-	router.HandleFunc(CreateArtistUrl, artistDeliveryHttp.Create).Methods(http.MethodPost)
-	router.HandleFunc(UpdateArtistUrl, artistDeliveryHttp.Update).Methods(http.MethodPut)
-	router.HandleFunc(GetArtistUrl, artistDeliveryHttp.Get).Methods(http.MethodGet)
-	router.HandleFunc(GetPopularArtistsUrl, artistDeliveryHttp.GetPopular).Methods(http.MethodGet)
-	router.HandleFunc(DeleteArtistUrl, artistDeliveryHttp.Delete).Methods(http.MethodDelete)
+func SetArtistsRoutes(apiVersion *echo.Group) {
+	artistRoutes := apiVersion.Group(artistsPrefix)
+
+	artistRoutes.GET(idEchoPattern, artistDeliveryHttp.Get)
+	artistRoutes.GET(locate, artistDeliveryHttp.GetAll)
+	artistRoutes.POST(locate, artistDeliveryHttp.Create)
+	artistRoutes.PUT(locate, artistDeliveryHttp.Update)
+	artistRoutes.GET(popularPrefix, artistDeliveryHttp.GetPopular)
+	artistRoutes.DELETE(locate, artistDeliveryHttp.Delete)
 }
 
 // SetTracksRoutes songs
-func SetTracksRoutes(router *mux.Router) {
-	router.HandleFunc(GetAllTracksUrl, trackDeliveryHttp.GetAll).Methods(http.MethodGet)
-	router.HandleFunc(CreateTrackUrl, trackDeliveryHttp.Create).Methods(http.MethodPost)
-	router.HandleFunc(UpdateTrackUrl, trackDeliveryHttp.Update).Methods(http.MethodPut)
-	router.HandleFunc(GetTrackUrl, trackDeliveryHttp.Get).Methods(http.MethodGet)
-	router.HandleFunc(GetPopularTracksUrl, trackDeliveryHttp.GetPopular).Methods(http.MethodGet)
-	router.HandleFunc(DeleteTrackUrl, trackDeliveryHttp.Delete).Methods(http.MethodDelete)
+func SetTracksRoutes(apiVersion *echo.Group) {
+	trackRoutes := apiVersion.Group(tracksPrefix)
+
+	trackRoutes.GET(idEchoPattern, trackDeliveryHttp.Get)
+	trackRoutes.GET(locate, trackDeliveryHttp.GetAll)
+	trackRoutes.POST(locate, trackDeliveryHttp.Create)
+	trackRoutes.PUT(locate, trackDeliveryHttp.Update)
+	trackRoutes.GET(popularPrefix, trackDeliveryHttp.GetPopular)
+	trackRoutes.DELETE(locate, trackDeliveryHttp.Delete)
 }
 
 // SetAuthRoutes auth
-func SetAuthRoutes(router *mux.Router) {
+func SetAuthRoutes(apiVersion *echo.Group) {
 	//router.HandleFunc(LoginUrl, middleware.CSRF(middleware.NotAuth(Login))).Methods(http.MethodPost)
 	//router.HandleFunc(LogoutUrl, middleware.CSRF(middleware.Auth(Logout))).Methods(http.MethodPost)
 	//router.HandleFunc(SignUpUrl, middleware.CSRF(middleware.NotAuth(SignUp))).Methods(http.MethodPost)
@@ -63,51 +69,65 @@ func SetAuthRoutes(router *mux.Router) {
 }
 
 // SetDocsPath docs
-func SetDocsPath(router *mux.Router) {
-	docs.SwaggerInfo.BasePath = "/"
-	router.PathPrefix("/docs").Handler(httpSwagger.WrapHandler)
-	router.PathPrefix("/docs/*any").Handler(swaggerFiles.Handler)
+func SetDocsPath(apiVersion *echo.Group) {
+	docRoutes := apiVersion.Group(docsPrefix)
+	docRoutes.GET(locate+"*", echoSwagger.WrapHandler)
 }
 
 // SetStaticHandle static
-func SetStaticHandle(router *mux.Router) {
+func SetStaticHandle(apiVersion *echo.Group) {
 	// /net/v1/static/img/album/123.jpg -> ./static/img/album/123.jpg
-	staticHandler := http.StripPrefix(
-		GetStaticUrl,
-		http.FileServer(http.Dir("./static")),
-	)
-	router.Handle(GetStaticUrl, staticHandler)
+	//staticHandler := http.StripPrefix(
+	//	GetStaticUrl,
+	//	http.FileServer(http.Dir("./static")),
+	//)
+	//router.Handle(GetStaticUrl, staticHandler)
 }
 
 // config
 const (
 	Proto             = "http://"
 	Host              = "localhost"
-	currentApiVersion = v1Prefix
-	apiPath           = apiPrefix + currentApiVersion
+	currentApiVersion = v1Locate
+	apiPath           = apiLocate + currentApiVersion
 )
 
 // prefixes
 const (
-	apiPrefix     = "api/"
-	v1Prefix      = "v1/"
-	albumsPrefix  = "albums/"
-	artistsPrefix = "artists/"
-	songsPrefix   = "tracks/"
-	usersPrefix   = "users/"
+	apiPrefix     = "/api"
+	v1Prefix      = "/v1"
+	albumsPrefix  = "/albums"
+	artistsPrefix = "/artists"
+	tracksPrefix  = "/tracks"
+	usersPrefix   = "/users"
+	docsPrefix    = "/docs"
+	popularPrefix = "/popular"
+)
+
+const (
+	locate        = "/"
+	apiLocate     = "api/"
+	v1Locate      = "v1/"
+	albumsLocate  = "albums/"
+	artistsLocate = "artists/"
+	tracksLocate  = "tracks/"
+	usersLocate   = "users/"
 	AssetsPrefix  = "assets/"
 )
 
 // destinations
 const (
-	login   = "login"
-	logout  = "logout"
-	signUp  = "signup"
-	getCSRF = "get_csrf"
-	self    = "self"
-	popular = "popular"
-	id      = "{id:[0-9]+}"
+	login         = "login"
+	logout        = "logout"
+	signUp        = "signup"
+	getCSRF       = "get_csrf"
+	self          = "self"
+	popular       = "popular"
+	idMuxPattern  = "{id:[0-9]+}"
+	idEchoPattern = "/:id"
 )
+
+// TODO проблема с джсоном, чекнуть хендлеры
 
 // words
 const (
@@ -119,33 +139,33 @@ const (
 
 // albums urls
 const (
-	CreateAlbumUrl       = "/" + apiPath + albumsPrefix
+	CreateAlbumUrl       = "/" + apiPath + albumsLocate
 	UpdateAlbumUrl       = CreateAlbumUrl
-	GetAllAlbumsUrl      = "/" + apiPath + albumsPrefix
+	GetAllAlbumsUrl      = "/" + apiPath + albumsLocate
 	GetAlbumUrlWithoutId = GetAllAlbumsUrl
-	GetAlbumUrl          = GetAlbumUrlWithoutId + id
+	GetAlbumUrl          = GetAlbumUrlWithoutId + idMuxPattern
 	GetPopularAlbumsUrl  = GetAllAlbumsUrl + popular
 	DeleteAlbumUrl       = GetAlbumUrl
 )
 
 // artists urls
 const (
-	CreateArtistUrl       = "/" + apiPath + artistsPrefix
+	CreateArtistUrl       = "/" + apiPath + artistsLocate
 	UpdateArtistUrl       = CreateArtistUrl
-	GetAllArtistsUrl      = "/" + apiPath + artistsPrefix
+	GetAllArtistsUrl      = "/" + apiPath + artistsLocate
 	GetArtistUrlWithoutId = GetAllAlbumsUrl
-	GetArtistUrl          = GetArtistUrlWithoutId + id
+	GetArtistUrl          = GetArtistUrlWithoutId + idMuxPattern
 	GetPopularArtistsUrl  = GetAllArtistsUrl + popular
 	DeleteArtistUrl       = GetArtistUrl
 )
 
 // tracks urls
 const (
-	CreateTrackUrl       = "/" + apiPath + songsPrefix
+	CreateTrackUrl       = "/" + apiPath + tracksLocate
 	UpdateTrackUrl       = CreateTrackUrl
-	GetAllTracksUrl      = "/" + apiPath + songsPrefix
+	GetAllTracksUrl      = "/" + apiPath + tracksLocate
 	GetTrackUrlWithoutId = GetAllTracksUrl
-	GetTrackUrl          = GetTrackUrlWithoutId + id
+	GetTrackUrl          = GetTrackUrlWithoutId + idMuxPattern
 	GetPopularTracksUrl  = GetAllTracksUrl + popular
 	DeleteTrackUrl       = GetTrackUrl
 )
@@ -155,8 +175,8 @@ const (
 	LoginUrl       = "/" + apiPath + login
 	LogoutUrl      = "/" + apiPath + logout
 	SignUpUrl      = "/" + apiPath + signUp
-	GetUserUrl     = "/" + apiPath + usersPrefix + id
-	GetSelfUserUrl = "/" + apiPath + usersPrefix + self
+	GetUserUrl     = "/" + apiPath + usersLocate + idMuxPattern
+	GetSelfUserUrl = "/" + apiPath + usersLocate + self
 	GetCSRFAuthUrl = "/" + apiPath + getCSRF
 	GetStaticUrl   = "/" + apiPath + "/static/"
 )
