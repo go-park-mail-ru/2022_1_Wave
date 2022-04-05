@@ -91,6 +91,7 @@ const (
 // artists errors
 const (
 	ErrorArtistIdIsNegative             = "artist's id is negative"
+	ErrorArtistPhotoIdIsNegative        = "artist's photo id is negative"
 	ErrorArtistMaxNameLen               = "authors's name length is over than max"
 	ErrorArtistsMaxPhotoLinkLen         = "length of authors's link to photo is over than max"
 	ErrorArtistCountFollowersIsNegative = "number of count followers is negative"
