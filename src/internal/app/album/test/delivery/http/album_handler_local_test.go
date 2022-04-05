@@ -14,12 +14,15 @@ var tester structsTesters.HandlerTester
 
 func init() {
 	const testDataBaseSize = 20
+
 	localStorage := utilsInterfaces.GlobalStorageInterface(structStorageLocal.LocalStorage{})
 	repo := *localStorage.GetAlbumRepo()
-	storage.InitStorage(testDataBaseSize, &localStorage)
+	_ = storage.InitStorage(testDataBaseSize, &localStorage)
+
 	tester = structsTesters.HandlerTester{}
 	tester, _ = tester.SetTestingHandler(albumDeliveryHttp.Handler)
 	testingHandler, _ := tester.GetTestingHandler()
+
 	useCase, _ := testingHandler.GetUseCase()
 	useCase, _ = useCase.SetRepo(repo, domain.AlbumMutex)
 }
@@ -34,7 +37,7 @@ func (creator TestDomainCreator) PrepareOneTestDomain() utilsInterfaces.Domain {
 		CountLikes:     500,
 		CountListening: 10000,
 		Date:           0,
-		CoverId:        5000,
+		CoverId:        5,
 	}
 }
 

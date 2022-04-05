@@ -14,12 +14,15 @@ var tester structsTesters.HandlerTester
 
 func init() {
 	const testDataBaseSize = 20
+
 	localStorage := utilsInterfaces.GlobalStorageInterface(structStorageLocal.LocalStorage{})
 	repo := *localStorage.GetTrackRepo()
-	storage.InitStorage(testDataBaseSize, &localStorage)
+	_ = storage.InitStorage(testDataBaseSize, &localStorage)
+
 	tester = structsTesters.HandlerTester{}
 	tester, _ = tester.SetTestingHandler(trackDeliveryHttp.Handler)
 	testingHandler, _ := tester.GetTestingHandler()
+
 	useCase, _ := testingHandler.GetUseCase()
 	useCase, _ = useCase.SetRepo(repo, domain.TrackMutex)
 }
@@ -34,7 +37,7 @@ func (creator TestDomainCreator) PrepareOneTestDomain() utilsInterfaces.Domain {
 		Title:          "testTrack",
 		Duration:       300,
 		Mp4:            "someMp4 source",
-		CoverId:        5,
+		CoverId:        7,
 		CountLikes:     5050,
 		CountListening: 228,
 	}
