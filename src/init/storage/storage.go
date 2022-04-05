@@ -58,11 +58,11 @@ func initRepo(domainType reflect.Type, concreteUseCase *structsUseCase.UseCase, 
 	*concreteHandler = handler.(structsDeliveryHttp.Handler)
 }
 
-func InitStorage(quantity int, storage *utilsInterfaces.GlobalStorageInterface) {
+func InitStorage(quantity int, storage *utilsInterfaces.GlobalStorageInterface) error {
 	initedStorage, err := (*storage).Init(quantity)
 
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 
 	// albums
@@ -76,4 +76,5 @@ func InitStorage(quantity int, storage *utilsInterfaces.GlobalStorageInterface) 
 
 	*storage = initedStorage
 
+	return nil
 }
