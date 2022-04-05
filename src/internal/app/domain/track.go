@@ -25,6 +25,7 @@ func (track Track) GetId() uint64 {
 
 func (track Track) SetId(id uint64) (utilsInterfaces.Domain, error) {
 	track.Id = id
+	track.CoverId = track.Id
 	return track, nil
 }
 

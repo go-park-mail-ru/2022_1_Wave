@@ -23,6 +23,7 @@ func (album Album) GetId() uint64 {
 
 func (album Album) SetId(id uint64) (utilsInterfaces.Domain, error) {
 	album.Id = id
+	album.CoverId = album.Id
 	return album, nil
 }
 
