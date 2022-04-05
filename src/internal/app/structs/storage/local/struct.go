@@ -91,10 +91,6 @@ func (storage LocalStorage) Init(quantity int) (utilsInterfaces.GlobalStorageInt
 		return storage, errors.New(constants.ErrorLocalDbTracksNotEnought + ": expected " + fmt.Sprint(quantity))
 	}
 
-	log.Println("Artists:", len(*artistsCreated))
-	log.Println("Albums:", len(*albumsCreated))
-	log.Println("Tracks:", len(*tracksCreated))
-
 	return storage, nil
 }
 
