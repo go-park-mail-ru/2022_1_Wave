@@ -127,8 +127,6 @@ const (
 	idEchoPattern = "/:id"
 )
 
-// TODO проблема с джсоном, чекнуть хендлеры
-
 // words
 const (
 	Get    = "Get"
