@@ -1,15 +1,13 @@
 package structsDeliveryHttp
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 	constants "github.com/go-park-mail-ru/2022_1_Wave/internal"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/structs/interfaces"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/tools"
 	"github.com/go-park-mail-ru/2022_1_Wave/pkg/webUtils"
-	"github.com/gorilla/mux"
-	"io/ioutil"
+	"github.com/labstack/echo/v4"
 	"net/http"
 	"reflect"
 	"strconv"
@@ -21,13 +19,12 @@ type Handler struct {
 	model   reflect.Type
 }
 
-func (h Handler) GetAll(w http.ResponseWriter, mutex *sync.RWMutex) {
+func (h Handler) GetAll(ctx echo.Context, mutex *sync.RWMutex) error {
 	domainType := h.model
 
 	domains, err := h.useCase.GetAll(mutex)
 	if err != nil {
-		webUtils.WriteError(w, err, http.StatusBadRequest)
-		return
+		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 	}
 
 	if *domains == nil {
@@ -39,124 +36,112 @@ func (h Handler) GetAll(w http.ResponseWriter, mutex *sync.RWMutex) {
 	for i, dom := range *domains {
 		dataTransfer, err := tools.CreateDataTransfer(domainType, dom, mutex)
 		if err != nil {
-			webUtils.WriteError(w, err, http.StatusBadRequest)
+			return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 		}
 
 		dataTransfers[i] = dataTransfer
 	}
 
-	_ = json.NewEncoder(w).Encode(webUtils.Success{
-		Status: webUtils.OK,
-		Result: dataTransfers})
-
+	return ctx.JSON(http.StatusOK,
+		webUtils.Success{
+			Status: webUtils.OK,
+			Result: dataTransfers})
 }
 
-func (h Handler) Create(w http.ResponseWriter, r *http.Request, mutex *sync.RWMutex) utilsInterfaces.UseCaseInterface {
+func (h Handler) Create(ctx echo.Context, mutex *sync.RWMutex) (utilsInterfaces.HandlerInterface, error) {
 	domainType := h.model
 
-	objectToCreate, err := readPostPutRequest(r, domainType)
-	if err != nil {
-		webUtils.WriteError(w, err, http.StatusBadRequest)
-		return h.useCase
-	}
-
-	h.useCase, err = h.useCase.Create(objectToCreate, mutex)
+	objectToCreate, err := readPostPutRequest(ctx, domainType)
 
 	if err != nil {
-		webUtils.WriteError(w, err, http.StatusBadRequest)
-		return h.useCase
+		return h, webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 	}
 
-	_, err = h.useCase.GetLastId(mutex)
-	_ = json.NewEncoder(w).Encode(webUtils.Success{
-		Status: webUtils.OK,
-		Result: constants.SuccessCreated,
-	})
+	h.useCase, err = h.useCase.Create(&objectToCreate, mutex)
 
-	return h.useCase
+	fmt.Println(objectToCreate)
 
+	if err != nil {
+		return h, webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
+	}
+
+	return h, ctx.JSON(http.StatusOK,
+		webUtils.Success{
+			Status: webUtils.OK,
+			Result: constants.SuccessCreated + "(" + fmt.Sprint(objectToCreate.GetId()) + ")"})
 }
 
-func (h Handler) Update(w http.ResponseWriter, r *http.Request, mutex *sync.RWMutex) utilsInterfaces.UseCaseInterface {
+func (h Handler) Update(ctx echo.Context, mutex *sync.RWMutex) (utilsInterfaces.HandlerInterface, error) {
 	domainType := h.model
 
-	objectToUpdate, err := readPostPutRequest(r, domainType)
+	objectToUpdate, err := readPostPutRequest(ctx, domainType)
 
 	if err != nil {
-		webUtils.WriteError(w, err, http.StatusBadRequest)
-		return h.useCase
+		return h, webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 	}
 
 	h.useCase, err = h.useCase.Update(objectToUpdate, mutex)
 
 	if err != nil {
-		webUtils.WriteError(w, err, http.StatusBadRequest)
-		return h.useCase
+		return h, webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 	}
 
 	id := objectToUpdate.GetId()
-	_ = json.NewEncoder(w).Encode(webUtils.Success{
-		Status: webUtils.OK,
-		Result: constants.SuccessUpdated + "(" + fmt.Sprint(id) + ")",
-	})
-
-	return h.useCase
+	return h, ctx.JSON(http.StatusOK,
+		webUtils.Success{
+			Status: webUtils.OK,
+			Result: constants.SuccessUpdated + "(" + fmt.Sprint(id) + ")"})
 }
 
-func (h Handler) Get(w http.ResponseWriter, r *http.Request, mutex *sync.RWMutex) {
+func (h Handler) Get(ctx echo.Context, mutex *sync.RWMutex) error {
 	domainType := h.model
 
-	id, err := readGetDeleteRequest(r)
+	id, err := readGetDeleteRequest(ctx)
 
 	if err != nil {
-		webUtils.WriteError(w, err, http.StatusBadRequest)
-		return
+		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 	}
 
 	dom, err := h.useCase.GetById(uint64(id), mutex)
 	if err != nil {
-		webUtils.WriteError(w, err, http.StatusBadRequest)
-		return
+		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 	}
 
 	dataTransfer, err := tools.CreateDataTransfer(domainType, *dom, mutex)
 
 	if err != nil {
-		webUtils.WriteError(w, err, http.StatusBadRequest)
+		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 	}
 
-	_ = json.NewEncoder(w).Encode(webUtils.Success{
-		Status: webUtils.OK,
-		Result: dataTransfer})
+	return ctx.JSON(http.StatusOK,
+		webUtils.Success{
+			Status: webUtils.OK,
+			Result: dataTransfer})
 }
 
-func (h Handler) Delete(w http.ResponseWriter, r *http.Request, mutex *sync.RWMutex) utilsInterfaces.UseCaseInterface {
-	id, err := readGetDeleteRequest(r)
+func (h Handler) Delete(ctx echo.Context, mutex *sync.RWMutex) (utilsInterfaces.HandlerInterface, error) {
+	id, err := readGetDeleteRequest(ctx)
 
 	if err != nil {
-		webUtils.WriteError(w, err, http.StatusBadRequest)
-		return h.useCase
+		return h, webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 	}
 
 	h.useCase, err = h.useCase.Delete(uint64(id), mutex)
 
 	if err != nil {
-		webUtils.WriteError(w, err, http.StatusBadRequest)
-		return h.useCase
+		return h, webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 	}
 
-	_ = json.NewEncoder(w).Encode(webUtils.Success{
-		Status: webUtils.OK,
-		Result: constants.SuccessDeleted + "(" + fmt.Sprint(id) + ")",
-	})
-	return h.useCase
+	return h, ctx.JSON(http.StatusOK,
+		webUtils.Success{
+			Status: webUtils.OK,
+			Result: constants.SuccessDeleted + "(" + fmt.Sprint(id) + ")"})
 }
 
-func (h Handler) GetPopular(w http.ResponseWriter, mutex *sync.RWMutex) {
+func (h Handler) GetPopular(ctx echo.Context, mutex *sync.RWMutex) error {
 	popular, err := h.useCase.GetPopular(mutex)
 	if err != nil {
-		webUtils.WriteError(w, err, http.StatusBadRequest)
-		return
+		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 	}
 
 	dataTransfers := make([]utilsInterfaces.DataTransfer, len(*popular))
@@ -166,16 +151,17 @@ func (h Handler) GetPopular(w http.ResponseWriter, mutex *sync.RWMutex) {
 	for i, pop := range *popular {
 		dataTransfer, err := tools.CreateDataTransfer(domainType, pop, mutex)
 		if err != nil {
-			webUtils.WriteError(w, err, http.StatusBadRequest)
+			return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 		}
 
 		dataTransfers[i] = dataTransfer
 
 	}
 
-	_ = json.NewEncoder(w).Encode(webUtils.Success{
-		Status: webUtils.OK,
-		Result: dataTransfers})
+	return ctx.JSON(http.StatusOK,
+		webUtils.Success{
+			Status: webUtils.OK,
+			Result: dataTransfers})
 }
 
 func (h Handler) GetModel() (reflect.Type, error) {
@@ -196,26 +182,20 @@ func (h Handler) SetUseCase(useCase utilsInterfaces.UseCaseInterface, mutex *syn
 	return h, nil
 }
 
-func readPostPutRequest(r *http.Request, domainType reflect.Type) (utilsInterfaces.Domain, error) {
-	body, err := ioutil.ReadAll(r.Body)
-	defer r.Body.Close()
-	if err != nil {
-		return nil, err
-	}
-
+func readPostPutRequest(ctx echo.Context, domainType reflect.Type) (utilsInterfaces.Domain, error) {
 	var result interface{}
 
-	if err = json.Unmarshal(body, &result); err != nil {
+	if err := ctx.Bind(&result); err != nil {
 		return nil, err
 	}
 
 	concreteDomain, errDueCast := tools.Creator.CreateDomainFromInterface(domainType, result)
 
 	if errDueCast != nil {
-		return nil, err
+		return nil, errDueCast
 	}
 
-	if err = concreteDomain.Check(); err != nil {
+	if err := concreteDomain.Check(); err != nil {
 		return nil, err
 	}
 
@@ -224,9 +204,8 @@ func readPostPutRequest(r *http.Request, domainType reflect.Type) (utilsInterfac
 	return object, nil
 }
 
-func readGetDeleteRequest(r *http.Request) (int, error) {
-	vars := mux.Vars(r)
-	id, err := strconv.Atoi(vars[constants.FieldId])
+func readGetDeleteRequest(ctx echo.Context) (int, error) {
+	id, err := strconv.Atoi(ctx.Param(constants.FieldId))
 	if err != nil {
 		return constants.BadId, err
 	}
