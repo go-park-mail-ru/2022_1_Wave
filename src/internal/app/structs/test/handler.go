@@ -9,7 +9,7 @@ import (
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/structs/interfaces"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/tools"
 	"github.com/go-park-mail-ru/2022_1_Wave/pkg/webUtils"
-	"github.com/gorilla/mux"
+	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/require"
 	"io/ioutil"
 	"net/http"
@@ -24,91 +24,110 @@ type HandlerTester struct {
 }
 
 func (tester HandlerTester) Get(t *testing.T, mutex *sync.RWMutex) {
-	useCase, _ := tester.handler.GetUseCase()
-	repo, _ := useCase.GetRepo()
+	e := echo.New()
+
+	useCase, err := tester.handler.GetUseCase()
+	require.NoError(t, err)
+
+	repo, err := useCase.GetRepo()
+	require.NoError(t, err)
+
 	var dataTransferType reflect.Type
-	model, _ := tester.handler.GetModel()
-	dataTransferType, _ = tools.Converter.GetDataTransferTypeByDomainType(model)
+	model, err := tester.handler.GetModel()
+	require.NoError(t, err)
+
+	dataTransferType, err = tools.Converter.GetDataTransferTypeByDomainType(model)
+	require.NoError(t, err)
 
 	cases := PrepareArrayCases(repo, mutex)
 
-	for caseNum, item := range cases {
-		url := router.Proto + router.Host + "/" + router.Get + fmt.Sprint(item.Id)
-		req := httptest.NewRequest("GET", url, nil)
+	for _, testCase := range cases {
+		url := router.Proto + router.Host + "/" + router.Get + fmt.Sprint(testCase.Id)
+		req := httptest.NewRequest(http.MethodGet, url, nil)
+		rec := httptest.NewRecorder()
 
-		w := httptest.NewRecorder()
+		ctx := e.NewContext(req, rec)
+		ctx.SetPath(url)
+		ctx.SetParamNames("id")
+		ctx.SetParamValues(fmt.Sprint(testCase.Id))
 
-		vars := map[string]string{
-			"id": fmt.Sprint(item.Id),
-		}
+		require.NoError(t, tester.handler.Get(ctx, mutex))
 
-		req = mux.SetURLVars(req, vars)
-		tester.handler.Get(w, req, mutex)
-
-		if w.Code != item.Status {
-			t.Fatalf("[%d] wrong StatusCode: got %d, expected %d",
-				caseNum, w.Code, item.Status)
-		}
-
-		resp := w.Result()
-		body, _ := ioutil.ReadAll(resp.Body)
+		resp := rec.Result()
+		body, err := ioutil.ReadAll(resp.Body)
+		require.NoError(t, err)
 
 		var result webUtils.Success
-		_ = json.Unmarshal(body, &result)
+		err = json.Unmarshal(body, &result)
+		require.NoError(t, err)
+
 		data := result.Result.(interface{})
+		dataTransfer, err := tools.Creator.CreateDataTransferFromInterface(dataTransferType, data)
+		require.NoError(t, err)
 
-		dataTransfer, _ := tools.Creator.CreateDataTransferFromInterface(dataTransferType, data)
-
-		if dataTransfer != item.Data.(utilsInterfaces.DataTransfer) {
-			t.Fatalf("[%d] wrong Response: got %+v, expected %+v",
-				caseNum, resp, item.Data)
-		}
+		require.Equal(t, testCase.Status, rec.Code)
+		require.Equal(t, testCase.Data, dataTransfer)
 	}
 
 }
 
 func (tester HandlerTester) GetAll(t *testing.T, mutex *sync.RWMutex) {
-	useCase, _ := tester.handler.GetUseCase()
-	repo, _ := useCase.GetRepo()
+	e := echo.New()
+
+	useCase, err := tester.handler.GetUseCase()
+	require.NoError(t, err)
+
+	repo, err := useCase.GetRepo()
+	require.NoError(t, err)
+
 	var dataTransferType reflect.Type
-	model, _ := tester.handler.GetModel()
-	dataTransferType, _ = tools.Converter.GetDataTransferTypeByDomainType(model)
+	model, err := tester.handler.GetModel()
+	require.NoError(t, err)
 
-	w := httptest.NewRecorder()
+	dataTransferType, err = tools.Converter.GetDataTransferTypeByDomainType(model)
+	require.NoError(t, err)
 
-	tester.handler.GetAll(w, mutex)
+	url := router.Proto + router.Host + "/" + router.Get
+	req := httptest.NewRequest(http.MethodGet, url, nil)
+	rec := httptest.NewRecorder()
+
+	ctx := e.NewContext(req, rec)
+	ctx.SetPath(url)
+
+	require.NoError(t, tester.handler.GetAll(ctx, mutex))
 
 	testCases := PrepareManyCases(repo, mutex)
 
-	if w.Code != testCases.Status {
-		t.Fatalf("wrong StatusCode: got %d, expected %d", w.Code, testCases.Status)
-	}
+	require.Equal(t, testCases.Status, rec.Code)
 
-	resp := w.Result()
-	body, _ := ioutil.ReadAll(resp.Body)
+	resp := rec.Result()
+	body, err := ioutil.ReadAll(resp.Body)
+	require.NoError(t, err)
 
 	var result webUtils.Success
-	_ = json.Unmarshal(body, &result)
+	err = json.Unmarshal(body, &result)
+	require.NoError(t, err)
+
 	data := result.Result.([]interface{})
 	ptr, err := tools.Converter.ToDataTransfers(dataTransferType, data)
+	require.NoError(t, err)
 
 	objects := *ptr
 
-	if err != nil {
-		t.Fatalf("error to casting: %v", err)
-	}
-
 	for idx, testCase := range testCases.Data {
-		if objects[idx] != testCase {
-			t.Fatalf("wrong Response: got %+v, expected %+v", objects[idx], testCase)
-		}
+		require.Equal(t, objects[idx], testCase)
 	}
 }
 
 func (tester HandlerTester) Create(t *testing.T, creator utilsInterfaces.TestDomainsCreator, mutex *sync.RWMutex) {
-	useCase, _ := tester.handler.GetUseCase()
+	e := echo.New()
 
-	sizeBefore, _ := useCase.GetLastId(mutex)
+	useCase, err := tester.handler.GetUseCase()
+	require.NoError(t, err)
+
+	sizeBefore, err := useCase.GetLastId(mutex)
+	require.NoError(t, err)
+
 	sizeBefore++
 	sizeAfter := sizeBefore + 1
 
@@ -116,174 +135,211 @@ func (tester HandlerTester) Create(t *testing.T, creator utilsInterfaces.TestDom
 
 	url := router.Proto + router.Host + "/" + router.Create
 
-	dataToSend, _ := json.Marshal(testDomain)
-	req := httptest.NewRequest("POST", url, bytes.NewBuffer(dataToSend))
+	dataToSend, err := json.Marshal(testDomain)
+	require.NoError(t, err)
 
-	w := httptest.NewRecorder()
-	useCase = tester.handler.Create(w, req, mutex)
+	req := httptest.NewRequest(http.MethodPost, url, bytes.NewBuffer(dataToSend))
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	rec := httptest.NewRecorder()
+
+	ctx := e.NewContext(req, rec)
+	ctx.SetPath(url)
+
+	changedHandler, err := tester.handler.Create(ctx, mutex)
+	tester.handler = changedHandler
+
+	require.NoError(t, err)
 
 	testCase := OperationTestCase{
 		Status: http.StatusOK,
 	}
 
-	if w.Code != testCase.Status {
-		t.Fatalf("wrong StatusCode: got %d, expected %d", w.Code, testCase.Status)
-	}
+	require.Equal(t, testCase.Status, rec.Code)
 
 	expected := webUtils.Success{
 		Status: webUtils.OK,
-		Result: constants.SuccessCreated,
+		Result: constants.SuccessCreated + "(" + fmt.Sprint(sizeBefore) + ")",
 	}
 
-	resp := w.Result()
-	body, _ := ioutil.ReadAll(resp.Body)
+	resp := rec.Result()
+	body, err := ioutil.ReadAll(resp.Body)
+	require.NoError(t, err)
 
 	var result webUtils.Success
-	_ = json.Unmarshal(body, &result)
-	if result != expected {
-		t.Fatalf("wrong Response: got %+v, expected %+v",
-			result, expected)
-	}
+	err = json.Unmarshal(body, &result)
+	require.NoError(t, err)
+	require.Equal(t, expected, result)
 
-	resultSize, _ := useCase.GetLastId(mutex)
+	useCase, err = tester.handler.GetUseCase()
+	require.NoError(t, err)
+	resultSize, err := useCase.GetLastId(mutex)
+	require.NoError(t, err)
 	resultSize++
-
 	require.Equal(t, sizeAfter, resultSize)
 
 }
 
 func (tester HandlerTester) Delete(t *testing.T, mutex *sync.RWMutex) {
-	useCase, _ := tester.handler.GetUseCase()
+	e := echo.New()
+
+	useCase, err := tester.handler.GetUseCase()
+	require.NoError(t, err)
 
 	const idToDelete = uint64(0)
 
-	sizeBefore, _ := useCase.GetLastId(mutex)
+	sizeBefore, err := useCase.GetLastId(mutex)
+	require.NoError(t, err)
 	sizeBefore++
 	sizeAfter := sizeBefore - 1
 
-	domainToDelete, _ := useCase.GetById(idToDelete, mutex)
+	domainToDelete, err := useCase.GetById(idToDelete, mutex)
+	require.NoError(t, err)
+
 	id := (*domainToDelete).GetId()
 
 	require.Equal(t, id, idToDelete)
 
 	url := router.Proto + router.Host + "/" + router.Delete + fmt.Sprint(id)
-	req := httptest.NewRequest("DELETE", url, nil)
+	req := httptest.NewRequest(http.MethodDelete, url, nil)
+	rec := httptest.NewRecorder()
 
-	w := httptest.NewRecorder()
+	ctx := e.NewContext(req, rec)
+	ctx.SetPath(url)
+	ctx.SetParamNames(constants.FieldId)
+	ctx.SetParamValues(fmt.Sprint(id))
 
-	vars := map[string]string{
-		"id": fmt.Sprint(id),
-	}
+	changedHandler, err := tester.handler.Delete(ctx, mutex)
+	tester.handler = changedHandler
 
-	req = mux.SetURLVars(req, vars)
-	useCase = tester.handler.Delete(w, req, mutex)
+	require.NoError(t, err)
 
 	testCase := OperationTestCase{
 		Status: http.StatusOK,
 	}
 
-	if w.Code != testCase.Status {
-		t.Fatalf("wrong StatusCode: got %d, expected %d", w.Code, testCase.Status)
-	}
+	require.Equal(t, testCase.Status, rec.Code)
 
 	expected := webUtils.Success{
 		Status: webUtils.OK,
 		Result: constants.SuccessDeleted + "(" + fmt.Sprint(id) + ")",
 	}
 
-	resp := w.Result()
-	body, _ := ioutil.ReadAll(resp.Body)
+	resp := rec.Result()
+	body, err := ioutil.ReadAll(resp.Body)
+	require.NoError(t, err)
 
 	var result webUtils.Success
-	_ = json.Unmarshal(body, &result)
-	if result != expected {
-		t.Fatalf("wrong Response: got %+v, expected %+v", result, expected)
-	}
-	resultSize, _ := useCase.GetLastId(mutex)
+	err = json.Unmarshal(body, &result)
+	require.NoError(t, err)
+
+	require.Equal(t, expected, result)
+
+	useCase, err = tester.handler.GetUseCase()
+	require.NoError(t, err)
+	resultSize, err := useCase.GetLastId(mutex)
+	require.NoError(t, err)
 	resultSize++
 
 	require.Equal(t, sizeAfter, resultSize)
 }
 
 func (tester HandlerTester) Update(t *testing.T, creator utilsInterfaces.TestDomainsCreator, mutex *sync.RWMutex) {
-	useCase, _ := tester.handler.GetUseCase()
+	e := echo.New()
+
+	useCase, err := tester.handler.GetUseCase()
+	require.NoError(t, err)
 
 	testDomain := creator.PrepareOneTestDomain()
 
 	id := testDomain.GetId()
 
 	url := router.Proto + router.Host + "/" + router.Update + fmt.Sprint(id)
-	dataToSend, _ := json.Marshal(testDomain)
-	req := httptest.NewRequest("PUT", url, bytes.NewBuffer(dataToSend))
+	dataToSend, err := json.Marshal(testDomain)
+	require.NoError(t, err)
 
-	w := httptest.NewRecorder()
+	req := httptest.NewRequest(http.MethodPut, url, bytes.NewBuffer(dataToSend))
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	rec := httptest.NewRecorder()
 
-	useCase = tester.handler.Update(w, req, mutex)
+	ctx := e.NewContext(req, rec)
+	ctx.SetPath(url)
+
+	changedHandler, err := tester.handler.Update(ctx, mutex)
+	tester.handler = changedHandler
+
+	require.NoError(t, err)
 
 	testCase := OperationTestCase{
 		Status: http.StatusOK,
 	}
 
-	if w.Code != testCase.Status {
-		t.Fatalf("wrong StatusCode: got %d, expected %d", w.Code, testCase.Status)
-	}
+	require.Equal(t, testCase.Status, rec.Code)
 
 	expected := webUtils.Success{
 		Status: webUtils.OK,
 		Result: constants.SuccessUpdated + "(" + fmt.Sprint(id) + ")",
 	}
 
-	resp := w.Result()
-	body, _ := ioutil.ReadAll(resp.Body)
+	resp := rec.Result()
+	body, err := ioutil.ReadAll(resp.Body)
+	require.NoError(t, err)
 
 	var result webUtils.Success
-	_ = json.Unmarshal(body, &result)
-	if result != expected {
-		t.Fatalf("wrong Response: got %+v, expected %+v",
-			result, expected)
-	}
+	err = json.Unmarshal(body, &result)
+	require.NoError(t, err)
+	require.Equal(t, expected, result)
 
-	dom, _ := useCase.GetById(id, mutex)
+	useCase, err = tester.handler.GetUseCase()
+	require.NoError(t, err)
+	dom, err := useCase.GetById(id, mutex)
 	require.Equal(t, testDomain, *dom)
 }
 
 func (tester HandlerTester) GetPopular(t *testing.T, mutex *sync.RWMutex) {
-	useCase, _ := tester.handler.GetUseCase()
-	repo, _ := useCase.GetRepo()
+	e := echo.New()
+
+	useCase, err := tester.handler.GetUseCase()
+	require.NoError(t, err)
+
+	repo, err := useCase.GetRepo()
+	require.NoError(t, err)
+
 	var dataTransferType reflect.Type
-	model, _ := tester.handler.GetModel()
-	dataTransferType, _ = tools.Converter.GetDataTransferTypeByDomainType(model)
+	model, err := tester.handler.GetModel()
+	require.NoError(t, err)
 
-	w := httptest.NewRecorder()
+	dataTransferType, err = tools.Converter.GetDataTransferTypeByDomainType(model)
+	require.NoError(t, err)
 
-	tester.handler.GetPopular(w, mutex)
+	url := router.Proto + router.Host + "/" + router.Get
+	req := httptest.NewRequest(http.MethodGet, url, nil)
+	rec := httptest.NewRecorder()
+
+	ctx := e.NewContext(req, rec)
+	ctx.SetPath(url)
+
+	require.NoError(t, tester.handler.GetPopular(ctx, mutex))
 
 	testCase := PreparePopularCases(repo, mutex)
 
-	if w.Code != testCase.Status {
-		t.Fatalf("wrong StatusCode: got %d, expected %d", w.Code, testCase.Status)
-	}
+	require.Equal(t, testCase.Status, rec.Code)
 
-	resp := w.Result()
-	body, _ := ioutil.ReadAll(resp.Body)
+	resp := rec.Result()
+	body, err := ioutil.ReadAll(resp.Body)
+	require.NoError(t, err)
 
 	var result webUtils.Success
-
-	_ = json.Unmarshal(body, &result)
+	err = json.Unmarshal(body, &result)
+	require.NoError(t, err)
 
 	data := result.Result.([]interface{})
 	ptr, err := tools.Converter.ToDataTransfers(dataTransferType, data)
-
-	if err != nil {
-		t.Fatalf("error to casting: %v", err)
-	}
+	require.NoError(t, err)
 
 	objects := *ptr
 
 	for idx, testCase := range testCase.Data {
-		if objects[idx] != testCase {
-			t.Fatalf("wrong Response: got %+v, expected %+v", objects[idx], testCase)
-		}
+		require.Equal(t, objects[idx], testCase)
 	}
 }
 
