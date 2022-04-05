@@ -1,6 +1,8 @@
 package tools
 
 import (
+	"errors"
+	"fmt"
 	constants "github.com/go-park-mail-ru/2022_1_Wave/internal"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/domain"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/structs/interfaces"
@@ -10,6 +12,19 @@ import (
 type domainCreator struct{}
 
 var Creator = domainCreator{}
+
+func (creator domainCreator) DomainConstructor(domainType reflect.Type) (utilsInterfaces.Domain, error) {
+	switch domainType {
+	case domain.AlbumDomainType:
+		return domain.Album{}, nil
+	case domain.ArtistDomainType:
+		return domain.Artist{}, nil
+	case domain.TrackDomainType:
+		return domain.Track{}, nil
+	default:
+		return nil, errors.New(constants.BadType)
+	}
+}
 
 // ---------------------------------------------------------
 func (creator domainCreator) InitDomainAlbum(id uint64) (domain.Album, error) {
@@ -38,21 +53,20 @@ func (creator domainCreator) InitDomain(id uint64, domainType reflect.Type) (uti
 	var initDomain utilsInterfaces.Domain
 	var err error
 
-	if domainType == reflect.TypeOf(domain.Album{}) {
+	switch domainType {
+	case domain.AlbumDomainType:
 		initDomain, err = creator.InitDomainAlbum(id)
 		if err == nil {
 			return initDomain, nil
 		}
-	}
 
-	if domainType == reflect.TypeOf(domain.Artist{}) {
+	case domain.ArtistDomainType:
 		initDomain, err = creator.InitDomainArtist(id)
 		if err == nil {
 			return initDomain, nil
 		}
-	}
 
-	if domainType == reflect.TypeOf(domain.Track{}) {
+	case domain.TrackDomainType:
 		initDomain, err = creator.InitDomainTrack(id)
 		if err == nil {
 			return initDomain, nil
@@ -96,10 +110,12 @@ func (creator domainCreator) CreateDomainAlbumFromInterface(data interface{}) (u
 		return nil, err
 	}
 
-	coverId, err := Converter.ToUint64(temp[constants.FieldCoverId])
-	if err != nil {
-		return nil, err
-	}
+	//coverId, err := Converter.ToUint64(temp[constants.FieldCoverId])
+	//if err != nil {
+	//	return nil, err
+	//}
+
+	fmt.Println("coverId = ", id)
 
 	return domain.Album{
 		Id:             id,
@@ -108,7 +124,7 @@ func (creator domainCreator) CreateDomainAlbumFromInterface(data interface{}) (u
 		CountLikes:     countLikes,
 		CountListening: countListening,
 		Date:           date,
-		CoverId:        coverId,
+		CoverId:        id,
 	}, nil
 }
 
@@ -126,10 +142,10 @@ func (creator domainCreator) CreateDomainArtistFromInterface(data interface{}) (
 		return nil, err
 	}
 
-	photo, err := Converter.ToString(temp[constants.FieldPhoto])
-	if err != nil {
-		return nil, err
-	}
+	//photo, err := Converter.ToString(temp[constants.FieldPhoto])
+	//if err != nil {
+	//	return nil, err
+	//}
 
 	countListening, err := Converter.ToUint64(temp[constants.FieldCountListening])
 	if err != nil {
@@ -144,7 +160,7 @@ func (creator domainCreator) CreateDomainArtistFromInterface(data interface{}) (
 	return domain.Artist{
 		Id:             id,
 		Name:           name,
-		Photo:          photo,
+		PhotoId:        id,
 		CountFollowers: countFollowers,
 		CountListening: countListening,
 	}, nil
@@ -194,10 +210,10 @@ func (creator domainCreator) CreateDomainTrackFromInterface(data interface{}) (u
 		return nil, err
 	}
 
-	coverId, err := Converter.ToUint64(temp[constants.FieldCoverId])
-	if err != nil {
-		return nil, err
-	}
+	//coverId, err := Converter.ToUint64(temp[constants.FieldCoverId])
+	//if err != nil {
+	//	return nil, err
+	//}
 
 	return domain.Track{
 		Id:             id,
@@ -206,7 +222,7 @@ func (creator domainCreator) CreateDomainTrackFromInterface(data interface{}) (u
 		Title:          title,
 		Duration:       duration,
 		Mp4:            mp4,
-		CoverId:        coverId,
+		CoverId:        id,
 		CountLikes:     countLikes,
 		CountListening: countListening,
 	}, nil
