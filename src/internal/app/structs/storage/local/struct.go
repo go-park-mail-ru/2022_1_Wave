@@ -8,7 +8,6 @@ import (
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/structs/interfaces"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/structs/repository/local"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/tools"
-	"log"
 	"math/rand"
 )
 
@@ -72,8 +71,6 @@ func (storage LocalStorage) Init(quantity int) (utilsInterfaces.GlobalStorageInt
 		storage.TrackRepo, _ = storage.TrackRepo.Insert(&tracks[i], domain.TrackMutex)
 	}
 
-	log.Println("Success init local storage.")
-
 	artistsCreated, _ := storage.ArtistRepo.GetAll(domain.ArtistMutex)
 	albumsCreated, _ := storage.AlbumRepo.GetAll(domain.AlbumMutex)
 	tracksCreated, _ := storage.TrackRepo.GetAll(domain.TrackMutex)
@@ -115,12 +112,28 @@ func (storage LocalStorage) GetTrackRepo() *utilsInterfaces.RepoInterface {
 	return &storage.TrackRepo
 }
 
+func (storage LocalStorage) GetAlbumRepoLen() int {
+	all, _ := storage.AlbumRepo.GetAll(domain.AlbumMutex)
+	return len(*all)
+}
+
+func (storage LocalStorage) GetArtistRepoLen() int {
+	all, _ := storage.ArtistRepo.GetAll(domain.ArtistMutex)
+	return len(*all)
+}
+
+func (storage LocalStorage) GetTrackRepoLen() int {
+	all, _ := storage.TrackRepo.GetAll(domain.TrackMutex)
+	return len(*all)
+}
+
 // -------------------------------------------------
 func artistConstructorRandom(id uint64, maxNameLen int, maxFollowers int64, maxListening int64) domain.Artist {
 	return domain.Artist{
-		Id:             id,
-		Name:           tools.RandomWord(maxNameLen),
-		Photo:          "assets/artist_" + fmt.Sprint(id) + ".png",
+		Id:      id,
+		Name:    tools.RandomWord(maxNameLen),
+		PhotoId: id,
+		//PhotoId:        "assets/artist_" + fmt.Sprint(id) + ".png",
 		CountFollowers: uint64(rand.Int63n(maxFollowers + 1)),
 		CountListening: uint64(rand.Int63n(maxListening + 1)),
 	}
