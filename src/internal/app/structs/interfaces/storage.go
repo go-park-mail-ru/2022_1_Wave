@@ -7,4 +7,7 @@ type GlobalStorageInterface interface {
 	GetAlbumRepo() *RepoInterface
 	GetArtistRepo() *RepoInterface
 	GetTrackRepo() *RepoInterface
+	GetAlbumRepoLen() int
+	GetArtistRepoLen() int
+	GetTrackRepoLen() int
 }
