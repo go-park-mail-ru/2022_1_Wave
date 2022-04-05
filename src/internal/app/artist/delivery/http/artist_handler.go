@@ -3,7 +3,7 @@ package artistDeliveryHttp
 import (
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/domain"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/structs/delivery/http"
-	"net/http"
+	"github.com/labstack/echo/v4"
 )
 
 var Handler structsDeliveryHttp.Handler
@@ -18,8 +18,8 @@ var Handler structsDeliveryHttp.Handler
 // @Failure      400  {object}  webUtils.Error  "Data is invalid"
 // @Failure      405  {object}  webUtils.Error  "Method is not allowed"
 // @Router       /api/v1/artists/ [get]
-func GetAll(w http.ResponseWriter, _ *http.Request) {
-	Handler.GetAll(w, domain.ArtistMutex)
+func GetAll(ctx echo.Context) error {
+	return Handler.GetAll(ctx, domain.ArtistMutex)
 }
 
 // Create godoc
@@ -33,8 +33,10 @@ func GetAll(w http.ResponseWriter, _ *http.Request) {
 // @Failure      400     {object}  webUtils.Error  "Data is invalid"
 // @Failure      405     {object}  webUtils.Error  "Method is not allowed"
 // @Router       /api/v1/artists/ [post]
-func Create(w http.ResponseWriter, r *http.Request) {
-	Handler.Create(w, r, domain.ArtistMutex)
+func Create(ctx echo.Context) error {
+	proxy, err := Handler.Create(ctx, domain.ArtistMutex)
+	Handler = proxy.(structsDeliveryHttp.Handler)
+	return err
 }
 
 // Update godoc
@@ -48,8 +50,10 @@ func Create(w http.ResponseWriter, r *http.Request) {
 // @Failure      400     {object}  webUtils.Error  "Data is invalid"
 // @Failure      405     {object}  webUtils.Error  "Method is not allowed"
 // @Router       /api/v1/artists/ [put]
-func Update(w http.ResponseWriter, r *http.Request) {
-	Handler.Update(w, r, domain.ArtistMutex)
+func Update(ctx echo.Context) error {
+	proxy, err := Handler.Update(ctx, domain.ArtistMutex)
+	Handler = proxy.(structsDeliveryHttp.Handler)
+	return err
 }
 
 // Get godoc
@@ -63,23 +67,25 @@ func Update(w http.ResponseWriter, r *http.Request) {
 // @Failure      400  {object}  webUtils.Error  "Data is invalid"
 // @Failure      405  {object}  webUtils.Error  "Method is not allowed"
 // @Router       /api/v1/artists/{id} [get]
-func Get(w http.ResponseWriter, r *http.Request) {
-	Handler.Get(w, r, domain.ArtistMutex)
+func Get(ctx echo.Context) error {
+	return Handler.Get(ctx, domain.ArtistMutex)
 }
 
 // Delete godoc
 // @Summary      Delete
 // @Description  deleting artist by id
 // @Tags         artist
-// @Accept          application/json
+// @Accept       application/json
 // @Produce      application/json
 // @Param        id   path      integer  true  "id of artist which need to be deleted"
 // @Success      200  {object}  webUtils.Success
 // @Failure      400  {object}  webUtils.Error  "Data is invalid"
 // @Failure      405  {object}  webUtils.Error  "Method is not allowed"
 // @Router       /api/v1/artists/{id} [delete]
-func Delete(w http.ResponseWriter, r *http.Request) {
-	Handler.Delete(w, r, domain.ArtistMutex)
+func Delete(ctx echo.Context) error {
+	proxy, err := Handler.Delete(ctx, domain.ArtistMutex)
+	Handler = proxy.(structsDeliveryHttp.Handler)
+	return err
 }
 
 // GetPopular godoc
@@ -92,6 +98,6 @@ func Delete(w http.ResponseWriter, r *http.Request) {
 // @Failure      400  {object}  webUtils.Error  "Data is invalid"
 // @Failure      405  {object}  webUtils.Error  "Method is not allowed"
 // @Router       /api/v1/artists/popular [get]
-func GetPopular(w http.ResponseWriter, _ *http.Request) {
-	Handler.GetPopular(w, domain.ArtistMutex)
+func GetPopular(ctx echo.Context) error {
+	return Handler.GetPopular(ctx, domain.ArtistMutex)
 }
