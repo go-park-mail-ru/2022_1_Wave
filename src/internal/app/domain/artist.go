@@ -8,9 +8,9 @@ import (
 )
 
 type Artist struct {
-	Id             uint64 `json:"id" example:"43"`
+	Id             uint64 `json:"id" example:"6"`
 	Name           string `json:"name" example:"Imagine Dragons"`
-	Photo          string `json:"photo" example:"assets/artist_1.png"`
+	PhotoId        uint64 `json:"photoId" example:"6"`
 	CountFollowers uint64 `json:"countFollowers" example:"1001"`
 	CountListening uint64 `json:"countListening" example:"7654"`
 }
@@ -25,20 +25,21 @@ func (artist Artist) GetIdRef() *uint64 {
 
 func (artist Artist) SetId(id uint64) (utilsInterfaces.Domain, error) {
 	artist.Id = id
+	artist.PhotoId = artist.Id
 	return artist, nil
 }
 
 func (artist Artist) Check() error {
 	if artist.Id < 0 {
-		return errors.New(constants.ErrorArtistIdIsNegative)
+		return errors.New(constants.ErrorArtistPhotoIdIsNegative)
+	}
+
+	if artist.PhotoId < 0 {
+		return errors.New(constants.ErrorArtistsMaxPhotoLinkLen)
 	}
 
 	if len(artist.Name) > constants.ArtistNameLen {
 		return errors.New(constants.ErrorArtistMaxNameLen)
-	}
-
-	if len(artist.Photo) > constants.ArtistPhotoLinkLen {
-		return errors.New(constants.ErrorArtistsMaxPhotoLinkLen)
 	}
 
 	if artist.CountFollowers < 0 {
@@ -60,7 +61,7 @@ func (artist Artist) GetCountListening() uint64 {
 func (artist Artist) CastDomainToDataTransferObject(utilsInterfaces.Domain) (utilsInterfaces.DataTransfer, error) {
 	return ArtistDataTransfer{
 		Name:  artist.Name,
-		Cover: constants.AssetsPrefix + constants.ArtistPreName + fmt.Sprint(artist.Id) + constants.PngFormat,
+		Cover: constants.AssetsPrefix + constants.ArtistPreName + fmt.Sprint(artist.PhotoId) + constants.PngFormat,
 	}, nil
 }
 
