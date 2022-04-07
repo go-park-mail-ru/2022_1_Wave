@@ -6,6 +6,7 @@ func GetPasswordHash(password string) ([]byte, error) {
 	return bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 }
 
-func CheckPassword(password string, passwordHash string) bool {
-	return bcrypt.CompareHashAndPassword([]byte(passwordHash), []byte(password)) == nil
+func CheckPassword(passwordHash string, password string) bool {
+	res := bcrypt.CompareHashAndPassword([]byte(passwordHash), []byte(password))
+	return res == nil
 }

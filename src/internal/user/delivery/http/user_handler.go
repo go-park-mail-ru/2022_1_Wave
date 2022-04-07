@@ -2,7 +2,6 @@ package http
 
 import (
 	"errors"
-	"github.com/go-park-mail-ru/2022_1_Wave/config"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/auth/delivery/http/middleware"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/domain"
 	"github.com/labstack/echo"
@@ -18,6 +17,8 @@ const (
 	badIdErr        = "bad id"
 	noSessionErr    = "no session"
 	invalidUserJSON = "invalid json"
+
+	sessionIdKey = "session_id"
 )
 
 func NewUserHandler(e *echo.Echo, userUseCase domain.UserUseCase, m *middleware.HttpMiddleware) {
@@ -27,7 +28,6 @@ func NewUserHandler(e *echo.Echo, userUseCase domain.UserUseCase, m *middleware.
 
 	g := e.Group("/users")
 
-	// TODO: навесить мидлвары
 	g.GET("/users/:id", handler.GetUser)
 	g.GET("/users/self", handler.GetSelfUser, m.Auth, m.CSRF)
 
@@ -50,7 +50,7 @@ func (a *UserHandler) GetUser(c echo.Context) error {
 }
 
 func (a *UserHandler) GetSelfUser(c echo.Context) error {
-	cookie, err := c.Cookie(config.C.SessionIDKey)
+	cookie, err := c.Cookie(sessionIdKey)
 	if err != nil {
 		return c.JSON(http.StatusUnauthorized, getErrorUserResponse(errors.New(noSessionErr)))
 	}
@@ -84,7 +84,7 @@ func (a *UserHandler) GetSelfUser(c echo.Context) error {
 }*/
 
 func (a *UserHandler) UpdateSelfUser(c echo.Context) error {
-	cookie, err := c.Cookie(config.C.SessionIDKey)
+	cookie, err := c.Cookie(sessionIdKey)
 	if err != nil {
 		return c.JSON(http.StatusUnauthorized, getErrorUserResponse(errors.New(noSessionErr)))
 	}

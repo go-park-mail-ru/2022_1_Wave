@@ -123,7 +123,7 @@ func (a *userUseCase) CheckEmailAndPassword(email string, password string) bool 
 func (a *userUseCase) Update(id uint, user *domain.User) error {
 	curUser, err := a.userRepo.SelectByID(id)
 	if err != nil {
-		return err
+		return domain.ErrUserDoesNotExist
 	}
 
 	_, err = a.userRepo.SelectByUsername(user.Username)
