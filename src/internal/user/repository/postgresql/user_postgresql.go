@@ -5,17 +5,7 @@ import (
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/domain"
 	_ "github.com/jackc/pgx"
 	"github.com/jmoiron/sqlx"
-	"golang.org/x/crypto/bcrypt"
 )
-
-// TODO: вынести эту логику в usecase
-func getPasswordHash(password string) ([]byte, error) {
-	return bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-}
-
-func checkPassword(password string, passwordHash string) bool {
-	return bcrypt.CompareHashAndPassword([]byte(passwordHash), []byte(password)) == nil
-}
 
 type UserPostrgesRepo struct {
 	DB *sqlx.DB
@@ -28,13 +18,6 @@ func NewUserPostgresRepo(db *sqlx.DB) domain.UserRepo {
 }
 
 func (a *UserPostrgesRepo) Insert(user *domain.User) error {
-	/*passwordHash, err := getPasswordHash(string(user.Password))
-	if err != nil {
-		return ErrorGetPasswordHash
-	}
-
-	user.Password = string(passwordHash)*/
-
 	_, err := a.DB.Exec(insertUserCommand, user.Username, user.Email, user.Avatar, user.Password)
 	//_, err := a.DB.NamedQuery(insertUserCommand, user)
 	if err != nil {
@@ -60,18 +43,12 @@ func (a *UserPostrgesRepo) Update(id uint, user *domain.User) error {
 		i++
 	}
 	if user.Password != "" {
-		passwordHash, err := getPasswordHash(string(user.Password))
-		if err != nil {
-			return ErrorGetPasswordHash
-		}
-		user.Password = string(passwordHash)
-
 		updateQuery += fmt.Sprintf(`password_hash = $%d, `, i)
 		updateParams = append(updateParams, user.Password)
 		i++
 	}
 	if user.Avatar != "" {
-		updateQuery += fmt.Sprintf(`username = $%d`, i)
+		updateQuery += fmt.Sprintf(`avatar = $%d, `, i)
 		updateParams = append(updateParams, user.Avatar)
 		i++
 	}
@@ -79,6 +56,7 @@ func (a *UserPostrgesRepo) Update(id uint, user *domain.User) error {
 	updateQuery = updateQuery[:len(updateQuery)-2]
 
 	updateQuery += fmt.Sprintf(` WHERE id = $%d`, i)
+	updateParams = append(updateParams, id)
 
 	_, err := a.DB.Exec(updateQuery, updateParams...)
 	if err != nil {

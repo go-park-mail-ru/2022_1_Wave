@@ -136,5 +136,10 @@ func (a *userUseCase) Update(id uint, user *domain.User) error {
 		return domain.ErrUserAlreadyExist
 	}
 
+	if user.Password != "" {
+		passwordHash, _ := helpers.GetPasswordHash(user.Password)
+		user.Password = string(passwordHash)
+	}
+
 	return a.userRepo.Update(id, user)
 }
