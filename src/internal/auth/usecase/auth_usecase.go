@@ -30,7 +30,7 @@ func (a *authUseCase) Login(login string, password string, sessionId string) err
 			return domain.ErrUserDoesNotExist
 		}
 	}
-	if !helpers.CheckPassword(password, user.Password) {
+	if !helpers.CheckPassword(user.Password, password) {
 		return domain.ErrInvalidLoginOrPassword
 	}
 
@@ -49,20 +49,18 @@ func (a *authUseCase) Logout(sessionId string) error {
 
 func (a *authUseCase) SignUp(user *domain.User, sessionId string) error {
 	_, err := a.userRepo.SelectByEmail(user.Email)
-	if err != nil {
+	if err == nil {
 		return domain.ErrUserAlreadyExist
 	}
 
 	_, err = a.userRepo.SelectByUsername(user.Username)
-	if err != nil {
+	if err == nil {
 		return domain.ErrUserAlreadyExist
 	}
 
-	passwordHash, err := helpers.GetPasswordHash(user.Password)
-	if err != nil {
-		return domain.Err
-	}
-	user.Password = helper.G
+	passwordHash, _ := helpers.GetPasswordHash(user.Password)
+
+	user.Password = string(passwordHash)
 
 	err = a.userRepo.Insert(user)
 	if err != nil {

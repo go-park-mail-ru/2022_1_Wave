@@ -3,7 +3,7 @@ package domain
 import "errors"
 
 var (
-	ErrInvalidLoginOrPassword = errors.New("invalsid login or password")
+	ErrInvalidLoginOrPassword = errors.New("invalid login or password")
 	ErrUserAlreadyExist       = errors.New("user already exist")
 	ErrUserDoesNotExist       = errors.New("user does not exist")
 

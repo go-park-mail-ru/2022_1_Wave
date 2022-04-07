@@ -2,7 +2,6 @@ package redis
 
 import (
 	"encoding/json"
-	"github.com/go-park-mail-ru/2022_1_Wave/config"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/domain"
 	"github.com/gomodule/redigo/redis"
 	"github.com/google/uuid"
@@ -77,11 +76,11 @@ type redisSessionRepo struct {
 	pool *redis.Pool
 }
 
-func NewRedisSessionRepo() domain.SessionRepo {
+func NewRedisSessionRepo(redisAddr string) domain.SessionRepo {
 	return &redisSessionRepo{
 		pool: &redis.Pool{
 			Dial: func() (redis.Conn, error) {
-				return redis.Dial("tcp", config.C.RedisAddress)
+				return redis.Dial("tcp", redisAddr)
 			},
 		},
 	}
@@ -96,7 +95,7 @@ func (a *redisSessionRepo) GetSession(sessionId string) (*domain.Session, error)
 	sessionHashTableName := getSessionHashTableName(userId)
 
 	sessionJson, err := client.Do("HGET", sessionHashTableName, sessionId)
-	if err != nil {
+	if err != nil || sessionJson == nil {
 		return nil, domain.ErrGetSession
 	}
 
@@ -183,11 +182,11 @@ func (a *redisSessionRepo) DeleteSession(sessionId string) error {
 
 	// удалим таблицу сессий пользователя, если у него не осталось сессий
 	result, err := client.Do("HLEN", sessionHashTableName)
-	if err != nil {
+	if err != nil || result == nil {
 		return domain.ErrDeleteSession
 	}
 
-	if result.(int) == 0 {
+	if result == 0 {
 		_, err = client.Do("DEL", sessionHashTableName)
 	}
 

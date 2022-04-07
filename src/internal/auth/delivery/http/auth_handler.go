@@ -12,6 +12,7 @@ import (
 
 const (
 	invalidUserJSON = "invalid json"
+	sessionIdKey    = "session_id"
 )
 
 type AuthHandler struct {
@@ -22,7 +23,7 @@ var sessionExpire, _ = time.ParseDuration(config.C.SessionExpires)
 
 func formCookie(sessionId string) *http.Cookie {
 	return &http.Cookie{
-		Name:     config.C.SessionIDKey,
+		Name:     sessionIdKey,
 		Value:    sessionId,
 		Expires:  time.Now().Add(sessionExpire),
 		HttpOnly: true,
@@ -63,7 +64,7 @@ func (a *AuthHandler) Login(c echo.Context) error {
 }
 
 func (a *AuthHandler) Logout(c echo.Context) error {
-	cookie, _ := c.Cookie(config.C.SessionIDKey)
+	cookie, _ := c.Cookie(sessionIdKey)
 
 	_ = a.authUseCase.Logout(cookie.Value)
 
@@ -77,7 +78,7 @@ func (a *AuthHandler) SignUp(c echo.Context) error {
 		return c.JSON(http.StatusUnprocessableEntity, getErrorAuthResponse(errors.New(invalidUserJSON)))
 	}
 
-	cookie, _ := c.Cookie(config.C.SessionIDKey)
+	cookie, _ := c.Cookie(sessionIdKey)
 
 	err = a.authUseCase.SignUp(&user, cookie.Value)
 	if err != nil {
@@ -88,7 +89,7 @@ func (a *AuthHandler) SignUp(c echo.Context) error {
 }
 
 func (a *AuthHandler) GetCSRF(c echo.Context) error {
-	cookie, err := c.Cookie(config.C.SessionIDKey)
+	cookie, err := c.Cookie(sessionIdKey)
 	var csrfToken string
 	if err == nil && a.authUseCase.IsSession(cookie.Value) { // уже есть сессия, выставляем csrf как session_id
 		csrfToken = cookie.Value
