@@ -5,14 +5,14 @@ import (
 	constants "github.com/go-park-mail-ru/2022_1_Wave/internal"
 	artistUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/app/artist/usecase"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/domain"
-	utilsInterfaces2 "github.com/go-park-mail-ru/2022_1_Wave/internal/app/interfaces"
+	utilsInterfaces "github.com/go-park-mail-ru/2022_1_Wave/internal/app/interfaces"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/tools/utils"
 	"reflect"
 	"sync"
 )
 
 // ---------------------------------------------------------
-func CreateAlbumDataTransferFromInterface(data interface{}) (utilsInterfaces2.DataTransfer, error) {
+func CreateAlbumDataTransferFromInterface(data interface{}) (utilsInterfaces.DataTransfer, error) {
 	temp := data.(map[string]interface{})
 
 	title, err := utils.ToString(temp[constants.FieldTitle])
@@ -38,7 +38,7 @@ func CreateAlbumDataTransferFromInterface(data interface{}) (utilsInterfaces2.Da
 }
 
 // ---------------------------------------------------------
-func CreateAlbumCoverDataTransferFromInterface(data interface{}) (utilsInterfaces2.DataTransfer, error) {
+func CreateAlbumCoverDataTransferFromInterface(data interface{}) (utilsInterfaces.DataTransfer, error) {
 	temp := data.(map[string]interface{})
 
 	title, err := utils.ToString(temp[constants.FieldTitle])
@@ -64,7 +64,7 @@ func CreateAlbumCoverDataTransferFromInterface(data interface{}) (utilsInterface
 }
 
 // ---------------------------------------------------------
-func CreateArtistDataTransferFromInterface(data interface{}) (utilsInterfaces2.DataTransfer, error) {
+func CreateArtistDataTransferFromInterface(data interface{}) (utilsInterfaces.DataTransfer, error) {
 	temp := data.(map[string]interface{})
 
 	name, err := utils.ToString(temp[constants.FieldName])
@@ -84,7 +84,7 @@ func CreateArtistDataTransferFromInterface(data interface{}) (utilsInterfaces2.D
 }
 
 // ---------------------------------------------------------
-func CreateTrackDataTransferFromInterface(data interface{}) (utilsInterfaces2.DataTransfer, error) {
+func CreateTrackDataTransferFromInterface(data interface{}) (utilsInterfaces.DataTransfer, error) {
 	temp := data.(map[string]interface{})
 
 	title, err := utils.ToString(temp[constants.FieldTitle])
@@ -102,16 +102,40 @@ func CreateTrackDataTransferFromInterface(data interface{}) (utilsInterfaces2.Da
 		return nil, err
 	}
 
+	src, err := utils.ToString(temp[constants.FieldSrc])
+	if err != nil {
+		return nil, err
+	}
+
+	likes, err := utils.ToInt(temp[constants.FieldLikes])
+	if err != nil {
+		return nil, err
+	}
+
+	listenings, err := utils.ToInt(temp[constants.FieldListenings])
+	if err != nil {
+		return nil, err
+	}
+
+	duration, err := utils.ToInt(temp[constants.FieldDuration])
+	if err != nil {
+		return nil, err
+	}
+
 	return domain.TrackDataTransfer{
-		Title:  title,
-		Artist: artist,
-		Cover:  cover,
+		Title:      title,
+		Artist:     artist,
+		Cover:      cover,
+		Src:        src,
+		Likes:      likes,
+		Listenings: listenings,
+		Duration:   duration,
 	}, nil
 }
 
 // ---------------------------------------------------------
-func CreateDataTransferFromInterface(dataTransferType reflect.Type, data interface{}) (utilsInterfaces2.DataTransfer, error) {
-	var resultDataTransfer utilsInterfaces2.DataTransfer
+func CreateDataTransferFromInterface(dataTransferType reflect.Type, data interface{}) (utilsInterfaces.DataTransfer, error) {
+	var resultDataTransfer utilsInterfaces.DataTransfer
 	var err error
 
 	switch dataTransferType {
@@ -121,7 +145,7 @@ func CreateDataTransferFromInterface(dataTransferType reflect.Type, data interfa
 		resultDataTransfer, err = CreateAlbumCoverDataTransferFromInterface(data)
 	case domain.ArtistDataTransferType:
 		resultDataTransfer, err = CreateArtistDataTransferFromInterface(data)
-	case domain.TrackDomainType:
+	case domain.TrackDataTransferType:
 		resultDataTransfer, err = CreateTrackDataTransferFromInterface(data)
 	default:
 		resultDataTransfer = nil
@@ -131,7 +155,7 @@ func CreateDataTransferFromInterface(dataTransferType reflect.Type, data interfa
 	return resultDataTransfer, err
 }
 
-func CreateDataTransfer(domainType reflect.Type, dom utilsInterfaces2.Domain, mutex *sync.RWMutex) (utilsInterfaces2.DataTransfer, error) {
+func CreateDataTransfer(domainType reflect.Type, dom utilsInterfaces.Domain, mutex *sync.RWMutex) (utilsInterfaces.DataTransfer, error) {
 	switch domainType {
 	case domain.AlbumDomainType:
 		//var artistId uint64
@@ -140,7 +164,7 @@ func CreateDataTransfer(domainType reflect.Type, dom utilsInterfaces2.Domain, mu
 		//} else {
 		//	artistId = dom.(domain.Album).ArtistId
 		//}
-		artistId := dom.(*domain.Album).ArtistId
+		artistId := dom.(domain.Album).ArtistId
 		artistInCurrentAlbum, err := artistUseCase.UseCase.GetById(artistId, mutex)
 		if err != nil {
 			return nil, err
@@ -158,7 +182,7 @@ func CreateDataTransfer(domainType reflect.Type, dom utilsInterfaces2.Domain, mu
 		//} else {
 		//	artistId = dom.(domain.Album).ArtistId
 		//}
-		artistId := dom.(*domain.Track).ArtistId
+		artistId := dom.(domain.Track).ArtistId
 		artistInCurrentTrack, err := artistUseCase.UseCase.GetById(artistId, mutex)
 		if err != nil {
 			return nil, err
