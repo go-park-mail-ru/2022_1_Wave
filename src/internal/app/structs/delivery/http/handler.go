@@ -1,16 +1,14 @@
 package structsDeliveryHttp
 
 import (
-	"errors"
 	"fmt"
 	constants "github.com/go-park-mail-ru/2022_1_Wave/internal"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/structs/interfaces"
-	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/tools"
+	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/tools/dataTransfer"
 	"github.com/go-park-mail-ru/2022_1_Wave/pkg/webUtils"
 	"github.com/labstack/echo/v4"
 	"net/http"
 	"reflect"
-	"strconv"
 	"sync"
 )
 
@@ -23,6 +21,7 @@ func (h Handler) GetAll(ctx echo.Context, mutex *sync.RWMutex) error {
 	domainType := h.model
 
 	domains, err := h.useCase.GetAll(mutex)
+
 	if err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 	}
@@ -34,7 +33,7 @@ func (h Handler) GetAll(ctx echo.Context, mutex *sync.RWMutex) error {
 	dataTransfers := make([]utilsInterfaces.DataTransfer, len(*domains))
 
 	for i, dom := range *domains {
-		dataTransfer, err := tools.CreateDataTransfer(domainType, dom, mutex)
+		dataTransfer, err := dataTransferCreator.CreateDataTransfer(domainType, dom, mutex)
 		if err != nil {
 			return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 		}
@@ -58,9 +57,11 @@ func (h Handler) Create(ctx echo.Context, mutex *sync.RWMutex) (utilsInterfaces.
 	}
 
 	h.useCase, err = h.useCase.Create(&objectToCreate, mutex)
+	if err != nil {
+		return h, webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
+	}
 
-	fmt.Println(objectToCreate)
-
+	lastId, err := h.useCase.GetLastId(mutex)
 	if err != nil {
 		return h, webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 	}
@@ -68,7 +69,7 @@ func (h Handler) Create(ctx echo.Context, mutex *sync.RWMutex) (utilsInterfaces.
 	return h, ctx.JSON(http.StatusOK,
 		webUtils.Success{
 			Status: webUtils.OK,
-			Result: constants.SuccessCreated + "(" + fmt.Sprint(objectToCreate.GetId()) + ")"})
+			Result: constants.SuccessCreated + "(" + fmt.Sprint(lastId) + ")"})
 }
 
 func (h Handler) Update(ctx echo.Context, mutex *sync.RWMutex) (utilsInterfaces.HandlerInterface, error) {
@@ -107,7 +108,7 @@ func (h Handler) Get(ctx echo.Context, mutex *sync.RWMutex) error {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 	}
 
-	dataTransfer, err := tools.CreateDataTransfer(domainType, *dom, mutex)
+	dataTransfer, err := dataTransferCreator.CreateDataTransfer(domainType, *dom, mutex)
 
 	if err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
@@ -149,7 +150,7 @@ func (h Handler) GetPopular(ctx echo.Context, mutex *sync.RWMutex) error {
 	domainType := h.model
 
 	for i, pop := range *popular {
-		dataTransfer, err := tools.CreateDataTransfer(domainType, pop, mutex)
+		dataTransfer, err := dataTransferCreator.CreateDataTransfer(domainType, pop, mutex)
 		if err != nil {
 			return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 		}
@@ -180,39 +181,4 @@ func (h Handler) SetModel(model reflect.Type) (utilsInterfaces.HandlerInterface,
 func (h Handler) SetUseCase(useCase utilsInterfaces.UseCaseInterface, mutex *sync.RWMutex) (utilsInterfaces.HandlerInterface, error) {
 	h.useCase = useCase
 	return h, nil
-}
-
-func readPostPutRequest(ctx echo.Context, domainType reflect.Type) (utilsInterfaces.Domain, error) {
-	var result interface{}
-
-	if err := ctx.Bind(&result); err != nil {
-		return nil, err
-	}
-
-	concreteDomain, errDueCast := tools.Creator.CreateDomainFromInterface(domainType, result)
-
-	if errDueCast != nil {
-		return nil, errDueCast
-	}
-
-	if err := concreteDomain.Check(); err != nil {
-		return nil, err
-	}
-
-	object := concreteDomain
-
-	return object, nil
-}
-
-func readGetDeleteRequest(ctx echo.Context) (int, error) {
-	id, err := strconv.Atoi(ctx.Param(constants.FieldId))
-	if err != nil {
-		return constants.BadId, err
-	}
-
-	if id < 0 {
-		return constants.BadId, errors.New(constants.IndexOutOfRange)
-	}
-
-	return id, nil
 }
