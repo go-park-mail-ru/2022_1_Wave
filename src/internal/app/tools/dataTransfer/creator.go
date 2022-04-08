@@ -134,17 +134,30 @@ func CreateDataTransferFromInterface(dataTransferType reflect.Type, data interfa
 func CreateDataTransfer(domainType reflect.Type, dom utilsInterfaces.Domain, mutex *sync.RWMutex) (utilsInterfaces.DataTransfer, error) {
 	switch domainType {
 	case domain.AlbumDomainType:
+		//var artistId uint64
+		//if reflect.TypeOf(dom) == reflect.TypeOf(&domain.Album{}) {
+		//	artistId = dom.(*domain.Album).ArtistId
+		//} else {
+		//	artistId = dom.(domain.Album).ArtistId
+		//}
 		artistId := dom.(*domain.Album).ArtistId
 		artistInCurrentAlbum, err := artistUseCase.UseCase.GetById(artistId, mutex)
 		if err != nil {
 			return nil, err
 		}
+
 		return dom.CastDomainToDataTransferObject(*artistInCurrentAlbum)
 	case domain.AlbumCoverDomainType:
 		return dom.CastDomainToDataTransferObject(nil)
 	case domain.ArtistDomainType:
 		return dom.CastDomainToDataTransferObject(nil)
 	case domain.TrackDomainType:
+		//var artistId uint64
+		//if reflect.TypeOf(dom) == reflect.TypeOf(&domain.Track{}) {
+		//	artistId = dom.(*domain.Album).ArtistId
+		//} else {
+		//	artistId = dom.(domain.Album).ArtistId
+		//}
 		artistId := dom.(*domain.Track).ArtistId
 		artistInCurrentTrack, err := artistUseCase.UseCase.GetById(artistId, mutex)
 		if err != nil {

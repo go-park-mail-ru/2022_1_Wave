@@ -31,18 +31,19 @@ func ToDomainsArrayPtr(holder *interface{}, repoName string) error {
 	return nil
 }
 
-func ToDomainPtr(holder *interface{}, repoName string) error {
+func ToDomainPtr(repoName string) (utilsInterfaces.Domain, error) {
+	var holder utilsInterfaces.Domain
 	switch repoName {
 	case constants.Album:
-		*holder = &domain.Album{}
+		holder = &domain.Album{}
 	case constants.AlbumCover:
-		*holder = &domain.AlbumCover{}
+		holder = &domain.AlbumCover{}
 	case constants.Artist:
-		*holder = &domain.Artist{}
+		holder = &domain.Artist{}
 	case constants.Track:
-		*holder = &domain.Track{}
+		holder = &domain.Track{}
 	default:
-		return errors.New(constants.BadType)
+		return nil, errors.New(constants.BadType)
 	}
-	return nil
+	return holder, nil
 }
