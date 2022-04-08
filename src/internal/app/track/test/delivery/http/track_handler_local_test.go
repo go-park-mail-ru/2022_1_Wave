@@ -7,6 +7,7 @@ import (
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/structs/storage/local"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/structs/test"
 	trackDeliveryHttp "github.com/go-park-mail-ru/2022_1_Wave/internal/app/track/delivery/http"
+	"log"
 	"testing"
 )
 
@@ -17,14 +18,30 @@ func init() {
 
 	localStorage := utilsInterfaces.GlobalStorageInterface(structStorageLocal.LocalStorage{})
 	repo := *localStorage.GetTrackRepo()
-	_ = storage.InitStorage(testDataBaseSize, &localStorage)
+	err := storage.InitStorage(testDataBaseSize, &localStorage)
+	if err != nil {
+		log.Fatalln("error due to init test track db:", err)
+	}
 
 	tester = structsTesters.HandlerTester{}
-	tester, _ = tester.SetTestingHandler(trackDeliveryHttp.Handler)
-	testingHandler, _ := tester.GetTestingHandler()
+	tester, err = tester.SetTestingHandler(trackDeliveryHttp.Handler)
+	if err != nil {
+		log.Fatalln("error due to init test track db:", err)
+	}
+	testingHandler, err := tester.GetTestingHandler()
+	if err != nil {
+		log.Fatalln("error due to init test track db:", err)
+	}
 
-	useCase, _ := testingHandler.GetUseCase()
-	useCase, _ = useCase.SetRepo(repo, domain.TrackMutex)
+	useCase, err := testingHandler.GetUseCase()
+	if err != nil {
+		log.Fatalln("error due to init test track db:", err)
+	}
+	useCase, err = useCase.SetRepo(repo, domain.TrackMutex)
+	if err != nil {
+		log.Fatalln("error due to init test track db:", err)
+	}
+
 }
 
 type TestDomainCreator struct{}
@@ -36,8 +53,6 @@ func (creator TestDomainCreator) PrepareOneTestDomain() utilsInterfaces.Domain {
 		ArtistId:       3,
 		Title:          "testTrack",
 		Duration:       300,
-		Mp4:            "someMp4 source",
-		CoverId:        7,
 		CountLikes:     5050,
 		CountListening: 228,
 	}

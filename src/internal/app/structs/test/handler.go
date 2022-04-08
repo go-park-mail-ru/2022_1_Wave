@@ -7,7 +7,7 @@ import (
 	"github.com/go-park-mail-ru/2022_1_Wave/init/router"
 	constants "github.com/go-park-mail-ru/2022_1_Wave/internal"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/structs/interfaces"
-	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/tools"
+	dataTransferCreator "github.com/go-park-mail-ru/2022_1_Wave/internal/app/tools/dataTransfer"
 	"github.com/go-park-mail-ru/2022_1_Wave/pkg/webUtils"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/require"
@@ -29,17 +29,14 @@ func (tester HandlerTester) Get(t *testing.T, mutex *sync.RWMutex) {
 	useCase, err := tester.handler.GetUseCase()
 	require.NoError(t, err)
 
-	repo, err := useCase.GetRepo()
-	require.NoError(t, err)
-
 	var dataTransferType reflect.Type
 	model, err := tester.handler.GetModel()
 	require.NoError(t, err)
 
-	dataTransferType, err = tools.Converter.GetDataTransferTypeByDomainType(model)
+	dataTransferType, err = dataTransferCreator.GetDataTransferTypeByDomainType(model)
 	require.NoError(t, err)
 
-	cases := PrepareArrayCases(repo, mutex)
+	cases := PrepareArrayCases(useCase, mutex)
 
 	for _, testCase := range cases {
 		url := router.Proto + router.Host + "/" + router.Get + fmt.Sprint(testCase.Id)
@@ -62,7 +59,7 @@ func (tester HandlerTester) Get(t *testing.T, mutex *sync.RWMutex) {
 		require.NoError(t, err)
 
 		data := result.Result.(interface{})
-		dataTransfer, err := tools.Creator.CreateDataTransferFromInterface(dataTransferType, data)
+		dataTransfer, err := dataTransferCreator.CreateDataTransferFromInterface(dataTransferType, data)
 		require.NoError(t, err)
 
 		require.Equal(t, testCase.Status, rec.Code)
@@ -84,7 +81,8 @@ func (tester HandlerTester) GetAll(t *testing.T, mutex *sync.RWMutex) {
 	model, err := tester.handler.GetModel()
 	require.NoError(t, err)
 
-	dataTransferType, err = tools.Converter.GetDataTransferTypeByDomainType(model)
+	dataTransferType, err = dataTransferCreator.GetDataTransferTypeByDomainType(model)
+
 	require.NoError(t, err)
 
 	url := router.Proto + router.Host + "/" + router.Get
@@ -109,7 +107,7 @@ func (tester HandlerTester) GetAll(t *testing.T, mutex *sync.RWMutex) {
 	require.NoError(t, err)
 
 	data := result.Result.([]interface{})
-	ptr, err := tools.Converter.ToDataTransfers(dataTransferType, data)
+	ptr, err := dataTransferCreator.ToDataTransfers(dataTransferType, data)
 	require.NoError(t, err)
 
 	objects := *ptr
@@ -125,10 +123,9 @@ func (tester HandlerTester) Create(t *testing.T, creator utilsInterfaces.TestDom
 	useCase, err := tester.handler.GetUseCase()
 	require.NoError(t, err)
 
-	sizeBefore, err := useCase.GetLastId(mutex)
+	sizeBefore, err := useCase.GetSize(mutex)
 	require.NoError(t, err)
 
-	sizeBefore++
 	sizeAfter := sizeBefore + 1
 
 	testDomain := creator.PrepareOneTestDomain()
@@ -172,9 +169,8 @@ func (tester HandlerTester) Create(t *testing.T, creator utilsInterfaces.TestDom
 
 	useCase, err = tester.handler.GetUseCase()
 	require.NoError(t, err)
-	resultSize, err := useCase.GetLastId(mutex)
+	resultSize, err := useCase.GetSize(mutex)
 	require.NoError(t, err)
-	resultSize++
 	require.Equal(t, sizeAfter, resultSize)
 
 }
@@ -301,14 +297,11 @@ func (tester HandlerTester) GetPopular(t *testing.T, mutex *sync.RWMutex) {
 	useCase, err := tester.handler.GetUseCase()
 	require.NoError(t, err)
 
-	repo, err := useCase.GetRepo()
-	require.NoError(t, err)
-
 	var dataTransferType reflect.Type
 	model, err := tester.handler.GetModel()
 	require.NoError(t, err)
 
-	dataTransferType, err = tools.Converter.GetDataTransferTypeByDomainType(model)
+	dataTransferType, err = dataTransferCreator.GetDataTransferTypeByDomainType(model)
 	require.NoError(t, err)
 
 	url := router.Proto + router.Host + "/" + router.Get
@@ -320,7 +313,7 @@ func (tester HandlerTester) GetPopular(t *testing.T, mutex *sync.RWMutex) {
 
 	require.NoError(t, tester.handler.GetPopular(ctx, mutex))
 
-	testCase := PreparePopularCases(repo, mutex)
+	testCase := PreparePopularCases(useCase, mutex)
 
 	require.Equal(t, testCase.Status, rec.Code)
 
@@ -333,7 +326,7 @@ func (tester HandlerTester) GetPopular(t *testing.T, mutex *sync.RWMutex) {
 	require.NoError(t, err)
 
 	data := result.Result.([]interface{})
-	ptr, err := tools.Converter.ToDataTransfers(dataTransferType, data)
+	ptr, err := dataTransferCreator.ToDataTransfers(dataTransferType, data)
 	require.NoError(t, err)
 
 	objects := *ptr

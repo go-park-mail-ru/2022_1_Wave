@@ -37,7 +37,6 @@ func (creator TestDomainCreator) PrepareOneTestDomain() utilsInterfaces.Domain {
 		CountLikes:     500,
 		CountListening: 10000,
 		Date:           0,
-		CoverId:        5,
 	}
 }
 

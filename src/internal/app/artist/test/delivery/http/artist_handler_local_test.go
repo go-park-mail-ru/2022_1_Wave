@@ -25,6 +25,7 @@ func init() {
 
 	useCase, _ := testingHandler.GetUseCase()
 	useCase, _ = useCase.SetRepo(repo, domain.ArtistMutex)
+
 }
 
 type TestDomainCreator struct{}
@@ -33,7 +34,6 @@ func (creator TestDomainCreator) PrepareOneTestDomain() utilsInterfaces.Domain {
 	return domain.Artist{
 		Id:             5,
 		Name:           "testArtist",
-		PhotoId:        5,
 		CountFollowers: 1355,
 		CountListening: 5000,
 	}
