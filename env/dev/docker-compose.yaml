@@ -30,7 +30,6 @@ services:
   docs_generator:
     build: ./
     working_dir: /var/www/service
-    entrypoint: ./entrypoint.sh
     volumes:
       - ../../src:/var/www/service
 
