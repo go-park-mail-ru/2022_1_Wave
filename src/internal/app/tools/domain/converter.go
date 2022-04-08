@@ -31,6 +31,35 @@ func ToDomainsArrayPtr(holder *interface{}, repoName string) error {
 	return nil
 }
 
+func GetValues(holder interface{}, repoName string) ([]utilsInterfaces.Domain, error) {
+	var result []utilsInterfaces.Domain
+	switch repoName {
+	case constants.Album:
+		values := holder.(*[]domain.Album)
+		for _, obj := range *values {
+			result = append(result, obj)
+		}
+	case constants.AlbumCover:
+		values := holder.(*[]domain.AlbumCover)
+		for _, obj := range *values {
+			result = append(result, obj)
+		}
+	case constants.Artist:
+		values := holder.(*[]domain.Artist)
+		for _, obj := range *values {
+			result = append(result, obj)
+		}
+	case constants.Track:
+		values := holder.(*[]domain.Track)
+		for _, obj := range *values {
+			result = append(result, obj)
+		}
+	default:
+		return nil, errors.New(constants.BadType)
+	}
+	return result, nil
+}
+
 func ToDomainPtr(repoName string) (utilsInterfaces.Domain, error) {
 	var holder utilsInterfaces.Domain
 	switch repoName {
