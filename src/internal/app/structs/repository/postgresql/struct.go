@@ -192,29 +192,20 @@ func (table Table) SelectByID(id uint64, mutex *sync.RWMutex) (*utilsInterfaces.
 }
 
 func (table Table) getManyObjects(query string) ([]utilsInterfaces.Domain, error) {
-	rows, err := table.Sqlx.Queryx(query)
+	var holder interface{}
+	err := domainCreator.ToDomainsArrayPtr(&holder, table.Name)
 	if err != nil {
 		return nil, err
 	}
 
-	var result []utilsInterfaces.Domain
-
-	for rows.Next() {
-		//var holder interface{}
-		//if err := domainCreator.ToDomainPtr(&holder, table.Name); err != nil {
-		//	return nil, err
-		//}
-		holder, err := domainCreator.ToDomainPtr(table.Name)
-		if err != nil {
-			return nil, err
-		}
-		err = rows.StructScan(holder)
-		if err != nil {
-			return nil, err
-		}
-		result = append(result, (holder).(utilsInterfaces.Domain))
+	err = table.Sqlx.Select(holder, query)
+	if err != nil {
+		return nil, err
 	}
-	return result, nil
+
+	values, err := domainCreator.GetValues(holder, table.Name)
+
+	return values, nil
 
 	// it's doesn't work :( what a pity
 	//var holder interface{}
