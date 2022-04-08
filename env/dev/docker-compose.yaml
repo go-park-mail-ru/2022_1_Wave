@@ -9,39 +9,30 @@ services:
       - ../../../2022_1_Wave/public/build:/var/www/wave
       - ../../config/nginx/nginx.conf:/etc/nginx/nginx.conf
     depends_on:
-    - wave_music
-    - db
+      - wave_music
+      - db
 
   wave_music:
     image: cosmtrek/air
     expose:
       - 5000
     working_dir: /var/www/service/
-    command:
-      - go get github.com/go-park-mail-ru/2022_1_Wave/docs
     volumes:
-      - ../../config/config.toml:/var/www/service/config.toml
       - ../../src:/var/www/service
       - ./.air.toml:/var/www/service/.air.toml
+      - ../../config/config.toml:/var/www/service/config.toml
     environment:
       - DATABASE_CONNECTION=user=postgres password=music dbname=wave host=db port=5432
     depends_on:
+      - docs_generator
       - db
 
-  #  db:
-  #    image: postgres
-  #    container_name: "wave-db"
-  ##    ports:
-  ##      - '5432:5432'
-  #    expose:
-  #       - 5432
-  #    volumes:
-  #      - ../../db_dump:/tmp
-  #      - .:/docker-entrypoint-initdb.d
-  #    environment:
-  #      - POSTGRES_USER=postgres
-  #      - POSTGRES_PASSWORD=music
-  #      - POSTGRES_DB=wave
+  docs_generator:
+    build: ./
+    working_dir: /var/www/service
+    entrypoint: ./entrypoint.sh
+    volumes:
+      - ../../src:/var/www/service
 
   db:
     image: postgres:14
@@ -58,6 +49,7 @@ services:
       - .:/docker-entrypoint-initdb.d
       - ../../src:/var/www/service
       - ../../src/db/:/var/run/postgresql/
+
   pgadmin:
     image: dpage/pgadmin4:6
     environment:
@@ -67,3 +59,18 @@ services:
       - "5050:80"
 
 
+
+  #  db:
+  #    image: postgres
+  #    container_name: "wave-db"
+  ##    ports:
+  ##      - '5432:5432'
+  #    expose:
+  #       - 5432
+  #    volumes:
+  #      - ../../db_dump:/tmp
+  #      - .:/docker-entrypoint-initdb.d
+  #    environment:
+  #      - POSTGRES_USER=postgres
+  #      - POSTGRES_PASSWORD=music
+  #      - POSTGRES_DB=wave
