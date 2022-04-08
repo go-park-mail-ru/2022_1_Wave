@@ -17,6 +17,8 @@ services:
     expose:
       - 5000
     working_dir: /var/www/service/
+    command:
+      - go get github.com/go-park-mail-ru/2022_1_Wave/docs
     volumes:
       - ../../config/config.toml:/var/www/service/config.toml
       - ../../src:/var/www/service
