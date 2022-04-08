@@ -4,6 +4,8 @@ import (
 	"github.com/go-park-mail-ru/2022_1_Wave/internal"
 	albumDeliveryHttp "github.com/go-park-mail-ru/2022_1_Wave/internal/app/album/delivery/http"
 	albumUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/app/album/usecase"
+	albumCoverDeliveryHttp "github.com/go-park-mail-ru/2022_1_Wave/internal/app/albumCover/delivery/http"
+	albumCoverUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/app/albumCover/usecase"
 	artistDeliveryHttp "github.com/go-park-mail-ru/2022_1_Wave/internal/app/artist/delivery/http"
 	artistUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/app/artist/usecase"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/domain"
@@ -30,6 +32,11 @@ func initRepo(domainType reflect.Type, concreteUseCase *structsUseCase.UseCase, 
 	switch domainType {
 	case domain.AlbumDomainType:
 		useCase, err = concreteUseCase.SetRepo(*initedStorage.GetAlbumRepo(), mutex)
+		if err != nil {
+			log.Fatal(err)
+		}
+	case domain.AlbumCoverDomainType:
+		useCase, err = concreteUseCase.SetRepo(*initedStorage.GetAlbumCoverRepo(), mutex)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -67,6 +74,9 @@ func InitStorage(quantity int, storage *utilsInterfaces.GlobalStorageInterface) 
 
 	// albums
 	initRepo(domain.AlbumDomainType, &albumUseCase.UseCase, &albumDeliveryHttp.Handler, initedStorage, domain.AlbumMutex)
+
+	// albums covers
+	initRepo(domain.AlbumCoverDomainType, &albumCoverUseCase.UseCase, &albumCoverDeliveryHttp.Handler, initedStorage, domain.AlbumCoverMutex)
 
 	// artists
 	initRepo(domain.ArtistDomainType, &artistUseCase.UseCase, &artistDeliveryHttp.Handler, initedStorage, domain.AlbumMutex)

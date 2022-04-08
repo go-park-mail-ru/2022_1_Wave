@@ -3,6 +3,7 @@ package router
 import (
 	_ "github.com/go-park-mail-ru/2022_1_Wave/docs"
 	albumDeliveryHttp "github.com/go-park-mail-ru/2022_1_Wave/internal/app/album/delivery/http"
+	albumCoverDeliveryHttp "github.com/go-park-mail-ru/2022_1_Wave/internal/app/albumCover/delivery/http"
 	artistDeliveryHttp "github.com/go-park-mail-ru/2022_1_Wave/internal/app/artist/delivery/http"
 	trackDeliveryHttp "github.com/go-park-mail-ru/2022_1_Wave/internal/app/track/delivery/http"
 	"github.com/labstack/echo/v4"
@@ -15,6 +16,7 @@ func Router(e *echo.Echo) {
 	v1 := api.Group(v1Prefix)
 
 	SetAlbumsRoutes(v1)
+	SetAlbumCoversRoutes(v1)
 	SetArtistsRoutes(v1)
 	SetTracksRoutes(v1)
 	SetAuthRoutes(v1)
@@ -31,7 +33,17 @@ func SetAlbumsRoutes(apiVersion *echo.Group) {
 	albumRoutes.POST(locate, albumDeliveryHttp.Create)
 	albumRoutes.PUT(locate, albumDeliveryHttp.Update)
 	albumRoutes.GET(popularPrefix, albumDeliveryHttp.GetPopular)
-	albumRoutes.DELETE(locate, albumDeliveryHttp.Delete)
+	albumRoutes.DELETE(idEchoPattern, albumDeliveryHttp.Delete)
+}
+
+// SetAlbumCoversRoutes albumCovers
+func SetAlbumCoversRoutes(apiVersion *echo.Group) {
+	albumRoutes := apiVersion.Group(albumCoversPrefix)
+	albumRoutes.GET(idEchoPattern, albumCoverDeliveryHttp.Get)
+	albumRoutes.GET(locate, albumCoverDeliveryHttp.GetAll)
+	albumRoutes.POST(locate, albumCoverDeliveryHttp.Create)
+	albumRoutes.PUT(locate, albumCoverDeliveryHttp.Update)
+	albumRoutes.DELETE(idEchoPattern, albumCoverDeliveryHttp.Delete)
 }
 
 // SetArtistsRoutes artists
@@ -43,7 +55,7 @@ func SetArtistsRoutes(apiVersion *echo.Group) {
 	artistRoutes.POST(locate, artistDeliveryHttp.Create)
 	artistRoutes.PUT(locate, artistDeliveryHttp.Update)
 	artistRoutes.GET(popularPrefix, artistDeliveryHttp.GetPopular)
-	artistRoutes.DELETE(locate, artistDeliveryHttp.Delete)
+	artistRoutes.DELETE(idEchoPattern, artistDeliveryHttp.Delete)
 }
 
 // SetTracksRoutes songs
@@ -55,7 +67,7 @@ func SetTracksRoutes(apiVersion *echo.Group) {
 	trackRoutes.POST(locate, trackDeliveryHttp.Create)
 	trackRoutes.PUT(locate, trackDeliveryHttp.Update)
 	trackRoutes.GET(popularPrefix, trackDeliveryHttp.GetPopular)
-	trackRoutes.DELETE(locate, trackDeliveryHttp.Delete)
+	trackRoutes.DELETE(idEchoPattern, trackDeliveryHttp.Delete)
 }
 
 // SetAuthRoutes auth
@@ -94,14 +106,15 @@ const (
 
 // prefixes
 const (
-	apiPrefix     = "/api"
-	v1Prefix      = "/v1"
-	albumsPrefix  = "/albums"
-	artistsPrefix = "/artists"
-	tracksPrefix  = "/tracks"
-	usersPrefix   = "/users"
-	docsPrefix    = "/docs"
-	popularPrefix = "/popular"
+	apiPrefix         = "/api"
+	v1Prefix          = "/v1"
+	albumsPrefix      = "/albums"
+	albumCoversPrefix = "/albumCovers"
+	artistsPrefix     = "/artists"
+	tracksPrefix      = "/tracks"
+	usersPrefix       = "/users"
+	docsPrefix        = "/docs"
+	popularPrefix     = "/popular"
 )
 
 const (
