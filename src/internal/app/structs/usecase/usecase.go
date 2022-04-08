@@ -20,17 +20,7 @@ func (useCase UseCase) GetLastId(mutex *sync.RWMutex) (id uint64, err error) {
 }
 
 func (useCase UseCase) Create(dom *utilsInterfaces.Domain, mutex *sync.RWMutex) (utilsInterfaces.UseCaseInterface, error) {
-	id, err := useCase.GetLastId(mutex)
-	if err != nil {
-		return nil, err
-	}
-
-	*dom, err = (*dom).SetId(id + 1)
-
-	if err != nil {
-		return nil, err
-	}
-
+	var err error
 	useCase.repo, err = useCase.repo.Insert(dom, mutex)
 	return useCase, err
 }
@@ -68,4 +58,8 @@ func (useCase UseCase) SetRepo(repo utilsInterfaces.RepoInterface, mutex *sync.R
 	defer mutex.Unlock()
 	useCase.repo = repo
 	return useCase, nil
+}
+
+func (useCase UseCase) GetSize(mutex *sync.RWMutex) (uint64, error) {
+	return useCase.repo.GetSize(mutex)
 }
