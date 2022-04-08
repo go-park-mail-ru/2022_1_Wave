@@ -11,6 +11,7 @@ services:
     depends_on:
       - wave_music
       - db
+      - pgadmin
 
   wave_music:
     build: ./
@@ -27,12 +28,6 @@ services:
     depends_on:
       - db
 
-  #  docs_generator:
-  #    build: ./
-  #    working_dir: /var/www/service
-  #    volumes:
-  #      - ../../src:/var/www/service
-
   db:
     image: postgres:14
     environment:
@@ -41,8 +36,6 @@ services:
       - POSTGRES_DB=wave
     expose:
       - 5432
-    ports:
-      - "5432:5432"
     working_dir: /var/www/service
     volumes:
       - .:/docker-entrypoint-initdb.d
@@ -50,26 +43,8 @@ services:
       - ../../src/db/:/var/run/postgresql/
 
   pgadmin:
+    hostname: pgadmin
     image: dpage/pgadmin4:6
     environment:
       PGADMIN_DEFAULT_EMAIL: admin@admin.com
       PGADMIN_DEFAULT_PASSWORD: root
-    ports:
-      - "5050:80"
-
-
-
-  #  db:
-  #    image: postgres
-  #    container_name: "wave-db"
-  ##    ports:
-  ##      - '5432:5432'
-  #    expose:
-  #       - 5432
-  #    volumes:
-  #      - ../../db_dump:/tmp
-  #      - .:/docker-entrypoint-initdb.d
-  #    environment:
-  #      - POSTGRES_USER=postgres
-  #      - POSTGRES_PASSWORD=music
-  #      - POSTGRES_DB=wave
