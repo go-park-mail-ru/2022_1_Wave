@@ -79,7 +79,6 @@ func (track Track) CreatePath(fileFormat string) (string, error) {
 }
 
 func (track Track) CastDomainToDataTransferObject(artist utilsInterfaces.Domain) (utilsInterfaces.DataTransfer, error) {
-	ptr := artist.(*Artist)
 
 	pathToCover, err := track.CreatePath(constants.PngFormat)
 	if err != nil {
@@ -93,7 +92,7 @@ func (track Track) CastDomainToDataTransferObject(artist utilsInterfaces.Domain)
 
 	return TrackDataTransfer{
 		Title:      track.Title,
-		Artist:     (*ptr).Name,
+		Artist:     artist.(Artist).Name,
 		Cover:      pathToCover,
 		Src:        pathToSrc,
 		Likes:      int(track.CountLikes),

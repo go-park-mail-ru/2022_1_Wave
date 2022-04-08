@@ -12,7 +12,7 @@ import (
 type Album struct {
 	Id             uint64 `json:"id" example:"8" db:"id"`
 	Title          string `json:"title" example:"Mercury" db:"title"`
-	ArtistId       uint64 `json:"authorId" example:"4" db:"artist_id"`
+	ArtistId       uint64 `json:"artistId" example:"4" db:"artist_id"`
 	CountLikes     uint64 `json:"countLikes" example:"54" db:"count_likes"`
 	CountListening uint64 `json:"countListening" example:"15632" db:"count_listening"`
 	Date           int64  `json:"date" example:"0" db:"date"`
@@ -72,7 +72,7 @@ func (album Album) CastDomainToDataTransferObject(artist utilsInterfaces.Domain)
 	}
 	return AlbumDataTransfer{
 		Title:  album.Title,
-		Artist: artist.(*Artist).Name,
+		Artist: artist.(Artist).Name,
 		Cover:  pathToCover,
 	}, nil
 }
