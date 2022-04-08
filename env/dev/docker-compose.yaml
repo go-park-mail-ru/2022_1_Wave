@@ -16,24 +16,52 @@ services:
     image: cosmtrek/air
     expose:
       - 5000
-    working_dir: /var/www/wave.music
+    working_dir: /var/www/service/
     volumes:
-      - ../../config/config.toml:/var/www/wave.music/config.toml
-      - ../../src:/var/www/wave.music
-      - ./.air.toml:/var/www/wave.music/.air.toml
+      - ../../config/config.toml:/var/www/service/config.toml
+      - ../../src:/var/www/service
+      - ./.air.toml:/var/www/service/.air.toml
+    environment:
+      - DATABASE_CONNECTION=user=postgres password=music dbname=wave host=db port=5432
+    depends_on:
+      - db
+
+  #  db:
+  #    image: postgres
+  #    container_name: "wave-db"
+  ##    ports:
+  ##      - '5432:5432'
+  #    expose:
+  #       - 5432
+  #    volumes:
+  #      - ../../db_dump:/tmp
+  #      - .:/docker-entrypoint-initdb.d
+  #    environment:
+  #      - POSTGRES_USER=postgres
+  #      - POSTGRES_PASSWORD=music
+  #      - POSTGRES_DB=wave
 
   db:
-    image: postgres
-    container_name: "wave-db"
-    ports:
-      - '5432:5432'
-    #    expose:
-    #      - 5432
-    volumes:
-      - ../../db_dump:/tmp
+    image: postgres:14
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=music
       - POSTGRES_DB=wave
+    expose:
+      - 5432
+    ports:
+      - "5432:5432"
+    working_dir: /var/www/service
+    volumes:
+      - .:/docker-entrypoint-initdb.d
+      - ../../src:/var/www/service
+      - ../../src/db/:/var/run/postgresql/
+  pgadmin:
+    image: dpage/pgadmin4:6
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: root
+    ports:
+      - "5050:80"
 
 
