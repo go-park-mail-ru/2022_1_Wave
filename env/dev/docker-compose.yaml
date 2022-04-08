@@ -13,25 +13,25 @@ services:
       - db
 
   wave_music:
-    image: cosmtrek/air
+    build: ./
     expose:
       - 5000
     working_dir: /var/www/service/
+    entrypoint: ./entrypoint.sh
     volumes:
       - ../../src:/var/www/service
-      - ./.air.toml:/var/www/service/.air.toml
-      - ../../config/config.toml:/var/www/service/config.toml
+      - ./.air.toml:/var/www/service/.air.toml:ro
+      - ../../config/config.toml:/var/www/service/config.toml:ro
     environment:
       - DATABASE_CONNECTION=user=postgres password=music dbname=wave host=db port=5432
     depends_on:
-      - docs_generator
       - db
 
-  docs_generator:
-    build: ./
-    working_dir: /var/www/service
-    volumes:
-      - ../../src:/var/www/service
+  #  docs_generator:
+  #    build: ./
+  #    working_dir: /var/www/service
+  #    volumes:
+  #      - ../../src:/var/www/service
 
   db:
     image: postgres:14
