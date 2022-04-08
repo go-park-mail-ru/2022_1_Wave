@@ -71,19 +71,13 @@ func (repo Repo) SelectByID(id uint64, mutex *sync.RWMutex) (*utilsInterfaces.Do
 	if id+1 > uint64(len(repo.Domains)) {
 		return nil, errors.New(constants.IndexOutOfRange)
 	}
-
-	var ptr interface{}
-	ptr = &repo.Domains[id]
-
-	var ptr2 interface{}
-	ptr2 = &ptr
-
-	return ptr2.(*utilsInterfaces.Domain), nil
+	return &repo.Domains[id], nil
 }
 
 func (repo Repo) GetAll(mutex *sync.RWMutex) (*[]utilsInterfaces.Domain, error) {
 	mutex.RLock()
 	defer mutex.RUnlock()
+
 	return &repo.Domains, nil
 }
 
