@@ -3,7 +3,7 @@ package trackTestDeliveryHttp
 import (
 	"github.com/go-park-mail-ru/2022_1_Wave/init/storage"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/domain"
-	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/structs/interfaces"
+	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/interfaces"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/structs/storage/local"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/structs/test"
 	trackDeliveryHttp "github.com/go-park-mail-ru/2022_1_Wave/internal/app/track/delivery/http"

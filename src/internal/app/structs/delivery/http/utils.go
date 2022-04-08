@@ -3,7 +3,7 @@ package structsDeliveryHttp
 import (
 	"errors"
 	constants "github.com/go-park-mail-ru/2022_1_Wave/internal"
-	utilsInterfaces "github.com/go-park-mail-ru/2022_1_Wave/internal/app/structs/interfaces"
+	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/interfaces"
 	domainCreator "github.com/go-park-mail-ru/2022_1_Wave/internal/app/tools/domain"
 	"github.com/labstack/echo/v4"
 	"reflect"

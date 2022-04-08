@@ -1,7 +1,7 @@
 package structsTesters
 
 import (
-	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/structs/interfaces"
+	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/interfaces"
 	dataTransferCreator "github.com/go-park-mail-ru/2022_1_Wave/internal/app/tools/dataTransfer"
 	"net/http"
 	"reflect"
@@ -66,7 +66,7 @@ func PrepareArrayCases(useCase utilsInterfaces.UseCaseInterface, mutex *sync.RWM
 
 	//for idx, object := range *objects {
 	for idx, obj := range *objects {
-		dataTransfer, _ := dataTransferCreator.CreateDataTransfer(domainType, obj, mutex)
+		dataTransfer, _ := dataTransferCreator.CreateDataTransfer(domainType, obj.(utilsInterfaces.Domain), mutex)
 		cases[idx] = TestCase{
 			Id:     idx,
 			Status: http.StatusOK,

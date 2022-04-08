@@ -4,7 +4,7 @@ import (
 	"github.com/go-park-mail-ru/2022_1_Wave/init/storage"
 	albumDeliveryHttp "github.com/go-park-mail-ru/2022_1_Wave/internal/app/album/delivery/http"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/domain"
-	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/structs/interfaces"
+	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/interfaces"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/structs/storage/local"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/structs/test"
 	"testing"

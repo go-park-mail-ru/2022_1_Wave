@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 	constants "github.com/go-park-mail-ru/2022_1_Wave/internal"
-	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/structs/interfaces"
+	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/interfaces"
 )
 
 //PhotoId        uint64 `json:"photoId" example:"6" db:"photo_id"`

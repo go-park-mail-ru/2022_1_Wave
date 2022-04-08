@@ -3,7 +3,7 @@ package domain
 import (
 	"errors"
 	constants "github.com/go-park-mail-ru/2022_1_Wave/internal"
-	utilsInterfaces "github.com/go-park-mail-ru/2022_1_Wave/internal/app/structs/interfaces"
+	utilsInterfaces2 "github.com/go-park-mail-ru/2022_1_Wave/internal/app/interfaces"
 )
 
 type AlbumCover struct {
@@ -17,7 +17,7 @@ func (cover AlbumCover) GetId() uint64 {
 	return cover.Id
 }
 
-func (cover AlbumCover) SetId(id uint64) (utilsInterfaces.Domain, error) {
+func (cover AlbumCover) SetId(id uint64) (utilsInterfaces2.Domain, error) {
 	cover.Id = id
 	//album.CoverId = album.Id
 	return cover, nil
@@ -44,7 +44,7 @@ func (cover AlbumCover) GetCountListening() uint64 {
 	return 0
 }
 
-func (cover AlbumCover) CastDomainToDataTransferObject(utilsInterfaces.Domain) (utilsInterfaces.DataTransfer, error) {
+func (cover AlbumCover) CastDomainToDataTransferObject(utilsInterfaces2.Domain) (utilsInterfaces2.DataTransfer, error) {
 	return AlbumCoverDataTransfer{
 		Title:  cover.Title,
 		Quote:  cover.Quote,
@@ -58,7 +58,7 @@ type AlbumCoverDataTransfer struct {
 	IsDark bool   `json:"isDark" example:"true"`
 }
 
-func (cover AlbumCoverDataTransfer) CreateDataTransferFromInterface(data interface{}) (utilsInterfaces.DataTransfer, error) {
+func (cover AlbumCoverDataTransfer) CreateDataTransferFromInterface(data interface{}) (utilsInterfaces2.DataTransfer, error) {
 	temp := data.(map[string]interface{})
 	return AlbumCoverDataTransfer{
 		Title:  temp[constants.FieldTitle].(string),

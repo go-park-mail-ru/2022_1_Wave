@@ -6,7 +6,7 @@ import (
 	"fmt"
 	constants "github.com/go-park-mail-ru/2022_1_Wave/internal"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/domain"
-	utilsInterfaces "github.com/go-park-mail-ru/2022_1_Wave/internal/app/structs/interfaces"
+	utilsInterfaces "github.com/go-park-mail-ru/2022_1_Wave/internal/app/interfaces"
 	domainCreator "github.com/go-park-mail-ru/2022_1_Wave/internal/app/tools/domain"
 	"github.com/jmoiron/sqlx"
 	"os"

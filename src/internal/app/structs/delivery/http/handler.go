@@ -3,7 +3,7 @@ package structsDeliveryHttp
 import (
 	"fmt"
 	constants "github.com/go-park-mail-ru/2022_1_Wave/internal"
-	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/structs/interfaces"
+	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/interfaces"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/tools/dataTransfer"
 	"github.com/go-park-mail-ru/2022_1_Wave/pkg/webUtils"
 	"github.com/labstack/echo/v4"

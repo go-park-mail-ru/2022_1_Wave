@@ -3,7 +3,7 @@ package structRepoLocal
 import (
 	"errors"
 	constants "github.com/go-park-mail-ru/2022_1_Wave/internal"
-	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/structs/interfaces"
+	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/interfaces"
 	"math"
 	"reflect"
 	"sort"
@@ -72,7 +72,13 @@ func (repo Repo) SelectByID(id uint64, mutex *sync.RWMutex) (*utilsInterfaces.Do
 		return nil, errors.New(constants.IndexOutOfRange)
 	}
 
-	return &repo.Domains[id], nil
+	var ptr interface{}
+	ptr = &repo.Domains[id]
+
+	var ptr2 interface{}
+	ptr2 = &ptr
+
+	return ptr2.(*utilsInterfaces.Domain), nil
 }
 
 func (repo Repo) GetAll(mutex *sync.RWMutex) (*[]utilsInterfaces.Domain, error) {

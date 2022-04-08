@@ -6,7 +6,7 @@ import (
 	"github.com/go-park-mail-ru/2022_1_Wave/db"
 	constants "github.com/go-park-mail-ru/2022_1_Wave/internal"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/domain"
-	utilsInterfaces "github.com/go-park-mail-ru/2022_1_Wave/internal/app/structs/interfaces"
+	utilsInterfaces2 "github.com/go-park-mail-ru/2022_1_Wave/internal/app/interfaces"
 	structRepoPostgres "github.com/go-park-mail-ru/2022_1_Wave/internal/app/structs/repository/postgresql"
 	domainCreator "github.com/go-park-mail-ru/2022_1_Wave/internal/app/tools/domain"
 	_ "github.com/jackc/pgx/stdlib"
@@ -17,10 +17,10 @@ import (
 
 type Postgres struct {
 	Sqlx           *sqlx.DB
-	AlbumRepo      utilsInterfaces.RepoInterface `json:"albumStorage"`
-	AlbumCoverRepo utilsInterfaces.RepoInterface `json:"albumCoverStorage"`
-	ArtistRepo     utilsInterfaces.RepoInterface `json:"artistStorage"`
-	TrackRepo      utilsInterfaces.RepoInterface `json:"trackStorage"`
+	AlbumRepo      utilsInterfaces2.RepoInterface `json:"albumStorage"`
+	AlbumCoverRepo utilsInterfaces2.RepoInterface `json:"albumCoverStorage"`
+	ArtistRepo     utilsInterfaces2.RepoInterface `json:"artistStorage"`
+	TrackRepo      utilsInterfaces2.RepoInterface `json:"trackStorage"`
 }
 
 func (storage Postgres) getPostgres() (*sql.DB, error) {
@@ -38,7 +38,7 @@ func (storage Postgres) getPostgres() (*sql.DB, error) {
 	return db, nil
 }
 
-func (storage Postgres) Open() (utilsInterfaces.GlobalStorageInterface, error) {
+func (storage Postgres) Open() (utilsInterfaces2.GlobalStorageInterface, error) {
 	var err error
 	db, err := storage.getPostgres()
 	if err != nil {
@@ -53,7 +53,7 @@ func (storage Postgres) Open() (utilsInterfaces.GlobalStorageInterface, error) {
 	return storage, nil
 }
 
-func (storage Postgres) Init(quantity int) (utilsInterfaces.GlobalStorageInterface, error) {
+func (storage Postgres) Init(quantity int) (utilsInterfaces2.GlobalStorageInterface, error) {
 	if quantity < 0 {
 		return nil, errors.New("quantity for db is negative")
 	}
@@ -71,10 +71,10 @@ func (storage Postgres) Init(quantity int) (utilsInterfaces.GlobalStorageInterfa
 	storage.ArtistRepo = structRepoPostgres.Table{Sqlx: storage.Sqlx, Name: constants.Artist}
 	storage.TrackRepo = structRepoPostgres.Table{Sqlx: storage.Sqlx, Name: constants.Track}
 
-	albums := make([]utilsInterfaces.Domain, quantity)
-	albumsCover := make([]utilsInterfaces.Domain, quantity)
-	tracks := make([]utilsInterfaces.Domain, quantity)
-	artists := make([]utilsInterfaces.Domain, quantity)
+	albums := make([]utilsInterfaces2.Domain, quantity)
+	albumsCover := make([]utilsInterfaces2.Domain, quantity)
+	tracks := make([]utilsInterfaces2.Domain, quantity)
+	artists := make([]utilsInterfaces2.Domain, quantity)
 
 	const max = 10000
 	const nameLen = 10
@@ -164,19 +164,19 @@ func (storage Postgres) Close() error {
 	return nil
 }
 
-func (storage Postgres) GetAlbumRepo() *utilsInterfaces.RepoInterface {
+func (storage Postgres) GetAlbumRepo() *utilsInterfaces2.RepoInterface {
 	return &storage.AlbumRepo
 }
 
-func (storage Postgres) GetAlbumCoverRepo() *utilsInterfaces.RepoInterface {
+func (storage Postgres) GetAlbumCoverRepo() *utilsInterfaces2.RepoInterface {
 	return &storage.AlbumCoverRepo
 }
 
-func (storage Postgres) GetArtistRepo() *utilsInterfaces.RepoInterface {
+func (storage Postgres) GetArtistRepo() *utilsInterfaces2.RepoInterface {
 	return &storage.ArtistRepo
 }
 
-func (storage Postgres) GetTrackRepo() *utilsInterfaces.RepoInterface {
+func (storage Postgres) GetTrackRepo() *utilsInterfaces2.RepoInterface {
 	return &storage.TrackRepo
 }
 

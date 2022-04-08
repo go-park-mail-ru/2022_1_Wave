@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 	constants "github.com/go-park-mail-ru/2022_1_Wave/internal"
-	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/structs/interfaces"
+	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/interfaces"
 )
 
 //CoverId        uint64 `json:"coverId" example:"8" db:"cover_id"`
