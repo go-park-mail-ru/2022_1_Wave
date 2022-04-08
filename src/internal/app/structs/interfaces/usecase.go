@@ -16,4 +16,5 @@ type UseCaseInterface interface {
 	GetType() reflect.Type
 	SetRepo(repoInterface RepoInterface, mutex *sync.RWMutex) (UseCaseInterface, error)
 	GetRepo() (RepoInterface, error)
+	GetSize(mutex *sync.RWMutex) (uint64, error)
 }

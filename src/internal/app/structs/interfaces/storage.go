@@ -1,13 +1,15 @@
 package utilsInterfaces
 
 type GlobalStorageInterface interface {
-	Open() error
+	Open() (GlobalStorageInterface, error)
 	Init(quantity int) (GlobalStorageInterface, error)
 	Close() error
 	GetAlbumRepo() *RepoInterface
+	GetAlbumCoverRepo() *RepoInterface
 	GetArtistRepo() *RepoInterface
 	GetTrackRepo() *RepoInterface
-	GetAlbumRepoLen() int
-	GetArtistRepoLen() int
-	GetTrackRepoLen() int
+	GetAlbumRepoLen() (int, error)
+	GetAlbumCoverRepoLen() (int, error)
+	GetArtistRepoLen() (int, error)
+	GetTrackRepoLen() (int, error)
 }
