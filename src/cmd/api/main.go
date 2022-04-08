@@ -4,8 +4,8 @@ import (
 	_ "github.com/go-park-mail-ru/2022_1_Wave/docs"
 	"github.com/go-park-mail-ru/2022_1_Wave/init/router"
 	"github.com/go-park-mail-ru/2022_1_Wave/init/storage"
-	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/structs/interfaces"
-	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/structs/storage/local"
+	utilsInterfaces "github.com/go-park-mail-ru/2022_1_Wave/internal/app/structs/interfaces"
+	structStoragePostgresql "github.com/go-park-mail-ru/2022_1_Wave/internal/app/structs/storage/postgresql"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"reflect"
@@ -14,6 +14,8 @@ import (
 // ConfigFilename config
 const ConfigFilename = "config.toml"
 const port = ":5000"
+
+const dbSize = 10
 
 func main() {
 	e := echo.New()
@@ -24,23 +26,45 @@ func main() {
 	//	log.Println("config loaded successfuly: ", config.C)
 	//}
 
-	const quantity = 10
-	localStorage := utilsInterfaces.GlobalStorageInterface(structStorageLocal.LocalStorage{})
+	globalStorage := utilsInterfaces.GlobalStorageInterface(structStoragePostgresql.Postgres{})
+	//globalStorage := utilsInterfaces.GlobalStorageInterface(structStorageLocal.LocalStorage{})
 
-	if err := storage.InitStorage(quantity, &localStorage); err != nil {
-		e.Logger.Fatal("error to init storage type <%v>, err: %v\n", reflect.TypeOf(localStorage), err)
+	if err := storage.InitStorage(dbSize, &globalStorage); err != nil {
+		e.Logger.Fatal("error to init storage type <%v>, err: %v", reflect.TypeOf(globalStorage), err)
 	}
 
-	e.Logger.Printf("Success init local storage type <%v>\n", reflect.TypeOf(localStorage))
-	e.Logger.Printf("Artists: %v", localStorage.GetArtistRepoLen())
-	e.Logger.Printf("Albums: %v", localStorage.GetAlbumRepoLen())
-	e.Logger.Printf("Tracks: %v", localStorage.GetArtistRepoLen())
+	e.Logger.Printf("Success init storage type <%v>", reflect.TypeOf(globalStorage))
+
+	artistRepoLen, err := globalStorage.GetArtistRepoLen()
+	if err != nil {
+		e.Logger.Fatalf("Error: %v", err)
+	}
+
+	albumRepoLen, err := globalStorage.GetAlbumRepoLen()
+	if err != nil {
+		e.Logger.Fatalf("Error: %v", err)
+	}
+
+	albumRepoCoverLen, err := globalStorage.GetAlbumCoverRepoLen()
+	if err != nil {
+		e.Logger.Fatalf("Error: %v", err)
+	}
+
+	trackRepoLen, err := globalStorage.GetTrackRepoLen()
+	if err != nil {
+		e.Logger.Fatalf("Error: %v", err)
+	}
+
+	e.Logger.Printf("Artists: %v", artistRepoLen)
+	e.Logger.Printf("Albums: %v", albumRepoLen)
+	e.Logger.Printf("AlbumCovers: %v", albumRepoCoverLen)
+	e.Logger.Printf("Tracks: %v", trackRepoLen)
 
 	router.Router(e)
 
 	e.Logger.Warnf("start listening on %s", port)
-	err := e.Start("0.0.0.0:5000")
-	if err != nil {
+
+	if err := e.Start("0.0.0.0:5000"); err != nil {
 		e.Logger.Errorf("server error: %s", err)
 	}
 
