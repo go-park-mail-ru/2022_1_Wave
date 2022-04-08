@@ -7,12 +7,14 @@ import (
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/structs/interfaces"
 )
 
+//PhotoId        uint64 `json:"photoId" example:"6" db:"photo_id"`
+
 type Artist struct {
-	Id             uint64 `json:"id" example:"6"`
-	Name           string `json:"name" example:"Imagine Dragons"`
-	PhotoId        uint64 `json:"photoId" example:"6"`
-	CountFollowers uint64 `json:"countFollowers" example:"1001"`
-	CountListening uint64 `json:"countListening" example:"7654"`
+	Id   uint64 `json:"id" example:"6" db:"id"`
+	Name string `json:"name" example:"Imagine Dragons" db:"name"`
+	//PhotoId        uint64 `db:"photo_id"`
+	CountFollowers uint64 `json:"countFollowers" example:"1001" db:"count_followers"`
+	CountListening uint64 `json:"countListening" example:"7654" db:"count_listening"`
 }
 
 func (artist Artist) GetId() uint64 {
@@ -25,7 +27,7 @@ func (artist Artist) GetIdRef() *uint64 {
 
 func (artist Artist) SetId(id uint64) (utilsInterfaces.Domain, error) {
 	artist.Id = id
-	artist.PhotoId = artist.Id
+	//artist.PhotoId = artist.Id
 	return artist, nil
 }
 
@@ -34,9 +36,9 @@ func (artist Artist) Check() error {
 		return errors.New(constants.ErrorArtistPhotoIdIsNegative)
 	}
 
-	if artist.PhotoId < 0 {
-		return errors.New(constants.ErrorArtistsMaxPhotoLinkLen)
-	}
+	//if artist.PhotoId < 0 {
+	//	return errors.New(constants.ErrorArtistsMaxPhotoLinkLen)
+	//}
 
 	if len(artist.Name) > constants.ArtistNameLen {
 		return errors.New(constants.ErrorArtistMaxNameLen)
@@ -58,10 +60,18 @@ func (artist Artist) GetCountListening() uint64 {
 	return artist.CountListening
 }
 
+func (artist Artist) CreatePath(fileFormat string) (string, error) {
+	return constants.AssetsPrefix + constants.ArtistPreName + fmt.Sprint(artist.Id) + fileFormat, nil
+}
+
 func (artist Artist) CastDomainToDataTransferObject(utilsInterfaces.Domain) (utilsInterfaces.DataTransfer, error) {
+	pathToPhoto, err := artist.CreatePath(constants.PngFormat)
+	if err != nil {
+		return nil, err
+	}
 	return ArtistDataTransfer{
 		Name:  artist.Name,
-		Cover: constants.AssetsPrefix + constants.ArtistPreName + fmt.Sprint(artist.PhotoId) + constants.PngFormat,
+		Cover: pathToPhoto,
 	}, nil
 }
 
