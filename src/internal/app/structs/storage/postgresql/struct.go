@@ -3,7 +3,7 @@ package structStoragePostgresql
 import (
 	"database/sql"
 	"errors"
-	"fmt"
+	"github.com/go-park-mail-ru/2022_1_Wave/db"
 	constants "github.com/go-park-mail-ru/2022_1_Wave/internal"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/domain"
 	utilsInterfaces "github.com/go-park-mail-ru/2022_1_Wave/internal/app/structs/interfaces"
@@ -24,7 +24,6 @@ type Postgres struct {
 }
 
 func (storage Postgres) getPostgres() (*sql.DB, error) {
-	fmt.Println(os.Environ())
 	dsn := os.Getenv("DATABASE_CONNECTION")
 	//dsn := "user=postgres dbname=wave password=music host=0.0.0.0 port=5432 sslmode=disable"
 	db, err := sql.Open("pgx", dsn)
@@ -65,7 +64,7 @@ func (storage Postgres) Init(quantity int) (utilsInterfaces.GlobalStorageInterfa
 	}
 	storage.Sqlx = proxy.(Postgres).Sqlx
 
-	//db.MigrateDB(storage.Sqlx.DB, "db/migrations/")
+	db.MigrateDB(storage.Sqlx.DB, "./db/migrations")
 
 	storage.AlbumRepo = structRepoPostgres.Table{Sqlx: storage.Sqlx, Name: constants.Album}
 	storage.AlbumCoverRepo = structRepoPostgres.Table{Sqlx: storage.Sqlx, Name: constants.AlbumCover}

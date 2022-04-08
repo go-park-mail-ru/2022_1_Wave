@@ -20,6 +20,7 @@ func MigrateDB(db *sql.DB, databaseMigrationsPath string) {
 	}
 
 	files, err := ioutil.ReadDir(databaseMigrationsPath)
+
 	sort.Slice(files, func(i, z int) bool {
 		splitI := strings.Split(files[i].Name(), "-")
 		iInts := convertVersionToInts(splitI[0])
@@ -30,6 +31,10 @@ func MigrateDB(db *sql.DB, databaseMigrationsPath string) {
 	})
 
 	if err != nil {
+		panic(err)
+	}
+
+	if _, err := db.Exec(`DROP TABLE if exists migrate_history;`); err != nil {
 		panic(err)
 	}
 
@@ -57,8 +62,10 @@ func MigrateDB(db *sql.DB, databaseMigrationsPath string) {
 		}
 
 		split := strings.Split(file.Name(), "-")
+
 		migrationVersion, migrationComment := convertVersionToInts(split[0]), split[1]
 		migrationVersionString := split[0]
+
 		if doesNeedApplyMigration(lastMigrationParts, migrationVersion) {
 			var sqlFiles []os.FileInfo
 			sqlFiles, err = ioutil.ReadDir(databaseMigrationsPath + "/" + migrationVersionString + "-" + migrationComment)
