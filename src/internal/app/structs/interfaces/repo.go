@@ -14,4 +14,5 @@ type RepoInterface interface {
 	GetPopular(*sync.RWMutex) (*[]Domain, error)
 	GetLastId(*sync.RWMutex) (id uint64, err error)
 	GetType(*sync.RWMutex) reflect.Type
+	GetSize(mutex *sync.RWMutex) (uint64, error)
 }
