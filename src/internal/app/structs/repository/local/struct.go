@@ -15,69 +15,79 @@ type Repo struct {
 }
 
 // ----------------------------------------------------------------------
-func (storage Repo) Insert(domain *utilsInterfaces.Domain, mutex *sync.RWMutex) (utilsInterfaces.RepoInterface, error) {
+func (repo Repo) Insert(dom *utilsInterfaces.Domain, mutex *sync.RWMutex) (utilsInterfaces.RepoInterface, error) {
 	mutex.Lock()
 	defer mutex.Unlock()
-	storage.Domains = append(storage.Domains, *domain)
-	return storage, nil
+
+	id, err := repo.GetSize(mutex)
+	if err != nil {
+		return nil, err
+	}
+	*dom, err = (*dom).SetId(id)
+	if err != nil {
+		return nil, err
+	}
+
+	repo.Domains = append(repo.Domains, *dom)
+	return repo, nil
 }
 
-func (storage Repo) Update(domain *utilsInterfaces.Domain, mutex *sync.RWMutex) (utilsInterfaces.RepoInterface, error) {
-	domainFromDB, err := storage.SelectByID((*domain).GetId(), mutex)
+func (repo Repo) Update(domain *utilsInterfaces.Domain, mutex *sync.RWMutex) (utilsInterfaces.RepoInterface, error) {
+	domainFromDB, err := repo.SelectByID((*domain).GetId(), mutex)
 
 	mutex.Lock()
 	defer mutex.Unlock()
 
 	if err != nil {
-		return storage, err
+		return repo, err
 	}
 	*domainFromDB = *domain
 
-	return storage, nil
+	return repo, nil
 }
 
-func (storage Repo) Delete(id uint64, mutex *sync.RWMutex) (utilsInterfaces.RepoInterface, error) {
+func (repo Repo) Delete(id uint64, mutex *sync.RWMutex) (utilsInterfaces.RepoInterface, error) {
 	mutex.Lock()
 	defer mutex.Unlock()
-	if id >= uint64(len(storage.Domains)) {
-		return storage, errors.New(constants.IndexOutOfRange)
+	if id >= uint64(len(repo.Domains)) {
+		return repo, errors.New(constants.IndexOutOfRange)
 	}
-	storage.Domains = append(storage.Domains[:id], storage.Domains[id+1:]...)
+	repo.Domains = append(repo.Domains[:id], repo.Domains[id+1:]...)
 
-	for idx, domain := range storage.Domains {
+	for idx, domain := range repo.Domains {
 		var err error
-		storage.Domains[idx], err = domain.SetId(uint64(idx))
+		repo.Domains[idx], err = domain.SetId(uint64(idx))
 		if err != nil {
-			return storage, err
+			return repo, err
 		}
 	}
-	return storage, nil
+	return repo, nil
 }
 
-func (storage Repo) SelectByID(id uint64, mutex *sync.RWMutex) (*utilsInterfaces.Domain, error) {
+func (repo Repo) SelectByID(id uint64, mutex *sync.RWMutex) (*utilsInterfaces.Domain, error) {
 	mutex.RLock()
 	defer mutex.RUnlock()
 
-	if id+1 > uint64(len(storage.Domains)) {
+	if id+1 > uint64(len(repo.Domains)) {
 		return nil, errors.New(constants.IndexOutOfRange)
 	}
-	return &storage.Domains[id], nil
+
+	return &repo.Domains[id], nil
 }
 
-func (storage Repo) GetAll(mutex *sync.RWMutex) (*[]utilsInterfaces.Domain, error) {
+func (repo Repo) GetAll(mutex *sync.RWMutex) (*[]utilsInterfaces.Domain, error) {
 	mutex.RLock()
 	defer mutex.RUnlock()
-	return &storage.Domains, nil
+	return &repo.Domains, nil
 }
 
-func (storage Repo) GetPopular(mutex *sync.RWMutex) (*[]utilsInterfaces.Domain, error) {
-	const top = 20
+func (repo Repo) GetPopular(mutex *sync.RWMutex) (*[]utilsInterfaces.Domain, error) {
 	mutex.RLock()
 	defer mutex.RUnlock()
 
-	var domainsPtr = make([]*utilsInterfaces.Domain, len(storage.Domains))
-	for i := 0; i < len(storage.Domains); i++ {
-		domainsPtr[i] = &storage.Domains[i]
+	var domainsPtr = make([]*utilsInterfaces.Domain, len(repo.Domains))
+	for i := 0; i < len(repo.Domains); i++ {
+		domainsPtr[i] = &repo.Domains[i]
 	}
 
 	sort.SliceStable(domainsPtr, func(i int, j int) bool {
@@ -86,7 +96,7 @@ func (storage Repo) GetPopular(mutex *sync.RWMutex) (*[]utilsInterfaces.Domain, 
 		return domain1.GetCountListening() > domain2.GetCountListening()
 	})
 
-	topChart := make([]utilsInterfaces.Domain, uint64(math.Min(top, float64(len(storage.Domains)))))
+	topChart := make([]utilsInterfaces.Domain, uint64(math.Min(constants.Top, float64(len(repo.Domains)))))
 	for i := 0; i < len(topChart); i++ {
 		topChart[i] = *domainsPtr[i]
 	}
@@ -94,27 +104,27 @@ func (storage Repo) GetPopular(mutex *sync.RWMutex) (*[]utilsInterfaces.Domain, 
 	return &topChart, nil
 }
 
-func (storage Repo) GetLastId(mutex *sync.RWMutex) (uint64, error) {
+func (repo Repo) GetLastId(mutex *sync.RWMutex) (uint64, error) {
 	mutex.RLock()
 	defer mutex.RUnlock()
 
-	if len(storage.Domains)-1 < 0 {
+	if len(repo.Domains)-1 < 0 {
 		return constants.NullId, errors.New(constants.ErrorDbIsEmpty)
 	}
 
-	return uint64(len(storage.Domains) - 1), nil
+	return uint64(len(repo.Domains) - 1), nil
 }
 
-func (storage Repo) GetType(mutex *sync.RWMutex) reflect.Type {
+func (repo Repo) GetType(mutex *sync.RWMutex) reflect.Type {
 	mutex.RLock()
 	defer mutex.RUnlock()
-	return reflect.TypeOf(storage)
+	return reflect.TypeOf(repo)
 }
 
-func (storage Repo) GetRefDomains(mutex *sync.RWMutex) []utilsInterfaces.Domain {
-	mutex.RLock()
-	defer mutex.RUnlock()
-	return storage.Domains
+func (repo Repo) GetSize(mutex *sync.RWMutex) (uint64, error) {
+	//mutex.RLock()
+	//defer mutex.RUnlock()
+	return uint64(len(repo.Domains)), nil
 }
 
 // ----------------------------------------------------------------------
