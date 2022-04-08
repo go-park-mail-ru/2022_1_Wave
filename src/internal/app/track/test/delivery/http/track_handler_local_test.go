@@ -49,7 +49,7 @@ type TestDomainCreator struct{}
 func (creator TestDomainCreator) PrepareOneTestDomain() utilsInterfaces.Domain {
 	return domain.Track{
 		Id:             7,
-		AlbumId:        5,
+		AlbumId:        uint64(5),
 		ArtistId:       3,
 		Title:          "testTrack",
 		Duration:       300,
