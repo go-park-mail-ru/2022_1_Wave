@@ -3,13 +3,21 @@ package http
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/bxcodec/faker"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/domain"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/domain/mocks"
 	"github.com/labstack/echo"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
+	"image"
+	"image/color"
+	"image/png"
+	"io"
+	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"strconv"
 	"strings"
 	"testing"
@@ -217,6 +225,89 @@ func TestUpdateSelfUser(t *testing.T) {
 	c.SetPath("/users/self")
 
 	err = handler.UpdateSelfUser(c)
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusBadRequest, rec.Code)
+}
+
+func createImage() *image.RGBA {
+	width := 100
+	height := 100
+
+	upLeft := image.Point{}
+	lowRight := image.Point{X: width, Y: height}
+
+	img := image.NewRGBA(image.Rectangle{Min: upLeft, Max: lowRight})
+
+	// Colors are defined by Red, Green, Blue, Alpha uint8 values.
+	cyan := color.RGBA{R: 100, G: 200, B: 200, A: 0xff}
+
+	// Set color for each pixel.
+	for x := 0; x < width; x++ {
+		for y := 0; y < height; y++ {
+			switch {
+			case x < width/2 && y < height/2: // upper left quadrant
+				img.Set(x, y, cyan)
+			case x >= width/2 && y >= height/2: // lower right quadrant
+				img.Set(x, y, color.White)
+			default:
+				// Use zero value.
+			}
+		}
+	}
+
+	// Encode as PNG.
+	return img
+}
+
+func TestUploadAvatar(t *testing.T) {
+	var mockUser domain.User
+	err := faker.FakeData(&mockUser)
+	assert.NoError(t, err)
+
+	mockUseCase := new(mocks.UserUseCase)
+	sessionId := "some_session_id"
+	mockUseCase.On("GetBySessionId", sessionId).Return(&mockUser, nil)
+	mockUseCase.On("Update", mockUser.ID, mock.Anything).Return(nil)
+
+	pr, pw := io.Pipe()
+
+	multipartWriter := multipart.NewWriter(pw)
+	go func() {
+		defer multipartWriter.Close()
+		img := createImage()
+		part, _ := multipartWriter.CreateFormFile("avatar", "someimg.png")
+
+		err = png.Encode(part, img)
+	}()
+
+	e := echo.New()
+
+	req, err := http.NewRequest(echo.PUT, "/users/self/upload_avatar", pr)
+	assert.NoError(t, err)
+	req.Header.Set(echo.HeaderContentType, multipartWriter.FormDataContentType())
+
+	cookie := &http.Cookie{
+		Name:     sessionIdKey,
+		Value:    sessionId,
+		HttpOnly: true,
+	}
+	req.AddCookie(cookie)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+	c.SetPath("/users/self/upload_avatar")
+	handler := UserHandler{
+		userUseCase: mockUseCase,
+	}
+
+	split := strings.Split(pathToAvatars, "/")
+	now_dir := ""
+	for _, s := range split {
+		now_dir += s
+		err = os.Mkdir(now_dir, 0777)
+		now_dir += "/"
+	}
+	fmt.Println(err)
+	err = handler.UploadAvatar(c)
 	assert.NoError(t, err)
 	assert.Equal(t, http.StatusBadRequest, rec.Code)
 }

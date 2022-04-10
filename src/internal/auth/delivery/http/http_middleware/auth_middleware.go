@@ -1,9 +1,10 @@
-package middleware
+package http_middleware
 
 import (
 	"errors"
 	"github.com/go-park-mail-ru/2022_1_Wave/config"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/domain"
+	"github.com/go-park-mail-ru/2022_1_Wave/internal/helpers"
 	"github.com/labstack/echo"
 	"net/http"
 )
@@ -58,7 +59,7 @@ func (m *HttpMiddleware) CSRF(next echo.HandlerFunc) echo.HandlerFunc {
 		}
 
 		csrf := c.Request().Header.Get(echo.HeaderXCSRFToken)
-		if csrf != cookie.Value {
+		if !helpers.CheckCSRF(cookie.Value, csrf) {
 			return c.JSON(http.StatusUnauthorized, getErrorMiddlewareResponse(ErrInvalidCSRF))
 		}
 

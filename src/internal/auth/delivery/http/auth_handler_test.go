@@ -256,3 +256,7 @@ func TestGetCSRF(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, http.StatusUnprocessableEntity, rec.Code)
 }
+
+func TestMiddleware(t *testing.T) {
+
+}

@@ -3,8 +3,9 @@ package http
 import (
 	"errors"
 	"github.com/go-park-mail-ru/2022_1_Wave/config"
-	"github.com/go-park-mail-ru/2022_1_Wave/internal/auth/delivery/http/middleware"
+	"github.com/go-park-mail-ru/2022_1_Wave/internal/auth/delivery/http/http_middleware"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/domain"
+	"github.com/go-park-mail-ru/2022_1_Wave/internal/helpers"
 	"github.com/labstack/echo"
 	"net/http"
 	"time"
@@ -20,6 +21,7 @@ type AuthHandler struct {
 }
 
 var sessionExpire, _ = time.ParseDuration(config.C.SessionExpires)
+var csrfTokenExpire, _ = time.ParseDuration("1h")
 
 func formCookie(sessionId string) *http.Cookie {
 	return &http.Cookie{
@@ -30,7 +32,7 @@ func formCookie(sessionId string) *http.Cookie {
 	}
 }
 
-func NewAuthHandler(e *echo.Echo, authUseCase domain.AuthUseCase, m *middleware.HttpMiddleware) {
+func NewAuthHandler(e *echo.Echo, authUseCase domain.AuthUseCase, m *http_middleware.HttpMiddleware) {
 	handler := &AuthHandler{
 		authUseCase: authUseCase,
 	}
@@ -92,14 +94,14 @@ func (a *AuthHandler) GetCSRF(c echo.Context) error {
 	cookie, err := c.Cookie(sessionIdKey)
 	var csrfToken string
 	if err == nil && a.authUseCase.IsSession(cookie.Value) { // уже есть сессия, выставляем csrf как session_id
-		csrfToken = cookie.Value
+		csrfToken = helpers.CreateCSRF(cookie.Value, int64(csrfTokenExpire))
 	} else { // нет сессии - создаем
 		sessionId, err := a.authUseCase.GetUnauthorizedSession()
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, getErrorAuthResponse(err))
 		}
 
-		csrfToken = sessionId
+		csrfToken = helpers.CreateCSRF(sessionId, int64(csrfTokenExpire))
 		c.SetCookie(formCookie(sessionId))
 	}
 
