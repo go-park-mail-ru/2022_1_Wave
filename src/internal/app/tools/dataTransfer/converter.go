@@ -24,7 +24,7 @@ func GetDataTransferTypeByDomainType(domainType reflect.Type) (reflect.Type, err
 	switch domainType {
 	case domain.AlbumDomainType:
 		return domain.AlbumDataTransferType, nil
-	case domain.AlbumCoverDataTransferType:
+	case domain.AlbumCoverDomainType:
 		return domain.AlbumCoverDataTransferType, nil
 	case domain.ArtistDomainType:
 		return domain.ArtistDataTransferType, nil
