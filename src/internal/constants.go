@@ -114,6 +114,12 @@ const (
 
 // db types
 const (
+	Local    = "local"
+	Postgres = "postgres"
+)
+
+// table types
+const (
 	Album      = "album"
 	AlbumCover = "albumCover"
 	Artist     = "artist"
