@@ -3,7 +3,6 @@ package structRepoPostgres
 import (
 	"database/sql"
 	"errors"
-	"fmt"
 	constants "github.com/go-park-mail-ru/2022_1_Wave/internal"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/domain"
 	utilsInterfaces "github.com/go-park-mail-ru/2022_1_Wave/internal/app/interfaces"
@@ -16,19 +15,20 @@ import (
 
 type Table struct {
 	Sqlx *sqlx.DB
-	Name string
+	name string
 }
 
 // ----------------------------------------------------------------------
-func (table Table) Insert(dom *utilsInterfaces.Domain, mutex *sync.RWMutex) (utilsInterfaces.RepoInterface, error) {
+func (table Table) Insert(dom utilsInterfaces.Domain, mutex *sync.RWMutex) (utilsInterfaces.RepoInterface, error) {
 	mutex.Lock()
+
 	defer mutex.Unlock()
 
 	id, err := table.GetSize(mutex)
 	if err != nil {
 		return nil, err
 	}
-	*dom, err = (*dom).SetId(id + 1)
+	dom, err = dom.SetId(id + 1)
 	if err != nil {
 		return nil, err
 	}
@@ -36,32 +36,31 @@ func (table Table) Insert(dom *utilsInterfaces.Domain, mutex *sync.RWMutex) (uti
 	query := ""
 
 	var holder interface{}
-	switch table.Name {
+	switch table.GetTableName() {
 	case constants.Album:
-		holder = (*dom).(domain.Album)
-		query = fmt.Sprintf(`
-		INSERT INTO %s (title, artist_id, count_likes, count_listening, date)
+		holder = dom.(domain.Album)
+		query = `
+		INSERT INTO album (title, artist_id, count_likes, count_listening, date)
 		VALUES (:title, :artist_id, :count_likes, :count_listening, :date)
-		RETURNING id`, table.Name)
+		RETURNING id`
 	case constants.Artist:
-		holder = (*dom).(domain.Artist)
-		query = fmt.Sprintf(`
-		INSERT INTO %s (name, count_followers, count_listening)
+		holder = dom.(domain.Artist)
+		query = `
+		INSERT INTO artist (name, count_followers, count_listening)
 		VALUES (:name, :count_followers, :count_listening)
-		RETURNING id`, table.Name)
+		RETURNING id`
 	case constants.Track:
-		holder = (*dom).(domain.Track)
-		query = fmt.Sprintf(`
-		INSERT INTO %s (album_id, artist_id, title, duration, count_likes, count_listening)
+		holder = dom.(domain.Track)
+		query = `
+		INSERT INTO track (album_id, artist_id, title, duration, count_likes, count_listening)
 		VALUES (:album_id, :artist_id, :title, :duration, :count_likes, :count_listening)
-		RETURNING id`, table.Name)
+		RETURNING id`
 	case constants.AlbumCover:
-		holder = (*dom).(domain.AlbumCover)
-		query = fmt.Sprintf(`
-		INSERT INTO %s (title, quote, is_dark)
+		holder = dom.(domain.AlbumCover)
+		query = `
+		INSERT INTO albumCover (title, quote, is_dark)
 		VALUES (:title, :quote, :is_dark)
-		RETURNING id`, table.Name)
-
+		RETURNING id`
 	default:
 		return table, errors.New(constants.BadType)
 	}
@@ -73,14 +72,18 @@ func (table Table) Insert(dom *utilsInterfaces.Domain, mutex *sync.RWMutex) (uti
 	}
 	var lastId uint64
 	err = res.Get(&lastId, holder)
-	if err != nil {
+
+	if err := res.Close(); err != nil {
 		return table, err
 	}
 
+	if err != nil {
+		return table, err
+	}
 	return table, nil
 }
 
-func (table Table) Update(dom *utilsInterfaces.Domain, mutex *sync.RWMutex) (utilsInterfaces.RepoInterface, error) {
+func (table Table) Update(dom utilsInterfaces.Domain, mutex *sync.RWMutex) (utilsInterfaces.RepoInterface, error) {
 	mutex.Lock()
 	defer mutex.Unlock()
 
@@ -89,7 +92,7 @@ func (table Table) Update(dom *utilsInterfaces.Domain, mutex *sync.RWMutex) (uti
 		return table, err
 	}
 
-	id := (*dom).GetId()
+	id := dom.GetId()
 
 	if id > lastId {
 		return table, errors.New(constants.IndexOutOfRange)
@@ -98,29 +101,29 @@ func (table Table) Update(dom *utilsInterfaces.Domain, mutex *sync.RWMutex) (uti
 	query := ""
 
 	var holder interface{}
-	switch table.Name {
+	switch table.GetTableName() {
 	case constants.Album:
-		holder = (*dom).(domain.Album)
-		query = fmt.Sprintf(`
-		UPDATE %s SET title=:title, artist_id=:artist_id, count_likes=:count_likes, count_listening=:count_listening, date=:date
-		WHERE id = %d`, table.Name, id)
+		holder = dom.(domain.Album)
+		query = `
+		UPDATE album SET title=:title, artist_id=:artist_id, count_likes=:count_likes, count_listening=:count_listening, date=:date
+		WHERE id = :id`
 	case constants.Artist:
-		holder = (*dom).(domain.Artist)
-		query = fmt.Sprintf(`
-		UPDATE %s SET name=:name, count_followers=:count_followers, count_listening=:count_listening
-		WHERE id = %d`, table.Name, id)
+		holder = dom.(domain.Artist)
+		query = `
+		UPDATE artist SET name=:name, count_followers=:count_followers, count_listening=:count_listening
+		WHERE id = :id`
 	case constants.Track:
-		holder = (*dom).(domain.Track)
-		query = fmt.Sprintf(`
-		UPDATE %s
+		holder = dom.(domain.Track)
+		query = `
+		UPDATE track
 		SET album_id=:album_id, artist_id=:artist_id, title=:title, duration=:duration, count_likes=:count_likes, count_listening=:count_listening
-		WHERE id = %d`, table.Name, id)
+		WHERE id = :id`
 	case constants.AlbumCover:
-		holder = (*dom).(domain.AlbumCover)
-		query = fmt.Sprintf(`
-		UPDATE %s
+		holder = dom.(domain.AlbumCover)
+		query = `
+		UPDATE albumcover
 		SET title=:title, quote=:quote, is_dark=:is_dark
-		WHERE id = %d`, table.Name, id)
+		WHERE id = :id`
 	default:
 		return table, errors.New(constants.BadType)
 	}
@@ -146,9 +149,25 @@ func (table Table) Delete(id uint64, mutex *sync.RWMutex) (utilsInterfaces.RepoI
 	mutex.Lock()
 	defer mutex.Unlock()
 
-	query := fmt.Sprintf(`DELETE FROM %s WHERE id = $1`, table.Name)
+	query := ""
+	switch table.GetTableName() {
+	case constants.Album:
+		query = `DELETE FROM album WHERE id = $1`
+	case constants.Artist:
+		query = `DELETE FROM artist WHERE id = $1`
+	case constants.Track:
+		query = `DELETE FROM track WHERE id = $1`
+	case constants.AlbumCover:
+		query = `DELETE FROM albumcover WHERE id = $1`
+	default:
+		return table, errors.New(constants.BadType)
+	}
 
 	res, err := table.Sqlx.Exec(query, id)
+
+	if err != nil {
+		return table, err
+	}
 
 	deleted, err := res.RowsAffected()
 
@@ -162,8 +181,7 @@ func (table Table) Delete(id uint64, mutex *sync.RWMutex) (utilsInterfaces.RepoI
 	return table, nil
 }
 
-// TODO решить проблему с двойной ссылочностью
-func (table Table) SelectByID(id uint64, mutex *sync.RWMutex) (*utilsInterfaces.Domain, error) {
+func (table Table) SelectByID(id uint64, mutex *sync.RWMutex) (utilsInterfaces.Domain, error) {
 	mutex.RLock()
 	defer mutex.RUnlock()
 
@@ -175,35 +193,78 @@ func (table Table) SelectByID(id uint64, mutex *sync.RWMutex) (*utilsInterfaces.
 		return nil, errors.New(constants.IndexOutOfRange)
 	}
 
+	query := ""
 	//var holder interface{}
-	//if err := domainCreator.ToDomainPtr(holder, table.Name); err != nil {
+	//holder, err := domainCreator.ToDomainPtrByTableName(table.name)
+
+	switch table.GetTableName() {
+	case constants.Album:
+		query = `SELECT * FROM album WHERE id = $1;`
+		holder := domain.Album{}
+		err = table.Sqlx.Get(&holder, query, id)
+		if err != nil {
+			return nil, err
+		}
+		return holder, nil
+	case constants.Artist:
+		query = `SELECT * FROM artist WHERE id = $1;`
+		holder := domain.Artist{}
+		err = table.Sqlx.Get(&holder, query, id)
+		if err != nil {
+			return nil, err
+		}
+		return holder, nil
+	case constants.Track:
+		query = `SELECT * FROM track WHERE id = $1;`
+		holder := domain.Track{}
+		err = table.Sqlx.Get(&holder, query, id)
+		if err != nil {
+			return nil, err
+		}
+		temp, ok := holder.AlbumId.(int64)
+		if !ok {
+			return nil, err
+		}
+		holder.AlbumId = uint64(temp)
+		return holder, nil
+	case constants.AlbumCover:
+		query = `SELECT * FROM albumcover WHERE id = $1;`
+		holder := domain.AlbumCover{}
+		err = table.Sqlx.Get(&holder, query, id)
+		if err != nil {
+			return nil, err
+		}
+		return holder, nil
+	default:
+		return nil, errors.New(constants.BadType)
+	}
+
+	//if err := table.Sqlx.Get(holder, query, id); err != nil {
 	//	return nil, err
 	//}
 
-	holder, err := domainCreator.ToDomainPtr(table.Name)
+	//return holder.(utilsInterfaces.Domain), nil
 
-	query := fmt.Sprintf(`SELECT * FROM %s WHERE id = %d;`, table.Name, id)
+	//if err != nil {
+	//	return nil, err
+	//}
 
-	if err := table.Sqlx.Get(holder, query); err != nil {
-		return nil, err
-	}
-
-	return &holder, nil
+	//return *holder.(utilsInterfaces.Domain), nil
 }
 
-func (table Table) getManyObjects(query string) ([]utilsInterfaces.Domain, error) {
+func (table Table) getManyObjects(query string, args ...interface{}) ([]utilsInterfaces.Domain, error) {
 	var holder interface{}
-	err := domainCreator.ToDomainsArrayPtr(&holder, table.Name)
+	err := domainCreator.ToDomainsArrayPtr(&holder, table.GetTableName())
 	if err != nil {
 		return nil, err
 	}
 
-	err = table.Sqlx.Select(holder, query)
+	err = table.Sqlx.Select(holder, query, args...)
 	if err != nil {
 		return nil, err
 	}
 
-	values, err := domainCreator.GetValues(holder, table.Name)
+	values, err := domainCreator.GetValues(holder, table.GetTableName())
 
 	return values, nil
 
@@ -220,11 +281,23 @@ func (table Table) getManyObjects(query string) ([]utilsInterfaces.Domain, error
 
 }
 
-func (table Table) GetAll(mutex *sync.RWMutex) (*[]utilsInterfaces.Domain, error) {
+func (table Table) GetAll(mutex *sync.RWMutex) ([]utilsInterfaces.Domain, error) {
 	mutex.RLock()
 	defer mutex.RUnlock()
 
-	query := fmt.Sprintf("SELECT * FROM %s ORDER BY id;", table.Name)
+	query := ""
+	switch table.GetTableName() {
+	case constants.Album:
+		query = `SELECT * FROM album ORDER BY id;`
+	case constants.Artist:
+		query = `SELECT * FROM artist ORDER BY id;`
+	case constants.Track:
+		query = `SELECT * FROM track ORDER BY id;`
+	case constants.AlbumCover:
+		query = `SELECT * FROM albumcover ORDER BY id;`
+	default:
+		return nil, errors.New(constants.BadType)
+	}
 
 	manyObj, err := table.getManyObjects(query)
 
@@ -232,33 +305,69 @@ func (table Table) GetAll(mutex *sync.RWMutex) (*[]utilsInterfaces.Domain, error
 		return nil, err
 	}
 
-	return &manyObj, nil
+	return manyObj, nil
 }
 
-func (table Table) GetPopular(mutex *sync.RWMutex) (*[]utilsInterfaces.Domain, error) {
+func (table Table) GetPopular(mutex *sync.RWMutex) ([]utilsInterfaces.Domain, error) {
 	mutex.RLock()
 	defer mutex.RUnlock()
 
-	query := fmt.Sprintf(`
-	SELECT *
-	FROM %s
-	ORDER BY %s DESC
-	LIMIT %d; `, table.Name, constants.Count_listening, constants.Top)
+	query := ""
+	switch table.GetTableName() {
+	case constants.Album:
+		query = `
+			SELECT *
+			FROM album
+			ORDER BY count_listening DESC
+			LIMIT $1;`
+	case constants.Artist:
+		query = `
+			SELECT *
+			FROM artist
+			ORDER BY count_listening DESC
+			LIMIT $1;`
+	case constants.Track:
+		query = `
+			SELECT *
+			FROM track
+			ORDER BY count_listening DESC
+			LIMIT $1;`
+	case constants.AlbumCover:
+		query = `
+			SELECT *
+			FROM albumcover
+			ORDER BY count_listening DESC
+			LIMIT $1;`
+	default:
+		return nil, errors.New(constants.BadType)
+	}
 
-	manyObj, err := table.getManyObjects(query)
+	manyObj, err := table.getManyObjects(query, constants.Top)
 
 	if err != nil {
 		return nil, err
 	}
 
-	return &manyObj, nil
+	return manyObj, nil
 }
 
 func (table Table) GetLastId(mutex *sync.RWMutex) (uint64, error) {
 	//mutex.RLock()
 	//defer mutex.RUnlock()
 
-	query := fmt.Sprintf("SELECT max(id) from %s", table.Name)
+	query := ""
+	switch table.GetTableName() {
+	case constants.Album:
+		query = `SELECT max(id) from album;`
+	case constants.Artist:
+		query = `SELECT max(id) from artist;`
+	case constants.Track:
+		query = `SELECT max(id) from track;`
+	case constants.AlbumCover:
+		query = `SELECT max(id) from albumcover;`
+	default:
+		return 0, errors.New(constants.BadType)
+	}
 
 	lastId := sql.NullInt64{}
 	err := table.Sqlx.Get(&lastId, query)
@@ -274,6 +383,14 @@ func (table Table) GetLastId(mutex *sync.RWMutex) (uint64, error) {
 	return uint64(lastId.Int64), nil
 }
 
+func (table Table) GetTableName() string {
+	return table.name
+}
+func (table Table) SetTableName(name string) (Table, error) {
+	table.name = name
+	return table, nil
+}
+
 func (table Table) GetType(mutex *sync.RWMutex) reflect.Type {
 	mutex.RLock()
 	defer mutex.RUnlock()
@@ -284,7 +401,19 @@ func (table Table) GetSize(mutex *sync.RWMutex) (uint64, error) {
 	//mutex.RLock()
 	//defer mutex.RUnlock()
 
-	query := fmt.Sprintf("SELECT count(*) From %s;", table.Name)
+	query := ""
+	switch table.GetTableName() {
+	case constants.Album:
+		query = `SELECT count(*) From album;`
+	case constants.Artist:
+		query = `SELECT count(*) From artist;`
+	case constants.Track:
+		query = `SELECT count(*) From track;`
+	case constants.AlbumCover:
+		query = `SELECT count(*) From albumcover;`
+	default:
+		return 0, errors.New(constants.BadType)
+	}
 
 	size := uint64(0)
 	if err := table.Sqlx.Get(&size, query); err != nil {
