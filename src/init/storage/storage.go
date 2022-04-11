@@ -11,9 +11,12 @@ import (
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/domain"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/interfaces"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/structs/delivery/http"
+	structStorageLocal "github.com/go-park-mail-ru/2022_1_Wave/internal/app/structs/storage/local"
+	structStoragePostgresql "github.com/go-park-mail-ru/2022_1_Wave/internal/app/structs/storage/postgresql"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/structs/usecase"
 	trackDeliveryHttp "github.com/go-park-mail-ru/2022_1_Wave/internal/app/track/delivery/http"
 	trackUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/app/track/usecase"
+	"github.com/sirupsen/logrus"
 	"log"
 	"reflect"
 	"sync"
@@ -59,16 +62,29 @@ func initRepo(domainType reflect.Type, concreteUseCase *structsUseCase.UseCase, 
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	handler, err = handler.SetUseCase(concreteUseCase, mutex)
 
 	*concreteUseCase = useCase.(structsUseCase.UseCase)
 	*concreteHandler = handler.(structsDeliveryHttp.Handler)
 }
 
-func InitStorage(quantity int, storage *utilsInterfaces.GlobalStorageInterface) error {
-	initedStorage, err := (*storage).Init(quantity)
+func InitStorage(quantity int, dataBaseType string) error {
+
+	var storage utilsInterfaces.GlobalStorageInterface
+	switch dataBaseType {
+	case internal.Postgres:
+		storage = structStoragePostgresql.Postgres{}
+	case internal.Local:
+		storage = structStorageLocal.LocalStorage{}
+	default:
+		logrus.Fatal(internal.BadType)
+	}
+
+	initedStorage, err := storage.Init(quantity)
 
 	if err != nil {
+		logrus.Fatal("error to cast database")
 		return err
 	}
 
@@ -79,12 +95,12 @@ func InitStorage(quantity int, storage *utilsInterfaces.GlobalStorageInterface) 
 	initRepo(domain.AlbumCoverDomainType, &albumCoverUseCase.UseCase, &albumCoverDeliveryHttp.Handler, initedStorage, domain.AlbumCoverMutex)
 
 	// artists
-	initRepo(domain.ArtistDomainType, &artistUseCase.UseCase, &artistDeliveryHttp.Handler, initedStorage, domain.AlbumMutex)
+	initRepo(domain.ArtistDomainType, &artistUseCase.UseCase, &artistDeliveryHttp.Handler, initedStorage, domain.ArtistMutex)
 
 	// tracks
-	initRepo(domain.TrackDomainType, &trackUseCase.UseCase, &trackDeliveryHttp.Handler, initedStorage, domain.AlbumMutex)
+	initRepo(domain.TrackDomainType, &trackUseCase.UseCase, &trackDeliveryHttp.Handler, initedStorage, domain.TrackMutex)
 
-	*storage = initedStorage
+	storage = initedStorage
 
 	return nil
 }
