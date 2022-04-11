@@ -4,9 +4,10 @@ import (
 	"database/sql"
 	"errors"
 	"github.com/go-park-mail-ru/2022_1_Wave/db"
+	"github.com/go-park-mail-ru/2022_1_Wave/init/logger"
 	constants "github.com/go-park-mail-ru/2022_1_Wave/internal"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/domain"
-	utilsInterfaces2 "github.com/go-park-mail-ru/2022_1_Wave/internal/app/interfaces"
+	utilsInterfaces "github.com/go-park-mail-ru/2022_1_Wave/internal/app/interfaces"
 	structRepoPostgres "github.com/go-park-mail-ru/2022_1_Wave/internal/app/structs/repository/postgresql"
 	domainCreator "github.com/go-park-mail-ru/2022_1_Wave/internal/app/tools/domain"
 	_ "github.com/jackc/pgx/stdlib"
@@ -17,15 +18,17 @@ import (
 
 type Postgres struct {
 	Sqlx           *sqlx.DB
-	AlbumRepo      utilsInterfaces2.RepoInterface `json:"albumStorage"`
-	AlbumCoverRepo utilsInterfaces2.RepoInterface `json:"albumCoverStorage"`
-	ArtistRepo     utilsInterfaces2.RepoInterface `json:"artistStorage"`
-	TrackRepo      utilsInterfaces2.RepoInterface `json:"trackStorage"`
+	AlbumRepo      utilsInterfaces.RepoInterface `json:"albumStorage"`
+	AlbumCoverRepo utilsInterfaces.RepoInterface `json:"albumCoverStorage"`
+	ArtistRepo     utilsInterfaces.RepoInterface `json:"artistStorage"`
+	TrackRepo      utilsInterfaces.RepoInterface `json:"trackStorage"`
 }
 
 func (storage Postgres) getPostgres() (*sql.DB, error) {
 	dsn := os.Getenv("DATABASE_CONNECTION")
-	//dsn := "user=postgres dbname=wave password=music host=0.0.0.0 port=5432 sslmode=disable"
+	if dsn == "" {
+		dsn = "user=test dbname=test password=test host=localhost port=5500 sslmode=disable"
+	}
 	db, err := sql.Open("pgx", dsn)
 	if err != nil {
 		return nil, err
@@ -38,7 +41,7 @@ func (storage Postgres) getPostgres() (*sql.DB, error) {
 	return db, nil
 }
 
-func (storage Postgres) Open() (utilsInterfaces2.GlobalStorageInterface, error) {
+func (storage Postgres) Open() (utilsInterfaces.GlobalStorageInterface, error) {
 	var err error
 	db, err := storage.getPostgres()
 	if err != nil {
@@ -53,7 +56,7 @@ func (storage Postgres) Open() (utilsInterfaces2.GlobalStorageInterface, error) 
 	return storage, nil
 }
 
-func (storage Postgres) Init(quantity int) (utilsInterfaces2.GlobalStorageInterface, error) {
+func (storage Postgres) Init(quantity int) (utilsInterfaces.GlobalStorageInterface, error) {
 	if quantity < 0 {
 		return nil, errors.New("quantity for db is negative")
 	}
@@ -64,17 +67,47 @@ func (storage Postgres) Init(quantity int) (utilsInterfaces2.GlobalStorageInterf
 	}
 	storage.Sqlx = proxy.(Postgres).Sqlx
 
-	db.MigrateDB(storage.Sqlx.DB, "./db/migrations")
+	logger.GlobalLogger.Logrus.Warnln("Finding migrations...")
+	path := os.Getenv("DATABASE_MIGRATIONS")
+	if path == "" {
+		path = "../../../db/migrations"
+	}
 
-	storage.AlbumRepo = structRepoPostgres.Table{Sqlx: storage.Sqlx, Name: constants.Album}
-	storage.AlbumCoverRepo = structRepoPostgres.Table{Sqlx: storage.Sqlx, Name: constants.AlbumCover}
-	storage.ArtistRepo = structRepoPostgres.Table{Sqlx: storage.Sqlx, Name: constants.Artist}
-	storage.TrackRepo = structRepoPostgres.Table{Sqlx: storage.Sqlx, Name: constants.Track}
+	db.MigrateDB(storage.Sqlx.DB, path)
 
-	albums := make([]utilsInterfaces2.Domain, quantity)
-	albumsCover := make([]utilsInterfaces2.Domain, quantity)
-	tracks := make([]utilsInterfaces2.Domain, quantity)
-	artists := make([]utilsInterfaces2.Domain, quantity)
+	albumTable := structRepoPostgres.Table{Sqlx: storage.Sqlx}
+	albumTable, err = albumTable.SetTableName(constants.Album)
+	if err != nil {
+		return storage, err
+	}
+
+	albumCoverTable := structRepoPostgres.Table{Sqlx: storage.Sqlx}
+	albumCoverTable, err = albumCoverTable.SetTableName(constants.AlbumCover)
+	if err != nil {
+		return storage, err
+	}
+
+	artistTable := structRepoPostgres.Table{Sqlx: storage.Sqlx}
+	artistTable, err = artistTable.SetTableName(constants.Artist)
+	if err != nil {
+		return storage, err
+	}
+
+	trackTable := structRepoPostgres.Table{Sqlx: storage.Sqlx}
+	trackTable, err = trackTable.SetTableName(constants.Track)
+	if err != nil {
+		return storage, err
+	}
+
+	storage.AlbumRepo = albumTable
+	storage.AlbumCoverRepo = albumCoverTable
+	storage.ArtistRepo = artistTable
+	storage.TrackRepo = trackTable
+
+	albums := make([]utilsInterfaces.Domain, quantity)
+	albumsCover := make([]utilsInterfaces.Domain, quantity)
+	tracks := make([]utilsInterfaces.Domain, quantity)
+	artists := make([]utilsInterfaces.Domain, quantity)
 
 	const max = 10000
 	const nameLen = 10
@@ -85,60 +118,74 @@ func (storage Postgres) Init(quantity int) (utilsInterfaces2.GlobalStorageInterf
 	const maxListening = max
 	const maxLikes = max
 
+	mutex := &sync.Mutex{}
 	wg := &sync.WaitGroup{}
 
 	// albums cover
 	coverError := make(chan error, 1)
 	wg.Add(1)
-	go func(wg *sync.WaitGroup, ch chan error) {
+	go func(wg *sync.WaitGroup, ch chan error, mutex *sync.Mutex) {
 		defer wg.Done()
 		for i := 0; i < quantity; i++ {
-			id := uint64(i)
+			id := uint64(i + 1)
 			albumsCover[i] = domainCreator.AlbumCoverConstructorRandom(id, albumLen)
-			storage.AlbumCoverRepo, err = storage.AlbumCoverRepo.Insert(&albumsCover[i], domain.AlbumCoverMutex)
+			proxy, err := storage.AlbumCoverRepo.Insert(albumsCover[i], domain.AlbumMutex)
 			if err != nil {
 				ch <- err
+				close(ch)
 				return
 			}
+			mutex.Lock()
+			storage.AlbumCoverRepo = proxy
+			mutex.Unlock()
 		}
+		close(ch)
 		return
-	}(wg, coverError)
+	}(wg, coverError, mutex)
 
 	// artists
 	artistError := make(chan error, 1)
 	wg.Add(1)
-	go func(wg *sync.WaitGroup, ch chan error) {
+	go func(wg *sync.WaitGroup, ch chan error, mutex *sync.Mutex) {
 		defer wg.Done()
 		for i := 0; i < quantity; i++ {
-			id := uint64(i)
+			id := uint64(i + 1)
 			artists[i] = domainCreator.ArtistConstructorRandom(id, nameLen, maxFollowers, maxListening)
-			storage.ArtistRepo, err = storage.ArtistRepo.Insert(&artists[i], domain.ArtistMutex)
+			proxy, err := storage.ArtistRepo.Insert(artists[i], domain.ArtistMutex)
 			if err != nil {
 				ch <- err
+				close(ch)
 				return
 			}
+			mutex.Lock()
+			storage.ArtistRepo = proxy
+			mutex.Unlock()
 		}
+		close(ch)
 		return
-	}(wg, artistError)
+	}(wg, artistError, mutex)
 
 	wg.Wait()
 
-	select {
-	case err := <-coverError:
-		return storage, err
-	case err := <-artistError:
-		return storage, err
-	default:
-		// next
+	for err := range coverError {
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	for err := range artistError {
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	// albums
 	for i := 0; i < quantity; i++ {
-		id := uint64(i)
+		id := uint64(i + 1)
 
 		albums[i] = domainCreator.AlbumConstructorRandom(id, int64(quantity), albumLen, maxListening, maxLikes)
 
-		storage.AlbumRepo, err = storage.AlbumRepo.Insert(&albums[i], domain.AlbumMutex)
+		storage.AlbumRepo, err = storage.AlbumRepo.Insert(albums[i], domain.AlbumMutex)
 		if err != nil {
 			return storage, err
 		}
@@ -147,11 +194,11 @@ func (storage Postgres) Init(quantity int) (utilsInterfaces2.GlobalStorageInterf
 	const maxDuration = max / 10
 	// tracks
 	for i := 0; i < quantity; i++ {
-		id := uint64(i)
+		id := uint64(i + 1)
 
 		tracks[i] = domainCreator.TrackConstructorRandom(id, albums, artists, songLen, maxDuration, maxLikes, maxListening)
 
-		storage.TrackRepo, err = storage.TrackRepo.Insert(&tracks[i], domain.TrackMutex)
+		storage.TrackRepo, err = storage.TrackRepo.Insert(tracks[i], domain.TrackMutex)
 		if err != nil {
 			return storage, err
 		}
@@ -164,50 +211,18 @@ func (storage Postgres) Close() error {
 	return nil
 }
 
-func (storage Postgres) GetAlbumRepo() *utilsInterfaces2.RepoInterface {
+func (storage Postgres) GetAlbumRepo() *utilsInterfaces.RepoInterface {
 	return &storage.AlbumRepo
 }
 
-func (storage Postgres) GetAlbumCoverRepo() *utilsInterfaces2.RepoInterface {
+func (storage Postgres) GetAlbumCoverRepo() *utilsInterfaces.RepoInterface {
 	return &storage.AlbumCoverRepo
 }
 
-func (storage Postgres) GetArtistRepo() *utilsInterfaces2.RepoInterface {
+func (storage Postgres) GetArtistRepo() *utilsInterfaces.RepoInterface {
 	return &storage.ArtistRepo
 }
 
-func (storage Postgres) GetTrackRepo() *utilsInterfaces2.RepoInterface {
+func (storage Postgres) GetTrackRepo() *utilsInterfaces.RepoInterface {
 	return &storage.TrackRepo
-}
-
-func (storage Postgres) GetAlbumRepoLen() (int, error) {
-	size, err := storage.AlbumRepo.GetSize(domain.AlbumMutex)
-	if err != nil {
-		return 0, err
-	}
-	return int(size), nil
-}
-
-func (storage Postgres) GetAlbumCoverRepoLen() (int, error) {
-	size, err := storage.AlbumCoverRepo.GetSize(domain.AlbumCoverMutex)
-	if err != nil {
-		return 0, err
-	}
-	return int(size), nil
-}
-
-func (storage Postgres) GetArtistRepoLen() (int, error) {
-	size, err := storage.ArtistRepo.GetSize(domain.ArtistMutex)
-	if err != nil {
-		return 0, err
-	}
-	return int(size), nil
-}
-
-func (storage Postgres) GetTrackRepoLen() (int, error) {
-	size, err := storage.TrackRepo.GetSize(domain.TrackMutex)
-	if err != nil {
-		return 0, err
-	}
-	return int(size), nil
 }
