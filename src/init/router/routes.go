@@ -2,6 +2,7 @@ package router
 
 import (
 	_ "github.com/go-park-mail-ru/2022_1_Wave/docs"
+	"github.com/go-park-mail-ru/2022_1_Wave/init/logger"
 	albumDeliveryHttp "github.com/go-park-mail-ru/2022_1_Wave/internal/app/album/delivery/http"
 	albumCoverDeliveryHttp "github.com/go-park-mail-ru/2022_1_Wave/internal/app/albumCover/delivery/http"
 	artistDeliveryHttp "github.com/go-park-mail-ru/2022_1_Wave/internal/app/artist/delivery/http"
@@ -15,13 +16,28 @@ func Router(e *echo.Echo) {
 	api := e.Group(apiPrefix)
 	v1 := api.Group(v1Prefix)
 
+	logger.GlobalLogger.Logrus.Warnln("api version:", v1Prefix)
+
 	SetAlbumsRoutes(v1)
+	logger.GlobalLogger.Logrus.Warnln("setting albums routes")
+
 	SetAlbumCoversRoutes(v1)
+	logger.GlobalLogger.Logrus.Warnln("setting album covers routes")
+
 	SetArtistsRoutes(v1)
+	logger.GlobalLogger.Logrus.Warnln("setting artists routes")
+
 	SetTracksRoutes(v1)
+	logger.GlobalLogger.Logrus.Warnln("setting tracks routes")
+
 	SetAuthRoutes(v1)
+	logger.GlobalLogger.Logrus.Warnln("setting auth routes")
+
 	SetDocsPath(v1)
+	logger.GlobalLogger.Logrus.Warnln("setting docs routes")
+
 	SetStaticHandle(v1)
+	logger.GlobalLogger.Logrus.Warnln("setting static routes")
 }
 
 // SetAlbumsRoutes albums
