@@ -18,7 +18,6 @@ type Handler struct {
 }
 
 func (h Handler) GetAll(ctx echo.Context, mutex *sync.RWMutex) error {
-	domainType := h.model
 
 	domains, err := h.useCase.GetAll(mutex)
 
@@ -26,18 +25,17 @@ func (h Handler) GetAll(ctx echo.Context, mutex *sync.RWMutex) error {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 	}
 
-	if *domains == nil {
-		*domains = []utilsInterfaces.Domain{}
+	if domains == nil {
+		domains = []utilsInterfaces.Domain{}
 	}
 
-	dataTransfers := make([]utilsInterfaces.DataTransfer, len(*domains))
+	dataTransfers := make([]utilsInterfaces.DataTransfer, len(domains))
 
-	for i, dom := range *domains {
-		dataTransfer, err := dataTransferCreator.CreateDataTransfer(domainType, dom, mutex)
+	for i, dom := range domains {
+		dataTransfer, err := dataTransferCreator.CreateDataTransfer(dom, mutex)
 		if err != nil {
 			return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 		}
-
 		dataTransfers[i] = dataTransfer
 	}
 
@@ -56,7 +54,8 @@ func (h Handler) Create(ctx echo.Context, mutex *sync.RWMutex) (utilsInterfaces.
 		return h, webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 	}
 
-	h.useCase, err = h.useCase.Create(&objectToCreate, mutex)
+	h.useCase, err = h.useCase.Create(objectToCreate, mutex)
+
 	if err != nil {
 		return h, webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 	}
@@ -95,8 +94,6 @@ func (h Handler) Update(ctx echo.Context, mutex *sync.RWMutex) (utilsInterfaces.
 }
 
 func (h Handler) Get(ctx echo.Context, mutex *sync.RWMutex) error {
-	domainType := h.model
-
 	id, err := readGetDeleteRequest(ctx)
 
 	if err != nil {
@@ -104,11 +101,12 @@ func (h Handler) Get(ctx echo.Context, mutex *sync.RWMutex) error {
 	}
 
 	dom, err := h.useCase.GetById(uint64(id), mutex)
+
 	if err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 	}
 
-	dataTransfer, err := dataTransferCreator.CreateDataTransfer(domainType, *dom, mutex)
+	dataTransfer, err := dataTransferCreator.CreateDataTransfer(dom, mutex)
 
 	if err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
@@ -145,12 +143,10 @@ func (h Handler) GetPopular(ctx echo.Context, mutex *sync.RWMutex) error {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 	}
 
-	dataTransfers := make([]utilsInterfaces.DataTransfer, len(*popular))
+	dataTransfers := make([]utilsInterfaces.DataTransfer, len(popular))
 
-	domainType := h.model
-
-	for i, pop := range *popular {
-		dataTransfer, err := dataTransferCreator.CreateDataTransfer(domainType, pop, mutex)
+	for i, pop := range popular {
+		dataTransfer, err := dataTransferCreator.CreateDataTransfer(pop, mutex)
 		if err != nil {
 			return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 		}
