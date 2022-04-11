@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"database/sql"
 	"errors"
 )
 
@@ -35,16 +34,6 @@ func ToUint64(value interface{}) (uint64, error) {
 	unsigned := uint64(float)
 
 	return unsigned, nil
-}
-
-func CheckNullInt64(value interface{}) (bool, error) {
-	nullable, ok := value.(sql.NullInt64)
-
-	if !ok {
-		return false, errors.New("error to casting to sql.NullInt64")
-	}
-
-	return nullable.Valid, nil
 }
 
 func ToInt(value interface{}) (int, error) {

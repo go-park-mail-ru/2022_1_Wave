@@ -8,26 +8,27 @@ import (
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/tools/utils"
 	"math/rand"
 	"reflect"
+	"time"
 )
 
 //type domainCreator struct{}
 //
 //var Creator = domainCreator{}
 
-func DomainConstructor(domainType reflect.Type) (utilsInterfaces.Domain, error) {
-	switch domainType {
-	case domain.AlbumDomainType:
-		return domain.Album{}, nil
-	case domain.AlbumCoverDomainType:
-		return domain.AlbumCover{}, nil
-	case domain.ArtistDomainType:
-		return domain.Artist{}, nil
-	case domain.TrackDomainType:
-		return domain.Track{}, nil
-	default:
-		return nil, errors.New(constants.BadType)
-	}
-}
+//func DomainConstructor(domainType reflect.Type) (utilsInterfaces.Domain, error) {
+//	switch domainType {
+//	case domain.AlbumDomainType:
+//		return domain.Album{}, nil
+//	case domain.AlbumCoverDomainType:
+//		return domain.AlbumCover{}, nil
+//	case domain.ArtistDomainType:
+//		return domain.Artist{}, nil
+//	case domain.TrackDomainType:
+//		return domain.Track{}, nil
+//	default:
+//		return nil, errors.New(constants.BadType)
+//	}
+//}
 
 // ---------------------------------------------------------
 func InitDomainAlbum(id uint64) (domain.Album, error) {
@@ -318,6 +319,7 @@ func CreateDomainFromInterface(domainType reflect.Type, data interface{}) (utils
 
 // -----------------------------------------
 func ArtistConstructorRandom(id uint64, maxNameLen int, maxFollowers int64, maxListening int64) domain.Artist {
+	rand.Seed(time.Now().Unix())
 	return domain.Artist{
 		Id:             id,
 		Name:           utils.RandomWord(maxNameLen),
@@ -327,10 +329,11 @@ func ArtistConstructorRandom(id uint64, maxNameLen int, maxFollowers int64, maxL
 }
 
 func AlbumConstructorRandom(id uint64, authorsQuantity int64, maxAlbumTitleLen int, maxLikes int64, maxListening int64) domain.Album {
+	rand.Seed(time.Now().Unix())
 	return domain.Album{
 		Id:             id,
 		Title:          utils.RandomWord(maxAlbumTitleLen),
-		ArtistId:       1 + uint64(rand.Int63n(authorsQuantity)),
+		ArtistId:       1 + uint64(rand.Int63n(authorsQuantity-1)),
 		CountLikes:     uint64(rand.Int63n(maxLikes + 1)),
 		CountListening: uint64(rand.Int63n(maxListening + 1)),
 		Date:           0,
@@ -338,6 +341,7 @@ func AlbumConstructorRandom(id uint64, authorsQuantity int64, maxAlbumTitleLen i
 }
 
 func AlbumCoverConstructorRandom(id uint64, maxAlbumTitleLen int) domain.AlbumCover {
+	rand.Seed(time.Now().Unix())
 	return domain.AlbumCover{
 		Id:     id,
 		Title:  utils.RandomWord(maxAlbumTitleLen),
@@ -347,10 +351,10 @@ func AlbumCoverConstructorRandom(id uint64, maxAlbumTitleLen int) domain.AlbumCo
 }
 
 func TrackConstructorRandom(id uint64, albums []utilsInterfaces.Domain, artists []utilsInterfaces.Domain, maxTrackTitleLen int, maxDuration int64, maxLikes int64, maxListening int64) domain.Track {
-	album := albums[rand.Intn(len(albums))]
+	rand.Seed(time.Now().Unix())
+	album := albums[1+rand.Intn(len(albums)-1)]
 	albumId := album.GetId()
-
-	artist := artists[rand.Intn(len(artists))]
+	artist := artists[1+rand.Intn(len(artists)-1)]
 	artistId := artist.GetId()
 
 	return domain.Track{
