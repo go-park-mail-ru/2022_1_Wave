@@ -1,27 +1,25 @@
 package domain
 
 import (
-	"errors"
 	"fmt"
 	constants "github.com/go-park-mail-ru/2022_1_Wave/internal"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/interfaces"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/tools/utils"
+	"gopkg.in/validator.v2"
 )
 
 //Mp4            string      `json:"mp4" example:"assets/track_1.mp4" db:"mp4"`
 //CoverId        uint64      `json:"coverId" example:"4" db:"cover_id"`
 
 type Track struct {
-	Id uint64 `json:"id" example:"4" db:"id"`
+	Id uint64 `json:"id" example:"4" db:"id" validate:"min=0"`
 	// AlbumId is uint64 but for null holder this is type interface
-	AlbumId  interface{} `json:"albumId" db:"album_id"`
-	ArtistId uint64      `json:"artistId" example:"8" db:"artist_id"`
-	Title    string      `json:"title" example:"Rain" db:"title"`
-	Duration uint64      `json:"duration" example:"180" db:"duration"`
-	//Mp4            string      `db:"mp4"`
-	//CoverId        uint64      `db:"cover_id"`
-	CountLikes     uint64 `json:"countLikes" example:"54" db:"count_likes"`
-	CountListening uint64 `json:"countListening" example:"15632" db:"count_listening"`
+	AlbumId        interface{} `json:"albumId" db:"album_id" validate:"min=0"`
+	ArtistId       uint64      `json:"artistId" example:"8" db:"artist_id" validate:"min=0,nonnil"`
+	Title          string      `json:"title" example:"Rain" db:"title" validate:"max=256,nonnil"`
+	Duration       uint64      `json:"duration" example:"180" db:"duration" validate:"min=0,nonnil"`
+	CountLikes     uint64      `json:"countLikes" example:"54" db:"count_likes" validate:"min=0,nonnil"`
+	CountListening uint64      `json:"countListening" example:"15632" db:"count_listening" validate:"min=0,nonnil"`
 }
 
 func (track Track) GetId() uint64 {
@@ -30,34 +28,34 @@ func (track Track) GetId() uint64 {
 
 func (track Track) SetId(id uint64) (utilsInterfaces.Domain, error) {
 	track.Id = id
-	//track.CoverId = track.Id
 	return track, nil
 }
 
 func (track Track) Check() error {
-	if track.Id < 0 {
-		return errors.New(constants.ErrorTrackIdIsNegative)
-	}
-
-	if len(track.Title) > constants.TrackTitleLen {
-		return errors.New(constants.ErrorTrackMaxTitleLen)
-	}
-
-	//if len(track.Mp4) > constants.TrackMp4LinkLen {
-	//	return errors.New(constants.ErrorTrackMp4MaxLinkLen)
+	return validator.Validate(track)
+	//if track.Id < 0 {
+	//	return errors.New(constants.ErrorTrackIdIsNegative)
 	//}
-
-	if track.CountLikes < 0 {
-		return errors.New(constants.ErrorTrackCountLikesIsNegative)
-	}
-
-	if track.CountListening < 0 {
-		return errors.New(constants.ErrorTrackCountListeningIsNegative)
-	}
-
-	if track.ArtistId < 0 {
-		return errors.New(constants.ErrorTrackArtistIdIsNegative)
-	}
+	//
+	//if len(track.Title) > constants.TrackTitleLen {
+	//	return errors.New(constants.ErrorTrackMaxTitleLen)
+	//}
+	//
+	////if len(track.Mp4) > constants.TrackMp4LinkLen {
+	////	return errors.New(constants.ErrorTrackMp4MaxLinkLen)
+	////}
+	//
+	//if track.CountLikes < 0 {
+	//	return errors.New(constants.ErrorTrackCountLikesIsNegative)
+	//}
+	//
+	//if track.CountListening < 0 {
+	//	return errors.New(constants.ErrorTrackCountListeningIsNegative)
+	//}
+	//
+	//if track.ArtistId < 0 {
+	//	return errors.New(constants.ErrorTrackArtistIdIsNegative)
+	//}
 
 	//if track.AlbumId.Valid && track.AlbumId.Int64 < 0 {
 	//	return errors.New(constants.ErrorTrackAlbumIdIsNegative)
@@ -67,7 +65,7 @@ func (track Track) Check() error {
 	//	return errors.New(constants.ErrorTrackCoverIdIsNegative)
 	//}
 
-	return nil
+	//return nil
 }
 
 func (track Track) GetCountListening() uint64 {

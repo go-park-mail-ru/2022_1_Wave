@@ -1,22 +1,19 @@
 package domain
 
 import (
-	"errors"
 	"fmt"
 	constants "github.com/go-park-mail-ru/2022_1_Wave/internal"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/interfaces"
+	"gopkg.in/validator.v2"
 )
 
-//CoverId        uint64 `json:"coverId" example:"8" db:"cover_id"`
-
 type Album struct {
-	Id             uint64 `json:"id" example:"8" db:"id"`
-	Title          string `json:"title" example:"Mercury" db:"title"`
-	ArtistId       uint64 `json:"artistId" example:"4" db:"artist_id"`
-	CountLikes     uint64 `json:"countLikes" example:"54" db:"count_likes"`
-	CountListening uint64 `json:"countListening" example:"15632" db:"count_listening"`
-	Date           int64  `json:"date" example:"0" db:"date"`
-	//CoverId        uint64 `db:"cover_id"`
+	Id             uint64 `json:"id" example:"8" db:"id" validate:"min=0,nonnil"`
+	Title          string `json:"title" example:"Mercury" db:"title" validate:"max=256,nonnil"`
+	ArtistId       uint64 `json:"artistId" example:"4" db:"artist_id" validate:"min=0,nonnil"`
+	CountLikes     uint64 `json:"countLikes" example:"54" db:"count_likes" validate:"min=0,nonnil"`
+	CountListening uint64 `json:"countListening" example:"15632" db:"count_listening" validate:"min=0,nonnil"`
+	Date           int64  `json:"date" example:"0" db:"date,nonnil"`
 }
 
 func (album Album) GetId() uint64 {
@@ -25,36 +22,37 @@ func (album Album) GetId() uint64 {
 
 func (album Album) SetId(id uint64) (utilsInterfaces.Domain, error) {
 	album.Id = id
-	//album.CoverId = album.Id
 	return album, nil
 }
 
 func (album Album) Check() error {
-	if album.Id < 0 {
-		return errors.New(constants.ErrorAlbumIdIsNegative)
-	}
+	return validator.Validate(album)
 
-	//if album.CoverId < 0 {
-	//	return errors.New(constants.ErrorAlbumCoverIdIsNegative)
+	//if album.Id < 0 {
+	//	return errors.New(constants.ErrorAlbumIdIsNegative)
 	//}
-
-	if album.ArtistId < 0 {
-		return errors.New(constants.ErrorArtistIdIsNegative)
-	}
-
-	if len(album.Title) > constants.AlbumTitleLen {
-		return errors.New(constants.ErrorAlbumMaxTitleLen)
-	}
-
-	if album.CountLikes < 0 {
-		return errors.New(constants.ErrorAlbumCountLikesIsNegative)
-	}
-
-	if album.CountListening < 0 {
-		return errors.New(constants.ErrorAlbumCountListeningIsNegative)
-	}
-
-	return nil
+	//
+	////if album.CoverId < 0 {
+	////	return errors.New(constants.ErrorAlbumCoverIdIsNegative)
+	////}
+	//
+	//if album.ArtistId < 0 {
+	//	return errors.New(constants.ErrorArtistIdIsNegative)
+	//}
+	//
+	//if len(album.Title) > constants.AlbumTitleLen {
+	//	return errors.New(constants.ErrorAlbumMaxTitleLen)
+	//}
+	//
+	//if album.CountLikes < 0 {
+	//	return errors.New(constants.ErrorAlbumCountLikesIsNegative)
+	//}
+	//
+	//if album.CountListening < 0 {
+	//	return errors.New(constants.ErrorAlbumCountListeningIsNegative)
+	//}
+	//
+	//return nil
 }
 
 func (album Album) GetCountListening() uint64 {

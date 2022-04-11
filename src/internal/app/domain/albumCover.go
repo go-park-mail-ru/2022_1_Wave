@@ -1,42 +1,44 @@
 package domain
 
 import (
-	"errors"
 	constants "github.com/go-park-mail-ru/2022_1_Wave/internal"
-	utilsInterfaces2 "github.com/go-park-mail-ru/2022_1_Wave/internal/app/interfaces"
+	utilsInterfaces "github.com/go-park-mail-ru/2022_1_Wave/internal/app/interfaces"
+	"gopkg.in/validator.v2"
 )
 
 type AlbumCover struct {
-	Id     uint64 `json:"id" example:"1" db:"id"`
-	Title  string `json:"title" example:"Mercury" db:"title"`
-	Quote  string `json:"quote" example:"some phrases" db:"quote"`
-	IsDark bool   `json:"isDark" example:"true" db:"is_dark"`
+	Id     uint64 `json:"id" example:"1" db:"id" validate:"min=0,nonnil"`
+	Title  string `json:"title" example:"Mercury" db:"title" validate:"max=256,nonnil"`
+	Quote  string `json:"quote" example:"some phrases" db:"quote" validate:"max=512,nonnil"`
+	IsDark bool   `json:"isDark" example:"true" db:"is_dark" validate:"nonnil"`
 }
 
 func (cover AlbumCover) GetId() uint64 {
 	return cover.Id
 }
 
-func (cover AlbumCover) SetId(id uint64) (utilsInterfaces2.Domain, error) {
+func (cover AlbumCover) SetId(id uint64) (utilsInterfaces.Domain, error) {
 	cover.Id = id
-	//album.CoverId = album.Id
 	return cover, nil
 }
 
 func (cover AlbumCover) Check() error {
-	if cover.Id < 0 {
-		return errors.New(constants.ErrorAlbumIdIsNegative)
-	}
-
-	if len(cover.Title) > constants.AlbumCoverTitleLen {
-		return errors.New(constants.ErrorAlbumCoverMaxTitleLen)
-	}
-
-	if len(cover.Quote) > constants.AlbumCoverQuoteLen {
-		return errors.New(constants.ErrorAlbumCoverMaxQuoteLen)
-	}
-
-	return nil
+	return validator.Validate(cover)
+	//}
+	//
+	//if cover.Id < 0 {
+	//	return errors.New(constants.ErrorAlbumIdIsNegative)
+	//}
+	//
+	//if len(cover.Title) > constants.AlbumCoverTitleLen {
+	//	return errors.New(constants.ErrorAlbumCoverMaxTitleLen)
+	//}
+	//
+	//if len(cover.Quote) > constants.AlbumCoverQuoteLen {
+	//	return errors.New(constants.ErrorAlbumCoverMaxQuoteLen)
+	//}
+	//
+	//return nil
 }
 
 func (cover AlbumCover) GetCountListening() uint64 {
@@ -44,7 +46,7 @@ func (cover AlbumCover) GetCountListening() uint64 {
 	return 0
 }
 
-func (cover AlbumCover) CastDomainToDataTransferObject(utilsInterfaces2.Domain) (utilsInterfaces2.DataTransfer, error) {
+func (cover AlbumCover) CastDomainToDataTransferObject(utilsInterfaces.Domain) (utilsInterfaces.DataTransfer, error) {
 	return AlbumCoverDataTransfer{
 		Title:  cover.Title,
 		Quote:  cover.Quote,
@@ -58,7 +60,7 @@ type AlbumCoverDataTransfer struct {
 	IsDark bool   `json:"isDark" example:"true"`
 }
 
-func (cover AlbumCoverDataTransfer) CreateDataTransferFromInterface(data interface{}) (utilsInterfaces2.DataTransfer, error) {
+func (cover AlbumCoverDataTransfer) CreateDataTransferFromInterface(data interface{}) (utilsInterfaces.DataTransfer, error) {
 	temp := data.(map[string]interface{})
 	return AlbumCoverDataTransfer{
 		Title:  temp[constants.FieldTitle].(string),

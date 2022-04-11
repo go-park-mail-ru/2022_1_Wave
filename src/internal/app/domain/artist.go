@@ -1,20 +1,17 @@
 package domain
 
 import (
-	"errors"
 	"fmt"
 	constants "github.com/go-park-mail-ru/2022_1_Wave/internal"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/interfaces"
+	"gopkg.in/validator.v2"
 )
 
-//PhotoId        uint64 `json:"photoId" example:"6" db:"photo_id"`
-
 type Artist struct {
-	Id   uint64 `json:"id" example:"6" db:"id"`
-	Name string `json:"name" example:"Imagine Dragons" db:"name"`
-	//PhotoId        uint64 `db:"photo_id"`
-	CountFollowers uint64 `json:"countFollowers" example:"1001" db:"count_followers"`
-	CountListening uint64 `json:"countListening" example:"7654" db:"count_listening"`
+	Id             uint64 `json:"id" example:"6" db:"id" validate:"min=0,nonnil"`
+	Name           string `json:"name" example:"Imagine Dragons" db:"name" validate:"max=256,nonnil"`
+	CountFollowers uint64 `json:"countFollowers" example:"1001" db:"count_followers" validate:"min=0,nonnil"`
+	CountListening uint64 `json:"countListening" example:"7654" db:"count_listening" validate:"min=0,nonnil"`
 }
 
 func (artist Artist) GetId() uint64 {
@@ -27,32 +24,29 @@ func (artist Artist) GetIdRef() *uint64 {
 
 func (artist Artist) SetId(id uint64) (utilsInterfaces.Domain, error) {
 	artist.Id = id
-	//artist.PhotoId = artist.Id
 	return artist, nil
 }
 
 func (artist Artist) Check() error {
-	if artist.Id < 0 {
-		return errors.New(constants.ErrorArtistPhotoIdIsNegative)
-	}
+	return validator.Validate(artist)
 
-	//if artist.PhotoId < 0 {
-	//	return errors.New(constants.ErrorArtistsMaxPhotoLinkLen)
+	//if artist.Id < 0 {
+	//	return errors.New(constants.ErrorArtistPhotoIdIsNegative)
 	//}
-
-	if len(artist.Name) > constants.ArtistNameLen {
-		return errors.New(constants.ErrorArtistMaxNameLen)
-	}
-
-	if artist.CountFollowers < 0 {
-		return errors.New(constants.ErrorArtistCountFollowersIsNegative)
-	}
-
-	if artist.CountListening < 0 {
-		return errors.New(constants.ErrorArtistCountListeningIsNegative)
-	}
-
-	return nil
+	//
+	//if len(artist.Name) > constants.ArtistNameLen {
+	//	return errors.New(constants.ErrorArtistMaxNameLen)
+	//}
+	//
+	//if artist.CountFollowers < 0 {
+	//	return errors.New(constants.ErrorArtistCountFollowersIsNegative)
+	//}
+	//
+	//if artist.CountListening < 0 {
+	//	return errors.New(constants.ErrorArtistCountListeningIsNegative)
+	//}
+	//
+	//return nil
 
 }
 
