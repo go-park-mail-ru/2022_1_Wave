@@ -1,4 +1,4 @@
-package structsTesters
+package test
 
 import (
 	"bytes"
@@ -30,13 +30,14 @@ func (tester HandlerTester) Get(t *testing.T, mutex *sync.RWMutex) {
 	require.NoError(t, err)
 
 	var dataTransferType reflect.Type
+
 	model, err := tester.handler.GetModel()
 	require.NoError(t, err)
 
 	dataTransferType, err = dataTransferCreator.GetDataTransferTypeByDomainType(model)
 	require.NoError(t, err)
 
-	cases := PrepareArrayCases(useCase, mutex)
+	cases, err := PrepareArrayCases(useCase, mutex)
 
 	for _, testCase := range cases {
 		url := router.Proto + router.Host + "/" + router.Get + fmt.Sprint(testCase.Id)
@@ -133,6 +134,7 @@ func (tester HandlerTester) Create(t *testing.T, creator utilsInterfaces.TestDom
 	url := router.Proto + router.Host + "/" + router.Create
 
 	dataToSend, err := json.Marshal(testDomain)
+
 	require.NoError(t, err)
 
 	req := httptest.NewRequest(http.MethodPost, url, bytes.NewBuffer(dataToSend))
@@ -143,8 +145,6 @@ func (tester HandlerTester) Create(t *testing.T, creator utilsInterfaces.TestDom
 	ctx.SetPath(url)
 
 	changedHandler, err := tester.handler.Create(ctx, mutex)
-	tester.handler = changedHandler
-
 	require.NoError(t, err)
 
 	testCase := OperationTestCase{
@@ -153,9 +153,17 @@ func (tester HandlerTester) Create(t *testing.T, creator utilsInterfaces.TestDom
 
 	require.Equal(t, testCase.Status, rec.Code)
 
+	tester.handler = changedHandler
+
+	useCase, err = tester.handler.GetUseCase()
+	require.NoError(t, err)
+
+	lastId, err := useCase.GetLastId(mutex)
+	require.NoError(t, err)
+
 	expected := webUtils.Success{
 		Status: webUtils.OK,
-		Result: constants.SuccessCreated + "(" + fmt.Sprint(sizeBefore) + ")",
+		Result: constants.SuccessCreated + "(" + fmt.Sprint(lastId) + ")",
 	}
 
 	resp := rec.Result()
@@ -175,15 +183,13 @@ func (tester HandlerTester) Create(t *testing.T, creator utilsInterfaces.TestDom
 
 }
 
-func (tester HandlerTester) Delete(t *testing.T, mutex *sync.RWMutex) {
+func (tester HandlerTester) Delete(t *testing.T, idToDelete uint64, mutex *sync.RWMutex) {
 	e := echo.New()
 
 	useCase, err := tester.handler.GetUseCase()
 	require.NoError(t, err)
 
-	const idToDelete = uint64(0)
-
-	sizeBefore, err := useCase.GetLastId(mutex)
+	sizeBefore, err := useCase.GetSize(mutex)
 	require.NoError(t, err)
 	sizeBefore++
 	sizeAfter := sizeBefore - 1
@@ -191,8 +197,7 @@ func (tester HandlerTester) Delete(t *testing.T, mutex *sync.RWMutex) {
 	domainToDelete, err := useCase.GetById(idToDelete, mutex)
 	require.NoError(t, err)
 
-	id := (*domainToDelete).GetId()
-
+	id := domainToDelete.GetId()
 	require.Equal(t, id, idToDelete)
 
 	url := router.Proto + router.Host + "/" + router.Delete + fmt.Sprint(id)
@@ -205,6 +210,7 @@ func (tester HandlerTester) Delete(t *testing.T, mutex *sync.RWMutex) {
 	ctx.SetParamValues(fmt.Sprint(id))
 
 	changedHandler, err := tester.handler.Delete(ctx, mutex)
+
 	tester.handler = changedHandler
 
 	require.NoError(t, err)
@@ -232,7 +238,7 @@ func (tester HandlerTester) Delete(t *testing.T, mutex *sync.RWMutex) {
 
 	useCase, err = tester.handler.GetUseCase()
 	require.NoError(t, err)
-	resultSize, err := useCase.GetLastId(mutex)
+	resultSize, err := useCase.GetSize(mutex)
 	require.NoError(t, err)
 	resultSize++
 
@@ -261,9 +267,8 @@ func (tester HandlerTester) Update(t *testing.T, creator utilsInterfaces.TestDom
 	ctx.SetPath(url)
 
 	changedHandler, err := tester.handler.Update(ctx, mutex)
-	tester.handler = changedHandler
-
 	require.NoError(t, err)
+	tester.handler = changedHandler
 
 	testCase := OperationTestCase{
 		Status: http.StatusOK,
@@ -288,7 +293,8 @@ func (tester HandlerTester) Update(t *testing.T, creator utilsInterfaces.TestDom
 	useCase, err = tester.handler.GetUseCase()
 	require.NoError(t, err)
 	dom, err := useCase.GetById(id, mutex)
-	require.Equal(t, testDomain, *dom)
+
+	require.Equal(t, testDomain, dom)
 }
 
 func (tester HandlerTester) GetPopular(t *testing.T, mutex *sync.RWMutex) {
@@ -336,11 +342,11 @@ func (tester HandlerTester) GetPopular(t *testing.T, mutex *sync.RWMutex) {
 	}
 }
 
-func (tester HandlerTester) SetTestingHandler(handler utilsInterfaces.HandlerInterface) (HandlerTester, error) {
+func (tester HandlerTester) SetHandler(handler utilsInterfaces.HandlerInterface) (HandlerTester, error) {
 	tester.handler = handler
 	return tester, nil
 }
 
-func (tester HandlerTester) GetTestingHandler() (utilsInterfaces.HandlerInterface, error) {
+func (tester HandlerTester) GetHandler() (utilsInterfaces.HandlerInterface, error) {
 	return tester.handler, nil
 }

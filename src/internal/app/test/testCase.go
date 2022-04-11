@@ -1,7 +1,8 @@
-package structsTesters
+package test
 
 import (
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/interfaces"
+	structRepoPostgres "github.com/go-park-mail-ru/2022_1_Wave/internal/app/structs/repository/postgresql"
 	dataTransferCreator "github.com/go-park-mail-ru/2022_1_Wave/internal/app/tools/dataTransfer"
 	"net/http"
 	"reflect"
@@ -27,10 +28,8 @@ func PrepareManyCases(repo utilsInterfaces.RepoInterface, mutex *sync.RWMutex) T
 	cases := TestCases{}
 	objects, _ := repo.GetAll(mutex)
 
-	domainType := reflect.TypeOf((*objects)[0])
-
-	for _, object := range *objects {
-		dataTransfer, _ := dataTransferCreator.CreateDataTransfer(domainType, object, mutex)
+	for _, object := range objects {
+		dataTransfer, _ := dataTransferCreator.CreateDataTransfer(object, mutex)
 		cases.Data = append(cases.Data, dataTransfer)
 	}
 
@@ -59,31 +58,47 @@ func PrepareManyCases(repo utilsInterfaces.RepoInterface, mutex *sync.RWMutex) T
 //	return cases
 //}
 
-func PrepareArrayCases(useCase utilsInterfaces.UseCaseInterface, mutex *sync.RWMutex) []TestCase {
-	objects, _ := useCase.GetAll(mutex)
-	cases := make([]TestCase, len(*objects))
-	domainType := reflect.TypeOf((*objects)[0])
+func PrepareArrayCases(useCase utilsInterfaces.UseCaseInterface, mutex *sync.RWMutex) ([]TestCase, error) {
+	objects, err := useCase.GetAll(mutex)
 
-	//for idx, object := range *objects {
-	for idx, obj := range *objects {
-		dataTransfer, _ := dataTransferCreator.CreateDataTransfer(domainType, obj.(utilsInterfaces.Domain), mutex)
+	if err != nil {
+		return nil, err
+	}
+	cases := make([]TestCase, len(objects))
+
+	repo, err := useCase.GetRepo()
+	if err != nil {
+		return nil, err
+	}
+
+	repoType := repo.GetType(mutex)
+	postgresType := reflect.TypeOf(structRepoPostgres.Table{})
+
+	isPostgres := repoType == postgresType
+
+	for idx, obj := range objects {
+		dataTransfer, _ := dataTransferCreator.CreateDataTransfer(obj, mutex)
+
+		id := idx
+		if isPostgres {
+			id = idx + 1
+		}
+
 		cases[idx] = TestCase{
-			Id:     idx,
+			Id:     id,
 			Status: http.StatusOK,
 			Data:   dataTransfer,
 		}
 	}
-	return cases
+	return cases, nil
 }
 
 func PreparePopularCases(useCase utilsInterfaces.UseCaseInterface, mutex *sync.RWMutex) TestCases {
 	cases := TestCases{}
 	objects, _ := useCase.GetPopular(mutex)
 
-	domainType := reflect.TypeOf((*objects)[0])
-
-	for _, object := range *objects {
-		dataTransfer, _ := dataTransferCreator.CreateDataTransfer(domainType, object, mutex)
+	for _, object := range objects {
+		dataTransfer, _ := dataTransferCreator.CreateDataTransfer(object, mutex)
 		cases.Data = append(cases.Data, dataTransfer)
 	}
 	cases.Status = http.StatusOK
