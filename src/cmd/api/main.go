@@ -1,14 +1,15 @@
 package main
 
 import (
+	"github.com/go-park-mail-ru/2022_1_Wave/config"
 	_ "github.com/go-park-mail-ru/2022_1_Wave/docs"
+	"github.com/go-park-mail-ru/2022_1_Wave/init/logger"
 	"github.com/go-park-mail-ru/2022_1_Wave/init/router"
 	"github.com/go-park-mail-ru/2022_1_Wave/init/storage"
-	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/interfaces"
-	structStoragePostgresql "github.com/go-park-mail-ru/2022_1_Wave/internal/app/structs/storage/postgresql"
+	"github.com/go-park-mail-ru/2022_1_Wave/internal"
+	artistUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/app/artist/usecase"
+	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/domain"
 	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
-	"reflect"
 )
 
 // ConfigFilename config
@@ -18,56 +19,65 @@ const port = ":5000"
 const dbSize = 10
 
 func main() {
+	// database model
+	dbType := internal.Postgres
+	//database := internal.Local
+
 	e := echo.New()
-	e.Use(middleware.Logger())
-	//if err := config.LoadConfig(ConfigFilename); err != nil {
-	//	log.Fatal(err)
-	//} else {
-	//	log.Println("config loaded successfuly: ", config.C)
-	//}
 
-	globalStorage := utilsInterfaces.GlobalStorageInterface(structStoragePostgresql.Postgres{})
-	//globalStorage := utilsInterfaces.GlobalStorageInterface(structStorageLocal.LocalStorage{})
-
-	if err := storage.InitStorage(dbSize, &globalStorage); err != nil {
-		e.Logger.Fatal("error to init storage type <%v>, err: %v", reflect.TypeOf(globalStorage), err)
-	}
-
-	e.Logger.Printf("Success init storage type <%v>", reflect.TypeOf(globalStorage))
-
-	artistRepoLen, err := globalStorage.GetArtistRepoLen()
+	//host, _ := os.Hostname()
+	logs, err := logger.InitLogrus(port, dbType)
 	if err != nil {
-		e.Logger.Fatalf("Error: %v", err)
+		e.Logger.Fatalf("error to init logrus:", err)
 	}
 
-	albumRepoLen, err := globalStorage.GetAlbumRepoLen()
+	e.Use(logs.ColoredLogMiddleware)
+	e.Use(logs.JsonLogMiddleware)
+	e.Logger.SetOutput(logs.Logrus.Writer())
+
+	if err := config.LoadConfig(ConfigFilename); err != nil {
+		logs.Logrus.Fatal("error to load config:", err)
+	}
+	logs.Logrus.Info("config loaded successful")
+
+	if err := storage.InitStorage(dbSize, dbType); err != nil {
+		logs.Logrus.Fatal("error to init storage type", dbType, "err:", err)
+	}
+
+	logs.Logrus.Info("Success init storage type", dbType)
+
+	artistRepoLen, err := artistUseCase.UseCase.GetSize(domain.ArtistMutex)
 	if err != nil {
-		e.Logger.Fatalf("Error: %v", err)
+		logs.Logrus.Fatal("Error:", err)
 	}
 
-	albumRepoCoverLen, err := globalStorage.GetAlbumCoverRepoLen()
+	albumRepoLen, err := artistUseCase.UseCase.GetSize(domain.AlbumMutex)
 	if err != nil {
-		e.Logger.Fatalf("Error: %v", err)
+		logs.Logrus.Fatal("Error:", err)
 	}
 
-	trackRepoLen, err := globalStorage.GetTrackRepoLen()
+	albumRepoCoverLen, err := artistUseCase.UseCase.GetSize(domain.AlbumCoverMutex)
 	if err != nil {
-		e.Logger.Fatalf("Error: %v", err)
+		logs.Logrus.Fatal("Error:", err)
 	}
 
-	e.Logger.Printf("Artists: %v", artistRepoLen)
-	e.Logger.Printf("Albums: %v", albumRepoLen)
-	e.Logger.Printf("AlbumCovers: %v", albumRepoCoverLen)
-	e.Logger.Printf("Tracks: %v", trackRepoLen)
+	trackRepoLen, err := artistUseCase.UseCase.GetSize(domain.TrackMutex)
+	if err != nil {
+		logs.Logrus.Fatal("Error:", err)
+	}
+
+	logs.Logrus.Info("Artists:", artistRepoLen)
+	logs.Logrus.Info("Albums:", albumRepoLen)
+	logs.Logrus.Info("AlbumCovers:", albumRepoCoverLen)
+	logs.Logrus.Info("Tracks:", trackRepoLen)
 
 	router.Router(e)
 
-	e.Logger.Warnf("start listening on %s", port)
+	logs.Logrus.Warn("start listening on", port)
 
 	if err := e.Start("0.0.0.0:5000"); err != nil {
-		e.Logger.Errorf("server error: %s", err)
+		logs.Logrus.Fatal("server error:", err)
 	}
 
-	e.Logger.Warnf("shutdown")
-
+	logs.Logrus.Warn("shutdown")
 }
