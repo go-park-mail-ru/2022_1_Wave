@@ -54,9 +54,9 @@ func (storage LocalStorage) Init(quantity int) (utilsInterfaces.GlobalStorageInt
 		artists[i] = domainCreator.ArtistConstructorRandom(id, nameLen, maxFollowers, maxListening)
 		albums[i] = domainCreator.AlbumConstructorRandom(id, int64(quantity), albumLen, maxListening, maxLikes)
 
-		storage.ArtistRepo, _ = storage.ArtistRepo.Insert(&artists[i], domain.ArtistMutex)
-		storage.AlbumRepo, _ = storage.AlbumRepo.Insert(&albums[i], domain.AlbumMutex)
-		storage.AlbumCoverRepo, _ = storage.AlbumCoverRepo.Insert(&albumsCover[i], domain.AlbumCoverMutex)
+		storage.ArtistRepo, _ = storage.ArtistRepo.Insert(artists[i], domain.ArtistMutex)
+		storage.AlbumRepo, _ = storage.AlbumRepo.Insert(albums[i], domain.AlbumMutex)
+		storage.AlbumCoverRepo, _ = storage.AlbumCoverRepo.Insert(albumsCover[i], domain.AlbumCoverMutex)
 
 	}
 
@@ -68,7 +68,7 @@ func (storage LocalStorage) Init(quantity int) (utilsInterfaces.GlobalStorageInt
 
 		tracks[i] = domainCreator.TrackConstructorRandom(id, albums, artists, songLen, maxDuration, maxLikes, maxListening)
 
-		storage.TrackRepo, _ = storage.TrackRepo.Insert(&tracks[i], domain.TrackMutex)
+		storage.TrackRepo, _ = storage.TrackRepo.Insert(tracks[i], domain.TrackMutex)
 	}
 
 	artistsCreated, _ := storage.ArtistRepo.GetAll(domain.ArtistMutex)
@@ -76,10 +76,10 @@ func (storage LocalStorage) Init(quantity int) (utilsInterfaces.GlobalStorageInt
 	albumsCoverCreated, _ := storage.AlbumCoverRepo.GetAll(domain.AlbumCoverMutex)
 	tracksCreated, _ := storage.TrackRepo.GetAll(domain.TrackMutex)
 
-	artistsSize := len(*artistsCreated)
-	albumsSize := len(*albumsCreated)
-	albumsCoverSize := len(*albumsCoverCreated)
-	tracksSize := len(*tracksCreated)
+	artistsSize := len(artistsCreated)
+	albumsSize := len(albumsCreated)
+	albumsCoverSize := len(albumsCoverCreated)
+	tracksSize := len(tracksCreated)
 
 	if artistsSize < quantity {
 		return storage, errors.New(constants.ErrorLocalDbArtistsNotEnought + ": expected " + fmt.Sprint(quantity))
@@ -119,83 +119,3 @@ func (storage LocalStorage) GetArtistRepo() *utilsInterfaces.RepoInterface {
 func (storage LocalStorage) GetTrackRepo() *utilsInterfaces.RepoInterface {
 	return &storage.TrackRepo
 }
-
-func (storage LocalStorage) GetAlbumCoverRepoLen() (int, error) {
-	all, err := storage.AlbumCoverRepo.GetAll(domain.AlbumCoverMutex)
-	if err != nil {
-		return 0, err
-	}
-	return len(*all), nil
-}
-
-func (storage LocalStorage) GetAlbumRepoLen() (int, error) {
-	all, err := storage.AlbumRepo.GetAll(domain.AlbumMutex)
-	if err != nil {
-		return 0, err
-	}
-	return len(*all), nil
-}
-
-func (storage LocalStorage) GetArtistRepoLen() (int, error) {
-	all, err := storage.ArtistRepo.GetAll(domain.ArtistMutex)
-	if err != nil {
-		return 0, err
-	}
-	return len(*all), nil
-}
-
-func (storage LocalStorage) GetTrackRepoLen() (int, error) {
-	all, err := storage.TrackRepo.GetAll(domain.TrackMutex)
-	if err != nil {
-		return 0, err
-	}
-	return len(*all), nil
-}
-
-//// -------------------------------------------------
-//func artistConstructorRandom(id uint64, maxNameLen int, maxFollowers int64, maxListening int64) domain.Artist {
-//	return domain.Artist{
-//		Id:             id,
-//		Name:           utils.RandomWord(maxNameLen),
-//		CountFollowers: uint64(rand.Int63n(maxFollowers + 1)),
-//		CountListening: uint64(rand.Int63n(maxListening + 1)),
-//	}
-//}
-//
-//func albumConstructorRandom(id uint64, authorsQuantity int64, maxAlbumTitleLen int, maxLikes int64, maxListening int64) domain.Album {
-//	return domain.Album{
-//		Id:             id,
-//		Title:          utils.RandomWord(maxAlbumTitleLen),
-//		ArtistId:       uint64(rand.Int63n(authorsQuantity)),
-//		CountLikes:     uint64(rand.Int63n(maxLikes + 1)),
-//		CountListening: uint64(rand.Int63n(maxListening + 1)),
-//		Date:           0,
-//	}
-//}
-//
-//func albumCoverConstructorRandom(id uint64, maxAlbumTitleLen int) domain.AlbumCover {
-//	return domain.AlbumCover{
-//		Id:     id,
-//		Title:  utils.RandomWord(maxAlbumTitleLen),
-//		Quote:  utils.RandomWord(100),
-//		IsDark: true,
-//	}
-//}
-//
-//func trackConstructorRandom(id uint64, albums []utilsInterfaces.Domain, artists []utilsInterfaces.Domain, maxTrackTitleLen int, maxDuration int64, maxLikes int64, maxListening int64) domain.Track {
-//	album := albums[rand.Intn(len(albums))]
-//	albumId := album.GetId()
-//
-//	artist := artists[rand.Intn(len(artists))]
-//	artistId := artist.GetId()
-//
-//	return domain.Track{
-//		Id:             id,
-//		AlbumId:        albumId,
-//		ArtistId:       artistId,
-//		Title:          utils.RandomWord(maxTrackTitleLen),
-//		Duration:       uint64(rand.Int63n(maxDuration + 1)),
-//		CountLikes:     uint64(rand.Int63n(maxLikes + 1)),
-//		CountListening: uint64(rand.Int63n(maxListening + 1)),
-//	}
-//}

@@ -15,7 +15,7 @@ type Repo struct {
 }
 
 // ----------------------------------------------------------------------
-func (repo Repo) Insert(dom *utilsInterfaces.Domain, mutex *sync.RWMutex) (utilsInterfaces.RepoInterface, error) {
+func (repo Repo) Insert(dom utilsInterfaces.Domain, mutex *sync.RWMutex) (utilsInterfaces.RepoInterface, error) {
 	mutex.Lock()
 	defer mutex.Unlock()
 
@@ -23,17 +23,18 @@ func (repo Repo) Insert(dom *utilsInterfaces.Domain, mutex *sync.RWMutex) (utils
 	if err != nil {
 		return nil, err
 	}
-	*dom, err = (*dom).SetId(id)
+
+	dom, err = dom.SetId(id)
 	if err != nil {
 		return nil, err
 	}
 
-	repo.Domains = append(repo.Domains, *dom)
+	repo.Domains = append(repo.Domains, dom)
 	return repo, nil
 }
 
-func (repo Repo) Update(domain *utilsInterfaces.Domain, mutex *sync.RWMutex) (utilsInterfaces.RepoInterface, error) {
-	domainFromDB, err := repo.SelectByID((*domain).GetId(), mutex)
+func (repo Repo) Update(domain utilsInterfaces.Domain, mutex *sync.RWMutex) (utilsInterfaces.RepoInterface, error) {
+	domainFromDB, err := repo.SelectByID(domain.GetId(), mutex)
 
 	mutex.Lock()
 	defer mutex.Unlock()
@@ -41,7 +42,8 @@ func (repo Repo) Update(domain *utilsInterfaces.Domain, mutex *sync.RWMutex) (ut
 	if err != nil {
 		return repo, err
 	}
-	*domainFromDB = *domain
+
+	repo.Domains[domainFromDB.GetId()] = domain
 
 	return repo, nil
 }
@@ -64,24 +66,20 @@ func (repo Repo) Delete(id uint64, mutex *sync.RWMutex) (utilsInterfaces.RepoInt
 	return repo, nil
 }
 
-func (repo Repo) SelectByID(id uint64, mutex *sync.RWMutex) (*utilsInterfaces.Domain, error) {
+func (repo Repo) SelectByID(id uint64, mutex *sync.RWMutex) (utilsInterfaces.Domain, error) {
 	mutex.RLock()
 	defer mutex.RUnlock()
 
-	if id+1 > uint64(len(repo.Domains)) {
-		return nil, errors.New(constants.IndexOutOfRange)
-	}
-	return &repo.Domains[id], nil
+	return repo.Domains[id], nil
 }
 
-func (repo Repo) GetAll(mutex *sync.RWMutex) (*[]utilsInterfaces.Domain, error) {
+func (repo Repo) GetAll(mutex *sync.RWMutex) ([]utilsInterfaces.Domain, error) {
 	mutex.RLock()
 	defer mutex.RUnlock()
-
-	return &repo.Domains, nil
+	return repo.Domains, nil
 }
 
-func (repo Repo) GetPopular(mutex *sync.RWMutex) (*[]utilsInterfaces.Domain, error) {
+func (repo Repo) GetPopular(mutex *sync.RWMutex) ([]utilsInterfaces.Domain, error) {
 	mutex.RLock()
 	defer mutex.RUnlock()
 
@@ -101,7 +99,7 @@ func (repo Repo) GetPopular(mutex *sync.RWMutex) (*[]utilsInterfaces.Domain, err
 		topChart[i] = *domainsPtr[i]
 	}
 
-	return &topChart, nil
+	return topChart, nil
 }
 
 func (repo Repo) GetLastId(mutex *sync.RWMutex) (uint64, error) {
