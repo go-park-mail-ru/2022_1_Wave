@@ -50,7 +50,7 @@ func (storage LocalStorage) Init(quantity int) (utilsInterfaces.GlobalStorageInt
 	for i := 0; i < quantity; i++ {
 		id := uint64(i)
 
-		albumsCover[i] = domainCreator.AlbumCoverConstructorRandom(id, albumLen)
+		albumsCover[i] = domainCreator.AlbumCoverConstructorRandom(id)
 		artists[i] = domainCreator.ArtistConstructorRandom(id, nameLen, maxFollowers, maxListening)
 		albums[i] = domainCreator.AlbumConstructorRandom(id, int64(quantity), albumLen, maxListening, maxLikes)
 
@@ -66,7 +66,7 @@ func (storage LocalStorage) Init(quantity int) (utilsInterfaces.GlobalStorageInt
 	for i := 0; i < quantity; i++ {
 		id := uint64(i)
 
-		tracks[i] = domainCreator.TrackConstructorRandom(id, albums, artists, songLen, maxDuration, maxLikes, maxListening)
+		tracks[i] = domainCreator.TrackConstructorRandom(id, albums, songLen, maxDuration, maxLikes, maxListening)
 
 		storage.TrackRepo, _ = storage.TrackRepo.Insert(tracks[i], domain.TrackMutex)
 	}

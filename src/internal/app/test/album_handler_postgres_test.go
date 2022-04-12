@@ -40,7 +40,7 @@ func TestPostgresCreateAlbum(t *testing.T) {
 	require.NoError(t, err)
 
 	proxy, err := albumCoverUseCase.UseCase.Create(domain.AlbumCover{
-		Title:  "some new cover for new album",
+		//Title:  "some new cover for new album",
 		Quote:  "and quote for this",
 		IsDark: true,
 	}, domain.AlbumCoverMutex)

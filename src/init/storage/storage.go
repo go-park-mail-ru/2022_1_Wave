@@ -84,7 +84,7 @@ func InitStorage(quantity int, dataBaseType string) error {
 	initedStorage, err := storage.Init(quantity)
 
 	if err != nil {
-		logrus.Fatal("error to cast database")
+		logrus.Fatal("error to init database")
 		return err
 	}
 

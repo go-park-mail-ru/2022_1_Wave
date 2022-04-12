@@ -133,7 +133,7 @@ func (storage Postgres) Init(quantity int) (utilsInterfaces.GlobalStorageInterfa
 		defer wg.Done()
 		for i := 0; i < quantity; i++ {
 			id := uint64(i + 1)
-			albumsCover[i] = domainCreator.AlbumCoverConstructorRandom(id, albumLen)
+			albumsCover[i] = domainCreator.AlbumCoverConstructorRandom(id)
 			proxy, err := storage.AlbumCoverRepo.Insert(albumsCover[i], domain.AlbumMutex)
 			if err != nil {
 				ch <- err
@@ -201,7 +201,7 @@ func (storage Postgres) Init(quantity int) (utilsInterfaces.GlobalStorageInterfa
 	for i := 0; i < quantity; i++ {
 		id := uint64(i + 1)
 
-		tracks[i] = domainCreator.TrackConstructorRandom(id, albums, artists, songLen, maxDuration, maxLikes, maxListening)
+		tracks[i] = domainCreator.TrackConstructorRandom(id, albums, songLen, maxDuration, maxLikes, maxListening)
 
 		storage.TrackRepo, err = storage.TrackRepo.Insert(tracks[i], domain.TrackMutex)
 		if err != nil {

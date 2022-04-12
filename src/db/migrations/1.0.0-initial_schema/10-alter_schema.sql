@@ -209,7 +209,6 @@ CREATE TABLE Artist
 CREATE TABLE AlbumCover
 (
     id      serial       NOT NULL,
-    title   varchar(255) NOT NULL,
     quote   varchar(512) NOT NULL,
     is_dark BOOLEAN      NOT NULL,
     CONSTRAINT AlbumCover_pk PRIMARY KEY (id)
@@ -290,6 +289,6 @@ FROM information_schema.tables
 WHERE table_schema = 'public'
 ORDER BY table_name;
 
-select id
-from track
-order by id;
+-- select id
+-- from track
+-- order by id;

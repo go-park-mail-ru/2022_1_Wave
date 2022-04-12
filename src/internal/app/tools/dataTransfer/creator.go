@@ -2,7 +2,6 @@ package dataTransferCreator
 
 import (
 	"errors"
-	"fmt"
 	constants "github.com/go-park-mail-ru/2022_1_Wave/internal"
 	albumUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/app/album/usecase"
 	artistUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/app/artist/usecase"
@@ -55,10 +54,10 @@ func CreateAlbumDataTransferFromInterface(data interface{}) (utilsInterfaces.Dat
 func CreateAlbumCoverDataTransferFromInterface(data interface{}) (utilsInterfaces.DataTransfer, error) {
 	temp := data.(map[string]interface{})
 
-	title, err := utils.ToString(temp[constants.FieldTitle])
-	if err != nil {
-		return nil, err
-	}
+	//title, err := utils.ToString(temp[constants.FieldTitle])
+	//if err != nil {
+	//	return nil, err
+	//}
 
 	quote, err := utils.ToString(temp[constants.FieldQuote])
 	if err != nil {
@@ -71,7 +70,7 @@ func CreateAlbumCoverDataTransferFromInterface(data interface{}) (utilsInterface
 	}
 
 	return domain.AlbumCoverDataTransfer{
-		Title:  title,
+		//Title:  title,
 		Quote:  quote,
 		IsDark: isDark,
 	}, nil
@@ -215,8 +214,6 @@ func CreateDataTransfer(dom utilsInterfaces.Domain, mutex *sync.RWMutex) (utilsI
 	case domain.ArtistDomainType:
 		albums, err := artistUseCase.UseCase.GetAlbumsFromArtist(dom.GetId(), domain.ArtistMutex)
 
-		fmt.Println(albums)
-
 		if err != nil {
 			return nil, err
 		}
@@ -225,7 +222,6 @@ func CreateDataTransfer(dom utilsInterfaces.Domain, mutex *sync.RWMutex) (utilsI
 		dataTransfers := make([]domain.AlbumDataTransfer, len(result))
 
 		for i, obj := range result {
-			fmt.Println(reflect.TypeOf(obj))
 			data, err := CreateDataTransfer(obj, domain.AlbumMutex)
 			if err != nil {
 				return nil, err

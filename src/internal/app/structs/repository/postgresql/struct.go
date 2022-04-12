@@ -3,7 +3,6 @@ package structRepoPostgres
 import (
 	"database/sql"
 	"errors"
-	"fmt"
 	constants "github.com/go-park-mail-ru/2022_1_Wave/internal"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/domain"
 	utilsInterfaces "github.com/go-park-mail-ru/2022_1_Wave/internal/app/interfaces"
@@ -59,8 +58,8 @@ func (table Table) Insert(dom utilsInterfaces.Domain, mutex *sync.RWMutex) (util
 	case constants.AlbumCover:
 		holder = dom.(domain.AlbumCover)
 		query = `
-		INSERT INTO albumCover (title, quote, is_dark)
-		VALUES (:title, :quote, :is_dark)
+		INSERT INTO albumCover (quote, is_dark)
+		VALUES (:quote, :is_dark)
 		RETURNING id`
 	default:
 		return table, errors.New(constants.BadType)
@@ -123,7 +122,7 @@ func (table Table) Update(dom utilsInterfaces.Domain, mutex *sync.RWMutex) (util
 		holder = dom.(domain.AlbumCover)
 		query = `
 		UPDATE albumcover
-		SET title=:title, quote=:quote, is_dark=:is_dark
+		SET quote=:quote, is_dark=:is_dark
 		WHERE id = :id`
 	default:
 		return table, errors.New(constants.BadType)
@@ -444,8 +443,6 @@ func (table Table) GetTracksFromAlbum(albumId uint64, mutex *sync.RWMutex) (inte
 
 // todo пока кастыль, так как не успеваем
 func (table Table) GetAlbumsFromArtist(artistId uint64, mutex *sync.RWMutex) (interface{}, error) {
-	fmt.Println("herererer")
-
 	if table.GetTableName() != constants.Artist {
 		return nil, errors.New(constants.BadType)
 	}

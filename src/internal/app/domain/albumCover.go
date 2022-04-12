@@ -7,8 +7,8 @@ import (
 )
 
 type AlbumCover struct {
-	Id     uint64 `json:"id" example:"1" db:"id" validate:"min=0,nonnil"`
-	Title  string `json:"title" example:"Mercury" db:"title" validate:"max=256,nonnil"`
+	Id uint64 `json:"id" example:"1" db:"id" validate:"min=0,nonnil"`
+	//Title  string `json:"title" example:"Mercury" db:"title" validate:"max=256,nonnil"`
 	Quote  string `json:"quote" example:"some phrases" db:"quote" validate:"max=512,nonnil"`
 	IsDark bool   `json:"isDark" example:"true" db:"is_dark" validate:"nonnil"`
 }
@@ -48,14 +48,14 @@ func (cover AlbumCover) GetCountListening() uint64 {
 
 func (cover AlbumCover) CastDomainToDataTransferObject(dom utilsInterfaces.Domain, args ...interface{}) (utilsInterfaces.DataTransfer, error) {
 	return AlbumCoverDataTransfer{
-		Title:  cover.Title,
+		//Title:  cover.Title,
 		Quote:  cover.Quote,
 		IsDark: cover.IsDark,
 	}, nil
 }
 
 type AlbumCoverDataTransfer struct {
-	Title  string `json:"title" example:"Mercury"`
+	//Title  string `json:"title" example:"Mercury"`
 	Quote  string `json:"quote" example:"some phrases"`
 	IsDark bool   `json:"isDark" example:"true"`
 }
@@ -63,7 +63,7 @@ type AlbumCoverDataTransfer struct {
 func (cover AlbumCoverDataTransfer) CreateDataTransferFromInterface(data interface{}) (utilsInterfaces.DataTransfer, error) {
 	temp := data.(map[string]interface{})
 	return AlbumCoverDataTransfer{
-		Title:  temp[constants.FieldTitle].(string),
+		//Title:  temp[constants.FieldTitle].(string),
 		Quote:  temp[constants.FieldQuote].(string),
 		IsDark: temp[constants.FieldIsDark].(bool),
 	}, nil

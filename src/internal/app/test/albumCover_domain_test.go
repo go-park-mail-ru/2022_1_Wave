@@ -20,7 +20,7 @@ func TestDomainAlbumCoverCreateDataTransferFromInterface(t *testing.T) {
 	}
 
 	except := domain.AlbumCoverDataTransfer{
-		Title:  title,
+		//Title:  title,
 		Quote:  quote,
 		IsDark: isDark,
 	}
