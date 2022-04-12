@@ -6,6 +6,7 @@ services:
       - "80:80"
     working_dir: /var/www/wave/
     volumes:
+      - ../../../2022_1_Wave/src:/var/www/wave/
 #      - ../../../2022_1_Wave/public/build:/var/www/wave
       - ../../../2022_1_Wave/src/assets/:/var/www/wave/assets
       - ../../config/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
