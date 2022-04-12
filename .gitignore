@@ -18,9 +18,13 @@
 src/.air.toml
 src/tmp
 /src/config.toml
-src/wave
 
+src/wave
+src/assets
 *.png
 *.jp*
+
+*tmp*
+*s.PGSQL.5432.lock*
 
 docs.go
