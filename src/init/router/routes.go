@@ -6,6 +6,7 @@ import (
 	albumDeliveryHttp "github.com/go-park-mail-ru/2022_1_Wave/internal/app/album/delivery/http"
 	albumCoverDeliveryHttp "github.com/go-park-mail-ru/2022_1_Wave/internal/app/albumCover/delivery/http"
 	artistDeliveryHttp "github.com/go-park-mail-ru/2022_1_Wave/internal/app/artist/delivery/http"
+	authHttp "github.com/go-park-mail-ru/2022_1_Wave/internal/app/auth/delivery/http"
 	trackDeliveryHttp "github.com/go-park-mail-ru/2022_1_Wave/internal/app/track/delivery/http"
 	"github.com/labstack/echo/v4"
 	"github.com/swaggo/echo-swagger"
@@ -30,14 +31,14 @@ func Router(e *echo.Echo) {
 	SetTracksRoutes(v1)
 	logger.GlobalLogger.Logrus.Warnln("setting tracks routes")
 
-	SetAuthRoutes(v1)
-	logger.GlobalLogger.Logrus.Warnln("setting auth routes")
-
 	SetDocsPath(v1)
 	logger.GlobalLogger.Logrus.Warnln("setting docs routes")
 
 	SetStaticHandle(v1)
 	logger.GlobalLogger.Logrus.Warnln("setting static routes")
+
+	SetAuthRoutes(v1)
+	logger.GlobalLogger.Logrus.Warnln("setting auth routes")
 }
 
 // SetAlbumsRoutes albums
@@ -86,14 +87,12 @@ func SetTracksRoutes(apiVersion *echo.Group) {
 	trackRoutes.DELETE(idEchoPattern, trackDeliveryHttp.Delete)
 }
 
-// SetAuthRoutes auth
+// InitAuthModule auth
 func SetAuthRoutes(apiVersion *echo.Group) {
-	//router.HandleFunc(LoginUrl, middleware.CSRF(middleware.NotAuth(Login))).Methods(http.MethodPost)
-	//router.HandleFunc(LogoutUrl, middleware.CSRF(middleware.Auth(Logout))).Methods(http.MethodPost)
-	//router.HandleFunc(SignUpUrl, middleware.CSRF(middleware.NotAuth(SignUp))).Methods(http.MethodPost)
-	//router.HandleFunc(GetUserUrl, GetUser).Methods(http.MethodGet)
-	//router.HandleFunc(GetSelfUserUrl, middleware.CSRF(middleware.Auth(GetSelfUser))).Methods(http.MethodGet)
-	//router.HandleFunc(GetCSRFAuthUrl, GetCSRF).Methods(http.MethodGet)
+	apiVersion.POST(loginPrefix, authHttp.Handler.Login, authHttp.M.IsSession, authHttp.M.CSRF)
+	apiVersion.POST(logoutPrefix, authHttp.Handler.Logout, authHttp.M.IsSession, authHttp.M.CSRF)
+	apiVersion.POST(signUpPrefix, authHttp.Handler.SignUp, authHttp.M.IsSession, authHttp.M.CSRF)
+	apiVersion.POST(getCSRFPrefix, authHttp.Handler.GetCSRF)
 }
 
 // SetDocsPath docs
@@ -116,6 +115,7 @@ func SetStaticHandle(apiVersion *echo.Group) {
 const (
 	Proto             = "http://"
 	Host              = "localhost"
+	redisDefaultPort  = "6379"
 	currentApiVersion = v1Locate
 	apiPath           = apiLocate + currentApiVersion
 )
@@ -131,6 +131,10 @@ const (
 	usersPrefix       = "/users"
 	docsPrefix        = "/docs"
 	popularPrefix     = "/popular"
+	loginPrefix       = "/login"
+	logoutPrefix      = "/logout"
+	signUpPrefix      = "/signup"
+	getCSRFPrefix     = "/get_csrf"
 )
 
 const (
