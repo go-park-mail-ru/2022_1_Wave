@@ -15,13 +15,13 @@
 # vendor/
 
 .idea/
-src/.air.toml
-src/tmp
-/src/config.toml
+.air.toml
+tmp
+config.toml
 
-src/wave
-src/docs
-src/assets
+wave
+docs
+assets
 *.png
 *.jp*
 
