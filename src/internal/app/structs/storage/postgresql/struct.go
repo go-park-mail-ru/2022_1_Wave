@@ -209,7 +209,7 @@ func (storage Postgres) Init(quantity int) (utilsInterfaces.GlobalStorageInterfa
 		}
 	}
 
-	sessionRepo := redis.NewRedisSessionRepo(":6379")
+	sessionRepo := redis.NewRedisSessionRepo("redis:6379")
 	userRepo := postgresql.NewUserPostgresRepo(storage.Sqlx)
 
 	authUseCase := usecase.NewAuthUseCase(sessionRepo, userRepo)
