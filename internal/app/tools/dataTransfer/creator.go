@@ -15,6 +15,11 @@ import (
 func CreateAlbumDataTransferFromInterface(data interface{}) (utilsInterfaces.DataTransfer, error) {
 	temp := data.(map[string]interface{})
 
+	id, err := utils.ToUint64(temp[constants.FieldId])
+	if err != nil {
+		return nil, err
+	}
+
 	title, err := utils.ToString(temp[constants.FieldTitle])
 	if err != nil {
 		return nil, err
@@ -42,6 +47,7 @@ func CreateAlbumDataTransferFromInterface(data interface{}) (utilsInterfaces.Dat
 	}
 
 	return domain.AlbumDataTransfer{
+		Id:     id,
 		Title:  title,
 		Artist: artist,
 		Cover:  cover,
@@ -117,6 +123,11 @@ func CreateArtistDataTransferFromInterface(data interface{}) (utilsInterfaces.Da
 func CreateTrackDataTransferFromInterface(data interface{}) (utilsInterfaces.DataTransfer, error) {
 	temp := data.(map[string]interface{})
 
+	id, err := utils.ToUint64(temp[constants.FieldId])
+	if err != nil {
+		return nil, err
+	}
+
 	title, err := utils.ToString(temp[constants.FieldTitle])
 	if err != nil {
 		return nil, err
@@ -153,6 +164,7 @@ func CreateTrackDataTransferFromInterface(data interface{}) (utilsInterfaces.Dat
 	}
 
 	return domain.TrackDataTransfer{
+		Id:     id,
 		Title:  title,
 		Artist: artist,
 		//Cover:      cover,

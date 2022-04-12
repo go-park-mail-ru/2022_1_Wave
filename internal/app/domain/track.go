@@ -89,6 +89,7 @@ func (track Track) CastDomainToDataTransferObject(artist utilsInterfaces.Domain,
 	}
 
 	return TrackDataTransfer{
+		Id:     track.Id,
 		Title:  track.Title,
 		Artist: artist.(Artist).Name,
 		//Cover:      pathToCover,
@@ -100,6 +101,7 @@ func (track Track) CastDomainToDataTransferObject(artist utilsInterfaces.Domain,
 }
 
 type TrackDataTransfer struct {
+	Id     uint64 `json:"id" example:"1"`
 	Title  string `json:"title" example:"Mercury"`
 	Artist string `json:"artist" example:"Hexed"`
 	//Cover      string `json:"cover" example:"assets/track_1.png"`
@@ -111,6 +113,11 @@ type TrackDataTransfer struct {
 
 func (track TrackDataTransfer) CreateDataTransferFromInterface(data interface{}) (utilsInterfaces.DataTransfer, error) {
 	temp := data.(map[string]interface{})
+
+	id, err := utils.ToUint64(temp[constants.FieldId])
+	if err != nil {
+		return nil, err
+	}
 
 	title, err := utils.ToString(temp[constants.FieldTitle])
 	if err != nil {
@@ -147,6 +154,7 @@ func (track TrackDataTransfer) CreateDataTransferFromInterface(data interface{})
 		return nil, err
 	}
 	return TrackDataTransfer{
+		Id:     id,
 		Title:  title,
 		Artist: artist,
 		//Cover:      cover,
