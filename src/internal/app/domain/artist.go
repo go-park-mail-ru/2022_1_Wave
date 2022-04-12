@@ -58,26 +58,31 @@ func (artist Artist) CreatePath(fileFormat string) (string, error) {
 	return constants.AssetsPrefix + constants.ArtistPreName + fmt.Sprint(artist.Id) + fileFormat, nil
 }
 
-func (artist Artist) CastDomainToDataTransferObject(utilsInterfaces.Domain) (utilsInterfaces.DataTransfer, error) {
+func (artist Artist) CastDomainToDataTransferObject(dom utilsInterfaces.Domain, args ...interface{}) (utilsInterfaces.DataTransfer, error) {
 	pathToPhoto, err := artist.CreatePath(constants.PngFormat)
 	if err != nil {
 		return nil, err
 	}
+
+	albums := args[0].([]AlbumDataTransfer)
 	return ArtistDataTransfer{
-		Name:  artist.Name,
-		Cover: pathToPhoto,
+		Name:   artist.Name,
+		Cover:  pathToPhoto,
+		Albums: albums,
 	}, nil
 }
 
 type ArtistDataTransfer struct {
-	Name  string `json:"name" example:"Mercury"`
-	Cover string `json:"cover" example:"assets/artist_1.png"`
+	Name   string              `json:"name" example:"Mercury"`
+	Cover  string              `json:"cover" example:"assets/artist_1.png"`
+	Albums []AlbumDataTransfer `json:"albums"`
 }
 
 func (artist ArtistDataTransfer) CreateDataTransferFromInterface(data interface{}) (utilsInterfaces.DataTransfer, error) {
 	temp := data.(map[string]interface{})
 	return ArtistDataTransfer{
-		Name:  temp["name"].(string),
-		Cover: temp["cover"].(string),
+		Name:   temp["name"].(string),
+		Cover:  temp["cover"].(string),
+		Albums: temp["albums"].([]AlbumDataTransfer),
 	}, nil
 }

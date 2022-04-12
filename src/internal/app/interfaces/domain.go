@@ -5,5 +5,5 @@ type Domain interface {
 	SetId(id uint64) (Domain, error)
 	Check() error
 	GetCountListening() uint64
-	CastDomainToDataTransferObject(domain Domain) (DataTransfer, error)
+	CastDomainToDataTransferObject(domain Domain, args ...interface{}) (DataTransfer, error)
 }

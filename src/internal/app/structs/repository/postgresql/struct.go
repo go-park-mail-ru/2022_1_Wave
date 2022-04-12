@@ -3,6 +3,7 @@ package structRepoPostgres
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 	constants "github.com/go-park-mail-ru/2022_1_Wave/internal"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/domain"
 	utilsInterfaces "github.com/go-park-mail-ru/2022_1_Wave/internal/app/interfaces"
@@ -421,6 +422,44 @@ func (table Table) GetSize(mutex *sync.RWMutex) (uint64, error) {
 	}
 
 	return size, nil
+}
+
+// todo пока кастыль, так как не успеваем
+func (table Table) GetTracksFromAlbum(albumId uint64, mutex *sync.RWMutex) (interface{}, error) {
+	if table.GetTableName() != constants.Album {
+		return nil, errors.New(constants.BadType)
+	}
+
+	mutex.RLock()
+	defer mutex.RUnlock()
+
+	var tracks []domain.Track
+	if err := table.Sqlx.Select(&tracks, `SELECT * FROM track WHERE album_id = $1`, albumId); err != nil {
+		return nil, err
+	}
+
+	return tracks, nil
+
+}
+
+// todo пока кастыль, так как не успеваем
+func (table Table) GetAlbumsFromArtist(artistId uint64, mutex *sync.RWMutex) (interface{}, error) {
+	fmt.Println("herererer")
+
+	if table.GetTableName() != constants.Artist {
+		return nil, errors.New(constants.BadType)
+	}
+
+	mutex.RLock()
+	defer mutex.RUnlock()
+
+	var albums []domain.Album
+	if err := table.Sqlx.Select(&albums, `SELECT * FROM album WHERE artist_id = $1`, artistId); err != nil {
+		return nil, err
+	}
+
+	return albums, nil
+
 }
 
 // ----------------------------------------------------------------------

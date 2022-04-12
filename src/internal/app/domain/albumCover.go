@@ -46,7 +46,7 @@ func (cover AlbumCover) GetCountListening() uint64 {
 	return 0
 }
 
-func (cover AlbumCover) CastDomainToDataTransferObject(utilsInterfaces.Domain) (utilsInterfaces.DataTransfer, error) {
+func (cover AlbumCover) CastDomainToDataTransferObject(dom utilsInterfaces.Domain, args ...interface{}) (utilsInterfaces.DataTransfer, error) {
 	return AlbumCoverDataTransfer{
 		Title:  cover.Title,
 		Quote:  cover.Quote,

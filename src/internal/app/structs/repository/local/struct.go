@@ -119,6 +119,16 @@ func (repo Repo) GetType(mutex *sync.RWMutex) reflect.Type {
 	return reflect.TypeOf(repo)
 }
 
+// todo костыль
+func (repo Repo) GetTracksFromAlbum(albumid uint64, mutex *sync.RWMutex) (interface{}, error) {
+	return nil, nil
+}
+
+// todo пока кастыль, так как не успеваем
+func (repo Repo) GetAlbumsFromArtist(artistId uint64, mutex *sync.RWMutex) (interface{}, error) {
+	return nil, nil
+}
+
 func (repo Repo) GetSize(mutex *sync.RWMutex) (uint64, error) {
 	//mutex.RLock()
 	//defer mutex.RUnlock()

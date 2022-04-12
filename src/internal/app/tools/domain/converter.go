@@ -28,6 +28,7 @@ func ToDomainsArrayPtr(holder *interface{}, repoName string) error {
 	default:
 		return errors.New(constants.BadType)
 	}
+
 	return nil
 }
 

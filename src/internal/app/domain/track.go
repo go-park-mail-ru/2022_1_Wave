@@ -76,7 +76,7 @@ func (track Track) CreatePath(fileFormat string) (string, error) {
 	return constants.AssetsPrefix + constants.TrackPreName + fmt.Sprint(track.Id) + fileFormat, nil
 }
 
-func (track Track) CastDomainToDataTransferObject(artist utilsInterfaces.Domain) (utilsInterfaces.DataTransfer, error) {
+func (track Track) CastDomainToDataTransferObject(artist utilsInterfaces.Domain, args ...interface{}) (utilsInterfaces.DataTransfer, error) {
 
 	pathToCover, err := track.CreatePath(constants.PngFormat)
 	if err != nil {

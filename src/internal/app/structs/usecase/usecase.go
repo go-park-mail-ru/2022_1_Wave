@@ -53,6 +53,14 @@ func (useCase UseCase) GetRepo() (utilsInterfaces.RepoInterface, error) {
 	return useCase.repo, nil
 }
 
+func (useCase UseCase) GetTracksFromAlbum(albumId uint64, mutex *sync.RWMutex) (interface{}, error) {
+	return useCase.repo.GetTracksFromAlbum(albumId, mutex)
+}
+
+func (useCase UseCase) GetAlbumsFromArtist(artist uint64, mutex *sync.RWMutex) (interface{}, error) {
+	return useCase.repo.GetAlbumsFromArtist(artist, mutex)
+}
+
 func (useCase UseCase) SetRepo(repo utilsInterfaces.RepoInterface, mutex *sync.RWMutex) (utilsInterfaces.UseCaseInterface, error) {
 	mutex.Lock()
 	defer mutex.Unlock()

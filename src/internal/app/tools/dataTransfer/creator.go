@@ -2,7 +2,9 @@ package dataTransferCreator
 
 import (
 	"errors"
+	"fmt"
 	constants "github.com/go-park-mail-ru/2022_1_Wave/internal"
+	albumUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/app/album/usecase"
 	artistUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/app/artist/usecase"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/domain"
 	utilsInterfaces "github.com/go-park-mail-ru/2022_1_Wave/internal/app/interfaces"
@@ -164,13 +166,50 @@ func CreateDataTransfer(dom utilsInterfaces.Domain, mutex *sync.RWMutex) (utilsI
 		if err != nil {
 			return nil, err
 		}
-		return dom.CastDomainToDataTransferObject(artistInCurrentAlbum)
+
+		tracks, err := albumUseCase.UseCase.GetTracksFromAlbum(dom.GetId(), domain.AlbumMutex)
+		if err != nil {
+			return nil, err
+		}
+
+		result := tracks.([]domain.Track)
+		dataTransfers := make([]domain.TrackDataTransfer, len(result))
+
+		for i, obj := range result {
+			data, err := CreateDataTransfer(obj, domain.TrackMutex)
+			if err != nil {
+				return nil, err
+			}
+			dataTransfers[i] = data.(domain.TrackDataTransfer)
+		}
+
+		return dom.CastDomainToDataTransferObject(artistInCurrentAlbum, dataTransfers)
 
 	case domain.AlbumCoverDomainType:
 		return dom.CastDomainToDataTransferObject(nil)
 
 	case domain.ArtistDomainType:
-		return dom.CastDomainToDataTransferObject(nil)
+		albums, err := artistUseCase.UseCase.GetAlbumsFromArtist(dom.GetId(), domain.ArtistMutex)
+
+		fmt.Println(albums)
+
+		if err != nil {
+			return nil, err
+		}
+
+		result := albums.([]domain.Album)
+		dataTransfers := make([]domain.AlbumDataTransfer, len(result))
+
+		for i, obj := range result {
+			fmt.Println(reflect.TypeOf(obj))
+			data, err := CreateDataTransfer(obj, domain.AlbumMutex)
+			if err != nil {
+				return nil, err
+			}
+			dataTransfers[i] = data.(domain.AlbumDataTransfer)
+		}
+
+		return dom.CastDomainToDataTransferObject(nil, dataTransfers)
 
 	case domain.TrackDomainType:
 		artistId := dom.(domain.Track).ArtistId

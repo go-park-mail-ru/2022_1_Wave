@@ -63,22 +63,44 @@ func (album Album) CreatePath(fileFormat string) (string, error) {
 	return constants.AssetsPrefix + constants.AlbumPreName + fmt.Sprint(album.Id) + fileFormat, nil
 }
 
-func (album Album) CastDomainToDataTransferObject(artist utilsInterfaces.Domain) (utilsInterfaces.DataTransfer, error) {
+func (album Album) CastDomainToDataTransferObject(artist utilsInterfaces.Domain, args ...interface{}) (utilsInterfaces.DataTransfer, error) {
 	pathToCover, err := album.CreatePath(constants.PngFormat)
+
+	//tracks := make([]Track, len(args))
+
+	//dataTransfers := make([]TrackDataTransfer, len(tracks))
+	//
+	//for i, obj := range tracks {
+	//	artist, err := artistUseCase.UseCase.GetById(obj.ArtistId, ArtistMutex)
+	//	if err != nil {
+	//		return nil, err
+	//	}
+	//	data, err := obj.CastDomainToDataTransferObject(artist, nil)
+	//	dataTransfers[i] = data.(TrackDataTransfer)
+	//}
+
+	//for i, obj := range args {
+	//	tracks[i] = obj.(Track)
+	//}
+
 	if err != nil {
 		return nil, err
 	}
+
+	tracks := args[0].([]TrackDataTransfer)
 	return AlbumDataTransfer{
 		Title:  album.Title,
 		Artist: artist.(Artist).Name,
 		Cover:  pathToCover,
+		Tracks: tracks,
 	}, nil
 }
 
 type AlbumDataTransfer struct {
-	Title  string `json:"title" example:"Mercury"`
-	Artist string `json:"artist" example:"Hexed"`
-	Cover  string `json:"cover" example:"assets/album_1.png"`
+	Title  string              `json:"title" example:"Mercury"`
+	Artist string              `json:"artist" example:"Hexed"`
+	Cover  string              `json:"cover" example:"assets/album_1.png"`
+	Tracks []TrackDataTransfer `json:"tracks"`
 }
 
 func (album AlbumDataTransfer) CreateDataTransferFromInterface(data interface{}) (utilsInterfaces.DataTransfer, error) {
@@ -87,5 +109,6 @@ func (album AlbumDataTransfer) CreateDataTransferFromInterface(data interface{})
 		Title:  temp["title"].(string),
 		Artist: temp["artist"].(string),
 		Cover:  temp["cover"].(string),
+		Tracks: temp["tracks"].([]TrackDataTransfer),
 	}, nil
 }
