@@ -28,7 +28,7 @@ func (a *UserPostrgesRepo) Insert(user *domain.User) error {
 }
 
 func (a *UserPostrgesRepo) Update(id uint, user *domain.User) error {
-	updateQuery := `UPDATE users SET `
+	updateQuery := `UPDATE Users SET `
 	var updateParams []interface{}
 
 	i := 1
