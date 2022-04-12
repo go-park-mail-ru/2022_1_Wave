@@ -8,25 +8,25 @@ import (
 	"testing"
 )
 
-func TestLocalGetTrack(t *testing.T) {
-	Mutex.Lock()
-	defer Mutex.Unlock()
-	_, err := logger.InitLogrus("0", internal.Local)
-	require.NoError(t, err)
-	err = InitTestDb(internal.Track, internal.Local)
-	require.NoError(t, err)
-	tester.Get(t, domain.TrackMutex)
-}
-
-func TestLocalGetAllTrack(t *testing.T) {
-	Mutex.Lock()
-	defer Mutex.Unlock()
-	_, err := logger.InitLogrus("0", internal.Local)
-	require.NoError(t, err)
-	err = InitTestDb(internal.Track, internal.Local)
-	require.NoError(t, err)
-	tester.GetAll(t, domain.TrackMutex)
-}
+//func TestLocalGetTrack(t *testing.T) {
+//	Mutex.Lock()
+//	defer Mutex.Unlock()
+//	_, err := logger.InitLogrus("0", internal.Local)
+//	require.NoError(t, err)
+//	err = InitTestDb(internal.Track, internal.Local)
+//	require.NoError(t, err)
+//	tester.Get(t, domain.TrackMutex)
+//}
+//
+//func TestLocalGetAllTrack(t *testing.T) {
+//	Mutex.Lock()
+//	defer Mutex.Unlock()
+//	_, err := logger.InitLogrus("0", internal.Local)
+//	require.NoError(t, err)
+//	err = InitTestDb(internal.Track, internal.Local)
+//	require.NoError(t, err)
+//	tester.GetAll(t, domain.TrackMutex)
+//}
 
 func TestLocalCreateTrack(t *testing.T) {
 	Mutex.Lock()
@@ -61,12 +61,12 @@ func TestLocalUpdateTrack(t *testing.T) {
 	tester.Update(t, creator, domain.TrackMutex)
 }
 
-func TestLocalPopularTrack(t *testing.T) {
-	Mutex.Lock()
-	defer Mutex.Unlock()
-	_, err := logger.InitLogrus("0", internal.Local)
-	require.NoError(t, err)
-	err = InitTestDb(internal.Track, internal.Local)
-	require.NoError(t, err)
-	tester.GetPopular(t, domain.TrackMutex)
-}
+//func TestLocalPopularTrack(t *testing.T) {
+//	Mutex.Lock()
+//	defer Mutex.Unlock()
+//	_, err := logger.InitLogrus("0", internal.Local)
+//	require.NoError(t, err)
+//	err = InitTestDb(internal.Track, internal.Local)
+//	require.NoError(t, err)
+//	tester.GetPopular(t, domain.TrackMutex)
+//}

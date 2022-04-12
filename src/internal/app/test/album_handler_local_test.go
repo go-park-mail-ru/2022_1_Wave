@@ -8,25 +8,25 @@ import (
 	"testing"
 )
 
-func TestLocalGetAlbum(t *testing.T) {
-	Mutex.Lock()
-	defer Mutex.Unlock()
-	_, err := logger.InitLogrus("0", internal.Local)
-	require.NoError(t, err)
-	err = InitTestDb(internal.Album, internal.Local)
-	require.NoError(t, err)
-	tester.Get(t, domain.AlbumMutex)
-}
+//func TestLocalGetAlbum(t *testing.T) {
+//	Mutex.Lock()
+//	defer Mutex.Unlock()
+//	_, err := logger.InitLogrus("0", internal.Local)
+//	require.NoError(t, err)
+//	err = InitTestDb(internal.Album, internal.Local)
+//	require.NoError(t, err)
+//	tester.Get(t, domain.AlbumMutex)
+//}
 
-func TestLocalGetAllAlbum(t *testing.T) {
-	Mutex.Lock()
-	defer Mutex.Unlock()
-	_, err := logger.InitLogrus("0", internal.Local)
-	require.NoError(t, err)
-	err = InitTestDb(internal.Album, internal.Local)
-	require.NoError(t, err)
-	tester.GetAll(t, domain.AlbumMutex)
-}
+//func TestLocalGetAllAlbum(t *testing.T) {
+//	Mutex.Lock()
+//	defer Mutex.Unlock()
+//	_, err := logger.InitLogrus("0", internal.Local)
+//	require.NoError(t, err)
+//	err = InitTestDb(internal.Album, internal.Local)
+//	require.NoError(t, err)
+//	tester.GetAll(t, domain.AlbumMutex)
+//}
 
 func TestLocalCreateAlbum(t *testing.T) {
 	Mutex.Lock()
@@ -61,12 +61,12 @@ func TestLocalUpdateAlbum(t *testing.T) {
 	tester.Update(t, creator, domain.AlbumMutex)
 }
 
-func TestLocalPopularAlbum(t *testing.T) {
-	Mutex.Lock()
-	defer Mutex.Unlock()
-	_, err := logger.InitLogrus("0", internal.Local)
-	require.NoError(t, err)
-	err = InitTestDb(internal.Album, internal.Local)
-	require.NoError(t, err)
-	tester.GetPopular(t, domain.AlbumMutex)
-}
+//func TestLocalPopularAlbum(t *testing.T) {
+//	Mutex.Lock()
+//	defer Mutex.Unlock()
+//	_, err := logger.InitLogrus("0", internal.Local)
+//	require.NoError(t, err)
+//	err = InitTestDb(internal.Album, internal.Local)
+//	require.NoError(t, err)
+//	tester.GetPopular(t, domain.AlbumMutex)
+//}

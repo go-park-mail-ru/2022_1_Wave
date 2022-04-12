@@ -8,25 +8,25 @@ import (
 	"testing"
 )
 
-func TestLocalGetArtist(t *testing.T) {
-	Mutex.Lock()
-	defer Mutex.Unlock()
-	_, err := logger.InitLogrus("0", internal.Local)
-	require.NoError(t, err)
-	err = InitTestDb(internal.Artist, internal.Local)
-	require.NoError(t, err)
-	tester.Get(t, domain.ArtistMutex)
-}
-
-func TestLocalGetAllArtist(t *testing.T) {
-	Mutex.Lock()
-	defer Mutex.Unlock()
-	_, err := logger.InitLogrus("0", internal.Local)
-	require.NoError(t, err)
-	err = InitTestDb(internal.Artist, internal.Local)
-	require.NoError(t, err)
-	tester.GetAll(t, domain.ArtistMutex)
-}
+//func TestLocalGetArtist(t *testing.T) {
+//	Mutex.Lock()
+//	defer Mutex.Unlock()
+//	_, err := logger.InitLogrus("0", internal.Local)
+//	require.NoError(t, err)
+//	err = InitTestDb(internal.Artist, internal.Local)
+//	require.NoError(t, err)
+//	tester.Get(t, domain.ArtistMutex)
+//}
+//
+//func TestLocalGetAllArtist(t *testing.T) {
+//	Mutex.Lock()
+//	defer Mutex.Unlock()
+//	_, err := logger.InitLogrus("0", internal.Local)
+//	require.NoError(t, err)
+//	err = InitTestDb(internal.Artist, internal.Local)
+//	require.NoError(t, err)
+//	tester.GetAll(t, domain.ArtistMutex)
+//}
 
 func TestLocalCreateArtist(t *testing.T) {
 	Mutex.Lock()
@@ -61,12 +61,12 @@ func TestLocalUpdateArtist(t *testing.T) {
 	tester.Update(t, creator, domain.ArtistMutex)
 }
 
-func TestLocalPopularArtist(t *testing.T) {
-	Mutex.Lock()
-	defer Mutex.Unlock()
-	_, err := logger.InitLogrus("0", internal.Local)
-	require.NoError(t, err)
-	err = InitTestDb(internal.Artist, internal.Local)
-	require.NoError(t, err)
-	tester.GetPopular(t, domain.ArtistMutex)
-}
+//func TestLocalPopularArtist(t *testing.T) {
+//	Mutex.Lock()
+//	defer Mutex.Unlock()
+//	_, err := logger.InitLogrus("0", internal.Local)
+//	require.NoError(t, err)
+//	err = InitTestDb(internal.Artist, internal.Local)
+//	require.NoError(t, err)
+//	tester.GetPopular(t, domain.ArtistMutex)
+//}

@@ -114,7 +114,7 @@ func (tester HandlerTester) GetAll(t *testing.T, mutex *sync.RWMutex) {
 	objects := *ptr
 
 	for idx, testCase := range testCases.Data {
-		require.Equal(t, objects[idx], testCase)
+		require.Equal(t, testCase, objects[idx])
 	}
 }
 

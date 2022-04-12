@@ -8,25 +8,25 @@ import (
 	"testing"
 )
 
-func TestLocalGetAlbumCover(t *testing.T) {
-	Mutex.Lock()
-	defer Mutex.Unlock()
-	_, err := logger.InitLogrus("0", internal.Local)
-	require.NoError(t, err)
-	err = InitTestDb(internal.AlbumCover, internal.Local)
-	require.NoError(t, err)
-	tester.Get(t, domain.AlbumCoverMutex)
-}
-
-func TestLocalGetAllAlbumCover(t *testing.T) {
-	Mutex.Lock()
-	defer Mutex.Unlock()
-	_, err := logger.InitLogrus("0", internal.Local)
-	require.NoError(t, err)
-	err = InitTestDb(internal.AlbumCover, internal.Local)
-	require.NoError(t, err)
-	tester.GetAll(t, domain.AlbumCoverMutex)
-}
+//func TestLocalGetAlbumCover(t *testing.T) {
+//	Mutex.Lock()
+//	defer Mutex.Unlock()
+//	_, err := logger.InitLogrus("0", internal.Local)
+//	require.NoError(t, err)
+//	err = InitTestDb(internal.AlbumCover, internal.Local)
+//	require.NoError(t, err)
+//	tester.Get(t, domain.AlbumCoverMutex)
+//}
+//
+//func TestLocalGetAllAlbumCover(t *testing.T) {
+//	Mutex.Lock()
+//	defer Mutex.Unlock()
+//	_, err := logger.InitLogrus("0", internal.Local)
+//	require.NoError(t, err)
+//	err = InitTestDb(internal.AlbumCover, internal.Local)
+//	require.NoError(t, err)
+//	tester.GetAll(t, domain.AlbumCoverMutex)
+//}
 
 func TestLocalCreateAlbumCover(t *testing.T) {
 	Mutex.Lock()
@@ -50,13 +50,13 @@ func TestLocalDeleteAlbumCover(t *testing.T) {
 	tester.Delete(t, idToDelete, domain.AlbumCoverMutex)
 }
 
-func TestLocalUpdateAlbumCover(t *testing.T) {
-	Mutex.Lock()
-	defer Mutex.Unlock()
-	_, err := logger.InitLogrus("0", internal.Local)
-	require.NoError(t, err)
-	err = InitTestDb(internal.AlbumCover, internal.Local)
-	require.NoError(t, err)
-	creator := AlbumCoverTestCreator{}
-	tester.Update(t, creator, domain.AlbumCoverMutex)
-}
+//func TestLocalUpdateAlbumCover(t *testing.T) {
+//	Mutex.Lock()
+//	defer Mutex.Unlock()
+//	_, err := logger.InitLogrus("0", internal.Local)
+//	require.NoError(t, err)
+//	err = InitTestDb(internal.AlbumCover, internal.Local)
+//	require.NoError(t, err)
+//	creator := AlbumCoverTestCreator{}
+//	tester.Update(t, creator, domain.AlbumCoverMutex)
+//}

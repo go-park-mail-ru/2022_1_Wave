@@ -13,7 +13,9 @@ import (
 func TestPostgresGetAlbum(t *testing.T) {
 	Mutex.Lock()
 	defer Mutex.Unlock()
-	err := InitTestDb(internal.Album, internal.Postgres)
+	_, err := logger.InitLogrus("0", internal.Postgres)
+	require.NoError(t, err)
+	err = InitTestDb(internal.Album, internal.Postgres)
 	require.NoError(t, err)
 	tester.Get(t, domain.AlbumMutex)
 }
