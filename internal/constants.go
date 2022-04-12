@@ -190,5 +190,5 @@ const (
 // formats
 const (
 	PngFormat = ".png"
-	Mp4Format = ".mp4"
+	Mp3Format = ".mp3"
 )
