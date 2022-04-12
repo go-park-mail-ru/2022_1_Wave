@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/domain"
+	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/tools/utils"
 )
 
 type userUseCase struct {
@@ -102,9 +103,43 @@ func (a *userUseCase) DeleteBySessionId(sessionId string) error {
 }
 
 func (a *userUseCase) CheckUsernameAndPassword(username string, password string) bool {
-	return a.userRepo.CheckUsernameAndPassword(username, password)
+	user, err := a.userRepo.SelectByUsername(username)
+	if err != nil {
+		return false
+	}
+
+	return utils.CheckPassword(user.Password, password)
 }
 
 func (a *userUseCase) CheckEmailAndPassword(email string, password string) bool {
-	return a.userRepo.CheckEmailAndPassword(email, password)
+	user, err := a.userRepo.SelectByEmail(email)
+	if err != nil {
+		return false
+	}
+
+	return utils.CheckPassword(user.Password, password)
+}
+
+func (a *userUseCase) Update(id uint, user *domain.User) error {
+	curUser, err := a.userRepo.SelectByID(id)
+	if err != nil {
+		return domain.ErrUserDoesNotExist
+	}
+
+	_, err = a.userRepo.SelectByUsername(user.Username)
+	if err == nil && curUser.Username != user.Username {
+		return domain.ErrUserAlreadyExist
+	}
+
+	_, err = a.userRepo.SelectByEmail(user.Email)
+	if err == nil && curUser.Email != user.Email {
+		return domain.ErrUserAlreadyExist
+	}
+
+	if user.Password != "" {
+		passwordHash, _ := utils.GetPasswordHash(user.Password)
+		user.Password = string(passwordHash)
+	}
+
+	return a.userRepo.Update(id, user)
 }
