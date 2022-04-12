@@ -40,6 +40,18 @@ const (
 //	g.PUT("/users/upload_avatar", handler.UploadAvatar, m.Auth, m.CSRF)
 //}
 
+// GetUser godoc
+// @Summary      Get
+// @Description  getting user by id
+// @Tags         user
+// @Accept       application/json
+// @Produce      application/json
+// @Param        id   path      integer  true  "id of user which need to be getted"
+// @Success      200  {object}  domain.User
+// @Failure      400  {object}  webUtils.Error  "Data is invalid"
+// @Failure      404  {object}  webUtils.Error  "User not found"
+// @Failure      405  {object}  webUtils.Error  "Method is not allowed"
+// @Router       /api/v1/users/{id} [get]
 func (a *UserHandler) GetUser(c echo.Context) error {
 	userId, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
@@ -54,6 +66,15 @@ func (a *UserHandler) GetUser(c echo.Context) error {
 	return c.JSON(http.StatusOK, getSuccessGetUserResponse(user))
 }
 
+// GetSelfUser godoc
+// @Summary      Get
+// @Description  getting user by session_id (in cookie)
+// @Tags         user
+// @Accept       application/json
+// @Produce      application/json
+// @Success      200  {object}  domain.User
+// @Failure      401  {object}  webUtils.Error  "User unauthorized"
+// @Router       /api/v1/users/self [get]
 func (a *UserHandler) GetSelfUser(c echo.Context) error {
 	cookie, err := c.Cookie(SessionIdKey)
 	if err != nil {
@@ -88,6 +109,17 @@ func (a *UserHandler) GetSelfUser(c echo.Context) error {
 	return c.JSON(http.StatusOK, getSuccessUserUpdate(&user))
 }*/
 
+// UpdateSelfUser godoc
+// @Summary      Update
+// @Description  updating user by session_id
+// @Tags         user
+// @Accept       application/json
+// @Produce      application/json
+// @Success      200    {object}  webUtils.Success
+// @Failure      400    {object}  webUtils.Error  "invalid field values"
+// @Failure      401    {object}  webUtils.Error  "user unauthorized"
+// @Failure      422    {object}  webUtils.Error  "invalid json"
+// @Router       /api/v1/users/ [put]
 func (a *UserHandler) UpdateSelfUser(c echo.Context) error {
 	cookie, err := c.Cookie(SessionIdKey)
 	if err != nil {
@@ -113,6 +145,15 @@ func (a *UserHandler) UpdateSelfUser(c echo.Context) error {
 	return c.JSON(http.StatusOK, getSuccessUserUpdate())
 }
 
+// UploadAvatar godoc
+// @Summary      Update
+// @Description  updating user avatar
+// @Tags         user
+// @Accept       application/json
+// @Produce      application/json
+// @Success      200    {object}  webUtils.Success
+// @Failure      400    {object}  webUtils.Error  "invalid field values"
+// @Router       /api/v1/users/upload_avatar/ [put]
 func (a *UserHandler) UploadAvatar(c echo.Context) error {
 	file, err := c.FormFile("avatar")
 	if err != nil {
