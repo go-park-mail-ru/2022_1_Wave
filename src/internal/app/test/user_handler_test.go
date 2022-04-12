@@ -6,7 +6,7 @@ import (
 	"github.com/bxcodec/faker"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/domain"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/domain/mocks"
-	userHttp "github.com/go-park-mail-ru/2022_1_Wave/internal/app/user/delivery/http"
+	userHttp "github.com/go-park-mail-ru/2022_1_Wave/internal/app/user/delivery/userHttp"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
