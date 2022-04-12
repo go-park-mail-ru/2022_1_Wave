@@ -20,6 +20,7 @@ src/tmp
 /src/config.toml
 
 src/wave
+src/docs
 src/assets
 *.png
 *.jp*
