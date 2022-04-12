@@ -4,6 +4,7 @@ import (
 	"fmt"
 	constants "github.com/go-park-mail-ru/2022_1_Wave/internal"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/interfaces"
+	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/tools/utils"
 	"gopkg.in/validator.v2"
 )
 
@@ -66,6 +67,7 @@ func (artist Artist) CastDomainToDataTransferObject(dom utilsInterfaces.Domain, 
 
 	albums := args[0].([]AlbumDataTransfer)
 	return ArtistDataTransfer{
+		Id:     artist.Id,
 		Name:   artist.Name,
 		Cover:  pathToPhoto,
 		Albums: albums,
@@ -73,6 +75,7 @@ func (artist Artist) CastDomainToDataTransferObject(dom utilsInterfaces.Domain, 
 }
 
 type ArtistDataTransfer struct {
+	Id     uint64              `json:"id" example:"1"`
 	Name   string              `json:"name" example:"Mercury"`
 	Cover  string              `json:"cover" example:"assets/artist_1.png"`
 	Albums []AlbumDataTransfer `json:"albums"`
@@ -80,7 +83,14 @@ type ArtistDataTransfer struct {
 
 func (artist ArtistDataTransfer) CreateDataTransferFromInterface(data interface{}) (utilsInterfaces.DataTransfer, error) {
 	temp := data.(map[string]interface{})
+
+	id, err := utils.ToUint64(temp["id"])
+
+	if err != nil {
+		return nil, err
+	}
 	return ArtistDataTransfer{
+		Id:     id,
 		Name:   temp["name"].(string),
 		Cover:  temp["cover"].(string),
 		Albums: temp["albums"].([]AlbumDataTransfer),

@@ -9,7 +9,6 @@ import (
 	utilsInterfaces "github.com/go-park-mail-ru/2022_1_Wave/internal/app/interfaces"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/tools/utils"
 	"reflect"
-	"sync"
 )
 
 // ---------------------------------------------------------
@@ -80,6 +79,11 @@ func CreateAlbumCoverDataTransferFromInterface(data interface{}) (utilsInterface
 func CreateArtistDataTransferFromInterface(data interface{}) (utilsInterfaces.DataTransfer, error) {
 	temp := data.(map[string]interface{})
 
+	id, err := utils.ToUint64(temp[constants.FieldId])
+	if err != nil {
+		return nil, err
+	}
+
 	name, err := utils.ToString(temp[constants.FieldName])
 	if err != nil {
 		return nil, err
@@ -102,6 +106,7 @@ func CreateArtistDataTransferFromInterface(data interface{}) (utilsInterfaces.Da
 	}
 
 	return domain.ArtistDataTransfer{
+		Id:     id,
 		Name:   name,
 		Cover:  cover,
 		Albums: albums,
@@ -122,10 +127,10 @@ func CreateTrackDataTransferFromInterface(data interface{}) (utilsInterfaces.Dat
 		return nil, err
 	}
 
-	cover, err := utils.ToString(temp[constants.FieldCover])
-	if err != nil {
-		return nil, err
-	}
+	//cover, err := utils.ToString(temp[constants.FieldCover])
+	//if err != nil {
+	//	return nil, err
+	//}
 
 	src, err := utils.ToString(temp[constants.FieldSrc])
 	if err != nil {
@@ -180,7 +185,7 @@ func CreateDataTransferFromInterface(dataTransferType reflect.Type, data interfa
 	return resultDataTransfer, err
 }
 
-func CreateDataTransfer(dom utilsInterfaces.Domain, mutex *sync.RWMutex) (utilsInterfaces.DataTransfer, error) {
+func CreateDataTransfer(dom utilsInterfaces.Domain) (utilsInterfaces.DataTransfer, error) {
 	switch reflect.TypeOf(dom) {
 
 	case domain.AlbumDomainType:
@@ -199,7 +204,7 @@ func CreateDataTransfer(dom utilsInterfaces.Domain, mutex *sync.RWMutex) (utilsI
 		dataTransfers := make([]domain.TrackDataTransfer, len(result))
 
 		for i, obj := range result {
-			data, err := CreateDataTransfer(obj, domain.TrackMutex)
+			data, err := CreateDataTransfer(obj)
 			if err != nil {
 				return nil, err
 			}
@@ -222,7 +227,7 @@ func CreateDataTransfer(dom utilsInterfaces.Domain, mutex *sync.RWMutex) (utilsI
 		dataTransfers := make([]domain.AlbumDataTransfer, len(result))
 
 		for i, obj := range result {
-			data, err := CreateDataTransfer(obj, domain.AlbumMutex)
+			data, err := CreateDataTransfer(obj)
 			if err != nil {
 				return nil, err
 			}
