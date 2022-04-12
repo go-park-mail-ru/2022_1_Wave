@@ -1,0 +1,936 @@
+definitions:
+  domain.Album:
+    properties:
+      artistId:
+        example: 4
+        minimum: 0
+        type: integer
+      countLikes:
+        example: 54
+        minimum: 0
+        type: integer
+      countListening:
+        example: 15632
+        minimum: 0
+        type: integer
+      date:
+        example: 0
+        type: integer
+      id:
+        example: 8
+        minimum: 0
+        type: integer
+      title:
+        example: Mercury
+        maxLength: 256
+        type: string
+    type: object
+  domain.AlbumCover:
+    properties:
+      id:
+        example: 1
+        minimum: 0
+        type: integer
+      isDark:
+        example: true
+        type: boolean
+      quote:
+        description: Title  string `json:"title" example:"Mercury" db:"title" validate:"max=256,nonnil"`
+        example: some phrases
+        maxLength: 512
+        type: string
+    type: object
+  domain.Artist:
+    properties:
+      countFollowers:
+        example: 1001
+        minimum: 0
+        type: integer
+      countListening:
+        example: 7654
+        minimum: 0
+        type: integer
+      id:
+        example: 6
+        minimum: 0
+        type: integer
+      name:
+        example: Imagine Dragons
+        maxLength: 256
+        type: string
+    type: object
+  domain.Track:
+    properties:
+      albumId:
+        description: AlbumId is uint64 but for null holder this is type interface
+      artistId:
+        example: 8
+        minimum: 0
+        type: integer
+      countLikes:
+        example: 54
+        minimum: 0
+        type: integer
+      countListening:
+        example: 15632
+        minimum: 0
+        type: integer
+      duration:
+        example: 180
+        minimum: 0
+        type: integer
+      id:
+        example: 4
+        minimum: 0
+        type: integer
+      title:
+        example: Rain
+        maxLength: 256
+        type: string
+    type: object
+  domain.User:
+    properties:
+      avatar:
+        type: string
+      count_following:
+        type: integer
+      email:
+        type: string
+      id:
+        minimum: 0
+        type: integer
+      password:
+        type: string
+      username:
+        type: string
+    type: object
+  webUtils.Error:
+    properties:
+      err:
+        type: string
+      status:
+        type: string
+    type: object
+  webUtils.Success:
+    properties:
+      result: {}
+      status:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /api/v1/albumCovers/:
+    get:
+      consumes:
+      - application/json
+      description: getting all albums cover
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/webUtils.Success'
+        "400":
+          description: Data is invalid
+          schema:
+            $ref: '#/definitions/webUtils.Error'
+        "405":
+          description: Method is not allowed
+          schema:
+            $ref: '#/definitions/webUtils.Error'
+      summary: GetAll
+      tags:
+      - albumCover
+    post:
+      consumes:
+      - application/json
+      description: creating new albumCover
+      parameters:
+      - description: params of new album cover. Id will be set automatically.
+        in: body
+        name: Album
+        required: true
+        schema:
+          $ref: '#/definitions/domain.AlbumCover'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/webUtils.Success'
+        "400":
+          description: Data is invalid
+          schema:
+            $ref: '#/definitions/webUtils.Error'
+        "405":
+          description: Method is not allowed
+          schema:
+            $ref: '#/definitions/webUtils.Error'
+      summary: Create
+      tags:
+      - albumCover
+    put:
+      consumes:
+      - application/json
+      description: updating album cover by id
+      parameters:
+      - description: id of updating album cover and params of it.
+        in: body
+        name: AlbumCover
+        required: true
+        schema:
+          $ref: '#/definitions/domain.AlbumCover'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/webUtils.Success'
+        "400":
+          description: Data is invalid
+          schema:
+            $ref: '#/definitions/webUtils.Error'
+        "405":
+          description: Method is not allowed
+          schema:
+            $ref: '#/definitions/webUtils.Error'
+      summary: Update
+      tags:
+      - albumCover
+  /api/v1/albumCovers/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: deleting album cover by id
+      parameters:
+      - description: id of album cover which need to be deleted
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/webUtils.Success'
+        "400":
+          description: Data is invalid
+          schema:
+            $ref: '#/definitions/webUtils.Error'
+        "405":
+          description: Method is not allowed
+          schema:
+            $ref: '#/definitions/webUtils.Error'
+      summary: Delete
+      tags:
+      - albumCover
+    get:
+      consumes:
+      - application/json
+      description: getting album cover by id
+      parameters:
+      - description: id of album cover which need to be getted
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.AlbumCover'
+        "400":
+          description: Data is invalid
+          schema:
+            $ref: '#/definitions/webUtils.Error'
+        "405":
+          description: Method is not allowed
+          schema:
+            $ref: '#/definitions/webUtils.Error'
+      summary: Get
+      tags:
+      - albumCover
+  /api/v1/albums/:
+    get:
+      consumes:
+      - application/json
+      description: getting all albums
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/webUtils.Success'
+        "400":
+          description: Data is invalid
+          schema:
+            $ref: '#/definitions/webUtils.Error'
+        "405":
+          description: Method is not allowed
+          schema:
+            $ref: '#/definitions/webUtils.Error'
+      summary: GetAll
+      tags:
+      - album
+    post:
+      consumes:
+      - application/json
+      description: creating new album
+      parameters:
+      - description: params of new album. Id will be set automatically.
+        in: body
+        name: Album
+        required: true
+        schema:
+          $ref: '#/definitions/domain.Album'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/webUtils.Success'
+        "400":
+          description: Data is invalid
+          schema:
+            $ref: '#/definitions/webUtils.Error'
+        "405":
+          description: Method is not allowed
+          schema:
+            $ref: '#/definitions/webUtils.Error'
+      summary: Create
+      tags:
+      - album
+    put:
+      consumes:
+      - application/json
+      description: updating album by id
+      parameters:
+      - description: id of updating album and params of it.
+        in: body
+        name: Album
+        required: true
+        schema:
+          $ref: '#/definitions/domain.Album'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/webUtils.Success'
+        "400":
+          description: Data is invalid
+          schema:
+            $ref: '#/definitions/webUtils.Error'
+        "405":
+          description: Method is not allowed
+          schema:
+            $ref: '#/definitions/webUtils.Error'
+      summary: Update
+      tags:
+      - album
+  /api/v1/albums/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: deleting album by id
+      parameters:
+      - description: id of album which need to be deleted
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/webUtils.Success'
+        "400":
+          description: Data is invalid
+          schema:
+            $ref: '#/definitions/webUtils.Error'
+        "405":
+          description: Method is not allowed
+          schema:
+            $ref: '#/definitions/webUtils.Error'
+      summary: Delete
+      tags:
+      - album
+    get:
+      consumes:
+      - application/json
+      description: getting album by id
+      parameters:
+      - description: id of album which need to be getted
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.Album'
+        "400":
+          description: Data is invalid
+          schema:
+            $ref: '#/definitions/webUtils.Error'
+        "405":
+          description: Method is not allowed
+          schema:
+            $ref: '#/definitions/webUtils.Error'
+      summary: Get
+      tags:
+      - album
+  /api/v1/albums/popular:
+    get:
+      consumes:
+      - application/json
+      description: getting top20 popular albums
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/webUtils.Success'
+        "400":
+          description: Data is invalid
+          schema:
+            $ref: '#/definitions/webUtils.Error'
+        "405":
+          description: Method is not allowed
+          schema:
+            $ref: '#/definitions/webUtils.Error'
+      summary: GetPopular
+      tags:
+      - album
+  /api/v1/artists/:
+    get:
+      consumes:
+      - application/json
+      description: getting all artists
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/webUtils.Success'
+        "400":
+          description: Data is invalid
+          schema:
+            $ref: '#/definitions/webUtils.Error'
+        "405":
+          description: Method is not allowed
+          schema:
+            $ref: '#/definitions/webUtils.Error'
+      summary: GetAll
+      tags:
+      - artist
+    post:
+      consumes:
+      - application/json
+      description: creating new artist
+      parameters:
+      - description: params of new artist. Id will be set automatically.
+        in: body
+        name: Artist
+        required: true
+        schema:
+          $ref: '#/definitions/domain.Artist'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/webUtils.Success'
+        "400":
+          description: Data is invalid
+          schema:
+            $ref: '#/definitions/webUtils.Error'
+        "405":
+          description: Method is not allowed
+          schema:
+            $ref: '#/definitions/webUtils.Error'
+      summary: Create
+      tags:
+      - artist
+    put:
+      consumes:
+      - application/json
+      description: updating artist by id
+      parameters:
+      - description: id of updating artist and params of it.
+        in: body
+        name: Artist
+        required: true
+        schema:
+          $ref: '#/definitions/domain.Artist'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/webUtils.Success'
+        "400":
+          description: Data is invalid
+          schema:
+            $ref: '#/definitions/webUtils.Error'
+        "405":
+          description: Method is not allowed
+          schema:
+            $ref: '#/definitions/webUtils.Error'
+      summary: Update
+      tags:
+      - artist
+  /api/v1/artists/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: deleting artist by id
+      parameters:
+      - description: id of artist which need to be deleted
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/webUtils.Success'
+        "400":
+          description: Data is invalid
+          schema:
+            $ref: '#/definitions/webUtils.Error'
+        "405":
+          description: Method is not allowed
+          schema:
+            $ref: '#/definitions/webUtils.Error'
+      summary: Delete
+      tags:
+      - artist
+    get:
+      consumes:
+      - application/json
+      description: getting artist by id
+      parameters:
+      - description: id of artist which need to be getted
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.Artist'
+        "400":
+          description: Data is invalid
+          schema:
+            $ref: '#/definitions/webUtils.Error'
+        "405":
+          description: Method is not allowed
+          schema:
+            $ref: '#/definitions/webUtils.Error'
+      summary: Get
+      tags:
+      - artist
+  /api/v1/artists/popular:
+    get:
+      consumes:
+      - application/json
+      description: getting top20 popular artists
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/webUtils.Success'
+        "400":
+          description: Data is invalid
+          schema:
+            $ref: '#/definitions/webUtils.Error'
+        "405":
+          description: Method is not allowed
+          schema:
+            $ref: '#/definitions/webUtils.Error'
+      summary: GetPopular
+      tags:
+      - artist
+  /api/v1/get_csrf/:
+    post:
+      consumes:
+      - application/json
+      description: Exposes a csrf token and creates an unauthorized session
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/webUtils.Success'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/webUtils.Error'
+      summary: Getting csrf
+      tags:
+      - auth
+  /api/v1/login/:
+    post:
+      consumes:
+      - application/json
+      description: login user
+      parameters:
+      - description: username/email and password
+        in: body
+        name: User
+        required: true
+        schema:
+          $ref: '#/definitions/domain.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/webUtils.Success'
+        "400":
+          description: invalid login or password
+          schema:
+            $ref: '#/definitions/webUtils.Error'
+        "422":
+          description: invalid json
+          schema:
+            $ref: '#/definitions/webUtils.Error'
+      summary: Login
+      tags:
+      - auth
+  /api/v1/logout/:
+    post:
+      consumes:
+      - application/json
+      description: logout user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/webUtils.Success'
+      summary: Logout
+      tags:
+      - auth
+  /api/v1/signup/:
+    post:
+      consumes:
+      - application/json
+      description: Sign up user
+      parameters:
+      - description: Username, Email, Password required
+        in: body
+        name: User
+        required: true
+        schema:
+          $ref: '#/definitions/domain.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/webUtils.Success'
+        "400":
+          description: invalid sign up
+          schema:
+            $ref: '#/definitions/webUtils.Error'
+        "422":
+          description: invalid json
+          schema:
+            $ref: '#/definitions/webUtils.Error'
+      summary: Signup
+      tags:
+      - auth
+  /api/v1/tracks/:
+    get:
+      consumes:
+      - application/json
+      description: getting all tracks
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/webUtils.Success'
+        "400":
+          description: Data is invalid
+          schema:
+            $ref: '#/definitions/webUtils.Error'
+        "405":
+          description: Method is not allowed
+          schema:
+            $ref: '#/definitions/webUtils.Error'
+      summary: GetAll
+      tags:
+      - track
+    post:
+      consumes:
+      - application/json
+      description: creating new track
+      parameters:
+      - description: params of new track. Id will be set automatically.
+        in: body
+        name: Track
+        required: true
+        schema:
+          $ref: '#/definitions/domain.Track'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/webUtils.Success'
+        "400":
+          description: Data is invalid
+          schema:
+            $ref: '#/definitions/webUtils.Error'
+        "405":
+          description: Method is not allowed
+          schema:
+            $ref: '#/definitions/webUtils.Error'
+      summary: Create
+      tags:
+      - track
+    put:
+      consumes:
+      - application/json
+      description: updating track by id
+      parameters:
+      - description: id of updating track and params of it.
+        in: body
+        name: Track
+        required: true
+        schema:
+          $ref: '#/definitions/domain.Track'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/webUtils.Success'
+        "400":
+          description: Data is invalid
+          schema:
+            $ref: '#/definitions/webUtils.Error'
+        "405":
+          description: Method is not allowed
+          schema:
+            $ref: '#/definitions/webUtils.Error'
+      summary: Update
+      tags:
+      - track
+  /api/v1/tracks/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: deleting track by id
+      parameters:
+      - description: id of track which need to be deleted
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/webUtils.Success'
+        "400":
+          description: Data is invalid
+          schema:
+            $ref: '#/definitions/webUtils.Error'
+        "405":
+          description: Method is not allowed
+          schema:
+            $ref: '#/definitions/webUtils.Error'
+      summary: Delete
+      tags:
+      - track
+    get:
+      consumes:
+      - application/json
+      description: getting track by id
+      parameters:
+      - description: id of track which need to be getted
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.Track'
+        "400":
+          description: Data is invalid
+          schema:
+            $ref: '#/definitions/webUtils.Error'
+        "405":
+          description: Method is not allowed
+          schema:
+            $ref: '#/definitions/webUtils.Error'
+      summary: Get
+      tags:
+      - track
+  /api/v1/tracks/popular:
+    get:
+      consumes:
+      - application/json
+      description: getting top20 popular tracks
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/webUtils.Success'
+        "400":
+          description: Data is invalid
+          schema:
+            $ref: '#/definitions/webUtils.Error'
+        "405":
+          description: Method is not allowed
+          schema:
+            $ref: '#/definitions/webUtils.Error'
+      summary: GetPopular
+      tags:
+      - track
+  /api/v1/users/:
+    put:
+      consumes:
+      - application/json
+      description: updating user by session_id
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/webUtils.Success'
+        "400":
+          description: invalid field values
+          schema:
+            $ref: '#/definitions/webUtils.Error'
+        "401":
+          description: user unauthorized
+          schema:
+            $ref: '#/definitions/webUtils.Error'
+        "422":
+          description: invalid json
+          schema:
+            $ref: '#/definitions/webUtils.Error'
+      summary: Update
+      tags:
+      - user
+  /api/v1/users/{id}:
+    get:
+      consumes:
+      - application/json
+      description: getting user by id
+      parameters:
+      - description: id of user which need to be getted
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.User'
+        "400":
+          description: Data is invalid
+          schema:
+            $ref: '#/definitions/webUtils.Error'
+        "404":
+          description: User not found
+          schema:
+            $ref: '#/definitions/webUtils.Error'
+        "405":
+          description: Method is not allowed
+          schema:
+            $ref: '#/definitions/webUtils.Error'
+      summary: Get
+      tags:
+      - user
+  /api/v1/users/self:
+    get:
+      consumes:
+      - application/json
+      description: getting user by session_id (in cookie)
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.User'
+        "401":
+          description: User unauthorized
+          schema:
+            $ref: '#/definitions/webUtils.Error'
+      summary: Get
+      tags:
+      - user
+  /api/v1/users/upload_avatar/:
+    put:
+      consumes:
+      - application/json
+      description: updating user avatar
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/webUtils.Success'
+        "400":
+          description: invalid field values
+          schema:
+            $ref: '#/definitions/webUtils.Error'
+      summary: Update
+      tags:
+      - user
+swagger: "2.0"

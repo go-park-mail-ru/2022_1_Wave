@@ -2,6 +2,7 @@ package redis
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/domain"
 	"github.com/gomodule/redigo/redis"
 	"github.com/google/uuid"
@@ -59,10 +60,12 @@ func setSession(client redis.Conn, sessionId string, isAuthorized bool, userId u
 
 	tableValue, _ := json.Marshal(session)
 
-	_, err := client.Do("HSET", sessionHashTableName, sessionId, tableValue)
+	res, err := client.Do("HSET", sessionHashTableName, sessionId, tableValue)
 	if err != nil {
+		fmt.Println(err)
 		return domain.ErrSetSession
 	}
+	fmt.Println(res)
 
 	_, err = client.Do("EXPIRE", sessionHashTableName, expires.Seconds())
 	if err != nil {
