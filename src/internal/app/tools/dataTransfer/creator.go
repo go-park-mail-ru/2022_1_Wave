@@ -32,10 +32,22 @@ func CreateAlbumDataTransferFromInterface(data interface{}) (utilsInterfaces.Dat
 		return nil, err
 	}
 
+	tracksArray := temp[constants.FieldTracks].([]interface{})
+	tracks := make([]domain.TrackDataTransfer, len(tracksArray))
+	for i, obj := range tracksArray {
+		temp := obj.(map[string]interface{})
+		track, err := CreateTrackDataTransferFromInterface(temp)
+		if err != nil {
+			return nil, err
+		}
+		tracks[i] = track.(domain.TrackDataTransfer)
+	}
+
 	return domain.AlbumDataTransfer{
 		Title:  title,
 		Artist: artist,
 		Cover:  cover,
+		Tracks: tracks,
 	}, nil
 }
 
@@ -79,9 +91,21 @@ func CreateArtistDataTransferFromInterface(data interface{}) (utilsInterfaces.Da
 		return nil, err
 	}
 
+	albumsArray := temp[constants.FieldAlbums].([]interface{})
+	albums := make([]domain.AlbumDataTransfer, len(albumsArray))
+	for i, obj := range albumsArray {
+		temp := obj.(map[string]interface{})
+		track, err := CreateAlbumDataTransferFromInterface(temp)
+		if err != nil {
+			return nil, err
+		}
+		albums[i] = track.(domain.AlbumDataTransfer)
+	}
+
 	return domain.ArtistDataTransfer{
-		Name:  name,
-		Cover: cover,
+		Name:   name,
+		Cover:  cover,
+		Albums: albums,
 	}, nil
 }
 
