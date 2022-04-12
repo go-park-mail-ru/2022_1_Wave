@@ -68,6 +68,7 @@ func SetArtistsRoutes(apiVersion *echo.Group) {
 	artistRoutes := apiVersion.Group(artistsPrefix)
 
 	artistRoutes.GET(idEchoPattern, artistDeliveryHttp.Get)
+	artistRoutes.GET(idEchoPattern+popularPrefix, artistDeliveryHttp.GetPopularTracks)
 	artistRoutes.GET(locate, artistDeliveryHttp.GetAll)
 	artistRoutes.POST(locate, artistDeliveryHttp.Create)
 	artistRoutes.PUT(locate, artistDeliveryHttp.Update)
