@@ -6,10 +6,15 @@ import (
 	"github.com/go-park-mail-ru/2022_1_Wave/db"
 	"github.com/go-park-mail-ru/2022_1_Wave/init/logger"
 	constants "github.com/go-park-mail-ru/2022_1_Wave/internal"
+	authHttp "github.com/go-park-mail-ru/2022_1_Wave/internal/app/auth/delivery/http"
+	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/auth/delivery/http/http_middleware"
+	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/auth/usecase"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/domain"
 	utilsInterfaces "github.com/go-park-mail-ru/2022_1_Wave/internal/app/interfaces"
+	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/session/repository/redis"
 	structRepoPostgres "github.com/go-park-mail-ru/2022_1_Wave/internal/app/structs/repository/postgresql"
 	domainCreator "github.com/go-park-mail-ru/2022_1_Wave/internal/app/tools/domain"
+	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/user/repository/postgresql"
 	_ "github.com/jackc/pgx/stdlib"
 	"github.com/jmoiron/sqlx"
 	"os"
@@ -202,6 +207,15 @@ func (storage Postgres) Init(quantity int) (utilsInterfaces.GlobalStorageInterfa
 		if err != nil {
 			return storage, err
 		}
+	}
+
+	sessionRepo := redis.NewRedisSessionRepo(":6379")
+	userRepo := postgresql.NewUserPostgresRepo(storage.Sqlx)
+
+	authUseCase := usecase.NewAuthUseCase(sessionRepo, userRepo)
+	authHttp.M = http_middleware.InitMiddleware(authUseCase)
+	authHttp.Handler = authHttp.AuthHandler{
+		AuthUseCase: authUseCase,
 	}
 
 	return storage, nil
