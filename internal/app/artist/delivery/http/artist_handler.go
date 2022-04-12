@@ -1,7 +1,6 @@
 package artistDeliveryHttp
 
 import (
-	"fmt"
 	artistUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/app/artist/usecase"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/domain"
 	utilsInterfaces "github.com/go-park-mail-ru/2022_1_Wave/internal/app/interfaces"
@@ -111,8 +110,6 @@ func GetPopular(ctx echo.Context) error {
 
 func GetPopularTracksHandler(ctx echo.Context, mutex *sync.RWMutex, useCase utilsInterfaces.UseCaseInterface) error {
 	id, err := structsDeliveryHttp.ReadGetDeleteRequest(ctx)
-
-	fmt.Println(id)
 
 	popular, err := useCase.GetPopularTracksFromArtist(uint64(id), mutex)
 	if err != nil {
