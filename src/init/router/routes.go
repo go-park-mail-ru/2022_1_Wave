@@ -92,7 +92,7 @@ func SetAuthRoutes(apiVersion *echo.Group) {
 	apiVersion.POST(loginPrefix, authHttp.Handler.Login, authHttp.M.IsSession, authHttp.M.CSRF)
 	apiVersion.POST(logoutPrefix, authHttp.Handler.Logout, authHttp.M.IsSession, authHttp.M.CSRF)
 	apiVersion.POST(signUpPrefix, authHttp.Handler.SignUp, authHttp.M.IsSession, authHttp.M.CSRF)
-	apiVersion.POST(getCSRFPrefix, authHttp.Handler.GetCSRF)
+	apiVersion.GET(getCSRFPrefix, authHttp.Handler.GetCSRF)
 }
 
 // SetDocsPath docs
