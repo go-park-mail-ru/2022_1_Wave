@@ -1,4 +1,4 @@
-package http
+package userHttp
 
 import (
 	"errors"
@@ -22,8 +22,10 @@ const (
 	uploadAvatarError = "upload avatar error"
 
 	SessionIdKey  = "session_id"
-	PathToAvatars = "/users/avatars"
+	PathToAvatars = "/src/assets"
 )
+
+var Handler UserHandler
 
 //func NewUserHandler(e *echo.Echo, userUseCase domain.UserUseCase, m *http_middleware.HttpMiddleware) {
 //	handler := &UserHandler{
@@ -94,18 +96,15 @@ func (a *UserHandler) GetSelfUser(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, getErrorUserResponse(errors.New(badIdErr)))
 	}
-
 	var user domain.User
 	err = c.Bind(&user)
 	if err != nil {
 		return c.JSON(http.StatusUnprocessableEntity, getErrorUserResponse(errors.New(invalidUserJSON)))
 	}
-
 	err = a.userUseCase.Update(uint(userId), &user)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, getErrorUserResponse(err))
 	}
-
 	return c.JSON(http.StatusOK, getSuccessUserUpdate(&user))
 }*/
 
@@ -115,11 +114,12 @@ func (a *UserHandler) GetSelfUser(c echo.Context) error {
 // @Tags         user
 // @Accept       application/json
 // @Produce      application/json
+// @Param        User  body      domain.User  true  "a non-zero field means that it needs to be changed"
 // @Success      200    {object}  webUtils.Success
 // @Failure      400    {object}  webUtils.Error  "invalid field values"
 // @Failure      401    {object}  webUtils.Error  "user unauthorized"
 // @Failure      422    {object}  webUtils.Error  "invalid json"
-// @Router       /api/v1/users/ [put]
+// @Router       /api/v1/users/self [put]
 func (a *UserHandler) UpdateSelfUser(c echo.Context) error {
 	cookie, err := c.Cookie(SessionIdKey)
 	if err != nil {
@@ -171,7 +171,7 @@ func (a *UserHandler) UploadAvatar(c echo.Context) error {
 
 	strs := strings.Split(file.Filename, ".")
 
-	filename := PathToAvatars + "/" + strconv.Itoa(int(user.ID)) + "." + strs[len(strs)-1]
+	filename := PathToAvatars + "/user_" + strconv.Itoa(int(user.ID)) + "." + strs[len(strs)-1]
 	dst, err := os.Create(filename)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, getErrorUserResponse(errors.New(uploadAvatarError)))
