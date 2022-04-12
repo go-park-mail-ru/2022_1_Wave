@@ -78,10 +78,10 @@ func (track Track) CreatePath(fileFormat string) (string, error) {
 
 func (track Track) CastDomainToDataTransferObject(artist utilsInterfaces.Domain, args ...interface{}) (utilsInterfaces.DataTransfer, error) {
 
-	pathToCover, err := track.CreatePath(constants.PngFormat)
-	if err != nil {
-		return nil, nil
-	}
+	//pathToCover, err := track.CreatePath(constants.PngFormat)
+	//if err != nil {
+	//	return nil, nil
+	//}
 
 	pathToSrc, err := track.CreatePath(constants.Mp4Format)
 	if err != nil {
@@ -89,9 +89,9 @@ func (track Track) CastDomainToDataTransferObject(artist utilsInterfaces.Domain,
 	}
 
 	return TrackDataTransfer{
-		Title:      track.Title,
-		Artist:     artist.(Artist).Name,
-		Cover:      pathToCover,
+		Title:  track.Title,
+		Artist: artist.(Artist).Name,
+		//Cover:      pathToCover,
 		Src:        pathToSrc,
 		Likes:      int(track.CountLikes),
 		Listenings: int(track.CountListening),
@@ -100,9 +100,9 @@ func (track Track) CastDomainToDataTransferObject(artist utilsInterfaces.Domain,
 }
 
 type TrackDataTransfer struct {
-	Title      string `json:"title" example:"Mercury"`
-	Artist     string `json:"artist" example:"Hexed"`
-	Cover      string `json:"cover" example:"assets/track_1.png"`
+	Title  string `json:"title" example:"Mercury"`
+	Artist string `json:"artist" example:"Hexed"`
+	//Cover      string `json:"cover" example:"assets/track_1.png"`
 	Src        string `json:"src" example:"assets/track_1.mp4"`
 	Likes      int    `json:"likes" example:"5"`
 	Listenings int    `json:"listenings" example:"500"`
@@ -122,10 +122,10 @@ func (track TrackDataTransfer) CreateDataTransferFromInterface(data interface{})
 		return nil, err
 	}
 
-	cover, err := utils.ToString(temp[constants.FieldCover])
-	if err != nil {
-		return nil, err
-	}
+	//cover, err := utils.ToString(temp[constants.FieldCover])
+	//if err != nil {
+	//	return nil, err
+	//}
 
 	src, err := utils.ToString(temp[constants.FieldSrc])
 	if err != nil {
@@ -147,9 +147,9 @@ func (track TrackDataTransfer) CreateDataTransferFromInterface(data interface{})
 		return nil, err
 	}
 	return TrackDataTransfer{
-		Title:      title,
-		Artist:     artist,
-		Cover:      cover,
+		Title:  title,
+		Artist: artist,
+		//Cover:      cover,
 		Src:        src,
 		Likes:      likes,
 		Listenings: listenings,

@@ -153,9 +153,9 @@ func CreateTrackDataTransferFromInterface(data interface{}) (utilsInterfaces.Dat
 	}
 
 	return domain.TrackDataTransfer{
-		Title:      title,
-		Artist:     artist,
-		Cover:      cover,
+		Title:  title,
+		Artist: artist,
+		//Cover:      cover,
 		Src:        src,
 		Likes:      likes,
 		Listenings: listenings,

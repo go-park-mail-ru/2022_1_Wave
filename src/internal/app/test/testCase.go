@@ -29,7 +29,7 @@ func PrepareManyCases(repo utilsInterfaces.RepoInterface, mutex *sync.RWMutex) T
 	objects, _ := repo.GetAll(mutex)
 
 	for _, object := range objects {
-		dataTransfer, _ := dataTransferCreator.CreateDataTransfer(object, mutex)
+		dataTransfer, _ := dataTransferCreator.CreateDataTransfer(object)
 		cases.Data = append(cases.Data, dataTransfer)
 	}
 
@@ -77,7 +77,7 @@ func PrepareArrayCases(useCase utilsInterfaces.UseCaseInterface, mutex *sync.RWM
 	isPostgres := repoType == postgresType
 
 	for idx, obj := range objects {
-		dataTransfer, _ := dataTransferCreator.CreateDataTransfer(obj, mutex)
+		dataTransfer, _ := dataTransferCreator.CreateDataTransfer(obj)
 
 		id := idx
 		if isPostgres {
@@ -98,7 +98,7 @@ func PreparePopularCases(useCase utilsInterfaces.UseCaseInterface, mutex *sync.R
 	objects, _ := useCase.GetPopular(mutex)
 
 	for _, object := range objects {
-		dataTransfer, _ := dataTransferCreator.CreateDataTransfer(object, mutex)
+		dataTransfer, _ := dataTransferCreator.CreateDataTransfer(object)
 		cases.Data = append(cases.Data, dataTransfer)
 	}
 	cases.Status = http.StatusOK
