@@ -3,13 +3,15 @@ package domain
 import "time"
 
 type Session struct {
-	UserId       uint
-	IsAuthorized bool
+	UserId       uint `json:"user_id"`
+	IsAuthorized bool `json:"is_authorized"`
 }
 
 type SessionRepo interface {
 	GetSession(sessionId string) (*Session, error)
 	SetNewUnauthorizedSession(expires time.Duration) (sessionId string, err error)
-	SetNewSession(expires time.Duration, userId uint) (sessionId string, err error)
+	//SetNewSession(expires time.Duration, userId uint) (sessionId string, err error)
+	MakeSessionAuthorized(sessionId string, userId uint) error
+	MakeSessionUnauthorized(sessionId string) error
 	DeleteSession(sessionId string) error
 }
