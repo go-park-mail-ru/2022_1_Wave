@@ -24,7 +24,7 @@ const dbSize = 10
 func main() {
 	// database model, you can switch it
 	dbType := internal.Postgres
-	//database := internal.Local
+	//dbType := internal.Local
 
 	e := echo.New()
 

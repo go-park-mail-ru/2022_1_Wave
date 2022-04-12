@@ -151,10 +151,10 @@ func CreateDomainAlbumCoverFromInterface(data interface{}) (utilsInterfaces.Doma
 		return nil, err
 	}
 
-	title, err := utils.ToString(temp[constants.FieldTitle])
-	if err != nil {
-		return nil, err
-	}
+	//title, err := utils.ToString(temp[constants.FieldTitle])
+	//if err != nil {
+	//	return nil, err
+	//}
 
 	quote, err := utils.ToString(temp[constants.FieldQuote])
 	if err != nil {
@@ -167,8 +167,8 @@ func CreateDomainAlbumCoverFromInterface(data interface{}) (utilsInterfaces.Doma
 	}
 
 	return domain.AlbumCover{
-		Id:     id,
-		Title:  title,
+		Id: id,
+		//Title:  title,
 		Quote:  quote,
 		IsDark: isDark,
 	}, nil
@@ -339,17 +339,17 @@ func AlbumConstructorRandom(id uint64, authorsQuantity int64, maxAlbumTitleLen i
 	}
 }
 
-func AlbumCoverConstructorRandom(id uint64, maxAlbumTitleLen int) domain.AlbumCover {
+func AlbumCoverConstructorRandom(id uint64) domain.AlbumCover {
 	//rand.Seed(time.Now().Unix())
 	return domain.AlbumCover{
-		Id:     id,
-		Title:  utils.RandomWord(maxAlbumTitleLen),
+		Id: id,
+		//Title:  utils.RandomWord(maxAlbumTitleLen),
 		Quote:  utils.RandomWord(100),
 		IsDark: true,
 	}
 }
 
-func TrackConstructorRandom(id uint64, albums []utilsInterfaces.Domain, artists []utilsInterfaces.Domain, maxTrackTitleLen int, maxDuration int64, maxLikes int64, maxListening int64) domain.Track {
+func TrackConstructorRandom(id uint64, albums []utilsInterfaces.Domain, maxTrackTitleLen int, maxDuration int64, maxLikes int64, maxListening int64) domain.Track {
 	//rand.Seed(time.Now().Unix())
 	album := albums[1+rand.Intn(len(albums)-1)]
 	albumId := album.GetId()

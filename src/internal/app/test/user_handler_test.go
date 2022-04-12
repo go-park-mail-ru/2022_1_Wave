@@ -3,7 +3,6 @@ package test
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"github.com/bxcodec/faker"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/domain"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/domain/mocks"
@@ -307,7 +306,6 @@ func TestUploadAvatar(t *testing.T) {
 		err = os.Mkdir(now_dir, 0777)
 		now_dir += "/"
 	}
-	fmt.Println(err)
 	err = handler.UploadAvatar(c)
 	assert.NoError(t, err)
 	assert.Equal(t, http.StatusBadRequest, rec.Code)

@@ -32,8 +32,8 @@ type AlbumCoverTestCreator struct{}
 
 func (creator AlbumCoverTestCreator) PrepareOneTestDomain() utilsInterfaces.Domain {
 	return domain.AlbumCover{
-		Id:     3,
-		Title:  "testedAlbum",
+		Id: 3,
+		//Title:  "testedAlbum",
 		Quote:  "tested quote",
 		IsDark: true,
 	}
