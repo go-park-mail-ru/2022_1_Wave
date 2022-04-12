@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/go-park-mail-ru/2022_1_Wave/config"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/auth/delivery/http/http_middleware"
+	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/auth/usecase"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/domain"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/tools/utils"
 	"github.com/labstack/echo/v4"
@@ -24,14 +25,13 @@ type AuthHandler struct {
 var Handler AuthHandler
 var M *http_middleware.HttpMiddleware
 
-var sessionExpire, _ = time.ParseDuration(config.C.SessionExpires)
-var csrfTokenExpire, _ = time.ParseDuration("1h")
+var csrfTokenExpire = time.Hour * 1
 
 func formCookie(sessionId string) *http.Cookie {
 	return &http.Cookie{
 		Name:     sessionIdKey,
 		Value:    sessionId,
-		Expires:  time.Now().Add(sessionExpire),
+		Expires:  time.Now().Add(usecase.SessionExpire),
 		HttpOnly: true,
 	}
 }
