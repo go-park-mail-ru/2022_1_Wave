@@ -1,7 +1,6 @@
 package usecase
 
 import (
-	"github.com/go-park-mail-ru/2022_1_Wave/config"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/domain"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/tools/utils"
 	"time"
@@ -12,7 +11,7 @@ type authUseCase struct {
 	userRepo    domain.UserRepo
 }
 
-var SessionExpire, _ = time.ParseDuration(config.C.SessionExpires)
+var SessionExpire = time.Hour * 24
 
 func NewAuthUseCase(sessionRepo domain.SessionRepo, userRepo domain.UserRepo) domain.AuthUseCase {
 	return &authUseCase{
