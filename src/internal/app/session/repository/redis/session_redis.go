@@ -1,39 +1,65 @@
 package redis
 
 import (
-	"github.com/go-park-mail-ru/2022_1_Wave/config"
+	"encoding/json"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/domain"
 	"github.com/gomodule/redigo/redis"
 	"github.com/google/uuid"
+	"strconv"
+	"strings"
 	"time"
 )
 
 const (
-	SessionsKey             = "sessions"
-	UnauthorizedIntSign     = 0
-	AuthorizedIntSign       = 1
-	SessionsUserIdKey       = "user_id"
-	SessionsIsAuthorizedKey = "is_authorized"
+	SessionsKey              = "sessions"
+	UnauthorizedKey          = "unauthorized"
+	UserIdSessionIdSeparator = "_"
 )
 
-func generateSessionId() string {
-	return uuid.NewString()
-}
+func generateSessionId(isAuthorized bool, userId uint) string {
+	var result string
 
-func getSessionHashTableName(sessionId string) string {
-	return SessionsKey + ":" + sessionId
-}
-
-func setSession(client redis.Conn, sessionId string, authorizedSign uint, userId uint, expires time.Duration) error {
-	// sessions:<session_id>
-	sessionHashTableName := getSessionHashTableName(sessionId)
-
-	_, err := client.Do("HSET", sessionHashTableName, SessionsIsAuthorizedKey, authorizedSign)
-	if err != nil {
-		return domain.ErrSetSession
+	if isAuthorized {
+		result = strconv.Itoa(int(userId)) + UserIdSessionIdSeparator + uuid.NewString()
+	} else {
+		result = UnauthorizedKey + UserIdSessionIdSeparator + uuid.NewString()
 	}
 
-	_, err = client.Do("HSET", sessionHashTableName, SessionsUserIdKey, userId)
+	return result
+}
+
+func getUserIdFromSessionId(sessionId string) string {
+	return strings.Split(sessionId, UserIdSessionIdSeparator)[0]
+}
+
+func getSessionHashTableName(userId string) string {
+	return SessionsKey + ":" + userId
+}
+
+func setSession(client redis.Conn, sessionId string, isAuthorized bool, userId uint, expires time.Duration) error {
+	/*
+		sessions:<user_id>: {
+			<session_id>: {...} - json,
+			<session_id>: {...} - json,
+			...
+		} - по id пользователя хранятся его сессии
+		при этом в session_id также зашит user_id, чтобы мы могли по session_id получить id пользователя
+	*/
+	var sessionHashTableName string
+	if isAuthorized {
+		sessionHashTableName = getSessionHashTableName(strconv.Itoa(int(userId)))
+	} else {
+		sessionHashTableName = getSessionHashTableName(UnauthorizedKey)
+	}
+
+	session := domain.Session{
+		UserId:       userId,
+		IsAuthorized: isAuthorized,
+	}
+
+	tableValue, _ := json.Marshal(session)
+
+	_, err := client.Do("HSET", sessionHashTableName, sessionId, tableValue)
 	if err != nil {
 		return domain.ErrSetSession
 	}
@@ -50,11 +76,11 @@ type redisSessionRepo struct {
 	pool *redis.Pool
 }
 
-func NewRedisSessionRepo() domain.SessionRepo {
+func NewRedisSessionRepo(redisAddr string) domain.SessionRepo {
 	return &redisSessionRepo{
 		pool: &redis.Pool{
 			Dial: func() (redis.Conn, error) {
-				return redis.Dial("tcp", config.C.RedisAddress)
+				return redis.Dial("tcp", redisAddr)
 			},
 		},
 	}
@@ -64,39 +90,29 @@ func (a *redisSessionRepo) GetSession(sessionId string) (*domain.Session, error)
 	client := a.pool.Get()
 	defer client.Close()
 
-	// sessions:<session_id>
-	sessionHashTableName := getSessionHashTableName(sessionId)
+	userId := getUserIdFromSessionId(sessionId)
+	// sessions:<user_id> -> <session_id> -> need session
+	sessionHashTableName := getSessionHashTableName(userId)
 
-	userId, err := client.Do("HGET", sessionHashTableName, SessionsUserIdKey)
-	if err != nil {
+	sessionJson, err := client.Do("HGET", sessionHashTableName, sessionId)
+	if err != nil || sessionJson == nil {
 		return nil, domain.ErrGetSession
 	}
 
-	isAuthorized, err := client.Do("HGET", sessionHashTableName, SessionsIsAuthorizedKey)
-	if err != nil {
-		return nil, domain.ErrGetSession
-	}
+	var session domain.Session
 
-	var isAuthorizedBool bool
-	if isAuthorized.(int) == UnauthorizedIntSign {
-		isAuthorizedBool = false
-	} else {
-		isAuthorizedBool = true
-	}
+	_ = json.Unmarshal(sessionJson.([]byte), &session)
 
-	return &domain.Session{
-		UserId:       userId.(uint),
-		IsAuthorized: isAuthorizedBool,
-	}, nil
+	return &session, nil
 }
 
 func (a *redisSessionRepo) SetNewUnauthorizedSession(expires time.Duration) (string, error) {
 	client := a.pool.Get()
 	defer client.Close()
 
-	sessionId := generateSessionId()
+	sessionId := generateSessionId(false, 0)
 
-	err := setSession(client, sessionId, UnauthorizedIntSign, 0, expires)
+	err := setSession(client, sessionId, false, 0, expires)
 
 	if err != nil {
 		return "", domain.ErrSetSession
@@ -105,32 +121,74 @@ func (a *redisSessionRepo) SetNewUnauthorizedSession(expires time.Duration) (str
 	return sessionId, nil
 }
 
-func (a *redisSessionRepo) SetNewSession(expires time.Duration, userId uint) (string, error) {
+/*func (a *redisSessionRepo) SetNewSession(expires time.Duration, userId uint) (string, error) {
 	client := a.pool.Get()
 	defer client.Close()
 
-	sessionId := generateSessionId()
+	sessionId := generateSessionId(true, userId)
 
-	err := setSession(client, sessionId, AuthorizedIntSign, userId, expires)
+	err := setSession(client, sessionId, true, userId, expires)
 
 	if err != nil {
 		return "", domain.ErrSetSession
 	}
 
 	return sessionId, nil
+}*/
+
+func (a *redisSessionRepo) changeSession(sessionId string, isAuthorized bool, userId uint) error {
+	session, err := a.GetSession(sessionId)
+	if err != nil {
+		return domain.ErrGetSession
+	}
+	session.IsAuthorized = isAuthorized
+	session.UserId = userId
+	tableValue, _ := json.Marshal(session)
+
+	client := a.pool.Get()
+	defer client.Close()
+
+	// sessions:<user_id> -> <session_id> -> need session
+	sessionHashTableName := getSessionHashTableName(getUserIdFromSessionId(sessionId))
+
+	_, err = client.Do("HSET", sessionHashTableName, sessionId, tableValue)
+	if err != nil {
+		return domain.ErrSetSession
+	}
+
+	return nil
+}
+
+func (a *redisSessionRepo) MakeSessionAuthorized(sessionId string, userId uint) error {
+	return a.changeSession(sessionId, true, userId)
+}
+
+func (a *redisSessionRepo) MakeSessionUnauthorized(sessionId string) error {
+	return a.changeSession(sessionId, false, 0)
 }
 
 func (a *redisSessionRepo) DeleteSession(sessionId string) error {
 	client := a.pool.Get()
 	defer client.Close()
 
-	// sessions:<session_id>
-	sessionHashTableName := getSessionHashTableName(sessionId)
+	userId := getUserIdFromSessionId(sessionId)
+	// sessions:<user_id>
+	sessionHashTableName := getSessionHashTableName(userId)
 
-	_, err := client.Do("DEL", sessionHashTableName)
+	_, err := client.Do("HDEL", sessionHashTableName, sessionId)
 	if err != nil {
 		return domain.ErrDeleteSession
 	}
 
-	return nil
+	// удалим таблицу сессий пользователя, если у него не осталось сессий
+	result, err := client.Do("HLEN", sessionHashTableName)
+	if err != nil || result == nil {
+		return domain.ErrDeleteSession
+	}
+
+	if result == 0 {
+		_, err = client.Do("DEL", sessionHashTableName)
+	}
+
+	return err
 }
