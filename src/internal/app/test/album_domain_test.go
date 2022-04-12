@@ -14,18 +14,18 @@ func TestDomainAlbumCreateDataTransferFromInterface(t *testing.T) {
 	const cover = "some path, that doesn't matter"
 	dataTransfer := []domain.TrackDataTransfer{
 		{
-			Title:      "1",
-			Artist:     "1",
-			Cover:      "1",
+			Title:  "1",
+			Artist: "1",
+			//Cover:      "1",
 			Src:        "1",
 			Likes:      10,
 			Listenings: 10,
 			Duration:   10,
 		},
 		{
-			Title:      "2",
-			Artist:     "2",
-			Cover:      "2",
+			Title:  "2",
+			Artist: "2",
+			//Cover:      "2",
 			Src:        "2",
 			Likes:      20,
 			Listenings: 20,
