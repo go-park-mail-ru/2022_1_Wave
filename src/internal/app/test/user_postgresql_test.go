@@ -28,7 +28,7 @@ func TestInsertSuccess(t *testing.T) {
 		CountFollowing: 0,
 	}
 
-	query := `INSERT INTO users \(username, email, avatar, password_hash\) VALUES \(\:username, \:email, \:avatar, \:password_hash\) RETURNING id`
+	query := `INSERT INTO Users \(username, email, avatar, password_hash\) VALUES \(\:username, \:email, \:avatar, \:password_hash\) RETURNING id`
 
 	mock.ExpectExec(query).WithArgs(user.Username, user.Email, user.Avatar, user.Password).WillReturnResult(sqlmock.NewResult(1, 1))
 
@@ -54,7 +54,7 @@ func TestInsertError(t *testing.T) {
 		Password: "aboba",
 		Avatar:   "",
 	}
-	query := `INSERT INTO users \(username, email, avatar, password_hash\) VALUES \(\:username, \:email, \:avatar, \:password_hash\) RETURNING id`
+	query := `INSERT INTO Users \(username, email, avatar, password_hash\) VALUES \(\:username, \:email, \:avatar, \:password_hash\) RETURNING id`
 	mock.ExpectExec(query).WithArgs(user.Username, user.Email, user.Avatar, user.Password).WillReturnError(errors.New("insert error"))
 
 	a := postgresql.NewUserPostgresRepo(sqlxDb)
@@ -85,9 +85,9 @@ func TestUpdateSuccess(t *testing.T) {
 		Avatar:   "",
 	}
 
-	query1 := `UPDATE users SET username \= \$1, avatar \= \$2 WHERE id \= \$3`
+	query1 := `UPDATE Users SET username \= \$1, avatar \= \$2 WHERE id \= \$3`
 	mock.ExpectExec(query1).WithArgs(userToUpdate1.Username, userToUpdate1.Avatar, userToUpdate1.ID).WillReturnResult(sqlmock.NewResult(int64(userToUpdate1.ID), 1))
-	query2 := `UPDATE users SET email \= \$1, password_hash \= \$2 WHERE id \= \$3`
+	query2 := `UPDATE Users SET email \= \$1, password_hash \= \$2 WHERE id \= \$3`
 	mock.ExpectExec(query2).WithArgs(userToUpdate2.Email, userToUpdate2.Password, userToUpdate2.ID).WillReturnResult(sqlmock.NewResult(int64(userToUpdate2.ID), 1))
 
 	a := postgresql.NewUserPostgresRepo(sqlxDb)
@@ -113,7 +113,7 @@ func TestUpdateError(t *testing.T) {
 		Password: "aboba",
 		Avatar:   "",
 	}
-	query := `UPDATE users SET email \= \$1, password_hash \= \$2 WHERE id \= \$3`
+	query := `UPDATE Users SET email \= \$1, password_hash \= \$2 WHERE id \= \$3`
 	mock.ExpectExec(query).WithArgs(userToUpdate.Email, userToUpdate.Password, userToUpdate.ID).WillReturnError(errors.New("user with such id does not exist"))
 
 	a := postgresql.NewUserPostgresRepo(sqlxDb)
@@ -129,7 +129,7 @@ func TestDeleteSuccess(t *testing.T) {
 	defer db.Close()
 	sqlxDb := sqlx.NewDb(db, "sqlmock")
 
-	query := `DELETE FROM users WHERE id \= \$1`
+	query := `DELETE FROM Users WHERE id \= \$1`
 	mock.ExpectExec(query).WithArgs(1).WillReturnResult(sqlmock.NewResult(1, 1))
 
 	a := postgresql.NewUserPostgresRepo(sqlxDb)
@@ -145,7 +145,7 @@ func TestDeleteError(t *testing.T) {
 	defer db.Close()
 	sqlxDb := sqlx.NewDb(db, "sqlmock")
 
-	query := `DELETE FROM users WHERE id \= \$1`
+	query := `DELETE FROM Users WHERE id \= \$1`
 	mock.ExpectExec(query).WithArgs(1).WillReturnError(errors.New("user with such id does not exist"))
 
 	a := postgresql.NewUserPostgresRepo(sqlxDb)
@@ -163,7 +163,7 @@ func TestSelectByIdSuccess(t *testing.T) {
 	rows := sqlmock.NewRows([]string{"id", "username", "email", "avatar", "count_following"}).
 		AddRow(1, "aboba", "aboba@aboba.ru", "url_to_avatar", 0)
 
-	query := `SELECT id, username, email, avatar, count_following FROM users WHERE id \= \$1`
+	query := `SELECT id, username, email, avatar, count_following FROM Users WHERE id \= \$1`
 	mock.ExpectQuery(query).WithArgs(1).WillReturnRows(rows)
 
 	a := postgresql.NewUserPostgresRepo(sqlxDb)
@@ -181,7 +181,7 @@ func TestSelectByIdError(t *testing.T) {
 	defer db.Close()
 	sqlxDb := sqlx.NewDb(db, "sqlmock")
 
-	query := `SELECT id, username, email, avatar, count_following FROM users WHERE id \= \$1`
+	query := `SELECT id, username, email, avatar, count_following FROM Users WHERE id \= \$1`
 	mock.ExpectExec(query).WithArgs(1).WillReturnError(errors.New("user with such id does not exist"))
 
 	a := postgresql.NewUserPostgresRepo(sqlxDb)
@@ -201,7 +201,7 @@ func TestSelectByUsernameSuccess(t *testing.T) {
 	rows := sqlmock.NewRows([]string{"id", "username", "email", "avatar", "count_following"}).
 		AddRow(1, "aboba", "aboba@aboba.ru", "url_to_avatar", 0)
 
-	query := `SELECT id, username, email, avatar, count_following FROM users WHERE username \= \$1`
+	query := `SELECT id, username, email, avatar, count_following FROM Users WHERE username \= \$1`
 	mock.ExpectQuery(query).WithArgs("aboba").WillReturnRows(rows)
 
 	a := postgresql.NewUserPostgresRepo(sqlxDb)
@@ -219,7 +219,7 @@ func TestSelectByUsernameError(t *testing.T) {
 	defer db.Close()
 	sqlxDb := sqlx.NewDb(db, "sqlmock")
 
-	query := `SELECT id, username, email, avatar, count_following FROM users WHERE username \= \$1`
+	query := `SELECT id, username, email, avatar, count_following FROM Users WHERE username \= \$1`
 	mock.ExpectExec(query).WithArgs("not_aboba").WillReturnError(errors.New("user with such username does not exist"))
 
 	a := postgresql.NewUserPostgresRepo(sqlxDb)
@@ -239,7 +239,7 @@ func TestSelectByEmailSuccess(t *testing.T) {
 	rows := sqlmock.NewRows([]string{"id", "username", "email", "avatar", "count_following"}).
 		AddRow(1, "aboba", "aboba@aboba.ru", "url_to_avatar", 0)
 
-	query := `SELECT id, username, email, avatar, count_following FROM users WHERE email \= \$1`
+	query := `SELECT id, username, email, avatar, count_following FROM Users WHERE email \= \$1`
 	mock.ExpectQuery(query).WithArgs("aboba@aboba.ru").WillReturnRows(rows)
 
 	a := postgresql.NewUserPostgresRepo(sqlxDb)
@@ -257,7 +257,7 @@ func TestSelectByEmailError(t *testing.T) {
 	defer db.Close()
 	sqlxDb := sqlx.NewDb(db, "sqlmock")
 
-	query := `SELECT id, username, email, avatar, count_following FROM users WHERE email \= \$1`
+	query := `SELECT id, username, email, avatar, count_following FROM Users WHERE email \= \$1`
 	mock.ExpectExec(query).WithArgs("not_aboba@aboba.ru").WillReturnError(errors.New("user with such username does not exist"))
 
 	a := postgresql.NewUserPostgresRepo(sqlxDb)
