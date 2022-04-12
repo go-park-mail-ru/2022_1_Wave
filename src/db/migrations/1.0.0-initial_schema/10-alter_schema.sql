@@ -224,14 +224,14 @@ CREATE TABLE UserAlbumsLike
     album_id integer NOT NULL
 ) WITH (
       OIDS = FALSE
-      );
+    );
 
 
 
 -- ALTER TABLE Track
 --     ADD CONSTRAINT Tracks_fk0 FOREIGN KEY (album_id) REFERENCES Album (id);
 ALTER TABLE Track
-    ADD CONSTRAINT Tracks_fk1 FOREIGN KEY (artist_id) REFERENCES Artist (id);
+    ADD CONSTRAINT Tracks_fk1 FOREIGN KEY (artist_id) REFERENCES Artist (id) ON DELETE CASCADE;
 
 ALTER TABLE UserTracksLike
     ADD CONSTRAINT UserTracksLike_fk0 FOREIGN KEY (user_id) REFERENCES Users (id);
@@ -276,7 +276,7 @@ ALTER TABLE UserListenedPlaylist
     ADD CONSTRAINT UserListenedPlaylist_fk1 FOREIGN KEY (playlist_id) REFERENCES Playlist (id);
 
 ALTER TABLE Album
-    ADD CONSTRAINT Album_fk0 FOREIGN KEY (artist_id) REFERENCES Artist (id);
+    ADD CONSTRAINT Album_fk0 FOREIGN KEY (artist_id) REFERENCES Artist (id) ON DELETE CASCADE;
 ALTER TABLE Album
     ADD CONSTRAINT Album_fk1 FOREIGN KEY (id) REFERENCES AlbumCover (id);
 
