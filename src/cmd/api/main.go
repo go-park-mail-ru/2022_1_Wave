@@ -19,7 +19,7 @@ import (
 const ConfigFilename = "config.toml"
 const port = ":5000"
 
-const dbSize = 10
+const dbSize = 0
 
 func main() {
 	// database model, you can switch it
