@@ -171,6 +171,8 @@ const (
 	FieldSrc            = "src"
 	FieldIsDark         = "isDark"
 	FieldQuote          = "quote"
+	FieldAlbums         = "albums"
+	FieldTracks         = "tracks"
 )
 
 // others
