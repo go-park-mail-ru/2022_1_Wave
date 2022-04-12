@@ -11,6 +11,7 @@ import (
 type Artist struct {
 	Id             uint64 `json:"id" example:"6" db:"id" validate:"min=0,nonnil"`
 	Name           string `json:"name" example:"Imagine Dragons" db:"name" validate:"max=256,nonnil"`
+	CountLikes     uint64 `json:"countLikes" example:"54" db:"count_likes" validate:"min=0,nonnil"`
 	CountFollowers uint64 `json:"countFollowers" example:"1001" db:"count_followers" validate:"min=0,nonnil"`
 	CountListening uint64 `json:"countListening" example:"7654" db:"count_listening" validate:"min=0,nonnil"`
 }
@@ -70,6 +71,7 @@ func (artist Artist) CastDomainToDataTransferObject(dom utilsInterfaces.Domain, 
 		Id:     artist.Id,
 		Name:   artist.Name,
 		Cover:  pathToPhoto,
+		Likes:  artist.CountLikes,
 		Albums: albums,
 	}, nil
 }
@@ -78,21 +80,31 @@ type ArtistDataTransfer struct {
 	Id     uint64              `json:"id" example:"1"`
 	Name   string              `json:"name" example:"Mercury"`
 	Cover  string              `json:"cover" example:"assets/artist_1.png"`
+	Likes  uint64              `json:"likes" example:"5"`
 	Albums []AlbumDataTransfer `json:"albums"`
 }
 
 func (artist ArtistDataTransfer) CreateDataTransferFromInterface(data interface{}) (utilsInterfaces.DataTransfer, error) {
 	temp := data.(map[string]interface{})
 
-	id, err := utils.ToUint64(temp["id"])
+	id, err := utils.ToUint64(temp[constants.FieldId])
+	if err != nil {
+		return nil, err
+	}
+
+	likes, err := utils.ToUint64(temp[constants.FieldLikes])
+	if err != nil {
+		return nil, err
+	}
 
 	if err != nil {
 		return nil, err
 	}
 	return ArtistDataTransfer{
 		Id:     id,
-		Name:   temp["name"].(string),
-		Cover:  temp["cover"].(string),
-		Albums: temp["albums"].([]AlbumDataTransfer),
+		Name:   temp[constants.FieldName].(string),
+		Cover:  temp[constants.FieldCover].(string),
+		Albums: temp[constants.FieldAlbums].([]AlbumDataTransfer),
+		Likes:  likes,
 	}, nil
 }

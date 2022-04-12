@@ -12,6 +12,8 @@ func TestDomainArtistCreateDataTransferFromInterface(t *testing.T) {
 	const id = float64(1)
 	const name = "bla bla blashkin"
 	const cover = "some path, that doesn't matter"
+	const likes = 500
+
 	dataTransfer := []domain.AlbumDataTransfer{
 		{
 			Title:  "1",
@@ -32,6 +34,7 @@ func TestDomainArtistCreateDataTransferFromInterface(t *testing.T) {
 		internal.FieldName:   name,
 		internal.FieldCover:  cover,
 		internal.FieldAlbums: dataTransfer,
+		internal.FieldLikes:  float64(likes),
 	}
 
 	except := domain.ArtistDataTransfer{
@@ -39,6 +42,7 @@ func TestDomainArtistCreateDataTransferFromInterface(t *testing.T) {
 		Name:   name,
 		Cover:  cover,
 		Albums: dataTransfer,
+		Likes:  uint64(likes),
 	}
 
 	actual, err := domain.ArtistDataTransfer{}.CreateDataTransferFromInterface(data)
