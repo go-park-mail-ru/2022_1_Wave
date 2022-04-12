@@ -221,29 +221,9 @@ func CreateDomainTrackFromInterface(data interface{}) (utilsInterfaces.Domain, e
 		return nil, err
 	}
 
-	//isNullAlbum, err := utils.CheckNullInt64(temp[constants.FieldAlbumId])
-	//if err != nil {
-	//	return nil, err
-	//}
-
-	//album := sql.NullInt64{}
-	//if isNullAlbum {
-	//	album.Valid = false
-	//} else {
-	//	albumId, err := utils.ToUint64(temp[constants.FieldAlbumId])
-	//	if err != nil {
-	//		return nil, err
-	//	}
-	//	album.Int64 = int64(albumId)
-	//}
-
-	albumIdField := temp[constants.FieldAlbumId]
-	var albumId interface{}
-	if albumIdField != nil {
-		albumId, err = utils.ToUint64(albumIdField)
-		if err != nil {
-			return nil, err
-		}
+	albumId, err := utils.ToUint64(temp[constants.FieldAlbums])
+	if err != nil {
+		return nil, err
 	}
 
 	title, err := utils.ToString(temp[constants.FieldTitle])

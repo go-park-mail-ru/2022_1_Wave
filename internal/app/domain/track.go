@@ -14,12 +14,12 @@ import (
 type Track struct {
 	Id uint64 `json:"id" example:"4" db:"id" validate:"min=0"`
 	// AlbumId is uint64 but for null holder this is type interface
-	AlbumId        interface{} `json:"albumId" db:"album_id" validate:"min=0"`
-	ArtistId       uint64      `json:"artistId" example:"8" db:"artist_id" validate:"min=0,nonnil"`
-	Title          string      `json:"title" example:"Rain" db:"title" validate:"max=256,nonnil"`
-	Duration       uint64      `json:"duration" example:"180" db:"duration" validate:"min=0,nonnil"`
-	CountLikes     uint64      `json:"countLikes" example:"54" db:"count_likes" validate:"min=0,nonnil"`
-	CountListening uint64      `json:"countListening" example:"15632" db:"count_listening" validate:"min=0,nonnil"`
+	AlbumId        uint64 `json:"albumId" example:"8" db:"album_id" validate:"min=0"`
+	ArtistId       uint64 `json:"artistId" example:"8" db:"artist_id" validate:"min=0,nonnil"`
+	Title          string `json:"title" example:"Rain" db:"title" validate:"max=256,nonnil"`
+	Duration       uint64 `json:"duration" example:"180" db:"duration" validate:"min=0,nonnil"`
+	CountLikes     uint64 `json:"countLikes" example:"54" db:"count_likes" validate:"min=0,nonnil"`
+	CountListening uint64 `json:"countListening" example:"15632" db:"count_listening" validate:"min=0,nonnil"`
 }
 
 func (track Track) GetId() uint64 {
@@ -76,12 +76,16 @@ func (track Track) CreatePath(fileFormat string) (string, error) {
 	return constants.AssetsPrefix + constants.TrackPreName + fmt.Sprint(track.Id) + fileFormat, nil
 }
 
+func (track Track) CreatePathById(fileFormat string, albumId uint64) (string, error) {
+	return constants.AssetsPrefix + constants.AlbumPreName + fmt.Sprint(albumId) + fileFormat, nil
+}
+
 func (track Track) CastDomainToDataTransferObject(artist utilsInterfaces.Domain, args ...interface{}) (utilsInterfaces.DataTransfer, error) {
 
-	//pathToCover, err := track.CreatePath(constants.PngFormat)
-	//if err != nil {
-	//	return nil, nil
-	//}
+	pathToCover, err := track.CreatePathById(constants.PngFormat, track.AlbumId)
+	if err != nil {
+		return nil, nil
+	}
 
 	pathToSrc, err := track.CreatePath(constants.Mp3Format)
 	if err != nil {
@@ -89,10 +93,10 @@ func (track Track) CastDomainToDataTransferObject(artist utilsInterfaces.Domain,
 	}
 
 	return TrackDataTransfer{
-		Id:     track.Id,
-		Title:  track.Title,
-		Artist: artist.(Artist).Name,
-		//Cover:      pathToCover,
+		Id:         track.Id,
+		Title:      track.Title,
+		Artist:     artist.(Artist).Name,
+		Cover:      pathToCover,
 		Src:        pathToSrc,
 		Likes:      int(track.CountLikes),
 		Listenings: int(track.CountListening),
@@ -101,10 +105,10 @@ func (track Track) CastDomainToDataTransferObject(artist utilsInterfaces.Domain,
 }
 
 type TrackDataTransfer struct {
-	Id     uint64 `json:"id" example:"1"`
-	Title  string `json:"title" example:"Mercury"`
-	Artist string `json:"artist" example:"Hexed"`
-	//Cover      string `json:"cover" example:"assets/track_1.png"`
+	Id         uint64 `json:"id" example:"1"`
+	Title      string `json:"title" example:"Mercury"`
+	Artist     string `json:"artist" example:"Hexed"`
+	Cover      string `json:"cover" example:"assets/track_1.png"`
 	Src        string `json:"src" example:"assets/track_1.mp4"`
 	Likes      int    `json:"likes" example:"5"`
 	Listenings int    `json:"listenings" example:"500"`
@@ -129,10 +133,10 @@ func (track TrackDataTransfer) CreateDataTransferFromInterface(data interface{})
 		return nil, err
 	}
 
-	//cover, err := utils.ToString(temp[constants.FieldCover])
-	//if err != nil {
-	//	return nil, err
-	//}
+	cover, err := utils.ToString(temp[constants.FieldCover])
+	if err != nil {
+		return nil, err
+	}
 
 	src, err := utils.ToString(temp[constants.FieldSrc])
 	if err != nil {
@@ -154,10 +158,10 @@ func (track TrackDataTransfer) CreateDataTransferFromInterface(data interface{})
 		return nil, err
 	}
 	return TrackDataTransfer{
-		Id:     id,
-		Title:  title,
-		Artist: artist,
-		//Cover:      cover,
+		Id:         id,
+		Title:      title,
+		Artist:     artist,
+		Cover:      cover,
 		Src:        src,
 		Likes:      likes,
 		Listenings: listenings,

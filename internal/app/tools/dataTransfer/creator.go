@@ -138,10 +138,10 @@ func CreateTrackDataTransferFromInterface(data interface{}) (utilsInterfaces.Dat
 		return nil, err
 	}
 
-	//cover, err := utils.ToString(temp[constants.FieldCover])
-	//if err != nil {
-	//	return nil, err
-	//}
+	cover, err := utils.ToString(temp[constants.FieldCover])
+	if err != nil {
+		return nil, err
+	}
 
 	src, err := utils.ToString(temp[constants.FieldSrc])
 	if err != nil {
@@ -164,10 +164,10 @@ func CreateTrackDataTransferFromInterface(data interface{}) (utilsInterfaces.Dat
 	}
 
 	return domain.TrackDataTransfer{
-		Id:     id,
-		Title:  title,
-		Artist: artist,
-		//Cover:      cover,
+		Id:         id,
+		Title:      title,
+		Artist:     artist,
+		Cover:      cover,
 		Src:        src,
 		Likes:      likes,
 		Listenings: listenings,

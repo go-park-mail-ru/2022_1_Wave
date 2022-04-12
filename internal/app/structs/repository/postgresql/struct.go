@@ -221,11 +221,6 @@ func (table Table) SelectByID(id uint64, mutex *sync.RWMutex) (utilsInterfaces.D
 		if err != nil {
 			return nil, err
 		}
-		temp, ok := holder.AlbumId.(int64)
-		if !ok {
-			return nil, err
-		}
-		holder.AlbumId = uint64(temp)
 		return holder, nil
 	case constants.AlbumCover:
 		query = `SELECT * FROM albumcover WHERE id = $1;`
