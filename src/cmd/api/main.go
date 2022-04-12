@@ -7,8 +7,11 @@ import (
 	"github.com/go-park-mail-ru/2022_1_Wave/init/router"
 	"github.com/go-park-mail-ru/2022_1_Wave/init/storage"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal"
+	albumUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/app/album/usecase"
+	albumCoverUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/app/albumCover/usecase"
 	artistUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/app/artist/usecase"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/domain"
+	trackUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/app/track/usecase"
 	"github.com/labstack/echo/v4"
 )
 
@@ -19,7 +22,7 @@ const port = ":5000"
 const dbSize = 10
 
 func main() {
-	// database model
+	// database model, you can switch it
 	dbType := internal.Postgres
 	//database := internal.Local
 
@@ -51,17 +54,17 @@ func main() {
 		logs.Logrus.Fatal("Error:", err)
 	}
 
-	albumRepoLen, err := artistUseCase.UseCase.GetSize(domain.AlbumMutex)
+	albumRepoLen, err := albumUseCase.UseCase.GetSize(domain.AlbumMutex)
 	if err != nil {
 		logs.Logrus.Fatal("Error:", err)
 	}
 
-	albumRepoCoverLen, err := artistUseCase.UseCase.GetSize(domain.AlbumCoverMutex)
+	albumRepoCoverLen, err := albumCoverUseCase.UseCase.GetSize(domain.AlbumCoverMutex)
 	if err != nil {
 		logs.Logrus.Fatal("Error:", err)
 	}
 
-	trackRepoLen, err := artistUseCase.UseCase.GetSize(domain.TrackMutex)
+	trackRepoLen, err := trackUseCase.UseCase.GetSize(domain.TrackMutex)
 	if err != nil {
 		logs.Logrus.Fatal("Error:", err)
 	}
