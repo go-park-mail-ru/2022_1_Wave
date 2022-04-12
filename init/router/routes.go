@@ -8,6 +8,7 @@ import (
 	artistDeliveryHttp "github.com/go-park-mail-ru/2022_1_Wave/internal/app/artist/delivery/http"
 	authHttp "github.com/go-park-mail-ru/2022_1_Wave/internal/app/auth/delivery/http"
 	trackDeliveryHttp "github.com/go-park-mail-ru/2022_1_Wave/internal/app/track/delivery/http"
+	userHttp "github.com/go-park-mail-ru/2022_1_Wave/internal/app/user/delivery/http"
 	"github.com/labstack/echo/v4"
 	"github.com/swaggo/echo-swagger"
 )
@@ -39,6 +40,9 @@ func Router(e *echo.Echo) {
 
 	SetAuthRoutes(v1)
 	logger.GlobalLogger.Logrus.Warnln("setting auth routes")
+
+	SetUserRoutes(v1)
+	logger.GlobalLogger.Logrus.Warnln("setting user routes")
 }
 
 // SetAlbumsRoutes albums
@@ -68,7 +72,6 @@ func SetArtistsRoutes(apiVersion *echo.Group) {
 	artistRoutes := apiVersion.Group(artistsPrefix)
 
 	artistRoutes.GET(idEchoPattern, artistDeliveryHttp.Get)
-	artistRoutes.GET(idEchoPattern+popularPrefix, artistDeliveryHttp.GetPopularTracks)
 	artistRoutes.GET(locate, artistDeliveryHttp.GetAll)
 	artistRoutes.POST(locate, artistDeliveryHttp.Create)
 	artistRoutes.PUT(locate, artistDeliveryHttp.Update)
@@ -86,6 +89,16 @@ func SetTracksRoutes(apiVersion *echo.Group) {
 	trackRoutes.PUT(locate, trackDeliveryHttp.Update)
 	trackRoutes.GET(popularPrefix, trackDeliveryHttp.GetPopular)
 	trackRoutes.DELETE(idEchoPattern, trackDeliveryHttp.Delete)
+}
+
+func SetUserRoutes(apiVersion *echo.Group) {
+	userRoutes := apiVersion.Group(usersPrefix)
+
+	userRoutes.GET("/:id", userHttp.Handler.GetUser)
+	userRoutes.GET("/self", userHttp.Handler.GetSelfUser, authHttp.M.Auth, authHttp.M.CSRF)
+
+	userRoutes.PUT("/self", userHttp.Handler.UpdateSelfUser, authHttp.M.Auth, authHttp.M.CSRF)
+	userRoutes.PUT("/upload_avatar", userHttp.Handler.UploadAvatar, authHttp.M.Auth, authHttp.M.CSRF)
 }
 
 // InitAuthModule auth
