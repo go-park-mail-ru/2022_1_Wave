@@ -1,4 +1,4 @@
-package http
+package authHttp
 
 type AuthResponse struct {
 	Status string `json:"status"`
@@ -12,7 +12,8 @@ const (
 )
 
 const (
-	successLogin = "you are login"
+	successLogin  = "you are login"
+	successSignUp = "you are sign up"
 )
 
 func getErrorAuthResponse(err error) *AuthResponse {
@@ -26,5 +27,12 @@ func getSuccessLoginResponse() *AuthResponse {
 	return &AuthResponse{
 		Status: statusOK,
 		Result: successLogin,
+	}
+}
+
+func getSuccessSignUpResponse() *AuthResponse {
+	return &AuthResponse{
+		Status: statusOK,
+		Result: successSignUp,
 	}
 }

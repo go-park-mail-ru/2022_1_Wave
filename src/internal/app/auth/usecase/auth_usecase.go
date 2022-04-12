@@ -3,6 +3,7 @@ package usecase
 import (
 	"github.com/go-park-mail-ru/2022_1_Wave/config"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/domain"
+	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/tools/utils"
 	"time"
 )
 
@@ -11,7 +12,7 @@ type authUseCase struct {
 	userRepo    domain.UserRepo
 }
 
-var sessionExpire, _ = time.ParseDuration(config.C.SessionExpires)
+var SessionExpire, _ = time.ParseDuration(config.C.SessionExpires)
 
 func NewAuthUseCase(sessionRepo domain.SessionRepo, userRepo domain.UserRepo) domain.AuthUseCase {
 	return &authUseCase{
@@ -20,60 +21,80 @@ func NewAuthUseCase(sessionRepo domain.SessionRepo, userRepo domain.UserRepo) do
 	}
 }
 
-func (a *authUseCase) Login(login string, password string) (string, error) {
-
-	if !a.userRepo.CheckEmailAndPassword(login, password) && !a.userRepo.CheckUsernameAndPassword(login, password) {
-		return "", domain.ErrInvalidLoginOrPassword
-	}
-
+func (a *authUseCase) Login(login string, password string, sessionId string) error {
+	var user *domain.User
 	user, err := a.userRepo.SelectByUsername(login)
 	if err != nil {
-		user, _ = a.userRepo.SelectByEmail(login)
+		user, err = a.userRepo.SelectByEmail(login)
+		if err != nil {
+			return domain.ErrUserDoesNotExist
+		}
+	}
+	if !utils.CheckPassword(user.Password, password) {
+		return domain.ErrInvalidLoginOrPassword
 	}
 
-	sessionId, err := a.sessionRepo.SetNewSession(sessionExpire, user.ID)
+	err = a.sessionRepo.MakeSessionAuthorized(sessionId, user.ID)
+
 	if err != nil {
-		return "", domain.ErrWhileSetNewSession
+		return domain.ErrWhileChangeSession
 	}
-
-	return sessionId, nil
-}
-
-func (a *authUseCase) Logout(sessionId string) error {
-	_ = a.sessionRepo.DeleteSession(sessionId)
 
 	return nil
 }
 
-func (a *authUseCase) SignUp(user *domain.User) (string, error) {
+func (a *authUseCase) Logout(sessionId string) error {
+	return a.sessionRepo.MakeSessionUnauthorized(sessionId)
+}
+
+func (a *authUseCase) SignUp(user *domain.User, sessionId string) error {
 	_, err := a.userRepo.SelectByEmail(user.Email)
-	if err != nil {
-		return "", domain.ErrUserAlreadyExist
+	if err == nil {
+		return domain.ErrUserAlreadyExist
 	}
 
 	_, err = a.userRepo.SelectByUsername(user.Username)
-	if err != nil {
-		return "", domain.ErrUserAlreadyExist
+	if err == nil {
+		return domain.ErrUserAlreadyExist
 	}
+
+	passwordHash, _ := utils.GetPasswordHash(user.Password)
+
+	user.Password = string(passwordHash)
 
 	err = a.userRepo.Insert(user)
 	if err != nil {
-		return "", domain.ErrInsert
+		return domain.ErrInsert
 	}
 
 	userToId, err := a.userRepo.SelectByEmail(user.Email)
 	if err != nil {
-		return "", domain.ErrDatabaseUnexpected
+		return domain.ErrDatabaseUnexpected
 	}
 
-	sessionId, err := a.sessionRepo.SetNewSession(sessionExpire, userToId.ID)
+	err = a.sessionRepo.MakeSessionAuthorized(sessionId, userToId.ID)
+
 	if err != nil {
-		return "", domain.ErrSessionStorageUnexpected
+		return domain.ErrWhileChangeSession
 	}
 
-	return sessionId, nil
+	return nil
 }
 
 func (a *authUseCase) GetUnauthorizedSession() (string, error) {
-	return a.sessionRepo.SetNewUnauthorizedSession(sessionExpire)
+	return a.sessionRepo.SetNewUnauthorizedSession(SessionExpire)
+}
+
+func (a *authUseCase) IsSession(sessionId string) bool {
+	_, err := a.sessionRepo.GetSession(sessionId)
+	return err == nil
+}
+
+func (a *authUseCase) IsAuthSession(sessionId string) bool {
+	session, err := a.sessionRepo.GetSession(sessionId)
+	if err != nil || session == nil {
+		return false
+	}
+
+	return session.IsAuthorized
 }
