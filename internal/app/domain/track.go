@@ -83,7 +83,7 @@ func (track Track) CastDomainToDataTransferObject(artist utilsInterfaces.Domain,
 	//	return nil, nil
 	//}
 
-	pathToSrc, err := track.CreatePath(constants.Mp4Format)
+	pathToSrc, err := track.CreatePath(constants.Mp3Format)
 	if err != nil {
 		return nil, nil
 	}
