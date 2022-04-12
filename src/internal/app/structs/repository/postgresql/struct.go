@@ -459,4 +459,26 @@ func (table Table) GetAlbumsFromArtist(artistId uint64, mutex *sync.RWMutex) (in
 
 }
 
+// todo пока кастыль, так как не успеваем
+func (table Table) GetPopularTracksFromArtist(artistId uint64, mutex *sync.RWMutex) (interface{}, error) {
+	if table.GetTableName() != constants.Artist {
+		return nil, errors.New(constants.BadType)
+	}
+
+	mutex.RLock()
+	defer mutex.RUnlock()
+
+	var tracks []domain.Track
+	if err := table.Sqlx.Select(&tracks, `
+			SELECT * FROM track
+			WHERE artist_id = $1
+			ORDER BY count_listening DESC
+			LIMIT $2;`, int(artistId), constants.Top); err != nil {
+		return nil, err
+	}
+
+	return tracks, nil
+
+}
+
 // ----------------------------------------------------------------------

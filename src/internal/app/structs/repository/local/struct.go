@@ -129,6 +129,11 @@ func (repo Repo) GetAlbumsFromArtist(artistId uint64, mutex *sync.RWMutex) (inte
 	return nil, nil
 }
 
+// todo пока кастыль, так как не успеваем
+func (repo Repo) GetPopularTracksFromArtist(artistId uint64, mutex *sync.RWMutex) (interface{}, error) {
+	return nil, nil
+}
+
 func (repo Repo) GetSize(mutex *sync.RWMutex) (uint64, error) {
 	//mutex.RLock()
 	//defer mutex.RUnlock()

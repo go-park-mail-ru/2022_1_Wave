@@ -94,7 +94,7 @@ func (h Handler) Update(ctx echo.Context, mutex *sync.RWMutex) (utilsInterfaces.
 }
 
 func (h Handler) Get(ctx echo.Context, mutex *sync.RWMutex) error {
-	id, err := readGetDeleteRequest(ctx)
+	id, err := ReadGetDeleteRequest(ctx)
 
 	if err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
@@ -119,7 +119,7 @@ func (h Handler) Get(ctx echo.Context, mutex *sync.RWMutex) error {
 }
 
 func (h Handler) Delete(ctx echo.Context, mutex *sync.RWMutex) (utilsInterfaces.HandlerInterface, error) {
-	id, err := readGetDeleteRequest(ctx)
+	id, err := ReadGetDeleteRequest(ctx)
 
 	if err != nil {
 		return h, webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)

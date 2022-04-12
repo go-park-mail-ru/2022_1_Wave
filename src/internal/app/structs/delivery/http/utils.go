@@ -32,7 +32,7 @@ func readPostPutRequest(ctx echo.Context, domainType reflect.Type) (utilsInterfa
 	return object, nil
 }
 
-func readGetDeleteRequest(ctx echo.Context) (int, error) {
+func ReadGetDeleteRequest(ctx echo.Context) (int, error) {
 	id, err := strconv.Atoi(ctx.Param(constants.FieldId))
 	if err != nil {
 		return constants.BadId, err
