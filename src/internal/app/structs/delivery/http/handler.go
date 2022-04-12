@@ -32,7 +32,7 @@ func (h Handler) GetAll(ctx echo.Context, mutex *sync.RWMutex) error {
 	dataTransfers := make([]utilsInterfaces.DataTransfer, len(domains))
 
 	for i, dom := range domains {
-		dataTransfer, err := dataTransferCreator.CreateDataTransfer(dom, mutex)
+		dataTransfer, err := dataTransferCreator.CreateDataTransfer(dom)
 		if err != nil {
 			return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 		}
@@ -106,7 +106,7 @@ func (h Handler) Get(ctx echo.Context, mutex *sync.RWMutex) error {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 	}
 
-	dataTransfer, err := dataTransferCreator.CreateDataTransfer(dom, mutex)
+	dataTransfer, err := dataTransferCreator.CreateDataTransfer(dom)
 
 	if err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
@@ -146,7 +146,7 @@ func (h Handler) GetPopular(ctx echo.Context, mutex *sync.RWMutex) error {
 	dataTransfers := make([]utilsInterfaces.DataTransfer, len(popular))
 
 	for i, pop := range popular {
-		dataTransfer, err := dataTransferCreator.CreateDataTransfer(pop, mutex)
+		dataTransfer, err := dataTransferCreator.CreateDataTransfer(pop)
 		if err != nil {
 			return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 		}
