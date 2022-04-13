@@ -3,7 +3,7 @@ INSERT INTO Artist (name, count_followers, count_listening)
 VALUES ('Queen', 0, 0),
        ('Дайте танк (!)', 0, 0),
        ('Pink Floyd', 0, 0),
-       ('Валерий Миладзе', 0, 0),
+       ('Валерий Меладзе', 0, 0),
        ('Валентин Стрыкало', 0, 0),
        ('Twenty One Pilots', 0, 0),
        ('Химера', 0, 0),
