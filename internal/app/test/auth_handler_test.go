@@ -204,61 +204,41 @@ func TestSignUp(t *testing.T) {
 	assert.Equal(t, http.StatusUnprocessableEntity, rec.Code)
 }
 
-//
-//func TestGetCSRF(t *testing.T) {
-//	sessionId1 := "some-session-id"
-//	sessionId2 := "some-session-id2"
-//
-//	mockUseCase := new(mocks.AuthUseCase)
-//	mockUseCase.On("IsSession", sessionId1).Return(true)
-//	mockUseCase.On("IsSession", sessionId2).Return(false)
-//	mockUseCase.On("GetUnauthorizedSession").Return(sessionId2, nil)
-//
-//	e := echo.New()
-//
-//	req, err := http.NewRequest(echo.POST, "/get_csrf", strings.NewReader(""))
-//	assert.NoError(t, err)
-//	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
-//
-//	cookie := &http.Cookie{
-//		Name:     "session_id",
-//		Value:    sessionId1,
-//		HttpOnly: true,
-//	}
-//	req.AddCookie(cookie)
-//	rec := httptest.NewRecorder()
-//
-//	c := e.NewContext(req, rec)
-//	c.SetPath("/get_csrf")
-//
-//	handler := authHttp.AuthHandler{
-//		AuthUseCase: mockUseCase,
-//	}
-//
-//	err = handler.GetCSRF(c)
-//	assert.NoError(t, err)
-//	assert.Equal(t, http.StatusOK, rec.Code)
-//	assert.NotEqual(t, rec.Header().Get(echo.HeaderXCSRFToken), "")
-//
-//	req, err = http.NewRequest(echo.POST, "/get_csrf", strings.NewReader(""))
-//	assert.NoError(t, err)
-//	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
-//	cookie = &http.Cookie{
-//		Name:     "session_id",
-//		Value:    sessionId2,
-//		HttpOnly: true,
-//	}
-//
-//	req.AddCookie(cookie)
-//	rec = httptest.NewRecorder()
-//
-//	c = e.NewContext(req, rec)
-//	c.SetPath("/get_csrf")
-//
-//	err = handler.SignUp(c)
-//	assert.NoError(t, err)
-//	assert.Equal(t, http.StatusUnprocessableEntity, rec.Code)
-//}
+func TestGetCSRF(t *testing.T) {
+	sessionId1 := "some-session-id"
+	sessionId2 := "some-session-id2"
+
+	mockUseCase := new(mocks.AuthUseCase)
+	mockUseCase.On("IsSession", sessionId1).Return(true)
+	mockUseCase.On("IsSession", sessionId2).Return(false)
+	mockUseCase.On("GetUnauthorizedSession").Return(sessionId2, nil)
+
+	e := echo.New()
+
+	req, err := http.NewRequest(echo.POST, "/get_csrf", strings.NewReader(""))
+	assert.NoError(t, err)
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+
+	cookie := &http.Cookie{
+		Name:     "session_id",
+		Value:    sessionId1,
+		HttpOnly: true,
+	}
+	req.AddCookie(cookie)
+	rec := httptest.NewRecorder()
+
+	c := e.NewContext(req, rec)
+	c.SetPath("/get_csrf")
+
+	handler := authHttp.AuthHandler{
+		AuthUseCase: mockUseCase,
+	}
+
+	err = handler.GetCSRF(c)
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusOK, rec.Code)
+	assert.NotEqual(t, rec.Header().Get(echo.HeaderXCSRFToken), "")
+}
 
 func TestMiddleware(t *testing.T) {
 
