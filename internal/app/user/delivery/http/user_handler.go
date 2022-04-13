@@ -119,7 +119,7 @@ func (a *UserHandler) GetSelfUser(c echo.Context) error {
 // @Failure      400    {object}  webUtils.Error  "invalid field values"
 // @Failure      401    {object}  webUtils.Error  "user unauthorized"
 // @Failure      422    {object}  webUtils.Error  "invalid json"
-// @Router       /api/v1/users/self [put]
+// @Router       /api/v1/users/self [patch]
 func (a *UserHandler) UpdateSelfUser(c echo.Context) error {
 	cookie, err := c.Cookie(SessionIdKey)
 	if err != nil {
@@ -153,7 +153,7 @@ func (a *UserHandler) UpdateSelfUser(c echo.Context) error {
 // @Produce      application/json
 // @Success      200    {object}  webUtils.Success
 // @Failure      400    {object}  webUtils.Error  "invalid field values"
-// @Router       /api/v1/users/upload_avatar/ [put]
+// @Router       /api/v1/users/upload_avatar/ [patch]
 func (a *UserHandler) UploadAvatar(c echo.Context) error {
 	file, err := c.FormFile("avatar")
 	if err != nil {

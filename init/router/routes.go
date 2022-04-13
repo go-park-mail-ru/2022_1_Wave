@@ -98,8 +98,8 @@ func SetUserRoutes(apiVersion *echo.Group) {
 	userRoutes.GET("/:id", userHttp.Handler.GetUser)
 	userRoutes.GET("/self", userHttp.Handler.GetSelfUser, authHttp.M.Auth, authHttp.M.CSRF)
 
-	userRoutes.PUT("/self", userHttp.Handler.UpdateSelfUser, authHttp.M.Auth, authHttp.M.CSRF)
-	userRoutes.PUT("/upload_avatar", userHttp.Handler.UploadAvatar, authHttp.M.Auth, authHttp.M.CSRF)
+	userRoutes.PATCH("/self", userHttp.Handler.UpdateSelfUser, authHttp.M.Auth, authHttp.M.CSRF)
+	userRoutes.PATCH("/upload_avatar", userHttp.Handler.UploadAvatar, authHttp.M.Auth, authHttp.M.CSRF)
 }
 
 // InitAuthModule auth
