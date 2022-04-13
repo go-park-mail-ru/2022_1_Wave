@@ -48,6 +48,8 @@ func (repo Repo) Update(domain utilsInterfaces.Domain, mutex *sync.RWMutex) (uti
 	return repo, nil
 }
 
+//todo убрать мьютексы
+
 func (repo Repo) Delete(id uint64, mutex *sync.RWMutex) (utilsInterfaces.RepoInterface, error) {
 	mutex.Lock()
 	defer mutex.Unlock()

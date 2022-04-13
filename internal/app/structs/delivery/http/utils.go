@@ -11,6 +11,7 @@ import (
 )
 
 func readPostPutRequest(ctx echo.Context, domainType reflect.Type) (utilsInterfaces.Domain, error) {
+	//todo конкретный тип
 	var result interface{}
 
 	if err := ctx.Bind(&result); err != nil {

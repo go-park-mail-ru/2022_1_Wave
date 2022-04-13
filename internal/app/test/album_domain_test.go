@@ -9,6 +9,7 @@ import (
 
 func TestDomainAlbumCreateDataTransferFromInterface(t *testing.T) {
 
+	const id = 1
 	const title = "some title"
 	const artist = "bla bla blashkin"
 	const cover = "some path, that doesn't matter"
@@ -34,6 +35,7 @@ func TestDomainAlbumCreateDataTransferFromInterface(t *testing.T) {
 	}
 
 	data := map[string]interface{}{
+		internal.FieldId:     float64(id),
 		internal.FieldTitle:  title,
 		internal.FieldArtist: artist,
 		internal.FieldCover:  cover,
@@ -41,6 +43,7 @@ func TestDomainAlbumCreateDataTransferFromInterface(t *testing.T) {
 	}
 
 	except := domain.AlbumDataTransfer{
+		Id:     id,
 		Title:  title,
 		Artist: artist,
 		Cover:  cover,

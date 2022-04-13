@@ -17,6 +17,8 @@ type UseCaseInterface interface {
 	SetRepo(repoInterface RepoInterface, mutex *sync.RWMutex) (UseCaseInterface, error)
 	GetRepo() (RepoInterface, error)
 	GetSize(mutex *sync.RWMutex) (uint64, error)
+
+	// -------------------------
 	//todo пока кастыль
 	GetTracksFromAlbum(albumId uint64, mutex *sync.RWMutex) (interface{}, error)
 	//todo пока кастыль

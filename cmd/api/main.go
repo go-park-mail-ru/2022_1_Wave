@@ -17,6 +17,8 @@ import (
 
 // ConfigFilename config
 const ConfigFilename = "config.toml"
+
+// todo вынести в конфиг
 const port = ":5000"
 
 const dbSize = 0

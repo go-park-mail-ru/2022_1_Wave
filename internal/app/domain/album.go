@@ -8,6 +8,8 @@ import (
 	"gopkg.in/validator.v2"
 )
 
+//todo usecas-ы включают другие usecase
+
 type Album struct {
 	Id             uint64 `json:"id" example:"8" db:"id" validate:"min=0,nonnil"`
 	Title          string `json:"title" example:"Mercury" db:"title" validate:"max=256,nonnil"`
