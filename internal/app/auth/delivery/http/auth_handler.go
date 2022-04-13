@@ -2,6 +2,7 @@ package authHttp
 
 import (
 	"errors"
+	"fmt"
 	"github.com/go-park-mail-ru/2022_1_Wave/config"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/auth/delivery/http/http_middleware"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/auth/usecase"
@@ -109,6 +110,7 @@ func (a *AuthHandler) SignUp(c echo.Context) error {
 	var user domain.User
 	err := c.Bind(&user)
 	if err != nil {
+		fmt.Println(err)
 		return c.JSON(http.StatusUnprocessableEntity, getErrorAuthResponse(errors.New(invalidUserJSON)))
 	}
 

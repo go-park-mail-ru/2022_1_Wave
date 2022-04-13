@@ -28,7 +28,7 @@ func TestInsertSuccess(t *testing.T) {
 		CountFollowing: 0,
 	}
 
-	query := `INSERT INTO Users \(username, email, avatar, password_hash\) VALUES \(\:username, \:email, \:avatar, \:password_hash\) RETURNING id`
+	query := `INSERT INTO Users \(username, email, avatar, password_hash\) VALUES \(\$1, \$2, \$3, \$4\) RETURNING id`
 
 	mock.ExpectExec(query).WithArgs(user.Username, user.Email, user.Avatar, user.Password).WillReturnResult(sqlmock.NewResult(1, 1))
 
@@ -54,7 +54,7 @@ func TestInsertError(t *testing.T) {
 		Password: "aboba",
 		Avatar:   "",
 	}
-	query := `INSERT INTO Users \(username, email, avatar, password_hash\) VALUES \(\:username, \:email, \:avatar, \:password_hash\) RETURNING id`
+	query := `INSERT INTO Users \(username, email, avatar, password_hash\) VALUES \(\$1, \$2, \$3, \$4\) RETURNING id`
 	mock.ExpectExec(query).WithArgs(user.Username, user.Email, user.Avatar, user.Password).WillReturnError(errors.New("insert error"))
 
 	a := postgresql.NewUserPostgresRepo(sqlxDb)

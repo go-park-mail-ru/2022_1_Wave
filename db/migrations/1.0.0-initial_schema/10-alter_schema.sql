@@ -49,7 +49,7 @@ CREATE TABLE Users
     username        varchar(128) NOT NULL UNIQUE,
     avatar          varchar(255),
     password_hash   varchar(64),
-    count_following integer      NOT NULL,
+    count_following integer      DEFAULT 0,
     CONSTRAINT Users_pk PRIMARY KEY (id)
 ) WITH (
       OIDS= FALSE
