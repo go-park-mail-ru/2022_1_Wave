@@ -8,7 +8,6 @@ import (
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/domain"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/tools/utils"
 	"github.com/labstack/echo/v4"
-	"gopkg.in/validator.v2"
 	"net/http"
 	"time"
 )
@@ -109,8 +108,7 @@ func (a *AuthHandler) Logout(c echo.Context) error {
 func (a *AuthHandler) SignUp(c echo.Context) error {
 	var user domain.User
 	err := c.Bind(&user)
-	errDueToValidate := validator.Validate(user)
-	if err != nil || errDueToValidate != nil {
+	if err != nil {
 		return c.JSON(http.StatusUnprocessableEntity, getErrorAuthResponse(errors.New(invalidUserJSON)))
 	}
 

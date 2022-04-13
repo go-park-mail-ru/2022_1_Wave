@@ -28,3 +28,4 @@ src/assets
 *s.PGSQL.5432.lock*
 
 docs.go
+src/docs
