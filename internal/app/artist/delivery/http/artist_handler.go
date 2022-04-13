@@ -1,17 +1,32 @@
-package artistDeliveryHttp
+package ArtistDeliveryHttp
 
 import (
-	artistUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/app/artist/usecase"
+	"errors"
+	"fmt"
+	constants "github.com/go-park-mail-ru/2022_1_Wave/internal"
+	AlbumUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/app/album/usecase"
+	ArtistUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/app/artist/usecase"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/domain"
-	utilsInterfaces "github.com/go-park-mail-ru/2022_1_Wave/internal/app/interfaces"
-	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/structs/delivery/http"
-	dataTransferCreator "github.com/go-park-mail-ru/2022_1_Wave/internal/app/tools/dataTransfer"
+	TrackUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/app/track/usecase"
 	"github.com/go-park-mail-ru/2022_1_Wave/pkg/webUtils"
 	"github.com/labstack/echo/v4"
 	"net/http"
+	"strconv"
 )
 
-var Handler structsDeliveryHttp.Handler
+type Handler struct {
+	artistUseCase ArtistUseCase.ArtistUseCase
+	albumUseCase  AlbumUseCase.AlbumUseCase
+	trackUseCase  TrackUseCase.TrackUseCase
+}
+
+func MakeHandler(artist ArtistUseCase.ArtistUseCase, album AlbumUseCase.AlbumUseCase, track TrackUseCase.TrackUseCase) Handler {
+	return Handler{
+		artistUseCase: artist,
+		albumUseCase:  album,
+		trackUseCase:  track,
+	}
+}
 
 // GetAll godoc
 // @Summary      GetAll
@@ -23,8 +38,21 @@ var Handler structsDeliveryHttp.Handler
 // @Failure      400  {object}  webUtils.Error  "Data is invalid"
 // @Failure      405  {object}  webUtils.Error  "Method is not allowed"
 // @Router       /api/v1/artists/ [get]
-func GetAll(ctx echo.Context) error {
-	return Handler.GetAll(ctx)
+func (h Handler) GetAll(ctx echo.Context) error {
+	domains, err := h.artistUseCase.GetAll(h.albumUseCase, h.trackUseCase)
+
+	if err != nil {
+		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
+	}
+
+	if domains == nil {
+		domains = []domain.ArtistDataTransfer{}
+	}
+
+	return ctx.JSON(http.StatusOK,
+		webUtils.Success{
+			Status: webUtils.OK,
+			Result: domains})
 }
 
 // Create godoc
@@ -38,10 +66,30 @@ func GetAll(ctx echo.Context) error {
 // @Failure      400     {object}  webUtils.Error  "Data is invalid"
 // @Failure      405     {object}  webUtils.Error  "Method is not allowed"
 // @Router       /api/v1/artists/ [post]
-func Create(ctx echo.Context) error {
-	proxy, err := Handler.Create(ctx)
-	Handler = proxy.(structsDeliveryHttp.Handler)
-	return err
+func (h Handler) Create(ctx echo.Context) error {
+	result := domain.Artist{}
+
+	if err := ctx.Bind(&result); err != nil {
+		return err
+	}
+
+	if err := result.Check(); err != nil {
+		return err
+	}
+
+	if err := h.artistUseCase.Create(result); err != nil {
+		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
+	}
+
+	lastId, err := h.artistUseCase.GetLastId()
+	if err != nil {
+		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
+	}
+
+	return ctx.JSON(http.StatusOK,
+		webUtils.Success{
+			Status: webUtils.OK,
+			Result: constants.SuccessCreated + "(" + fmt.Sprint(lastId) + ")"})
 }
 
 // Update godoc
@@ -55,10 +103,26 @@ func Create(ctx echo.Context) error {
 // @Failure      400     {object}  webUtils.Error  "Data is invalid"
 // @Failure      405     {object}  webUtils.Error  "Method is not allowed"
 // @Router       /api/v1/artists/ [put]
-func Update(ctx echo.Context) error {
-	proxy, err := Handler.Update(ctx)
-	Handler = proxy.(structsDeliveryHttp.Handler)
-	return err
+func (h Handler) Update(ctx echo.Context) error {
+	result := domain.Artist{}
+
+	if err := ctx.Bind(&result); err != nil {
+		return err
+	}
+
+	if err := result.Check(); err != nil {
+		return err
+	}
+
+	if err := h.artistUseCase.Update(result); err != nil {
+		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
+	}
+
+	id := result.Id
+	return ctx.JSON(http.StatusOK,
+		webUtils.Success{
+			Status: webUtils.OK,
+			Result: constants.SuccessUpdated + "(" + fmt.Sprint(id) + ")"})
 }
 
 // Get godoc
@@ -72,8 +136,25 @@ func Update(ctx echo.Context) error {
 // @Failure      400  {object}  webUtils.Error  "Data is invalid"
 // @Failure      405  {object}  webUtils.Error  "Method is not allowed"
 // @Router       /api/v1/artists/{id} [get]
-func Get(ctx echo.Context) error {
-	return Handler.Get(ctx)
+func (h Handler) Get(ctx echo.Context) error {
+	id, err := strconv.Atoi(ctx.Param(constants.FieldId))
+	if err != nil {
+		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
+	}
+	if id < 0 {
+		return webUtils.WriteErrorEchoServer(ctx, errors.New(constants.IndexOutOfRange), http.StatusBadRequest)
+	}
+
+	obj, err := h.artistUseCase.GetById(h.trackUseCase, h.albumUseCase, id)
+
+	if err != nil {
+		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
+	}
+
+	return ctx.JSON(http.StatusOK,
+		webUtils.Success{
+			Status: webUtils.OK,
+			Result: obj})
 }
 
 // Delete godoc
@@ -87,10 +168,23 @@ func Get(ctx echo.Context) error {
 // @Failure      400  {object}  webUtils.Error  "Data is invalid"
 // @Failure      405  {object}  webUtils.Error  "Method is not allowed"
 // @Router       /api/v1/artists/{id} [delete]
-func Delete(ctx echo.Context) error {
-	proxy, err := Handler.Delete(ctx)
-	Handler = proxy.(structsDeliveryHttp.Handler)
-	return err
+func (h Handler) Delete(ctx echo.Context) error {
+	id, err := strconv.Atoi(ctx.Param(constants.FieldId))
+	if err != nil {
+		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
+	}
+	if id < 0 {
+		return webUtils.WriteErrorEchoServer(ctx, errors.New(constants.IndexOutOfRange), http.StatusBadRequest)
+	}
+
+	if err := h.artistUseCase.Delete(id); err != nil {
+		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
+	}
+
+	return ctx.JSON(http.StatusOK,
+		webUtils.Success{
+			Status: webUtils.OK,
+			Result: constants.SuccessDeleted + "(" + fmt.Sprint(id) + ")"})
 }
 
 // GetPopular godoc
@@ -103,35 +197,16 @@ func Delete(ctx echo.Context) error {
 // @Failure      400  {object}  webUtils.Error  "Data is invalid"
 // @Failure      405  {object}  webUtils.Error  "Method is not allowed"
 // @Router       /api/v1/artists/popular [get]
-func GetPopular(ctx echo.Context) error {
-	return Handler.GetPopular(ctx)
-}
-
-func GetPopularTracksHandler(ctx echo.Context, useCase utilsInterfaces.UseCaseInterface) error {
-	id, err := structsDeliveryHttp.ReadGetDeleteRequest(ctx)
-
-	popular, err := useCase.GetPopularTracksFromArtist(uint64(id))
+func (h Handler) GetPopular(ctx echo.Context) error {
+	popular, err := h.artistUseCase.GetPopular(h.trackUseCase, h.albumUseCase)
 	if err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
-	}
-
-	popularData := popular.([]domain.Track)
-	dataTransfers := make([]domain.TrackDataTransfer, len(popularData))
-
-	for i, pop := range popularData {
-		dataTransfer, err := dataTransferCreator.CreateDataTransfer(pop)
-		if err != nil {
-			return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
-		}
-
-		dataTransfers[i] = dataTransfer.(domain.TrackDataTransfer)
-
 	}
 
 	return ctx.JSON(http.StatusOK,
 		webUtils.Success{
 			Status: webUtils.OK,
-			Result: dataTransfers})
+			Result: popular})
 }
 
 // GetPopularTracks godoc
@@ -145,6 +220,22 @@ func GetPopularTracksHandler(ctx echo.Context, useCase utilsInterfaces.UseCaseIn
 // @Failure      400  {object}  webUtils.Error  "Data is invalid"
 // @Failure      405  {object}  webUtils.Error  "Method is not allowed"
 // @Router       /api/v1/artists/{id}/popular [get]
-func GetPopularTracks(ctx echo.Context) error {
-	return GetPopularTracksHandler(ctx, artistUseCase.UseCase)
+func (h Handler) GetPopularTracks(ctx echo.Context) error {
+	id, err := strconv.Atoi(ctx.Param(constants.FieldId))
+	if err != nil {
+		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
+	}
+	if id < 0 {
+		return webUtils.WriteErrorEchoServer(ctx, errors.New(constants.IndexOutOfRange), http.StatusBadRequest)
+	}
+
+	popular, err := h.trackUseCase.GetPopularTracksFromArtist(id)
+	if err != nil {
+		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
+	}
+
+	return ctx.JSON(http.StatusOK,
+		webUtils.Success{
+			Status: webUtils.OK,
+			Result: popular})
 }

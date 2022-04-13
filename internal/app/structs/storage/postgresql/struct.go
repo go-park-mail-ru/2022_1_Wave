@@ -5,14 +5,14 @@ import (
 	"errors"
 	"github.com/go-park-mail-ru/2022_1_Wave/db"
 	"github.com/go-park-mail-ru/2022_1_Wave/init/logger"
-	constants "github.com/go-park-mail-ru/2022_1_Wave/internal"
-	authHttp "github.com/go-park-mail-ru/2022_1_Wave/internal/app/auth/delivery/http"
-	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/auth/delivery/http/http_middleware"
-	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/auth/usecase"
+	AlbumPostgres "github.com/go-park-mail-ru/2022_1_Wave/internal/app/album/repository"
+	AlbumCoverPostgres "github.com/go-park-mail-ru/2022_1_Wave/internal/app/albumCover/repository"
+	ArtistPostgres "github.com/go-park-mail-ru/2022_1_Wave/internal/app/artist/repository/postgres"
+	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/domain"
 	utilsInterfaces "github.com/go-park-mail-ru/2022_1_Wave/internal/app/interfaces"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/session/repository/redis"
-	structRepoPostgres "github.com/go-park-mail-ru/2022_1_Wave/internal/app/structs/repository/postgresql"
 	domainCreator "github.com/go-park-mail-ru/2022_1_Wave/internal/app/tools/domain"
+	TrackPostgres "github.com/go-park-mail-ru/2022_1_Wave/internal/app/track/repository"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/user/repository/postgresql"
 	_ "github.com/jackc/pgx/stdlib"
 	"github.com/jmoiron/sqlx"
@@ -22,10 +22,12 @@ import (
 
 type Postgres struct {
 	Sqlx           *sqlx.DB
-	AlbumRepo      utilsInterfaces.RepoInterface `json:"albumStorage"`
-	AlbumCoverRepo utilsInterfaces.RepoInterface `json:"albumCoverStorage"`
-	ArtistRepo     utilsInterfaces.RepoInterface `json:"artistStorage"`
-	TrackRepo      utilsInterfaces.RepoInterface `json:"trackStorage"`
+	SessionRepo    *domain.SessionRepo
+	UserRepo       *domain.UserRepo
+	AlbumRepo      *AlbumPostgres.AlbumRepo
+	AlbumCoverRepo *AlbumCoverPostgres.AlbumCoverRepo
+	ArtistRepo     *ArtistPostgres.ArtistRepo
+	TrackRepo      *TrackPostgres.TrackRepo
 }
 
 func (storage Postgres) getPostgres() (*sql.DB, error) {
@@ -79,39 +81,21 @@ func (storage Postgres) Init(quantity int) (utilsInterfaces.GlobalStorageInterfa
 
 	db.MigrateDB(storage.Sqlx.DB, path)
 
-	albumTable := structRepoPostgres.Table{Sqlx: storage.Sqlx}
-	albumTable, err = albumTable.SetTableName(constants.Album)
-	if err != nil {
-		return storage, err
-	}
+	storage.AlbumRepo = &AlbumPostgres.AlbumRepo{Sqlx: storage.Sqlx}
+	storage.AlbumCoverRepo = &AlbumCoverPostgres.AlbumCoverRepo{Sqlx: storage.Sqlx}
+	storage.ArtistRepo = &ArtistPostgres.ArtistRepo{Sqlx: storage.Sqlx}
+	storage.TrackRepo = &TrackPostgres.TrackRepo{Sqlx: storage.Sqlx}
 
-	albumCoverTable := structRepoPostgres.Table{Sqlx: storage.Sqlx}
-	albumCoverTable, err = albumCoverTable.SetTableName(constants.AlbumCover)
-	if err != nil {
-		return storage, err
-	}
+	userRepo := postgresql.NewUserPostgresRepo(storage.Sqlx)
+	storage.UserRepo = &userRepo
 
-	artistTable := structRepoPostgres.Table{Sqlx: storage.Sqlx}
-	artistTable, err = artistTable.SetTableName(constants.Artist)
-	if err != nil {
-		return storage, err
-	}
+	sessionRepo := redis.NewRedisSessionRepo("redis:6379")
+	storage.SessionRepo = &sessionRepo
 
-	trackTable := structRepoPostgres.Table{Sqlx: storage.Sqlx}
-	trackTable, err = trackTable.SetTableName(constants.Track)
-	if err != nil {
-		return storage, err
-	}
-
-	storage.AlbumRepo = albumTable
-	storage.AlbumCoverRepo = albumCoverTable
-	storage.ArtistRepo = artistTable
-	storage.TrackRepo = trackTable
-
-	albums := make([]utilsInterfaces.Domain, quantity)
-	albumsCover := make([]utilsInterfaces.Domain, quantity)
-	tracks := make([]utilsInterfaces.Domain, quantity)
-	artists := make([]utilsInterfaces.Domain, quantity)
+	albums := make([]domain.Album, quantity)
+	albumsCover := make([]domain.AlbumCover, quantity)
+	tracks := make([]domain.Track, quantity)
+	artists := make([]domain.Artist, quantity)
 
 	const max = 10000
 	const nameLen = 10
@@ -131,16 +115,14 @@ func (storage Postgres) Init(quantity int) (utilsInterfaces.GlobalStorageInterfa
 	go func(wg *sync.WaitGroup, ch chan error, mutex *sync.Mutex) {
 		defer wg.Done()
 		for i := 0; i < quantity; i++ {
-			id := uint64(i + 1)
+			id := i + 1
 			albumsCover[i] = domainCreator.AlbumCoverConstructorRandom(id)
-			proxy, err := storage.AlbumCoverRepo.Insert(albumsCover[i])
-			if err != nil {
+			if err := storage.AlbumCoverRepo.Insert(albumsCover[i]); err != nil {
 				ch <- err
 				close(ch)
 				return
 			}
 			mutex.Lock()
-			storage.AlbumCoverRepo = proxy
 			mutex.Unlock()
 		}
 		close(ch)
@@ -153,16 +135,14 @@ func (storage Postgres) Init(quantity int) (utilsInterfaces.GlobalStorageInterfa
 	go func(wg *sync.WaitGroup, ch chan error, mutex *sync.Mutex) {
 		defer wg.Done()
 		for i := 0; i < quantity; i++ {
-			id := uint64(i + 1)
+			id := i + 1
 			artists[i] = domainCreator.ArtistConstructorRandom(id, nameLen, maxFollowers, maxListening)
-			proxy, err := storage.ArtistRepo.Insert(artists[i])
-			if err != nil {
+			if err := storage.ArtistRepo.Insert(artists[i]); err != nil {
 				ch <- err
 				close(ch)
 				return
 			}
 			mutex.Lock()
-			storage.ArtistRepo = proxy
 			mutex.Unlock()
 		}
 		close(ch)
@@ -185,12 +165,9 @@ func (storage Postgres) Init(quantity int) (utilsInterfaces.GlobalStorageInterfa
 
 	// albums
 	for i := 0; i < quantity; i++ {
-		id := uint64(i + 1)
-
-		albums[i] = domainCreator.AlbumConstructorRandom(id, int64(quantity), albumLen, maxListening, maxLikes)
-
-		storage.AlbumRepo, err = storage.AlbumRepo.Insert(albums[i])
-		if err != nil {
+		id := i + 1
+		albums[i] = domainCreator.AlbumConstructorRandom(id, quantity, albumLen, maxListening, maxLikes)
+		if err := storage.AlbumRepo.Insert(albums[i]); err != nil {
 			return storage, err
 		}
 	}
@@ -198,23 +175,11 @@ func (storage Postgres) Init(quantity int) (utilsInterfaces.GlobalStorageInterfa
 	const maxDuration = max / 10
 	// tracks
 	for i := 0; i < quantity; i++ {
-		id := uint64(i + 1)
-
+		id := i + 1
 		tracks[i] = domainCreator.TrackConstructorRandom(id, albums, songLen, maxDuration, maxLikes, maxListening)
-
-		storage.TrackRepo, err = storage.TrackRepo.Insert(tracks[i])
-		if err != nil {
+		if err := storage.TrackRepo.Insert(tracks[i]); err != nil {
 			return storage, err
 		}
-	}
-
-	sessionRepo := redis.NewRedisSessionRepo("redis:6379")
-	userRepo := postgresql.NewUserPostgresRepo(storage.Sqlx)
-
-	authUseCase := usecase.NewAuthUseCase(sessionRepo, userRepo)
-	authHttp.M = http_middleware.InitMiddleware(authUseCase)
-	authHttp.Handler = authHttp.AuthHandler{
-		AuthUseCase: authUseCase,
 	}
 
 	return storage, nil
@@ -224,18 +189,18 @@ func (storage Postgres) Close() error {
 	return nil
 }
 
-func (storage Postgres) GetAlbumRepo() *utilsInterfaces.RepoInterface {
-	return &storage.AlbumRepo
-}
-
-func (storage Postgres) GetAlbumCoverRepo() *utilsInterfaces.RepoInterface {
-	return &storage.AlbumCoverRepo
-}
-
-func (storage Postgres) GetArtistRepo() *utilsInterfaces.RepoInterface {
-	return &storage.ArtistRepo
-}
-
-func (storage Postgres) GetTrackRepo() *utilsInterfaces.RepoInterface {
-	return &storage.TrackRepo
-}
+//func (storage Postgres) GetAlbumRepo() *utilsInterfaces.AlbumRepoInterface {
+//	return storage.AlbumRepo
+//}
+//
+//func (storage Postgres) GetAlbumCoverRepo() *utilsInterfaces.RepoInterface {
+//	return &storage.AlbumCoverRepo
+//}
+//
+//func (storage Postgres) GetArtistRepo() *utilsInterfaces.RepoInterface {
+//	return &storage.ArtistRepo
+//}
+//
+//func (storage Postgres) GetTrackRepo() *utilsInterfaces.RepoInterface {
+//	return &storage.TrackRepo
+//}

@@ -1,9 +1,8 @@
 package utilsInterfaces
 
 type Domain interface {
-	GetId() uint64
-	SetId(id uint64) (Domain, error)
+	GetId() int
+	SetId(id int) (Domain, error)
 	Check() error
-	GetCountListening() uint64
-	CastDomainToDataTransferObject(domain Domain, args ...interface{}) (DataTransfer, error)
+	GetCountListening() int
 }

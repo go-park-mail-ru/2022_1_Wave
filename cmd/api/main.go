@@ -4,13 +4,8 @@ import (
 	"github.com/go-park-mail-ru/2022_1_Wave/config"
 	_ "github.com/go-park-mail-ru/2022_1_Wave/docs"
 	"github.com/go-park-mail-ru/2022_1_Wave/init/logger"
-	"github.com/go-park-mail-ru/2022_1_Wave/init/router"
-	"github.com/go-park-mail-ru/2022_1_Wave/init/storage"
+	"github.com/go-park-mail-ru/2022_1_Wave/init/system"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal"
-	albumUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/app/album/usecase"
-	albumCoverUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/app/albumCover/usecase"
-	artistUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/app/artist/usecase"
-	trackUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/app/track/usecase"
 	"github.com/labstack/echo/v4"
 )
 
@@ -44,38 +39,43 @@ func main() {
 	}
 	logs.Logrus.Info("config loaded successful")
 
-	if err := storage.InitStorage(dbSize, dbType); err != nil {
-		logs.Logrus.Fatal("error to init storage type", dbType, "err:", err)
-	}
+	//env, err := storage.InitStorage(dbSize, dbType)
+	//
+	//if err != nil {
+	//	logs.Logrus.Fatal("error to init storage type", dbType, "err:", err)
+	//}
 
 	logs.Logrus.Info("Success init storage type", dbType)
 
-	artistRepoLen, err := artistUseCase.UseCase.GetSize()
-	if err != nil {
+	//artistRepoLen, err := artistUseCase.UseCase.GetSize()
+	//if err != nil {
+	//	logs.Logrus.Fatal("Error:", err)
+	//}
+	//
+	//albumRepoLen, err := albumUseCase.UseCase.GetSize()
+	//if err != nil {
+	//	logs.Logrus.Fatal("Error:", err)
+	//}
+	//
+	//albumRepoCoverLen, err := albumCoverUseCase.UseCase.GetSize()
+	//if err != nil {
+	//	logs.Logrus.Fatal("Error:", err)
+	//}
+	//
+	//trackRepoLen, err := trackUseCase.UseCase.GetSize()
+	//if err != nil {
+	//	logs.Logrus.Fatal("Error:", err)
+	//}
+
+	//logs.Logrus.Info("Artists:", artistRepoLen)
+	//logs.Logrus.Info("Albums:", albumRepoLen)
+	//logs.Logrus.Info("AlbumCovers:", albumRepoCoverLen)
+	//logs.Logrus.Info("Tracks:", trackRepoLen)
+	//
+
+	if err := system.Init(e, dbSize, dbType); err != nil {
 		logs.Logrus.Fatal("Error:", err)
 	}
-
-	albumRepoLen, err := albumUseCase.UseCase.GetSize()
-	if err != nil {
-		logs.Logrus.Fatal("Error:", err)
-	}
-
-	albumRepoCoverLen, err := albumCoverUseCase.UseCase.GetSize()
-	if err != nil {
-		logs.Logrus.Fatal("Error:", err)
-	}
-
-	trackRepoLen, err := trackUseCase.UseCase.GetSize()
-	if err != nil {
-		logs.Logrus.Fatal("Error:", err)
-	}
-
-	logs.Logrus.Info("Artists:", artistRepoLen)
-	logs.Logrus.Info("Albums:", albumRepoLen)
-	logs.Logrus.Info("AlbumCovers:", albumRepoCoverLen)
-	logs.Logrus.Info("Tracks:", trackRepoLen)
-
-	router.Router(e)
 
 	logs.Logrus.Warn("start listening on", port)
 

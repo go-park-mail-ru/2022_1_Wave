@@ -1,23 +1,15 @@
 package test
 
 import (
-	"errors"
-	"github.com/go-park-mail-ru/2022_1_Wave/init/storage"
-	constants "github.com/go-park-mail-ru/2022_1_Wave/internal"
-	albumDeliveryHttp "github.com/go-park-mail-ru/2022_1_Wave/internal/app/album/delivery/http"
-	albumCoverDeliveryHttp "github.com/go-park-mail-ru/2022_1_Wave/internal/app/albumCover/delivery/http"
-	artistDeliveryHttp "github.com/go-park-mail-ru/2022_1_Wave/internal/app/artist/delivery/http"
+	"github.com/go-park-mail-ru/2022_1_Wave/init/system"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/domain"
-	utilsInterfaces "github.com/go-park-mail-ru/2022_1_Wave/internal/app/interfaces"
-	trackDeliveryHttp "github.com/go-park-mail-ru/2022_1_Wave/internal/app/track/delivery/http"
+	"github.com/labstack/echo/v4"
 	"sync"
 )
 
-var tester HandlerTester
-
 type AlbumTestCreator struct{}
 
-func (creator AlbumTestCreator) PrepareOneTestDomain() utilsInterfaces.Domain {
+func (creator AlbumTestCreator) PrepareOneTestDomain() domain.Album {
 	return domain.Album{
 		Id:             1,
 		Title:          "testedAlbum",
@@ -30,7 +22,7 @@ func (creator AlbumTestCreator) PrepareOneTestDomain() utilsInterfaces.Domain {
 
 type AlbumCoverTestCreator struct{}
 
-func (creator AlbumCoverTestCreator) PrepareOneTestDomain() utilsInterfaces.Domain {
+func (creator AlbumCoverTestCreator) PrepareOneTestDomain() domain.AlbumCover {
 	return domain.AlbumCover{
 		Id: 3,
 		//Title:  "testedAlbum",
@@ -41,7 +33,7 @@ func (creator AlbumCoverTestCreator) PrepareOneTestDomain() utilsInterfaces.Doma
 
 type ArtistTestCreator struct{}
 
-func (creator ArtistTestCreator) PrepareOneTestDomain() utilsInterfaces.Domain {
+func (creator ArtistTestCreator) PrepareOneTestDomain() domain.Artist {
 	return domain.Artist{
 		Id:             5,
 		Name:           "testArtist",
@@ -52,10 +44,10 @@ func (creator ArtistTestCreator) PrepareOneTestDomain() utilsInterfaces.Domain {
 
 type TrackTestCreator struct{}
 
-func (creator TrackTestCreator) PrepareOneTestDomain() utilsInterfaces.Domain {
+func (creator TrackTestCreator) PrepareOneTestDomain() domain.Track {
 	return domain.Track{
 		Id:             7,
-		AlbumId:        uint64(5),
+		AlbumId:        5,
 		ArtistId:       3,
 		Title:          "testTrack",
 		Duration:       300,
@@ -66,27 +58,13 @@ func (creator TrackTestCreator) PrepareOneTestDomain() utilsInterfaces.Domain {
 
 var Mutex sync.Mutex
 
-func InitTestDb(kindOf string, dataBaseType string) error {
+func InitTestDb(dataBaseType string) error {
 	const testDataBaseSize = 20
 
-	err := storage.InitStorage(testDataBaseSize, dataBaseType)
+	e := echo.New()
+	err := system.Init(e, testDataBaseSize, dataBaseType)
 	if err != nil {
 		return err
-	}
-
-	tester = HandlerTester{}
-
-	switch kindOf {
-	case constants.Album:
-		tester, err = tester.SetHandler(albumDeliveryHttp.Handler)
-	case constants.AlbumCover:
-		tester, err = tester.SetHandler(albumCoverDeliveryHttp.Handler)
-	case constants.Artist:
-		tester, err = tester.SetHandler(artistDeliveryHttp.Handler)
-	case constants.Track:
-		tester, err = tester.SetHandler(trackDeliveryHttp.Handler)
-	default:
-		return errors.New(constants.BadType)
 	}
 
 	return err

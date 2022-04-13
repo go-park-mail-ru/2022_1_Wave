@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/go-park-mail-ru/2022_1_Wave/config"
-	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/auth/delivery/http/http_middleware"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/auth/usecase"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/domain"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/tools/utils"
@@ -22,8 +21,8 @@ type AuthHandler struct {
 	AuthUseCase domain.AuthUseCase
 }
 
-var Handler AuthHandler
-var M *http_middleware.HttpMiddleware
+//var Handler AuthHandler
+//var M *http_middleware.HttpMiddleware
 
 var csrfTokenExpire = time.Hour * 1
 
@@ -31,20 +30,15 @@ func formCookie(sessionId string) *http.Cookie {
 	return &http.Cookie{
 		Name:     sessionIdKey,
 		Value:    sessionId,
-		Expires:  time.Now().Add(usecase.SessionExpire),
+		Expires:  time.Now().Add(AuthUseCase.SessionExpire),
 		HttpOnly: true,
 	}
 }
 
-func NewAuthHandler(e *echo.Echo, authUseCase domain.AuthUseCase, m *http_middleware.HttpMiddleware) {
-	handler := &AuthHandler{
+func MakeHandler(authUseCase domain.AuthUseCase) AuthHandler {
+	return AuthHandler{
 		AuthUseCase: authUseCase,
 	}
-
-	e.POST("/login", handler.Login, m.IsSession, m.CSRF)
-	e.POST("/logout", handler.Logout, m.IsSession, m.CSRF)
-	e.POST("/signup", handler.SignUp, m.IsSession, m.CSRF)
-	e.POST("/get_csrf", handler.GetCSRF)
 }
 
 // Login godoc

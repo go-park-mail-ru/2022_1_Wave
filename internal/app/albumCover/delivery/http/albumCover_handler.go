@@ -1,11 +1,26 @@
 package albumCoverDeliveryHttp
 
 import (
-	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/structs/delivery/http"
+	"errors"
+	"fmt"
+	constants "github.com/go-park-mail-ru/2022_1_Wave/internal"
+	AlbumCoverUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/app/albumCover/usecase"
+	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/domain"
+	"github.com/go-park-mail-ru/2022_1_Wave/pkg/webUtils"
 	"github.com/labstack/echo/v4"
+	"net/http"
+	"strconv"
 )
 
-var Handler structsDeliveryHttp.Handler
+type Handler struct {
+	albumCoverUseCase AlbumCoverUseCase.AlbumCoverUseCase
+}
+
+func MakeHandler(cover AlbumCoverUseCase.AlbumCoverUseCase) Handler {
+	return Handler{
+		albumCoverUseCase: cover,
+	}
+}
 
 // GetAll godoc
 // @Summary      GetAll
@@ -17,8 +32,21 @@ var Handler structsDeliveryHttp.Handler
 // @Failure      400  {object}  webUtils.Error  "Data is invalid"
 // @Failure      405  {object}  webUtils.Error  "Method is not allowed"
 // @Router       /api/v1/albumCovers/ [get]
-func GetAll(ctx echo.Context) error {
-	return Handler.GetAll(ctx)
+func (h Handler) GetAll(ctx echo.Context) error {
+	domains, err := h.albumCoverUseCase.GetAll()
+
+	if err != nil {
+		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
+	}
+
+	if domains == nil {
+		domains = []domain.AlbumCoverDataTransfer{}
+	}
+
+	return ctx.JSON(http.StatusOK,
+		webUtils.Success{
+			Status: webUtils.OK,
+			Result: domains})
 }
 
 // Create godoc
@@ -32,10 +60,30 @@ func GetAll(ctx echo.Context) error {
 // @Failure      400    {object}  webUtils.Error  "Data is invalid"
 // @Failure      405    {object}  webUtils.Error  "Method is not allowed"
 // @Router       /api/v1/albumCovers/ [post]
-func Create(ctx echo.Context) error {
-	proxy, err := Handler.Create(ctx)
-	Handler = proxy.(structsDeliveryHttp.Handler)
-	return err
+func (h Handler) Create(ctx echo.Context) error {
+	result := domain.AlbumCover{}
+
+	if err := ctx.Bind(&result); err != nil {
+		return err
+	}
+
+	if err := result.Check(); err != nil {
+		return err
+	}
+
+	if err := h.albumCoverUseCase.Create(result); err != nil {
+		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
+	}
+
+	lastId, err := h.albumCoverUseCase.GetLastId()
+	if err != nil {
+		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
+	}
+
+	return ctx.JSON(http.StatusOK,
+		webUtils.Success{
+			Status: webUtils.OK,
+			Result: constants.SuccessCreated + "(" + fmt.Sprint(lastId) + ")"})
 }
 
 // Update godoc
@@ -49,10 +97,26 @@ func Create(ctx echo.Context) error {
 // @Failure      400    {object}  webUtils.Error  "Data is invalid"
 // @Failure      405    {object}  webUtils.Error  "Method is not allowed"
 // @Router       /api/v1/albumCovers/ [put]
-func Update(ctx echo.Context) error {
-	proxy, err := Handler.Update(ctx)
-	Handler = proxy.(structsDeliveryHttp.Handler)
-	return err
+func (h Handler) Update(ctx echo.Context) error {
+	result := domain.AlbumCover{}
+
+	if err := ctx.Bind(&result); err != nil {
+		return err
+	}
+
+	if err := result.Check(); err != nil {
+		return err
+	}
+
+	if err := h.albumCoverUseCase.Update(result); err != nil {
+		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
+	}
+
+	id := result.Id
+	return ctx.JSON(http.StatusOK,
+		webUtils.Success{
+			Status: webUtils.OK,
+			Result: constants.SuccessUpdated + "(" + fmt.Sprint(id) + ")"})
 }
 
 // Get godoc
@@ -66,8 +130,25 @@ func Update(ctx echo.Context) error {
 // @Failure      400  {object}  webUtils.Error  "Data is invalid"
 // @Failure      405  {object}  webUtils.Error  "Method is not allowed"
 // @Router       /api/v1/albumCovers/{id} [get]
-func Get(ctx echo.Context) error {
-	return Handler.Get(ctx)
+func (h Handler) Get(ctx echo.Context) error {
+	id, err := strconv.Atoi(ctx.Param(constants.FieldId))
+	if err != nil {
+		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
+	}
+	if id < 0 {
+		return webUtils.WriteErrorEchoServer(ctx, errors.New(constants.IndexOutOfRange), http.StatusBadRequest)
+	}
+
+	album, err := h.albumCoverUseCase.GetById(id)
+
+	if err != nil {
+		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
+	}
+
+	return ctx.JSON(http.StatusOK,
+		webUtils.Success{
+			Status: webUtils.OK,
+			Result: album})
 }
 
 // Delete godoc
@@ -81,8 +162,21 @@ func Get(ctx echo.Context) error {
 // @Failure      400  {object}  webUtils.Error  "Data is invalid"
 // @Failure      405  {object}  webUtils.Error  "Method is not allowed"
 // @Router       /api/v1/albumCovers/{id} [delete]
-func Delete(ctx echo.Context) error {
-	proxy, err := Handler.Delete(ctx)
-	Handler = proxy.(structsDeliveryHttp.Handler)
-	return err
+func (h Handler) Delete(ctx echo.Context) error {
+	id, err := strconv.Atoi(ctx.Param(constants.FieldId))
+	if err != nil {
+		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
+	}
+	if id < 0 {
+		return webUtils.WriteErrorEchoServer(ctx, errors.New(constants.IndexOutOfRange), http.StatusBadRequest)
+	}
+
+	if err := h.albumCoverUseCase.Delete(id); err != nil {
+		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
+	}
+
+	return ctx.JSON(http.StatusOK,
+		webUtils.Success{
+			Status: webUtils.OK,
+			Result: constants.SuccessDeleted + "(" + fmt.Sprint(id) + ")"})
 }

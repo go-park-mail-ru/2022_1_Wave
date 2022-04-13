@@ -25,7 +25,13 @@ const (
 	PathToAvatars = "/assets"
 )
 
-var Handler UserHandler
+//var Handler UserHandler
+
+func MakeHandler(userUseCase domain.UserUseCase) UserHandler {
+	return UserHandler{
+		UserUseCase: userUseCase,
+	}
+}
 
 //func NewUserHandler(e *echo.Echo, userUseCase domain.UserUseCase, m *http_middleware.HttpMiddleware) {
 //	handler := &UserHandler{

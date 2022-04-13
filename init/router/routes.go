@@ -4,32 +4,52 @@ import (
 	_ "github.com/go-park-mail-ru/2022_1_Wave/docs"
 	"github.com/go-park-mail-ru/2022_1_Wave/init/logger"
 	albumDeliveryHttp "github.com/go-park-mail-ru/2022_1_Wave/internal/app/album/delivery/http"
+	AlbumUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/app/album/usecase"
 	albumCoverDeliveryHttp "github.com/go-park-mail-ru/2022_1_Wave/internal/app/albumCover/delivery/http"
+	albumCoverUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/app/albumCover/usecase"
 	artistDeliveryHttp "github.com/go-park-mail-ru/2022_1_Wave/internal/app/artist/delivery/http"
+	ArtistUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/app/artist/usecase"
 	authHttp "github.com/go-park-mail-ru/2022_1_Wave/internal/app/auth/delivery/http"
+	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/auth/delivery/http/http_middleware"
+	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/domain"
 	trackDeliveryHttp "github.com/go-park-mail-ru/2022_1_Wave/internal/app/track/delivery/http"
+	TrackUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/app/track/usecase"
 	userHttp "github.com/go-park-mail-ru/2022_1_Wave/internal/app/user/delivery/http"
 	"github.com/labstack/echo/v4"
 	"github.com/swaggo/echo-swagger"
 )
 
-func Router(e *echo.Echo) {
+func Router(e *echo.Echo,
+	auth domain.AuthUseCase,
+	album AlbumUseCase.AlbumUseCase,
+	albumCover albumCoverUseCase.AlbumCoverUseCase,
+	artist ArtistUseCase.ArtistUseCase,
+	track TrackUseCase.TrackUseCase,
+	user domain.UserUseCase) error {
 
 	api := e.Group(apiPrefix)
 	v1 := api.Group(v1Prefix)
 
+	albumHandler := albumDeliveryHttp.MakeHandler(album, track)
+	albumCoverHandler := albumCoverDeliveryHttp.MakeHandler(albumCover)
+	artistHandler := artistDeliveryHttp.MakeHandler(artist, album, track)
+	trackHandler := trackDeliveryHttp.MakeHandler(artist, track)
+	authHandler := authHttp.MakeHandler(auth)
+	userHandler := userHttp.MakeHandler(user)
+	m := http_middleware.InitMiddleware(auth)
+
 	logger.GlobalLogger.Logrus.Warnln("api version:", v1Prefix)
 
-	SetAlbumsRoutes(v1)
+	SetAlbumsRoutes(v1, albumHandler)
 	logger.GlobalLogger.Logrus.Warnln("setting albums routes")
 
-	SetAlbumCoversRoutes(v1)
+	SetAlbumCoversRoutes(v1, albumCoverHandler)
 	logger.GlobalLogger.Logrus.Warnln("setting album covers routes")
 
-	SetArtistsRoutes(v1)
+	SetArtistsRoutes(v1, artistHandler)
 	logger.GlobalLogger.Logrus.Warnln("setting artists routes")
 
-	SetTracksRoutes(v1)
+	SetTracksRoutes(v1, trackHandler)
 	logger.GlobalLogger.Logrus.Warnln("setting tracks routes")
 
 	SetDocsPath(v1)
@@ -38,76 +58,78 @@ func Router(e *echo.Echo) {
 	SetStaticHandle(v1)
 	logger.GlobalLogger.Logrus.Warnln("setting static routes")
 
-	SetAuthRoutes(v1)
+	SetAuthRoutes(v1, authHandler, m)
 	logger.GlobalLogger.Logrus.Warnln("setting auth routes")
 
-	SetUserRoutes(v1)
+	SetUserRoutes(v1, userHandler, m)
 	logger.GlobalLogger.Logrus.Warnln("setting user routes")
+
+	return nil
 }
 
 // SetAlbumsRoutes albums
-func SetAlbumsRoutes(apiVersion *echo.Group) {
+func SetAlbumsRoutes(apiVersion *echo.Group, handler albumDeliveryHttp.Handler) {
 	albumRoutes := apiVersion.Group(albumsPrefix)
 
-	albumRoutes.GET(idEchoPattern, albumDeliveryHttp.Get)
-	albumRoutes.GET(locate, albumDeliveryHttp.GetAll)
-	albumRoutes.POST(locate, albumDeliveryHttp.Create)
-	albumRoutes.PUT(locate, albumDeliveryHttp.Update)
-	albumRoutes.GET(popularPrefix, albumDeliveryHttp.GetPopular)
-	albumRoutes.DELETE(idEchoPattern, albumDeliveryHttp.Delete)
+	albumRoutes.GET(idEchoPattern, handler.Get)
+	albumRoutes.GET(locate, handler.GetAll)
+	albumRoutes.POST(locate, handler.Create)
+	albumRoutes.PUT(locate, handler.Update)
+	albumRoutes.GET(popularPrefix, handler.GetPopular)
+	albumRoutes.DELETE(idEchoPattern, handler.Delete)
 }
 
 // SetAlbumCoversRoutes albumCovers
-func SetAlbumCoversRoutes(apiVersion *echo.Group) {
+func SetAlbumCoversRoutes(apiVersion *echo.Group, handler albumCoverDeliveryHttp.Handler) {
 	albumRoutes := apiVersion.Group(albumCoversPrefix)
-	albumRoutes.GET(idEchoPattern, albumCoverDeliveryHttp.Get)
-	albumRoutes.GET(locate, albumCoverDeliveryHttp.GetAll)
-	albumRoutes.POST(locate, albumCoverDeliveryHttp.Create)
-	albumRoutes.PUT(locate, albumCoverDeliveryHttp.Update)
-	albumRoutes.DELETE(idEchoPattern, albumCoverDeliveryHttp.Delete)
+	albumRoutes.GET(idEchoPattern, handler.Get)
+	albumRoutes.GET(locate, handler.GetAll)
+	albumRoutes.POST(locate, handler.Create)
+	albumRoutes.PUT(locate, handler.Update)
+	albumRoutes.DELETE(idEchoPattern, handler.Delete)
 }
 
 // SetArtistsRoutes artists
-func SetArtistsRoutes(apiVersion *echo.Group) {
+func SetArtistsRoutes(apiVersion *echo.Group, handler artistDeliveryHttp.Handler) {
 	artistRoutes := apiVersion.Group(artistsPrefix)
 
-	artistRoutes.GET(idEchoPattern, artistDeliveryHttp.Get)
-	artistRoutes.GET(locate, artistDeliveryHttp.GetAll)
-	artistRoutes.POST(locate, artistDeliveryHttp.Create)
-	artistRoutes.PUT(locate, artistDeliveryHttp.Update)
-	artistRoutes.GET(popularPrefix, artistDeliveryHttp.GetPopular)
-	artistRoutes.GET(idEchoPattern+popularPrefix, artistDeliveryHttp.GetPopularTracks)
-	artistRoutes.DELETE(idEchoPattern, artistDeliveryHttp.Delete)
+	artistRoutes.GET(idEchoPattern, handler.Get)
+	artistRoutes.GET(locate, handler.GetAll)
+	artistRoutes.POST(locate, handler.Create)
+	artistRoutes.PUT(locate, handler.Update)
+	artistRoutes.GET(popularPrefix, handler.GetPopular)
+	artistRoutes.GET(idEchoPattern+popularPrefix, handler.GetPopularTracks)
+	artistRoutes.DELETE(idEchoPattern, handler.Delete)
 }
 
 // SetTracksRoutes songs
-func SetTracksRoutes(apiVersion *echo.Group) {
+func SetTracksRoutes(apiVersion *echo.Group, handler trackDeliveryHttp.Handler) {
 	trackRoutes := apiVersion.Group(tracksPrefix)
 
-	trackRoutes.GET(idEchoPattern, trackDeliveryHttp.Get)
-	trackRoutes.GET(locate, trackDeliveryHttp.GetAll)
-	trackRoutes.POST(locate, trackDeliveryHttp.Create)
-	trackRoutes.PUT(locate, trackDeliveryHttp.Update)
-	trackRoutes.GET(popularPrefix, trackDeliveryHttp.GetPopular)
-	trackRoutes.DELETE(idEchoPattern, trackDeliveryHttp.Delete)
+	trackRoutes.GET(idEchoPattern, handler.Get)
+	trackRoutes.GET(locate, handler.GetAll)
+	trackRoutes.POST(locate, handler.Create)
+	trackRoutes.PUT(locate, handler.Update)
+	trackRoutes.GET(popularPrefix, handler.GetPopular)
+	trackRoutes.DELETE(idEchoPattern, handler.Delete)
 }
 
-func SetUserRoutes(apiVersion *echo.Group) {
+func SetUserRoutes(apiVersion *echo.Group, handler userHttp.UserHandler, m *http_middleware.HttpMiddleware) {
 	userRoutes := apiVersion.Group(usersPrefix)
 
-	userRoutes.GET("/:id", userHttp.Handler.GetUser)
-	userRoutes.GET("/self", userHttp.Handler.GetSelfUser, authHttp.M.Auth, authHttp.M.CSRF)
+	userRoutes.GET("/:id", handler.GetUser)
+	userRoutes.GET("/self", handler.GetSelfUser, m.Auth, m.CSRF)
 
-	userRoutes.PATCH("/self", userHttp.Handler.UpdateSelfUser, authHttp.M.Auth, authHttp.M.CSRF)
-	userRoutes.PATCH("/upload_avatar", userHttp.Handler.UploadAvatar, authHttp.M.Auth, authHttp.M.CSRF)
+	userRoutes.PATCH("/self", handler.UpdateSelfUser, m.Auth, m.CSRF)
+	userRoutes.PATCH("/upload_avatar", handler.UploadAvatar, m.Auth, m.CSRF)
 }
 
 // InitAuthModule auth
-func SetAuthRoutes(apiVersion *echo.Group) {
-	apiVersion.POST(loginPrefix, authHttp.Handler.Login, authHttp.M.IsSession, authHttp.M.CSRF)
-	apiVersion.POST(logoutPrefix, authHttp.Handler.Logout, authHttp.M.IsSession, authHttp.M.CSRF)
-	apiVersion.POST(signUpPrefix, authHttp.Handler.SignUp, authHttp.M.IsSession, authHttp.M.CSRF)
-	apiVersion.GET(getCSRFPrefix, authHttp.Handler.GetCSRF)
+func SetAuthRoutes(apiVersion *echo.Group, handler authHttp.AuthHandler, m *http_middleware.HttpMiddleware) {
+	apiVersion.POST(loginPrefix, handler.Login, m.IsSession, m.CSRF)
+	apiVersion.POST(logoutPrefix, handler.Logout, m.IsSession, m.CSRF)
+	apiVersion.POST(signUpPrefix, handler.SignUp, m.IsSession, m.CSRF)
+	apiVersion.GET(getCSRFPrefix, handler.GetCSRF)
 }
 
 // SetDocsPath docs

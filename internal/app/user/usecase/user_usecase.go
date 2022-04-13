@@ -1,4 +1,4 @@
-package usecase
+package UserUsecase
 
 import (
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/domain"
