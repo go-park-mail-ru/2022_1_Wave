@@ -1,6 +1,7 @@
-package usecase
+package userUseCase
 
 import (
+	"fmt"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/domain"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/tools/utils"
 )
@@ -55,12 +56,13 @@ func (a *userUseCase) GetBySessionId(sessionId string) (*domain.User, error) {
 	if err != nil {
 		return nil, domain.ErrSessionDoesNotExist
 	}
+	fmt.Println(session)
 
 	user, err := a.userRepo.SelectByID(session.UserId)
 	if err != nil {
 		return nil, domain.ErrUserDoesNotExist
 	}
-
+	fmt.Println(user)
 	user.Password = ""
 
 	return user, nil

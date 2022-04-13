@@ -5,7 +5,7 @@ import (
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/domain"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/domain/mocks"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/tools/utils"
-	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/user/usecase"
+	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/user/userUseCase"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"testing"
@@ -32,7 +32,7 @@ func TestGetById(t *testing.T) {
 	}
 	t.Run("success", func(t *testing.T) {
 		mockUserRepo.On("SelectByID", uint(1)).Return(mockUser, nil)
-		usecase := usecase.NewUserUseCase(mockUserRepo, mockSessionRepo)
+		usecase := userUseCase.NewUserUseCase(mockUserRepo, mockSessionRepo)
 		result, err := usecase.GetById(1)
 
 		assert.NoError(t, err)
@@ -40,7 +40,7 @@ func TestGetById(t *testing.T) {
 	})
 	t.Run("error", func(t *testing.T) {
 		mockUserRepo.On("SelectByID", uint(2)).Return(nil, errors.New("error select user"))
-		usecase := usecase.NewUserUseCase(mockUserRepo, mockSessionRepo)
+		usecase := userUseCase.NewUserUseCase(mockUserRepo, mockSessionRepo)
 		result, err := usecase.GetById(2)
 
 		assert.ErrorIs(t, err, domain.ErrUserDoesNotExist)
@@ -69,7 +69,7 @@ func TestGetByUsername(t *testing.T) {
 	}
 	t.Run("success", func(t *testing.T) {
 		mockUserRepo.On("SelectByUsername", mockUser.Username).Return(mockUser, nil)
-		usecase := usecase.NewUserUseCase(mockUserRepo, mockSessionRepo)
+		usecase := userUseCase.NewUserUseCase(mockUserRepo, mockSessionRepo)
 		result, err := usecase.GetByUsername(mockUser.Username)
 
 		assert.NoError(t, err)
@@ -77,7 +77,7 @@ func TestGetByUsername(t *testing.T) {
 	})
 	t.Run("error", func(t *testing.T) {
 		mockUserRepo.On("SelectByUsername", "doesnt_exist").Return(nil, errors.New("error select user"))
-		usecase := usecase.NewUserUseCase(mockUserRepo, mockSessionRepo)
+		usecase := userUseCase.NewUserUseCase(mockUserRepo, mockSessionRepo)
 		result, err := usecase.GetByUsername("doesnt_exist")
 
 		assert.ErrorIs(t, err, domain.ErrUserDoesNotExist)
@@ -106,7 +106,7 @@ func TestGetByEmail(t *testing.T) {
 	}
 	t.Run("success", func(t *testing.T) {
 		mockUserRepo.On("SelectByEmail", mockUser.Email).Return(mockUser, nil)
-		usecase := usecase.NewUserUseCase(mockUserRepo, mockSessionRepo)
+		usecase := userUseCase.NewUserUseCase(mockUserRepo, mockSessionRepo)
 		result, err := usecase.GetByEmail(mockUser.Email)
 
 		assert.NoError(t, err)
@@ -114,7 +114,7 @@ func TestGetByEmail(t *testing.T) {
 	})
 	t.Run("error", func(t *testing.T) {
 		mockUserRepo.On("SelectByEmail", "doesnt_exist").Return(nil, errors.New("error select user"))
-		usecase := usecase.NewUserUseCase(mockUserRepo, mockSessionRepo)
+		usecase := userUseCase.NewUserUseCase(mockUserRepo, mockSessionRepo)
 		result, err := usecase.GetByEmail("doesnt_exist")
 
 		assert.ErrorIs(t, err, domain.ErrUserDoesNotExist)
@@ -151,7 +151,7 @@ func TestGetBySessionId(t *testing.T) {
 		mockUserRepo.On("SelectByID", mockUser.ID).Return(mockUser, nil)
 		mockSessionRepo.On("GetSession", sessionId).Return(sessionResult, nil)
 
-		usecase := usecase.NewUserUseCase(mockUserRepo, mockSessionRepo)
+		usecase := userUseCase.NewUserUseCase(mockUserRepo, mockSessionRepo)
 		result, err := usecase.GetBySessionId(sessionId)
 
 		assert.NoError(t, err)
@@ -163,7 +163,7 @@ func TestGetBySessionId(t *testing.T) {
 		mockUserRepo.On("SelectByID", mockUser.ID).Return(mockUser, nil)
 		mockSessionRepo.On("GetSession", sessionId).Return(nil, errors.New("no such session"))
 
-		usecase := usecase.NewUserUseCase(mockUserRepo, mockSessionRepo)
+		usecase := userUseCase.NewUserUseCase(mockUserRepo, mockSessionRepo)
 		result, err := usecase.GetBySessionId(sessionId)
 
 		assert.ErrorIs(t, err, domain.ErrSessionDoesNotExist)
@@ -176,7 +176,7 @@ func TestGetBySessionId(t *testing.T) {
 		mockUserRepo.On("SelectByID", sessionResult.UserId).Return(nil, errors.New("no such user"))
 		mockSessionRepo.On("GetSession", sessionId).Return(sessionResult, nil)
 
-		usecase := usecase.NewUserUseCase(mockUserRepo, mockSessionRepo)
+		usecase := userUseCase.NewUserUseCase(mockUserRepo, mockSessionRepo)
 		result, err := usecase.GetBySessionId(sessionId)
 
 		assert.ErrorIs(t, err, domain.ErrUserDoesNotExist)
@@ -217,7 +217,7 @@ func TestDelete(t *testing.T) {
 		sessionId := "some session id"
 		mockSessionRepo.On("GetSession", sessionId).Return(sessionResult, nil)
 
-		usecase := usecase.NewUserUseCase(mockUserRepo, mockSessionRepo)
+		usecase := userUseCase.NewUserUseCase(mockUserRepo, mockSessionRepo)
 
 		err := usecase.DeleteById(mockUser.ID)
 		assert.NoError(t, err)
@@ -235,7 +235,7 @@ func TestDelete(t *testing.T) {
 		sessionId := "some session id 2"
 		mockSessionRepo.On("GetSession", sessionId).Return(nil, errors.New("error get session"))
 
-		usecase := usecase.NewUserUseCase(mockUserRepo, mockSessionRepo)
+		usecase := userUseCase.NewUserUseCase(mockUserRepo, mockSessionRepo)
 
 		err := usecase.DeleteById(mockUser2.ID)
 		assert.ErrorIs(t, err, domain.ErrUserDoesNotExist)
@@ -266,7 +266,7 @@ func TestCheckUsernameAndPassword(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		mockUserRepo.On("SelectByUsername", mockUser.Username).Return(mockUser, nil)
 
-		usecase := usecase.NewUserUseCase(mockUserRepo, mockSessionRepo)
+		usecase := userUseCase.NewUserUseCase(mockUserRepo, mockSessionRepo)
 		result := usecase.CheckUsernameAndPassword(mockUser.Username, password)
 
 		assert.True(t, result)
@@ -275,7 +275,7 @@ func TestCheckUsernameAndPassword(t *testing.T) {
 		mockUserRepo.On("SelectByUsername", mockUser.Username).Return(mockUser, nil)
 		mockUserRepo.On("SelectByUsername", "not such user").Return(nil, errors.New("no such user"))
 
-		usecase := usecase.NewUserUseCase(mockUserRepo, mockSessionRepo)
+		usecase := userUseCase.NewUserUseCase(mockUserRepo, mockSessionRepo)
 		result1 := usecase.CheckUsernameAndPassword(mockUser.Username, password+"ab")
 		result2 := usecase.CheckUsernameAndPassword("not such user", password)
 
@@ -302,7 +302,7 @@ func TestCheckEmailAndPassword(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		mockUserRepo.On("SelectByEmail", mockUser.Email).Return(mockUser, nil)
 
-		usecase := usecase.NewUserUseCase(mockUserRepo, mockSessionRepo)
+		usecase := userUseCase.NewUserUseCase(mockUserRepo, mockSessionRepo)
 		result := usecase.CheckEmailAndPassword(mockUser.Email, password)
 
 		assert.True(t, result)
@@ -311,7 +311,7 @@ func TestCheckEmailAndPassword(t *testing.T) {
 		mockUserRepo.On("SelectByEmail", mockUser.Email).Return(mockUser, nil)
 		mockUserRepo.On("SelectByEmail", "not such user").Return(nil, errors.New("no such user"))
 
-		usecase := usecase.NewUserUseCase(mockUserRepo, mockSessionRepo)
+		usecase := userUseCase.NewUserUseCase(mockUserRepo, mockSessionRepo)
 		result1 := usecase.CheckEmailAndPassword(mockUser.Email, password+"ab")
 		result2 := usecase.CheckEmailAndPassword("not such user", password)
 
@@ -347,7 +347,7 @@ func TestUpdate(t *testing.T) {
 		mockUserRepo.On("SelectByEmail", changesToUser.Email).Return(nil, errors.New("error"))
 		mockUserRepo.On("Update", mockUser.ID, mock.Anything).Return(nil)
 
-		usecase := usecase.NewUserUseCase(mockUserRepo, mockSessionRepo)
+		usecase := userUseCase.NewUserUseCase(mockUserRepo, mockSessionRepo)
 		err := usecase.Update(mockUser.ID, changesToUser)
 
 		assert.Nil(t, err)
@@ -377,7 +377,7 @@ func TestUpdate(t *testing.T) {
 		mockUserRepo.On("SelectByUsername", "username1").Return(nil, errors.New("error"))
 		mockUserRepo.On("SelectByEmail", changesToUser2.Email).Return(changesToUser2, nil)
 
-		usecase := usecase.NewUserUseCase(mockUserRepo, mockSessionRepo)
+		usecase := userUseCase.NewUserUseCase(mockUserRepo, mockSessionRepo)
 
 		err := usecase.Update(3, changesToUser2)
 		assert.ErrorIs(t, err, domain.ErrUserDoesNotExist)

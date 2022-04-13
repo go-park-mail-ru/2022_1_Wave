@@ -14,7 +14,9 @@ import (
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/session/repository/redis"
 	structRepoPostgres "github.com/go-park-mail-ru/2022_1_Wave/internal/app/structs/repository/postgresql"
 	domainCreator "github.com/go-park-mail-ru/2022_1_Wave/internal/app/tools/domain"
+	userHttp "github.com/go-park-mail-ru/2022_1_Wave/internal/app/user/delivery/http"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/user/repository/postgresql"
+	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/user/userUseCase"
 	_ "github.com/jackc/pgx/stdlib"
 	"github.com/jmoiron/sqlx"
 	"os"
@@ -216,6 +218,11 @@ func (storage Postgres) Init(quantity int) (utilsInterfaces.GlobalStorageInterfa
 	authHttp.M = http_middleware.InitMiddleware(authUseCase)
 	authHttp.Handler = authHttp.AuthHandler{
 		AuthUseCase: authUseCase,
+	}
+
+	userUCase := userUseCase.NewUserUseCase(userRepo, sessionRepo)
+	userHttp.Handler = userHttp.UserHandler{
+		UserUseCase: userUCase,
 	}
 
 	return storage, nil
