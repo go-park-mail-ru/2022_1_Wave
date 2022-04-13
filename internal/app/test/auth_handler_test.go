@@ -238,25 +238,6 @@ func TestGetCSRF(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, http.StatusOK, rec.Code)
 	assert.NotEqual(t, rec.Header().Get(echo.HeaderXCSRFToken), "")
-
-	req, err = http.NewRequest(echo.POST, "/get_csrf", strings.NewReader(""))
-	assert.NoError(t, err)
-	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
-	cookie = &http.Cookie{
-		Name:     "session_id",
-		Value:    sessionId2,
-		HttpOnly: true,
-	}
-
-	req.AddCookie(cookie)
-	rec = httptest.NewRecorder()
-
-	c = e.NewContext(req, rec)
-	c.SetPath("/get_csrf")
-
-	err = handler.SignUp(c)
-	assert.NoError(t, err)
-	assert.Equal(t, http.StatusUnprocessableEntity, rec.Code)
 }
 
 func TestMiddleware(t *testing.T) {
