@@ -12,8 +12,7 @@ import (
 //CoverId        uint64      `json:"coverId" example:"4" db:"cover_id"`
 
 type Track struct {
-	Id uint64 `json:"id" example:"4" db:"id" validate:"min=0"`
-	// AlbumId is uint64 but for null holder this is type interface
+	Id             uint64 `json:"id" example:"4" db:"id" validate:"min=0"`
 	AlbumId        uint64 `json:"albumId" example:"8" db:"album_id" validate:"min=0"`
 	ArtistId       uint64 `json:"artistId" example:"8" db:"artist_id" validate:"min=0,nonnil"`
 	Title          string `json:"title" example:"Rain" db:"title" validate:"max=256,nonnil"`
