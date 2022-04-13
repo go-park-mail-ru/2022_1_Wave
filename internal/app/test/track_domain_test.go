@@ -9,6 +9,7 @@ import (
 
 func TestDomainTrackCreateDataTransferFromInterface(t *testing.T) {
 
+	const id = 5
 	const title = "some title"
 	const artist = "bla bla blashkin"
 	const cover = "some path, that doesn't matter"
@@ -18,6 +19,7 @@ func TestDomainTrackCreateDataTransferFromInterface(t *testing.T) {
 	const duration = 500
 
 	data := map[string]interface{}{
+		internal.FieldId:         float64(id),
 		internal.FieldTitle:      title,
 		internal.FieldArtist:     artist,
 		internal.FieldCover:      cover,
@@ -28,9 +30,10 @@ func TestDomainTrackCreateDataTransferFromInterface(t *testing.T) {
 	}
 
 	except := domain.TrackDataTransfer{
-		Title:  title,
-		Artist: artist,
-		//Cover:      cover,
+		Id:         id,
+		Title:      title,
+		Artist:     artist,
+		Cover:      cover,
 		Src:        src,
 		Likes:      likes,
 		Listenings: listenings,

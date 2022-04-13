@@ -221,7 +221,7 @@ func CreateDomainTrackFromInterface(data interface{}) (utilsInterfaces.Domain, e
 		return nil, err
 	}
 
-	albumId, err := utils.ToUint64(temp[constants.FieldAlbums])
+	albumId, err := utils.ToUint64(temp[constants.FieldAlbumId])
 	if err != nil {
 		return nil, err
 	}
