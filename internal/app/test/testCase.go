@@ -6,7 +6,6 @@ import (
 	dataTransferCreator "github.com/go-park-mail-ru/2022_1_Wave/internal/app/tools/dataTransfer"
 	"net/http"
 	"reflect"
-	"sync"
 )
 
 type TestCase struct {
@@ -24,9 +23,9 @@ type OperationTestCase struct {
 	Status int
 }
 
-func PrepareManyCases(repo utilsInterfaces.RepoInterface, mutex *sync.RWMutex) TestCases {
+func PrepareManyCases(repo utilsInterfaces.RepoInterface) TestCases {
 	cases := TestCases{}
-	objects, _ := repo.GetAll(mutex)
+	objects, _ := repo.GetAll()
 
 	for _, object := range objects {
 		dataTransfer, _ := dataTransferCreator.CreateDataTransfer(object)
@@ -58,8 +57,8 @@ func PrepareManyCases(repo utilsInterfaces.RepoInterface, mutex *sync.RWMutex) T
 //	return cases
 //}
 
-func PrepareArrayCases(useCase utilsInterfaces.UseCaseInterface, mutex *sync.RWMutex) ([]TestCase, error) {
-	objects, err := useCase.GetAll(mutex)
+func PrepareArrayCases(useCase utilsInterfaces.UseCaseInterface) ([]TestCase, error) {
+	objects, err := useCase.GetAll()
 
 	if err != nil {
 		return nil, err
@@ -71,7 +70,7 @@ func PrepareArrayCases(useCase utilsInterfaces.UseCaseInterface, mutex *sync.RWM
 		return nil, err
 	}
 
-	repoType := repo.GetType(mutex)
+	repoType := repo.GetType()
 	postgresType := reflect.TypeOf(structRepoPostgres.Table{})
 
 	isPostgres := repoType == postgresType
@@ -93,9 +92,9 @@ func PrepareArrayCases(useCase utilsInterfaces.UseCaseInterface, mutex *sync.RWM
 	return cases, nil
 }
 
-func PreparePopularCases(useCase utilsInterfaces.UseCaseInterface, mutex *sync.RWMutex) TestCases {
+func PreparePopularCases(useCase utilsInterfaces.UseCaseInterface) TestCases {
 	cases := TestCases{}
-	objects, _ := useCase.GetPopular(mutex)
+	objects, _ := useCase.GetPopular()
 
 	for _, object := range objects {
 		dataTransfer, _ := dataTransferCreator.CreateDataTransfer(object)

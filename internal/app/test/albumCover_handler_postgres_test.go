@@ -4,7 +4,6 @@ import (
 	"github.com/go-park-mail-ru/2022_1_Wave/init/logger"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal"
 	albumUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/app/album/usecase"
-	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/domain"
 	structsUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/app/structs/usecase"
 	"github.com/stretchr/testify/require"
 	"testing"
@@ -17,7 +16,7 @@ func TestPostgresGetAlbumCover(t *testing.T) {
 	require.NoError(t, err)
 	err = InitTestDb(internal.AlbumCover, internal.Postgres)
 	require.NoError(t, err)
-	tester.Get(t, domain.AlbumCoverMutex)
+	tester.Get(t)
 }
 
 func TestPostgresGetAllAlbumCovers(t *testing.T) {
@@ -27,7 +26,7 @@ func TestPostgresGetAllAlbumCovers(t *testing.T) {
 	require.NoError(t, err)
 	err = InitTestDb(internal.AlbumCover, internal.Postgres)
 	require.NoError(t, err)
-	tester.GetAll(t, domain.AlbumCoverMutex)
+	tester.GetAll(t)
 }
 
 func TestPostgresCreateAlbumCover(t *testing.T) {
@@ -38,7 +37,7 @@ func TestPostgresCreateAlbumCover(t *testing.T) {
 	err = InitTestDb(internal.AlbumCover, internal.Postgres)
 	require.NoError(t, err)
 	creator := AlbumCoverTestCreator{}
-	tester.Create(t, creator, domain.AlbumCoverMutex)
+	tester.Create(t, creator)
 }
 
 func TestPostgresDeleteAlbumCover(t *testing.T) {
@@ -50,14 +49,14 @@ func TestPostgresDeleteAlbumCover(t *testing.T) {
 	require.NoError(t, err)
 
 	const idToDelete = uint64(1)
-	proxy, err := albumUseCase.UseCase.Delete(idToDelete, domain.AlbumMutex)
+	proxy, err := albumUseCase.UseCase.Delete(idToDelete)
 	if err != nil {
 		t.Fail()
 	}
 
 	albumUseCase.UseCase = proxy.(structsUseCase.UseCase)
 
-	tester.Delete(t, idToDelete, domain.AlbumCoverMutex)
+	tester.Delete(t, idToDelete)
 }
 
 func TestPostgresUpdateAlbumCover(t *testing.T) {
@@ -68,5 +67,5 @@ func TestPostgresUpdateAlbumCover(t *testing.T) {
 	err = InitTestDb(internal.AlbumCover, internal.Postgres)
 	require.NoError(t, err)
 	creator := AlbumCoverTestCreator{}
-	tester.Update(t, creator, domain.AlbumCoverMutex)
+	tester.Update(t, creator)
 }

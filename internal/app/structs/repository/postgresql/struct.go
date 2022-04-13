@@ -10,7 +10,6 @@ import (
 	"github.com/jmoiron/sqlx"
 	"os"
 	"reflect"
-	"sync"
 )
 
 type Table struct {
@@ -19,12 +18,8 @@ type Table struct {
 }
 
 // ----------------------------------------------------------------------
-func (table Table) Insert(dom utilsInterfaces.Domain, mutex *sync.RWMutex) (utilsInterfaces.RepoInterface, error) {
-	mutex.Lock()
-
-	defer mutex.Unlock()
-
-	id, err := table.GetSize(mutex)
+func (table Table) Insert(dom utilsInterfaces.Domain) (utilsInterfaces.RepoInterface, error) {
+	id, err := table.GetSize()
 	if err != nil {
 		return nil, err
 	}
@@ -83,11 +78,8 @@ func (table Table) Insert(dom utilsInterfaces.Domain, mutex *sync.RWMutex) (util
 	return table, nil
 }
 
-func (table Table) Update(dom utilsInterfaces.Domain, mutex *sync.RWMutex) (utilsInterfaces.RepoInterface, error) {
-	mutex.Lock()
-	defer mutex.Unlock()
-
-	lastId, err := table.GetLastId(mutex)
+func (table Table) Update(dom utilsInterfaces.Domain) (utilsInterfaces.RepoInterface, error) {
+	lastId, err := table.GetLastId()
 	if err != nil {
 		return table, err
 	}
@@ -145,10 +137,7 @@ func (table Table) Update(dom utilsInterfaces.Domain, mutex *sync.RWMutex) (util
 	return table, nil
 }
 
-func (table Table) Delete(id uint64, mutex *sync.RWMutex) (utilsInterfaces.RepoInterface, error) {
-	mutex.Lock()
-	defer mutex.Unlock()
-
+func (table Table) Delete(id uint64) (utilsInterfaces.RepoInterface, error) {
 	query := ""
 	switch table.GetTableName() {
 	case constants.Album:
@@ -181,11 +170,8 @@ func (table Table) Delete(id uint64, mutex *sync.RWMutex) (utilsInterfaces.RepoI
 	return table, nil
 }
 
-func (table Table) SelectByID(id uint64, mutex *sync.RWMutex) (utilsInterfaces.Domain, error) {
-	mutex.RLock()
-	defer mutex.RUnlock()
-
-	lastId, err := table.GetLastId(mutex)
+func (table Table) SelectByID(id uint64) (utilsInterfaces.Domain, error) {
+	lastId, err := table.GetLastId()
 	if err != nil {
 		return nil, err
 	}
@@ -276,10 +262,7 @@ func (table Table) getManyObjects(query string, args ...interface{}) ([]utilsInt
 
 }
 
-func (table Table) GetAll(mutex *sync.RWMutex) ([]utilsInterfaces.Domain, error) {
-	mutex.RLock()
-	defer mutex.RUnlock()
-
+func (table Table) GetAll() ([]utilsInterfaces.Domain, error) {
 	query := ""
 	switch table.GetTableName() {
 	case constants.Album:
@@ -303,10 +286,7 @@ func (table Table) GetAll(mutex *sync.RWMutex) ([]utilsInterfaces.Domain, error)
 	return manyObj, nil
 }
 
-func (table Table) GetPopular(mutex *sync.RWMutex) ([]utilsInterfaces.Domain, error) {
-	mutex.RLock()
-	defer mutex.RUnlock()
-
+func (table Table) GetPopular() ([]utilsInterfaces.Domain, error) {
 	query := ""
 	switch table.GetTableName() {
 	case constants.Album:
@@ -346,9 +326,9 @@ func (table Table) GetPopular(mutex *sync.RWMutex) ([]utilsInterfaces.Domain, er
 	return manyObj, nil
 }
 
-func (table Table) GetLastId(mutex *sync.RWMutex) (uint64, error) {
-	//mutex.RLock()
-	//defer mutex.RUnlock()
+func (table Table) GetLastId() (uint64, error) {
+	//.RL
+	//defer .RUnl
 
 	query := ""
 	switch table.GetTableName() {
@@ -386,15 +366,13 @@ func (table Table) SetTableName(name string) (Table, error) {
 	return table, nil
 }
 
-func (table Table) GetType(mutex *sync.RWMutex) reflect.Type {
-	mutex.RLock()
-	defer mutex.RUnlock()
+func (table Table) GetType() reflect.Type {
 	return reflect.TypeOf(table)
 }
 
-func (table Table) GetSize(mutex *sync.RWMutex) (uint64, error) {
-	//mutex.RLock()
-	//defer mutex.RUnlock()
+func (table Table) GetSize() (uint64, error) {
+	//.RL
+	//defer .RUnl
 
 	query := ""
 	switch table.GetTableName() {
@@ -419,13 +397,10 @@ func (table Table) GetSize(mutex *sync.RWMutex) (uint64, error) {
 }
 
 // todo пока кастыль, так как не успеваем
-func (table Table) GetTracksFromAlbum(albumId uint64, mutex *sync.RWMutex) (interface{}, error) {
+func (table Table) GetTracksFromAlbum(albumId uint64) (interface{}, error) {
 	if table.GetTableName() != constants.Album {
 		return nil, errors.New(constants.BadType)
 	}
-
-	mutex.RLock()
-	defer mutex.RUnlock()
 
 	var tracks []domain.Track
 	if err := table.Sqlx.Select(&tracks, `SELECT * FROM track WHERE album_id = $1`, albumId); err != nil {
@@ -437,13 +412,10 @@ func (table Table) GetTracksFromAlbum(albumId uint64, mutex *sync.RWMutex) (inte
 }
 
 // todo пока кастыль, так как не успеваем
-func (table Table) GetAlbumsFromArtist(artistId uint64, mutex *sync.RWMutex) (interface{}, error) {
+func (table Table) GetAlbumsFromArtist(artistId uint64) (interface{}, error) {
 	if table.GetTableName() != constants.Artist {
 		return nil, errors.New(constants.BadType)
 	}
-
-	mutex.RLock()
-	defer mutex.RUnlock()
 
 	var albums []domain.Album
 	if err := table.Sqlx.Select(&albums, `SELECT * FROM album WHERE artist_id = $1`, artistId); err != nil {
@@ -455,13 +427,10 @@ func (table Table) GetAlbumsFromArtist(artistId uint64, mutex *sync.RWMutex) (in
 }
 
 // todo пока кастыль, так как не успеваем
-func (table Table) GetPopularTracksFromArtist(artistId uint64, mutex *sync.RWMutex) (interface{}, error) {
+func (table Table) GetPopularTracksFromArtist(artistId uint64) (interface{}, error) {
 	if table.GetTableName() != constants.Artist {
 		return nil, errors.New(constants.BadType)
 	}
-
-	mutex.RLock()
-	defer mutex.RUnlock()
 
 	var tracks []domain.Track
 	if err := table.Sqlx.Select(&tracks, `

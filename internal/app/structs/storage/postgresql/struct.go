@@ -9,7 +9,6 @@ import (
 	authHttp "github.com/go-park-mail-ru/2022_1_Wave/internal/app/auth/delivery/http"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/auth/delivery/http/http_middleware"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/auth/usecase"
-	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/domain"
 	utilsInterfaces "github.com/go-park-mail-ru/2022_1_Wave/internal/app/interfaces"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/session/repository/redis"
 	structRepoPostgres "github.com/go-park-mail-ru/2022_1_Wave/internal/app/structs/repository/postgresql"
@@ -134,7 +133,7 @@ func (storage Postgres) Init(quantity int) (utilsInterfaces.GlobalStorageInterfa
 		for i := 0; i < quantity; i++ {
 			id := uint64(i + 1)
 			albumsCover[i] = domainCreator.AlbumCoverConstructorRandom(id)
-			proxy, err := storage.AlbumCoverRepo.Insert(albumsCover[i], domain.AlbumMutex)
+			proxy, err := storage.AlbumCoverRepo.Insert(albumsCover[i])
 			if err != nil {
 				ch <- err
 				close(ch)
@@ -156,7 +155,7 @@ func (storage Postgres) Init(quantity int) (utilsInterfaces.GlobalStorageInterfa
 		for i := 0; i < quantity; i++ {
 			id := uint64(i + 1)
 			artists[i] = domainCreator.ArtistConstructorRandom(id, nameLen, maxFollowers, maxListening)
-			proxy, err := storage.ArtistRepo.Insert(artists[i], domain.ArtistMutex)
+			proxy, err := storage.ArtistRepo.Insert(artists[i])
 			if err != nil {
 				ch <- err
 				close(ch)
@@ -190,7 +189,7 @@ func (storage Postgres) Init(quantity int) (utilsInterfaces.GlobalStorageInterfa
 
 		albums[i] = domainCreator.AlbumConstructorRandom(id, int64(quantity), albumLen, maxListening, maxLikes)
 
-		storage.AlbumRepo, err = storage.AlbumRepo.Insert(albums[i], domain.AlbumMutex)
+		storage.AlbumRepo, err = storage.AlbumRepo.Insert(albums[i])
 		if err != nil {
 			return storage, err
 		}
@@ -203,7 +202,7 @@ func (storage Postgres) Init(quantity int) (utilsInterfaces.GlobalStorageInterfa
 
 		tracks[i] = domainCreator.TrackConstructorRandom(id, albums, songLen, maxDuration, maxLikes, maxListening)
 
-		storage.TrackRepo, err = storage.TrackRepo.Insert(tracks[i], domain.TrackMutex)
+		storage.TrackRepo, err = storage.TrackRepo.Insert(tracks[i])
 		if err != nil {
 			return storage, err
 		}

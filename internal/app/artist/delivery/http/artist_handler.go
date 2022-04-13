@@ -9,7 +9,6 @@ import (
 	"github.com/go-park-mail-ru/2022_1_Wave/pkg/webUtils"
 	"github.com/labstack/echo/v4"
 	"net/http"
-	"sync"
 )
 
 var Handler structsDeliveryHttp.Handler
@@ -25,7 +24,7 @@ var Handler structsDeliveryHttp.Handler
 // @Failure      405  {object}  webUtils.Error  "Method is not allowed"
 // @Router       /api/v1/artists/ [get]
 func GetAll(ctx echo.Context) error {
-	return Handler.GetAll(ctx, domain.ArtistMutex)
+	return Handler.GetAll(ctx)
 }
 
 // Create godoc
@@ -40,7 +39,7 @@ func GetAll(ctx echo.Context) error {
 // @Failure      405     {object}  webUtils.Error  "Method is not allowed"
 // @Router       /api/v1/artists/ [post]
 func Create(ctx echo.Context) error {
-	proxy, err := Handler.Create(ctx, domain.ArtistMutex)
+	proxy, err := Handler.Create(ctx)
 	Handler = proxy.(structsDeliveryHttp.Handler)
 	return err
 }
@@ -57,7 +56,7 @@ func Create(ctx echo.Context) error {
 // @Failure      405     {object}  webUtils.Error  "Method is not allowed"
 // @Router       /api/v1/artists/ [put]
 func Update(ctx echo.Context) error {
-	proxy, err := Handler.Update(ctx, domain.ArtistMutex)
+	proxy, err := Handler.Update(ctx)
 	Handler = proxy.(structsDeliveryHttp.Handler)
 	return err
 }
@@ -74,7 +73,7 @@ func Update(ctx echo.Context) error {
 // @Failure      405  {object}  webUtils.Error  "Method is not allowed"
 // @Router       /api/v1/artists/{id} [get]
 func Get(ctx echo.Context) error {
-	return Handler.Get(ctx, domain.ArtistMutex)
+	return Handler.Get(ctx)
 }
 
 // Delete godoc
@@ -89,7 +88,7 @@ func Get(ctx echo.Context) error {
 // @Failure      405  {object}  webUtils.Error  "Method is not allowed"
 // @Router       /api/v1/artists/{id} [delete]
 func Delete(ctx echo.Context) error {
-	proxy, err := Handler.Delete(ctx, domain.ArtistMutex)
+	proxy, err := Handler.Delete(ctx)
 	Handler = proxy.(structsDeliveryHttp.Handler)
 	return err
 }
@@ -105,13 +104,13 @@ func Delete(ctx echo.Context) error {
 // @Failure      405  {object}  webUtils.Error  "Method is not allowed"
 // @Router       /api/v1/artists/popular [get]
 func GetPopular(ctx echo.Context) error {
-	return Handler.GetPopular(ctx, domain.ArtistMutex)
+	return Handler.GetPopular(ctx)
 }
 
-func GetPopularTracksHandler(ctx echo.Context, mutex *sync.RWMutex, useCase utilsInterfaces.UseCaseInterface) error {
+func GetPopularTracksHandler(ctx echo.Context, useCase utilsInterfaces.UseCaseInterface) error {
 	id, err := structsDeliveryHttp.ReadGetDeleteRequest(ctx)
 
-	popular, err := useCase.GetPopularTracksFromArtist(uint64(id), mutex)
+	popular, err := useCase.GetPopularTracksFromArtist(uint64(id))
 	if err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 	}
@@ -147,5 +146,5 @@ func GetPopularTracksHandler(ctx echo.Context, mutex *sync.RWMutex, useCase util
 // @Failure      405  {object}  webUtils.Error  "Method is not allowed"
 // @Router       /api/v1/artists/{id}/popular [get]
 func GetPopularTracks(ctx echo.Context) error {
-	return GetPopularTracksHandler(ctx, domain.ArtistMutex, artistUseCase.UseCase)
+	return GetPopularTracksHandler(ctx, artistUseCase.UseCase)
 }

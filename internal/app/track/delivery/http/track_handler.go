@@ -1,7 +1,6 @@
 package trackDeliveryHttp
 
 import (
-	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/domain"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/structs/delivery/http"
 	"github.com/labstack/echo/v4"
 )
@@ -19,7 +18,7 @@ var Handler structsDeliveryHttp.Handler
 // @Failure      405  {object}  webUtils.Error  "Method is not allowed"
 // @Router       /api/v1/tracks/ [get]
 func GetAll(ctx echo.Context) error {
-	return Handler.GetAll(ctx, domain.TrackMutex)
+	return Handler.GetAll(ctx)
 }
 
 // Create godoc
@@ -34,7 +33,7 @@ func GetAll(ctx echo.Context) error {
 // @Failure      405    {object}  webUtils.Error  "Method is not allowed"
 // @Router       /api/v1/tracks/ [post]
 func Create(ctx echo.Context) error {
-	proxy, err := Handler.Create(ctx, domain.TrackMutex)
+	proxy, err := Handler.Create(ctx)
 	Handler = proxy.(structsDeliveryHttp.Handler)
 	return err
 }
@@ -51,7 +50,7 @@ func Create(ctx echo.Context) error {
 // @Failure      405    {object}  webUtils.Error  "Method is not allowed"
 // @Router       /api/v1/tracks/ [put]
 func Update(ctx echo.Context) error {
-	proxy, err := Handler.Update(ctx, domain.TrackMutex)
+	proxy, err := Handler.Update(ctx)
 	Handler = proxy.(structsDeliveryHttp.Handler)
 	return err
 }
@@ -68,7 +67,7 @@ func Update(ctx echo.Context) error {
 // @Failure      405  {object}  webUtils.Error  "Method is not allowed"
 // @Router       /api/v1/tracks/{id} [get]
 func Get(ctx echo.Context) error {
-	return Handler.Get(ctx, domain.TrackMutex)
+	return Handler.Get(ctx)
 }
 
 // Delete godoc
@@ -83,7 +82,7 @@ func Get(ctx echo.Context) error {
 // @Failure      405  {object}  webUtils.Error  "Method is not allowed"
 // @Router       /api/v1/tracks/{id} [delete]
 func Delete(ctx echo.Context) error {
-	proxy, err := Handler.Delete(ctx, domain.TrackMutex)
+	proxy, err := Handler.Delete(ctx)
 	Handler = proxy.(structsDeliveryHttp.Handler)
 	return err
 }
@@ -99,5 +98,5 @@ func Delete(ctx echo.Context) error {
 // @Failure      405  {object}  webUtils.Error  "Method is not allowed"
 // @Router       /api/v1/tracks/popular [get]
 func GetPopular(ctx echo.Context) error {
-	return Handler.GetPopular(ctx, domain.TrackMutex)
+	return Handler.GetPopular(ctx)
 }

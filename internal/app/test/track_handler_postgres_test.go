@@ -3,7 +3,6 @@ package test
 import (
 	"github.com/go-park-mail-ru/2022_1_Wave/init/logger"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal"
-	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/domain"
 	"github.com/stretchr/testify/require"
 	"testing"
 )
@@ -15,7 +14,7 @@ func TestPostgresGetTrack(t *testing.T) {
 	require.NoError(t, err)
 	err = InitTestDb(internal.Track, internal.Postgres)
 	require.NoError(t, err)
-	tester.Get(t, domain.TrackMutex)
+	tester.Get(t)
 }
 
 func TestPostgresGetAllTracks(t *testing.T) {
@@ -25,7 +24,7 @@ func TestPostgresGetAllTracks(t *testing.T) {
 	require.NoError(t, err)
 	err = InitTestDb(internal.Track, internal.Postgres)
 	require.NoError(t, err)
-	tester.GetAll(t, domain.TrackMutex)
+	tester.GetAll(t)
 }
 
 func TestPostgresCreateTrack(t *testing.T) {
@@ -36,7 +35,7 @@ func TestPostgresCreateTrack(t *testing.T) {
 	err = InitTestDb(internal.Track, internal.Postgres)
 	require.NoError(t, err)
 	creator := TrackTestCreator{}
-	tester.Create(t, creator, domain.TrackMutex)
+	tester.Create(t, creator)
 }
 
 func TestPostgresDeleteTrack(t *testing.T) {
@@ -47,7 +46,7 @@ func TestPostgresDeleteTrack(t *testing.T) {
 	err = InitTestDb(internal.Track, internal.Postgres)
 	require.NoError(t, err)
 	const idToDelete = uint64(1)
-	tester.Delete(t, idToDelete, domain.TrackMutex)
+	tester.Delete(t, idToDelete)
 }
 
 func TestPostgresUpdateTrack(t *testing.T) {
@@ -58,7 +57,7 @@ func TestPostgresUpdateTrack(t *testing.T) {
 	err = InitTestDb(internal.Track, internal.Postgres)
 	require.NoError(t, err)
 	creator := TrackTestCreator{}
-	tester.Update(t, creator, domain.TrackMutex)
+	tester.Update(t, creator)
 }
 
 func TestPostgresPopularTracks(t *testing.T) {
@@ -68,5 +67,5 @@ func TestPostgresPopularTracks(t *testing.T) {
 	require.NoError(t, err)
 	err = InitTestDb(internal.Track, internal.Postgres)
 	require.NoError(t, err)
-	tester.GetPopular(t, domain.TrackMutex)
+	tester.GetPopular(t)
 }

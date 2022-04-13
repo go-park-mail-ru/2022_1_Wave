@@ -202,12 +202,12 @@ func CreateDataTransfer(dom utilsInterfaces.Domain) (utilsInterfaces.DataTransfe
 
 	case domain.AlbumDomainType:
 		artistId := dom.(domain.Album).ArtistId
-		artistInCurrentAlbum, err := artistUseCase.UseCase.GetById(artistId, domain.ArtistMutex)
+		artistInCurrentAlbum, err := artistUseCase.UseCase.GetById(artistId)
 		if err != nil {
 			return nil, err
 		}
 
-		tracks, err := albumUseCase.UseCase.GetTracksFromAlbum(dom.GetId(), domain.AlbumMutex)
+		tracks, err := albumUseCase.UseCase.GetTracksFromAlbum(dom.GetId())
 		if err != nil {
 			return nil, err
 		}
@@ -229,7 +229,7 @@ func CreateDataTransfer(dom utilsInterfaces.Domain) (utilsInterfaces.DataTransfe
 		return dom.CastDomainToDataTransferObject(nil)
 
 	case domain.ArtistDomainType:
-		albums, err := artistUseCase.UseCase.GetAlbumsFromArtist(dom.GetId(), domain.ArtistMutex)
+		albums, err := artistUseCase.UseCase.GetAlbumsFromArtist(dom.GetId())
 
 		if err != nil {
 			return nil, err
@@ -250,7 +250,7 @@ func CreateDataTransfer(dom utilsInterfaces.Domain) (utilsInterfaces.DataTransfe
 
 	case domain.TrackDomainType:
 		artistId := dom.(domain.Track).ArtistId
-		artistInCurrentTrack, err := artistUseCase.UseCase.GetById(artistId, domain.ArtistMutex)
+		artistInCurrentTrack, err := artistUseCase.UseCase.GetById(artistId)
 		if err != nil {
 			return nil, err
 		}

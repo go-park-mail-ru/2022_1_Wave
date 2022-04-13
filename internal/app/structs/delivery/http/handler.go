@@ -9,7 +9,6 @@ import (
 	"github.com/labstack/echo/v4"
 	"net/http"
 	"reflect"
-	"sync"
 )
 
 type Handler struct {
@@ -17,9 +16,9 @@ type Handler struct {
 	model   reflect.Type
 }
 
-func (h Handler) GetAll(ctx echo.Context, mutex *sync.RWMutex) error {
+func (h Handler) GetAll(ctx echo.Context) error {
 
-	domains, err := h.useCase.GetAll(mutex)
+	domains, err := h.useCase.GetAll()
 
 	if err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
@@ -45,7 +44,7 @@ func (h Handler) GetAll(ctx echo.Context, mutex *sync.RWMutex) error {
 			Result: dataTransfers})
 }
 
-func (h Handler) Create(ctx echo.Context, mutex *sync.RWMutex) (utilsInterfaces.HandlerInterface, error) {
+func (h Handler) Create(ctx echo.Context) (utilsInterfaces.HandlerInterface, error) {
 	domainType := h.model
 
 	objectToCreate, err := readPostPutRequest(ctx, domainType)
@@ -54,13 +53,13 @@ func (h Handler) Create(ctx echo.Context, mutex *sync.RWMutex) (utilsInterfaces.
 		return h, webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 	}
 
-	h.useCase, err = h.useCase.Create(objectToCreate, mutex)
+	h.useCase, err = h.useCase.Create(objectToCreate)
 
 	if err != nil {
 		return h, webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 	}
 
-	lastId, err := h.useCase.GetLastId(mutex)
+	lastId, err := h.useCase.GetLastId()
 	if err != nil {
 		return h, webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 	}
@@ -71,7 +70,7 @@ func (h Handler) Create(ctx echo.Context, mutex *sync.RWMutex) (utilsInterfaces.
 			Result: constants.SuccessCreated + "(" + fmt.Sprint(lastId) + ")"})
 }
 
-func (h Handler) Update(ctx echo.Context, mutex *sync.RWMutex) (utilsInterfaces.HandlerInterface, error) {
+func (h Handler) Update(ctx echo.Context) (utilsInterfaces.HandlerInterface, error) {
 	domainType := h.model
 
 	objectToUpdate, err := readPostPutRequest(ctx, domainType)
@@ -80,7 +79,7 @@ func (h Handler) Update(ctx echo.Context, mutex *sync.RWMutex) (utilsInterfaces.
 		return h, webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 	}
 
-	h.useCase, err = h.useCase.Update(objectToUpdate, mutex)
+	h.useCase, err = h.useCase.Update(objectToUpdate)
 
 	if err != nil {
 		return h, webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
@@ -93,14 +92,14 @@ func (h Handler) Update(ctx echo.Context, mutex *sync.RWMutex) (utilsInterfaces.
 			Result: constants.SuccessUpdated + "(" + fmt.Sprint(id) + ")"})
 }
 
-func (h Handler) Get(ctx echo.Context, mutex *sync.RWMutex) error {
+func (h Handler) Get(ctx echo.Context) error {
 	id, err := ReadGetDeleteRequest(ctx)
 
 	if err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 	}
 
-	dom, err := h.useCase.GetById(uint64(id), mutex)
+	dom, err := h.useCase.GetById(uint64(id))
 
 	if err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
@@ -118,14 +117,14 @@ func (h Handler) Get(ctx echo.Context, mutex *sync.RWMutex) error {
 			Result: dataTransfer})
 }
 
-func (h Handler) Delete(ctx echo.Context, mutex *sync.RWMutex) (utilsInterfaces.HandlerInterface, error) {
+func (h Handler) Delete(ctx echo.Context) (utilsInterfaces.HandlerInterface, error) {
 	id, err := ReadGetDeleteRequest(ctx)
 
 	if err != nil {
 		return h, webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 	}
 
-	h.useCase, err = h.useCase.Delete(uint64(id), mutex)
+	h.useCase, err = h.useCase.Delete(uint64(id))
 
 	if err != nil {
 		return h, webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
@@ -137,8 +136,8 @@ func (h Handler) Delete(ctx echo.Context, mutex *sync.RWMutex) (utilsInterfaces.
 			Result: constants.SuccessDeleted + "(" + fmt.Sprint(id) + ")"})
 }
 
-func (h Handler) GetPopular(ctx echo.Context, mutex *sync.RWMutex) error {
-	popular, err := h.useCase.GetPopular(mutex)
+func (h Handler) GetPopular(ctx echo.Context) error {
+	popular, err := h.useCase.GetPopular()
 	if err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 	}
@@ -174,7 +173,7 @@ func (h Handler) SetModel(model reflect.Type) (utilsInterfaces.HandlerInterface,
 	return h, nil
 }
 
-func (h Handler) SetUseCase(useCase utilsInterfaces.UseCaseInterface, mutex *sync.RWMutex) (utilsInterfaces.HandlerInterface, error) {
+func (h Handler) SetUseCase(useCase utilsInterfaces.UseCaseInterface) (utilsInterfaces.HandlerInterface, error) {
 	h.useCase = useCase
 	return h, nil
 }

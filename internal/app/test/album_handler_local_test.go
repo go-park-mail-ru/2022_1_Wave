@@ -3,7 +3,6 @@ package test
 import (
 	"github.com/go-park-mail-ru/2022_1_Wave/init/logger"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal"
-	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/domain"
 	"github.com/stretchr/testify/require"
 	"testing"
 )
@@ -15,7 +14,7 @@ import (
 //	require.NoError(t, err)
 //	err = InitTestDb(internal.Album, internal.Local)
 //	require.NoError(t, err)
-//	tester.Get(t, domain.AlbumMutex)
+//	tester.Get(t, )
 //}
 
 //func TestLocalGetAllAlbum(t *testing.T) {
@@ -25,7 +24,7 @@ import (
 //	require.NoError(t, err)
 //	err = InitTestDb(internal.Album, internal.Local)
 //	require.NoError(t, err)
-//	tester.GetAll(t, domain.AlbumMutex)
+//	tester.GetAll(t, )
 //}
 
 func TestLocalCreateAlbum(t *testing.T) {
@@ -36,7 +35,7 @@ func TestLocalCreateAlbum(t *testing.T) {
 	err = InitTestDb(internal.Album, internal.Local)
 	require.NoError(t, err)
 	creator := AlbumTestCreator{}
-	tester.Create(t, creator, domain.AlbumMutex)
+	tester.Create(t, creator)
 }
 
 func TestLocalDeleteAlbum(t *testing.T) {
@@ -47,7 +46,7 @@ func TestLocalDeleteAlbum(t *testing.T) {
 	err = InitTestDb(internal.Album, internal.Local)
 	require.NoError(t, err)
 	const idToDelete = uint64(1)
-	tester.Delete(t, idToDelete, domain.AlbumMutex)
+	tester.Delete(t, idToDelete)
 }
 
 func TestLocalUpdateAlbum(t *testing.T) {
@@ -58,7 +57,7 @@ func TestLocalUpdateAlbum(t *testing.T) {
 	err = InitTestDb(internal.Album, internal.Local)
 	require.NoError(t, err)
 	creator := AlbumTestCreator{}
-	tester.Update(t, creator, domain.AlbumMutex)
+	tester.Update(t, creator)
 }
 
 //func TestLocalPopularAlbum(t *testing.T) {
@@ -68,5 +67,5 @@ func TestLocalUpdateAlbum(t *testing.T) {
 //	require.NoError(t, err)
 //	err = InitTestDb(internal.Album, internal.Local)
 //	require.NoError(t, err)
-//	tester.GetPopular(t, domain.AlbumMutex)
+//	tester.GetPopular(t, )
 //}

@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	constants "github.com/go-park-mail-ru/2022_1_Wave/internal"
-	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/domain"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/interfaces"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/structs/repository/local"
 	domainCreator "github.com/go-park-mail-ru/2022_1_Wave/internal/app/tools/domain"
@@ -54,9 +53,9 @@ func (storage LocalStorage) Init(quantity int) (utilsInterfaces.GlobalStorageInt
 		artists[i] = domainCreator.ArtistConstructorRandom(id, nameLen, maxFollowers, maxListening)
 		albums[i] = domainCreator.AlbumConstructorRandom(id, int64(quantity), albumLen, maxListening, maxLikes)
 
-		storage.ArtistRepo, _ = storage.ArtistRepo.Insert(artists[i], domain.ArtistMutex)
-		storage.AlbumRepo, _ = storage.AlbumRepo.Insert(albums[i], domain.AlbumMutex)
-		storage.AlbumCoverRepo, _ = storage.AlbumCoverRepo.Insert(albumsCover[i], domain.AlbumCoverMutex)
+		storage.ArtistRepo, _ = storage.ArtistRepo.Insert(artists[i])
+		storage.AlbumRepo, _ = storage.AlbumRepo.Insert(albums[i])
+		storage.AlbumCoverRepo, _ = storage.AlbumCoverRepo.Insert(albumsCover[i])
 
 	}
 
@@ -68,13 +67,13 @@ func (storage LocalStorage) Init(quantity int) (utilsInterfaces.GlobalStorageInt
 
 		tracks[i] = domainCreator.TrackConstructorRandom(id, albums, songLen, maxDuration, maxLikes, maxListening)
 
-		storage.TrackRepo, _ = storage.TrackRepo.Insert(tracks[i], domain.TrackMutex)
+		storage.TrackRepo, _ = storage.TrackRepo.Insert(tracks[i])
 	}
 
-	artistsCreated, _ := storage.ArtistRepo.GetAll(domain.ArtistMutex)
-	albumsCreated, _ := storage.AlbumRepo.GetAll(domain.AlbumMutex)
-	albumsCoverCreated, _ := storage.AlbumCoverRepo.GetAll(domain.AlbumCoverMutex)
-	tracksCreated, _ := storage.TrackRepo.GetAll(domain.TrackMutex)
+	artistsCreated, _ := storage.ArtistRepo.GetAll()
+	albumsCreated, _ := storage.AlbumRepo.GetAll()
+	albumsCoverCreated, _ := storage.AlbumCoverRepo.GetAll()
+	tracksCreated, _ := storage.TrackRepo.GetAll()
 
 	artistsSize := len(artistsCreated)
 	albumsSize := len(albumsCreated)

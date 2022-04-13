@@ -7,7 +7,6 @@ import (
 	"math"
 	"reflect"
 	"sort"
-	"sync"
 )
 
 type Repo struct {
@@ -15,11 +14,8 @@ type Repo struct {
 }
 
 // ----------------------------------------------------------------------
-func (repo Repo) Insert(dom utilsInterfaces.Domain, mutex *sync.RWMutex) (utilsInterfaces.RepoInterface, error) {
-	mutex.Lock()
-	defer mutex.Unlock()
-
-	id, err := repo.GetSize(mutex)
+func (repo Repo) Insert(dom utilsInterfaces.Domain) (utilsInterfaces.RepoInterface, error) {
+	id, err := repo.GetSize()
 	if err != nil {
 		return nil, err
 	}
@@ -33,11 +29,8 @@ func (repo Repo) Insert(dom utilsInterfaces.Domain, mutex *sync.RWMutex) (utilsI
 	return repo, nil
 }
 
-func (repo Repo) Update(domain utilsInterfaces.Domain, mutex *sync.RWMutex) (utilsInterfaces.RepoInterface, error) {
-	domainFromDB, err := repo.SelectByID(domain.GetId(), mutex)
-
-	mutex.Lock()
-	defer mutex.Unlock()
+func (repo Repo) Update(domain utilsInterfaces.Domain) (utilsInterfaces.RepoInterface, error) {
+	domainFromDB, err := repo.SelectByID(domain.GetId())
 
 	if err != nil {
 		return repo, err
@@ -50,9 +43,7 @@ func (repo Repo) Update(domain utilsInterfaces.Domain, mutex *sync.RWMutex) (uti
 
 //todo убрать мьютексы
 
-func (repo Repo) Delete(id uint64, mutex *sync.RWMutex) (utilsInterfaces.RepoInterface, error) {
-	mutex.Lock()
-	defer mutex.Unlock()
+func (repo Repo) Delete(id uint64) (utilsInterfaces.RepoInterface, error) {
 	if id >= uint64(len(repo.Domains)) {
 		return repo, errors.New(constants.IndexOutOfRange)
 	}
@@ -68,23 +59,15 @@ func (repo Repo) Delete(id uint64, mutex *sync.RWMutex) (utilsInterfaces.RepoInt
 	return repo, nil
 }
 
-func (repo Repo) SelectByID(id uint64, mutex *sync.RWMutex) (utilsInterfaces.Domain, error) {
-	mutex.RLock()
-	defer mutex.RUnlock()
-
+func (repo Repo) SelectByID(id uint64) (utilsInterfaces.Domain, error) {
 	return repo.Domains[id], nil
 }
 
-func (repo Repo) GetAll(mutex *sync.RWMutex) ([]utilsInterfaces.Domain, error) {
-	mutex.RLock()
-	defer mutex.RUnlock()
+func (repo Repo) GetAll() ([]utilsInterfaces.Domain, error) {
 	return repo.Domains, nil
 }
 
-func (repo Repo) GetPopular(mutex *sync.RWMutex) ([]utilsInterfaces.Domain, error) {
-	mutex.RLock()
-	defer mutex.RUnlock()
-
+func (repo Repo) GetPopular() ([]utilsInterfaces.Domain, error) {
 	var domainsPtr = make([]*utilsInterfaces.Domain, len(repo.Domains))
 	for i := 0; i < len(repo.Domains); i++ {
 		domainsPtr[i] = &repo.Domains[i]
@@ -104,10 +87,7 @@ func (repo Repo) GetPopular(mutex *sync.RWMutex) ([]utilsInterfaces.Domain, erro
 	return topChart, nil
 }
 
-func (repo Repo) GetLastId(mutex *sync.RWMutex) (uint64, error) {
-	mutex.RLock()
-	defer mutex.RUnlock()
-
+func (repo Repo) GetLastId() (uint64, error) {
 	if len(repo.Domains)-1 < 0 {
 		return constants.NullId, errors.New(constants.ErrorDbIsEmpty)
 	}
@@ -115,30 +95,28 @@ func (repo Repo) GetLastId(mutex *sync.RWMutex) (uint64, error) {
 	return uint64(len(repo.Domains) - 1), nil
 }
 
-func (repo Repo) GetType(mutex *sync.RWMutex) reflect.Type {
-	mutex.RLock()
-	defer mutex.RUnlock()
+func (repo Repo) GetType() reflect.Type {
 	return reflect.TypeOf(repo)
 }
 
 // todo костыль
-func (repo Repo) GetTracksFromAlbum(albumid uint64, mutex *sync.RWMutex) (interface{}, error) {
+func (repo Repo) GetTracksFromAlbum(albumid uint64) (interface{}, error) {
 	return nil, nil
 }
 
 // todo пока кастыль, так как не успеваем
-func (repo Repo) GetAlbumsFromArtist(artistId uint64, mutex *sync.RWMutex) (interface{}, error) {
+func (repo Repo) GetAlbumsFromArtist(artistId uint64) (interface{}, error) {
 	return nil, nil
 }
 
 // todo пока кастыль, так как не успеваем
-func (repo Repo) GetPopularTracksFromArtist(artistId uint64, mutex *sync.RWMutex) (interface{}, error) {
+func (repo Repo) GetPopularTracksFromArtist(artistId uint64) (interface{}, error) {
 	return nil, nil
 }
 
-func (repo Repo) GetSize(mutex *sync.RWMutex) (uint64, error) {
-	//mutex.RLock()
-	//defer mutex.RUnlock()
+func (repo Repo) GetSize() (uint64, error) {
+	//.RLock()
+	//defer .RUnlock()
 	return uint64(len(repo.Domains)), nil
 }
 

@@ -3,7 +3,6 @@ package test
 import (
 	"github.com/go-park-mail-ru/2022_1_Wave/init/logger"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal"
-	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/domain"
 	"github.com/stretchr/testify/require"
 	"testing"
 )
@@ -36,7 +35,7 @@ func TestLocalCreateAlbumCover(t *testing.T) {
 	err = InitTestDb(internal.AlbumCover, internal.Local)
 	require.NoError(t, err)
 	creator := AlbumCoverTestCreator{}
-	tester.Create(t, creator, domain.AlbumCoverMutex)
+	tester.Create(t, creator)
 }
 
 func TestLocalDeleteAlbumCover(t *testing.T) {
@@ -47,7 +46,7 @@ func TestLocalDeleteAlbumCover(t *testing.T) {
 	err = InitTestDb(internal.AlbumCover, internal.Local)
 	require.NoError(t, err)
 	const idToDelete = uint64(1)
-	tester.Delete(t, idToDelete, domain.AlbumCoverMutex)
+	tester.Delete(t, idToDelete)
 }
 
 //func TestLocalUpdateAlbumCover(t *testing.T) {

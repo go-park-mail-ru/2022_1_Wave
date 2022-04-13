@@ -10,7 +10,6 @@ import (
 	albumUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/app/album/usecase"
 	albumCoverUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/app/albumCover/usecase"
 	artistUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/app/artist/usecase"
-	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/domain"
 	trackUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/app/track/usecase"
 	"github.com/labstack/echo/v4"
 )
@@ -51,22 +50,22 @@ func main() {
 
 	logs.Logrus.Info("Success init storage type", dbType)
 
-	artistRepoLen, err := artistUseCase.UseCase.GetSize(domain.ArtistMutex)
+	artistRepoLen, err := artistUseCase.UseCase.GetSize()
 	if err != nil {
 		logs.Logrus.Fatal("Error:", err)
 	}
 
-	albumRepoLen, err := albumUseCase.UseCase.GetSize(domain.AlbumMutex)
+	albumRepoLen, err := albumUseCase.UseCase.GetSize()
 	if err != nil {
 		logs.Logrus.Fatal("Error:", err)
 	}
 
-	albumRepoCoverLen, err := albumCoverUseCase.UseCase.GetSize(domain.AlbumCoverMutex)
+	albumRepoCoverLen, err := albumCoverUseCase.UseCase.GetSize()
 	if err != nil {
 		logs.Logrus.Fatal("Error:", err)
 	}
 
-	trackRepoLen, err := trackUseCase.UseCase.GetSize(domain.TrackMutex)
+	trackRepoLen, err := trackUseCase.UseCase.GetSize()
 	if err != nil {
 		logs.Logrus.Fatal("Error:", err)
 	}

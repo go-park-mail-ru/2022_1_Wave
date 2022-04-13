@@ -17,7 +17,7 @@ func TestPostgresGetAlbum(t *testing.T) {
 	require.NoError(t, err)
 	err = InitTestDb(internal.Album, internal.Postgres)
 	require.NoError(t, err)
-	tester.Get(t, domain.AlbumMutex)
+	tester.Get(t)
 }
 
 func TestPostgresGetAllAlbums(t *testing.T) {
@@ -27,7 +27,7 @@ func TestPostgresGetAllAlbums(t *testing.T) {
 	require.NoError(t, err)
 	err = InitTestDb(internal.Album, internal.Postgres)
 	require.NoError(t, err)
-	tester.GetAll(t, domain.AlbumMutex)
+	tester.GetAll(t)
 }
 
 func TestPostgresCreateAlbum(t *testing.T) {
@@ -43,7 +43,7 @@ func TestPostgresCreateAlbum(t *testing.T) {
 		//Title:  "some new cover for new album",
 		Quote:  "and quote for this",
 		IsDark: true,
-	}, domain.AlbumCoverMutex)
+	})
 	if err != nil {
 		t.Fail()
 	}
@@ -51,7 +51,7 @@ func TestPostgresCreateAlbum(t *testing.T) {
 	albumCoverUseCase.UseCase = proxy.(structsUseCase.UseCase)
 
 	creator := AlbumTestCreator{}
-	tester.Create(t, creator, domain.AlbumMutex)
+	tester.Create(t, creator)
 }
 
 func TestPostgresDeleteAlbum(t *testing.T) {
@@ -62,7 +62,7 @@ func TestPostgresDeleteAlbum(t *testing.T) {
 	err = InitTestDb(internal.Album, internal.Postgres)
 	require.NoError(t, err)
 	const idToDelete = uint64(1)
-	tester.Delete(t, idToDelete, domain.AlbumMutex)
+	tester.Delete(t, idToDelete)
 }
 
 func TestPostgresUpdateAlbum(t *testing.T) {
@@ -73,7 +73,7 @@ func TestPostgresUpdateAlbum(t *testing.T) {
 	err = InitTestDb(internal.Album, internal.Postgres)
 	require.NoError(t, err)
 	creator := AlbumTestCreator{}
-	tester.Update(t, creator, domain.AlbumMutex)
+	tester.Update(t, creator)
 }
 
 func TestPostgresPopularAlbums(t *testing.T) {
@@ -83,5 +83,5 @@ func TestPostgresPopularAlbums(t *testing.T) {
 	require.NoError(t, err)
 	err = InitTestDb(internal.Album, internal.Postgres)
 	require.NoError(t, err)
-	tester.GetPopular(t, domain.AlbumMutex)
+	tester.GetPopular(t)
 }
