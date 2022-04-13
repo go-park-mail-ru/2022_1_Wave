@@ -5,7 +5,7 @@ import (
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/domain"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/domain/mocks"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/tools/utils"
-	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/user/usecase"
+	UserUsecase "github.com/go-park-mail-ru/2022_1_Wave/internal/app/user/userUseCase"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"testing"

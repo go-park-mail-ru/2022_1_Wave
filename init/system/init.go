@@ -10,7 +10,7 @@ import (
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/auth/usecase"
 	structStoragePostgresql "github.com/go-park-mail-ru/2022_1_Wave/internal/app/structs/storage/postgresql"
 	TrackUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/app/track/usecase"
-	UserUsecase "github.com/go-park-mail-ru/2022_1_Wave/internal/app/user/usecase"
+	UserUsecase "github.com/go-park-mail-ru/2022_1_Wave/internal/app/user/userUseCase"
 	"github.com/labstack/echo/v4"
 )
 
