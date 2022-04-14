@@ -2,12 +2,11 @@ package AlbumCoverUseCase
 
 import (
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/domain"
-	utilsInterfaces "github.com/go-park-mail-ru/2022_1_Wave/internal/app/interfaces"
 	"reflect"
 )
 
 type AlbumCoverUseCase struct {
-	AlbumCoverRepo *utilsInterfaces.AlbumCoverRepoInterface
+	AlbumCoverRepo *domain.AlbumCoverRepo
 }
 
 func (useCase AlbumCoverUseCase) CastToDTO(cover domain.AlbumCover) (domain.AlbumCoverDataTransfer, error) {
@@ -17,7 +16,7 @@ func (useCase AlbumCoverUseCase) CastToDTO(cover domain.AlbumCover) (domain.Albu
 	}, nil
 }
 
-func MakeAlbumCoverUseCase(repo utilsInterfaces.AlbumCoverRepoInterface) AlbumCoverUseCase {
+func MakeAlbumCoverUseCase(repo domain.AlbumCoverRepo) AlbumCoverUseCase {
 	return AlbumCoverUseCase{AlbumCoverRepo: &repo}
 }
 
@@ -73,11 +72,11 @@ func (useCase AlbumCoverUseCase) GetType() reflect.Type {
 	return reflect.TypeOf(domain.AlbumCover{})
 }
 
-//func (useCase AlbumCoverUseCase) GetRepo() (utilsInterfaces.RepoInterface, error) {
+//func (useCase AlbumCoverUseCase) GetRepo() (domain.RepoInterface, error) {
 //	return *useCase.AlbumCoverRepo, nil
 //}
 
-//func (useCase ArtistUseCase) SetRepo(Repo utilsInterfaces.RepoInterface) error {
+//func (useCase ArtistUseCase) SetRepo(Repo domain.RepoInterface) error {
 //	(*useCase.Repo) = Repo
 //	return useCase, nil
 //}

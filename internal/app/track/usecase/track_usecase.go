@@ -3,18 +3,17 @@ package TrackUseCase
 import (
 	"github.com/go-park-mail-ru/2022_1_Wave/internal"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/domain"
-	utilsInterfaces "github.com/go-park-mail-ru/2022_1_Wave/internal/app/interfaces"
 	"reflect"
 )
 
 //var UseCase structsUseCase.UseCase
 
 type TrackUseCase struct {
-	TrackRepo  utilsInterfaces.TrackRepoInterface
-	ArtistRepo utilsInterfaces.ArtistRepoInterface
+	TrackRepo  domain.TrackRepo
+	ArtistRepo domain.ArtistRepo
 }
 
-func MakeTrackUseCase(track utilsInterfaces.TrackRepoInterface, artist utilsInterfaces.ArtistRepoInterface) TrackUseCase {
+func MakeTrackUseCase(track domain.TrackRepo, artist domain.ArtistRepo) TrackUseCase {
 	return TrackUseCase{
 		TrackRepo:  track,
 		ArtistRepo: artist,
@@ -123,7 +122,7 @@ func (useCase TrackUseCase) GetType() reflect.Type {
 	return reflect.TypeOf(domain.Track{})
 }
 
-//func (useCase TrackUseCase) GetRepo() (utilsInterfaces.RepoInterface, error) {
+//func (useCase TrackUseCase) GetRepo() (domain.RepoInterface, error) {
 //	return useCase.TrackRepo, nil
 //}
 

@@ -14,6 +14,18 @@ type Artist struct {
 	CountListening int    `json:"countListening" example:"7654" db:"count_listening" validate:"min=0,nonnil"`
 }
 
+type ArtistRepo interface {
+	Insert(Artist) error
+	Update(Artist) error
+	Delete(int) error
+	SelectByID(int) (*Artist, error)
+	GetAll() ([]Artist, error)
+	GetPopular() ([]Artist, error)
+	GetLastId() (id int, err error)
+	//GetType() reflect.Type
+	GetSize() (int, error)
+}
+
 type ArtistDataTransfer struct {
 	Id     int                 `json:"id" example:"1"`
 	Name   string              `json:"name" example:"Mercury"`

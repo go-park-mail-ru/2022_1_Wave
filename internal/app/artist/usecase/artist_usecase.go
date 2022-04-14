@@ -4,18 +4,17 @@ import (
 	"github.com/go-park-mail-ru/2022_1_Wave/internal"
 	AlbumUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/app/album/usecase"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/domain"
-	utilsInterfaces "github.com/go-park-mail-ru/2022_1_Wave/internal/app/interfaces"
-	trackUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/app/track/usecase"
+	TrackUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/app/track/usecase"
 	"reflect"
 )
 
 //var UseCase structsUseCase.UseCase
 
 type ArtistUseCase struct {
-	ArtistRepo *utilsInterfaces.ArtistRepoInterface
+	ArtistRepo *domain.ArtistRepo
 }
 
-func (useCase ArtistUseCase) CastToDTO(artist domain.Artist, album AlbumUseCase.AlbumUseCase, track trackUseCase.TrackUseCase) (*domain.ArtistDataTransfer, error) {
+func (useCase ArtistUseCase) CastToDTO(artist domain.Artist, album AlbumUseCase.AlbumUseCase, track TrackUseCase.TrackUseCase) (*domain.ArtistDataTransfer, error) {
 	coverPath, err := artist.CreatePath(internal.PngFormat)
 	if err != nil {
 		return nil, err
@@ -32,11 +31,11 @@ func (useCase ArtistUseCase) CastToDTO(artist domain.Artist, album AlbumUseCase.
 	}, nil
 }
 
-func MakeArtistUseCase(repo utilsInterfaces.ArtistRepoInterface) ArtistUseCase {
+func MakeArtistUseCase(repo domain.ArtistRepo) ArtistUseCase {
 	return ArtistUseCase{ArtistRepo: &repo}
 }
 
-func (useCase ArtistUseCase) GetAll(album AlbumUseCase.AlbumUseCase, track trackUseCase.TrackUseCase) ([]domain.ArtistDataTransfer, error) {
+func (useCase ArtistUseCase) GetAll(album AlbumUseCase.AlbumUseCase, track TrackUseCase.TrackUseCase) ([]domain.ArtistDataTransfer, error) {
 	artists, err := (*useCase.ArtistRepo).GetAll()
 	if err != nil {
 		return nil, err
@@ -71,7 +70,7 @@ func (useCase ArtistUseCase) Delete(id int) error {
 	return (*useCase.ArtistRepo).Delete(id)
 }
 
-func (useCase ArtistUseCase) GetById(track trackUseCase.TrackUseCase, album AlbumUseCase.AlbumUseCase, id int) (*domain.ArtistDataTransfer, error) {
+func (useCase ArtistUseCase) GetById(track TrackUseCase.TrackUseCase, album AlbumUseCase.AlbumUseCase, id int) (*domain.ArtistDataTransfer, error) {
 	artist, err := (*useCase.ArtistRepo).SelectByID(id)
 	if err != nil {
 		return nil, err
@@ -84,7 +83,7 @@ func (useCase ArtistUseCase) GetById(track trackUseCase.TrackUseCase, album Albu
 	return dto, nil
 }
 
-func (useCase ArtistUseCase) GetPopular(track trackUseCase.TrackUseCase, album AlbumUseCase.AlbumUseCase) ([]domain.ArtistDataTransfer, error) {
+func (useCase ArtistUseCase) GetPopular(track TrackUseCase.TrackUseCase, album AlbumUseCase.AlbumUseCase) ([]domain.ArtistDataTransfer, error) {
 	artists, err := (*useCase.ArtistRepo).GetPopular()
 	if err != nil {
 		return nil, err

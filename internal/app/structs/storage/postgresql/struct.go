@@ -189,7 +189,7 @@ func (storage Postgres) Close() error {
 	return nil
 }
 
-//func (storage Postgres) GetAlbumRepo() *utilsInterfaces.AlbumRepoInterface {
+//func (storage Postgres) GetAlbumRepo() *utilsInterfaces.AlbumRepo {
 //	return storage.AlbumRepo
 //}
 //

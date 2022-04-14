@@ -15,6 +15,21 @@ type Album struct {
 	Date           int64  `json:"date" example:"0" db:"date,nonnil"`
 }
 
+type AlbumRepo interface {
+	Insert(Album) error
+	Update(Album) error
+	Delete(int) error
+	SelectByID(int) (*Album, error)
+	GetAll() ([]Album, error)
+	GetPopular() ([]Album, error)
+	GetLastId() (id int, err error)
+	//GetType() reflect.Type
+	GetSize() (int, error)
+
+	//todo пока кастыль
+	GetAlbumsFromArtist(artist int) ([]Album, error)
+}
+
 type AlbumDataTransfer struct {
 	Id     int                 `json:"id" example:"1"`
 	Title  string              `json:"title" example:"Mercury"`

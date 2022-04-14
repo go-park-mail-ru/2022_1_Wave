@@ -4,7 +4,6 @@ import (
 	"errors"
 	constants "github.com/go-park-mail-ru/2022_1_Wave/internal"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/domain"
-	utilsInterfaces "github.com/go-park-mail-ru/2022_1_Wave/internal/app/interfaces"
 	"github.com/jmoiron/sqlx"
 	"os"
 )
@@ -13,7 +12,7 @@ type AlbumRepo struct {
 	Sqlx *sqlx.DB
 }
 
-func NewAlbumPostgresRepo(db *sqlx.DB) utilsInterfaces.AlbumRepoInterface {
+func NewAlbumPostgresRepo(db *sqlx.DB) domain.AlbumRepo {
 	return &AlbumRepo{
 		Sqlx: db,
 	}

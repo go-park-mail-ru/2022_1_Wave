@@ -3,22 +3,34 @@ package AlbumUseCase
 import (
 	"github.com/go-park-mail-ru/2022_1_Wave/internal"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/domain"
-	utilsInterfaces "github.com/go-park-mail-ru/2022_1_Wave/internal/app/interfaces"
 	TrackUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/app/track/usecase"
 	"reflect"
 )
 
 type AlbumUseCase struct {
-	TrackRepo      utilsInterfaces.TrackRepoInterface
-	ArtistRepo     utilsInterfaces.ArtistRepoInterface
-	AlbumRepo      utilsInterfaces.AlbumRepoInterface
-	AlbumCoverRepo utilsInterfaces.AlbumCoverRepoInterface
+	TrackRepo      domain.TrackRepo
+	ArtistRepo     domain.ArtistRepo
+	AlbumRepo      domain.AlbumRepo
+	AlbumCoverRepo domain.AlbumCoverRepo
 }
 
-func MakeAlbumUseCase(track utilsInterfaces.TrackRepoInterface,
-	artist utilsInterfaces.ArtistRepoInterface,
-	album utilsInterfaces.AlbumRepoInterface,
-	albumCover utilsInterfaces.AlbumCoverRepoInterface) AlbumUseCase {
+type AlbumUseCaseInterface interface {
+	CastToDTO(album domain.Album, trackUseCase TrackUseCase.TrackUseCase) (*domain.AlbumDataTransfer, error)
+	GetAll(track TrackUseCase.TrackUseCase) ([]domain.AlbumDataTransfer, error)
+	GetLastId() (id int, err error)
+	Create(dom domain.Album) error
+	Update(dom domain.Album) error
+	Delete(id int) error
+	GetById(track TrackUseCase.TrackUseCase, id int) (*domain.AlbumDataTransfer, error)
+	GetPopular(track TrackUseCase.TrackUseCase) ([]domain.AlbumDataTransfer, error)
+	GetAlbumsFromArtist(artist int, track TrackUseCase.TrackUseCase) ([]domain.AlbumDataTransfer, error)
+	GetSize() (int, error)
+}
+
+func MakeAlbumUseCase(track domain.TrackRepo,
+	artist domain.ArtistRepo,
+	album domain.AlbumRepo,
+	albumCover domain.AlbumCoverRepo) AlbumUseCase {
 	return AlbumUseCase{
 		TrackRepo:      track,
 		ArtistRepo:     artist,
@@ -147,7 +159,7 @@ func (useCase AlbumUseCase) GetAlbumsFromArtist(artist int, track TrackUseCase.T
 	return dto, nil
 }
 
-//func (useCase ArtistUseCase) SetRepo(Repo utilsInterfaces.RepoInterface) error {
+//func (useCase ArtistUseCase) SetRepo(Repo domain.RepoInterface) error {
 //	useCase.Repo) = Repo
 //	return useCase, nil
 //}

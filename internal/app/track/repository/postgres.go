@@ -3,7 +3,6 @@ package TrackPostgres
 import (
 	constants "github.com/go-park-mail-ru/2022_1_Wave/internal"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/domain"
-	utilsInterfaces "github.com/go-park-mail-ru/2022_1_Wave/internal/app/interfaces"
 	"github.com/jmoiron/sqlx"
 	"os"
 )
@@ -12,7 +11,7 @@ type TrackRepo struct {
 	Sqlx *sqlx.DB
 }
 
-func NewTrackPostgresRepo(db *sqlx.DB) utilsInterfaces.TrackRepoInterface {
+func NewTrackPostgresRepo(db *sqlx.DB) domain.TrackRepo {
 	return &TrackRepo{
 		Sqlx: db,
 	}

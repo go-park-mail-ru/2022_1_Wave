@@ -16,6 +16,20 @@ type Track struct {
 	CountListening int    `json:"countListening" example:"15632" db:"count_listening" validate:"min=0,nonnil"`
 }
 
+type TrackRepo interface {
+	Insert(Track) error
+	Update(Track) error
+	Delete(int) error
+	SelectByID(int) (*Track, error)
+	GetAll() ([]Track, error)
+	GetPopular() ([]Track, error)
+	GetLastId() (id int, err error)
+	//GetType() reflect.Type
+	GetSize() (int, error)
+	GetTracksFromAlbum(albumId int) ([]Track, error)
+	GetPopularTracksFromArtist(artistId int) ([]Track, error)
+}
+
 type TrackDataTransfer struct {
 	Id         int    `json:"id" example:"1"`
 	Title      string `json:"title" example:"Mercury"`
