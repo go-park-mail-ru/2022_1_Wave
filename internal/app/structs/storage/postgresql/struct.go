@@ -22,16 +22,19 @@ import (
 
 type Postgres struct {
 	Sqlx           *sqlx.DB
-	SessionRepo    *domain.SessionRepo
-	UserRepo       *domain.UserRepo
-	AlbumRepo      *AlbumPostgres.AlbumRepo
-	AlbumCoverRepo *AlbumCoverPostgres.AlbumCoverRepo
-	ArtistRepo     *ArtistPostgres.ArtistRepo
-	TrackRepo      *TrackPostgres.TrackRepo
+	SessionRepo    domain.SessionRepo
+	UserRepo       domain.UserRepo
+	AlbumRepo      domain.AlbumRepo
+	AlbumCoverRepo domain.AlbumCoverRepo
+	ArtistRepo     domain.ArtistRepo
+	TrackRepo      domain.TrackRepo
 }
 
 func (storage Postgres) getPostgres() (*sql.DB, error) {
 	dsn := os.Getenv("DATABASE_CONNECTION")
+	if dsn == "" {
+		dsn = "user=test dbname=test password=test host=localhost port=5500 sslmode=disable"
+	}
 	db, err := sql.Open("pgx", dsn)
 	if err != nil {
 		return nil, err
@@ -72,19 +75,17 @@ func (storage Postgres) Init(quantity int) (utilsInterfaces.GlobalStorageInterfa
 
 	logger.GlobalLogger.Logrus.Warnln("Finding migrations...")
 	path := os.Getenv("DATABASE_MIGRATIONS")
-
+	if path == "" {
+		path = "../../../db/migrations"
+	}
 	db.MigrateDB(storage.Sqlx.DB, path)
 
 	storage.AlbumRepo = &AlbumPostgres.AlbumRepo{Sqlx: storage.Sqlx}
 	storage.AlbumCoverRepo = &AlbumCoverPostgres.AlbumCoverRepo{Sqlx: storage.Sqlx}
 	storage.ArtistRepo = &ArtistPostgres.ArtistRepo{Sqlx: storage.Sqlx}
 	storage.TrackRepo = &TrackPostgres.TrackRepo{Sqlx: storage.Sqlx}
-
-	userRepo := postgresql.NewUserPostgresRepo(storage.Sqlx)
-	storage.UserRepo = &userRepo
-
-	sessionRepo := redis.NewRedisSessionRepo("redis:6379")
-	storage.SessionRepo = &sessionRepo
+	storage.UserRepo = postgresql.NewUserPostgresRepo(storage.Sqlx)
+	storage.SessionRepo = redis.NewRedisSessionRepo("redis:6379")
 
 	albums := make([]domain.Album, quantity)
 	albumsCover := make([]domain.AlbumCover, quantity)
@@ -183,18 +184,26 @@ func (storage Postgres) Close() error {
 	return nil
 }
 
-//func (storage Postgres) GetAlbumRepo() *utilsInterfaces.AlbumRepo {
-//	return storage.AlbumRepo
-//}
-//
-//func (storage Postgres) GetAlbumCoverRepo() *utilsInterfaces.RepoInterface {
-//	return &storage.AlbumCoverRepo
-//}
-//
-//func (storage Postgres) GetArtistRepo() *utilsInterfaces.RepoInterface {
-//	return &storage.ArtistRepo
-//}
-//
-//func (storage Postgres) GetTrackRepo() *utilsInterfaces.RepoInterface {
-//	return &storage.TrackRepo
-//}
+func (storage Postgres) GetAlbumRepo() domain.AlbumRepo {
+	return storage.AlbumRepo
+}
+
+func (storage Postgres) GetAlbumCoverRepo() domain.AlbumCoverRepo {
+	return storage.AlbumCoverRepo
+}
+
+func (storage Postgres) GetArtistRepo() domain.ArtistRepo {
+	return storage.ArtistRepo
+}
+
+func (storage Postgres) GetTrackRepo() domain.TrackRepo {
+	return storage.TrackRepo
+}
+
+func (storage Postgres) GetSessionRepo() domain.SessionRepo {
+	return storage.SessionRepo
+}
+
+func (storage Postgres) GetUserRepo() domain.UserRepo {
+	return storage.UserRepo
+}

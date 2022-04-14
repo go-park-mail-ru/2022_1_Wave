@@ -48,6 +48,15 @@ services:
     volumes:
       - ../../db/:/var/run/postgresql/
 
+  test_db:
+    image: postgres:14
+    environment:
+      - POSTGRES_USER=test
+      - POSTGRES_PASSWORD=test
+      - POSTGRES_DB=test
+    ports:
+      - "5500:5432"
+
   pgadmin:
     hostname: pgadmin
     image: dpage/pgadmin4:6

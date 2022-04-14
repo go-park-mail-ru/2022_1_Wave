@@ -25,8 +25,6 @@ type AlbumRepo interface {
 	GetLastId() (id int, err error)
 	//GetType() reflect.Type
 	GetSize() (int, error)
-
-	//todo пока кастыль
 	GetAlbumsFromArtist(artist int) ([]Album, error)
 }
 
