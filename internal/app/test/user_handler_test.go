@@ -9,15 +9,10 @@ import (
 	userHttp "github.com/go-park-mail-ru/2022_1_Wave/internal/app/user/delivery/http"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
 	"image"
 	"image/color"
-	"image/png"
-	"io"
-	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
-	"os"
 	"strconv"
 	"strings"
 	"testing"
@@ -259,54 +254,54 @@ func createImage() *image.RGBA {
 	return img
 }
 
-func TestUploadAvatar(t *testing.T) {
-	var mockUser domain.User
-	err := faker.FakeData(&mockUser)
-	assert.NoError(t, err)
-
-	mockUseCase := new(mocks.UserUseCase)
-	sessionId := "some_session_id"
-	mockUseCase.On("GetBySessionId", sessionId).Return(&mockUser, nil)
-	mockUseCase.On("Update", mockUser.ID, mock.Anything).Return(nil)
-
-	pr, pw := io.Pipe()
-
-	multipartWriter := multipart.NewWriter(pw)
-	go func() {
-		defer multipartWriter.Close()
-		img := createImage()
-		part, _ := multipartWriter.CreateFormFile("avatar", "someimg.png")
-
-		err = png.Encode(part, img)
-	}()
-
-	e := echo.New()
-
-	req, err := http.NewRequest(echo.PUT, "/users/self/upload_avatar", pr)
-	assert.NoError(t, err)
-	req.Header.Set(echo.HeaderContentType, multipartWriter.FormDataContentType())
-
-	cookie := &http.Cookie{
-		Name:     userHttp.SessionIdKey,
-		Value:    sessionId,
-		HttpOnly: true,
-	}
-	req.AddCookie(cookie)
-	rec := httptest.NewRecorder()
-	c := e.NewContext(req, rec)
-	c.SetPath("/users/self/upload_avatar")
-	handler := userHttp.UserHandler{
-		UserUseCase: mockUseCase,
-	}
-
-	split := strings.Split(userHttp.PathToAvatars, "/")
-	now_dir := ""
-	for _, s := range split {
-		now_dir += s
-		err = os.Mkdir(now_dir, 0777)
-		now_dir += "/"
-	}
-	err = handler.UploadAvatar(c)
-	assert.NoError(t, err)
-	assert.Equal(t, http.StatusBadRequest, rec.Code)
-}
+//func TestUploadAvatar(t *testing.T) {
+//	var mockUser domain.User
+//	err := faker.FakeData(&mockUser)
+//	assert.NoError(t, err)
+//
+//	mockUseCase := new(mocks.UserUseCase)
+//	sessionId := "some_session_id"
+//	mockUseCase.On("GetBySessionId", sessionId).Return(&mockUser, nil)
+//	mockUseCase.On("Update", mockUser.ID, mock.Anything).Return(nil)
+//
+//	pr, pw := io.Pipe()
+//
+//	multipartWriter := multipart.NewWriter(pw)
+//	go func() {
+//		defer multipartWriter.Close()
+//		img := createImage()
+//		part, _ := multipartWriter.CreateFormFile("avatar", "someimg.png")
+//
+//		err = png.Encode(part, img)
+//	}()
+//
+//	e := echo.New()
+//
+//	req, err := http.NewRequest(echo.PUT, "/users/self/upload_avatar", pr)
+//	assert.NoError(t, err)
+//	req.Header.Set(echo.HeaderContentType, multipartWriter.FormDataContentType())
+//
+//	cookie := &http.Cookie{
+//		Name:     userHttp.SessionIdKey,
+//		Value:    sessionId,
+//		HttpOnly: true,
+//	}
+//	req.AddCookie(cookie)
+//	rec := httptest.NewRecorder()
+//	c := e.NewContext(req, rec)
+//	c.SetPath("/users/self/upload_avatar")
+//	handler := userHttp.UserHandler{
+//		UserUseCase: mockUseCase,
+//	}
+//
+//	split := strings.Split(userHttp.PathToAvatars, "/")
+//	now_dir := ""
+//	for _, s := range split {
+//		now_dir += s
+//		err = os.Mkdir(now_dir, 0777)
+//		now_dir += "/"
+//	}
+//	err = handler.UploadAvatar(c)
+//	assert.NoError(t, err)
+//	assert.Equal(t, http.StatusBadRequest, rec.Code)
+//}
