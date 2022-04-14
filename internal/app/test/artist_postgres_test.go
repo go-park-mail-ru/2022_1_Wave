@@ -116,3 +116,62 @@ func TestSelectAllArtistsSuccess(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotNil(t, user)
 }
+
+func TestSelectPopularArtistsSuccess(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
+	}
+	defer db.Close()
+	sqlxDb := sqlx.NewDb(db, "sqlmock")
+	rows := sqlmock.NewRows([]string{"id", "name", "count_followers", "count_listening"}).
+		AddRow(1, "aboba1", 12500, 1230).
+		AddRow(2, "aboba2", 321500, 1230).
+		AddRow(3, "aboba3", 512300, 1230)
+
+	query := `SELECT \* FROM artist ORDER BY count_listening DESC LIMIT \$1`
+	mock.ExpectQuery(query).WillReturnRows(rows)
+
+	a := ArtistPostgres.NewArtistPostgresRepo(sqlxDb)
+	user, err := a.GetPopular()
+
+	assert.NoError(t, err)
+	assert.NotNil(t, user)
+}
+
+func TestGetLastIdArtistsSuccess(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
+	}
+	defer db.Close()
+	sqlxDb := sqlx.NewDb(db, "sqlmock")
+
+	rows := sqlmock.NewRows([]string{"id"}).AddRow(100)
+	query := `SELECT max\(id\) from artist`
+	mock.ExpectQuery(query).WillReturnRows(rows)
+
+	a := ArtistPostgres.NewArtistPostgresRepo(sqlxDb)
+	id, err := a.GetLastId()
+	assert.NoError(t, err)
+	assert.Equal(t, 100, id)
+}
+
+func TestGetSizeArtistsSuccess(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
+	}
+	defer db.Close()
+	sqlxDb := sqlx.NewDb(db, "sqlmock")
+
+	rows := sqlmock.NewRows([]string{"count"}).AddRow(100)
+
+	query := `SELECT count\(\*\) From artist`
+	mock.ExpectQuery(query).WillReturnRows(rows)
+
+	a := ArtistPostgres.NewArtistPostgresRepo(sqlxDb)
+	size, err := a.GetSize()
+	assert.NoError(t, err)
+	assert.Equal(t, 100, size)
+}

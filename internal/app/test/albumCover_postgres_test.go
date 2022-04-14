@@ -111,3 +111,40 @@ func TestSelectAllAlbumCoversSuccess(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotNil(t, user)
 }
+
+func TestGetLastIdAlbumCoverSuccess(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
+	}
+	defer db.Close()
+	sqlxDb := sqlx.NewDb(db, "sqlmock")
+
+	rows := sqlmock.NewRows([]string{"id"}).AddRow(100)
+	query := `SELECT max\(id\) from albumcover`
+	mock.ExpectQuery(query).WillReturnRows(rows)
+
+	a := AlbumCoverPostgres.NewAlbumCoverPostgresRepo(sqlxDb)
+	id, err := a.GetLastId()
+	assert.NoError(t, err)
+	assert.Equal(t, 100, id)
+}
+
+func TestGetSizeAlbumCoverSuccess(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
+	}
+	defer db.Close()
+	sqlxDb := sqlx.NewDb(db, "sqlmock")
+
+	rows := sqlmock.NewRows([]string{"count"}).AddRow(100)
+
+	query := `SELECT count\(\*\) From albumcover`
+	mock.ExpectQuery(query).WillReturnRows(rows)
+
+	a := AlbumCoverPostgres.NewAlbumCoverPostgresRepo(sqlxDb)
+	size, err := a.GetSize()
+	assert.NoError(t, err)
+	assert.Equal(t, 100, size)
+}

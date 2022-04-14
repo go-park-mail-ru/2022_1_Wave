@@ -118,3 +118,116 @@ func TestSelectAllTracksSuccess(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotNil(t, user)
 }
+
+func TestSelectPopularTracksSuccess(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
+	}
+	defer db.Close()
+	sqlxDb := sqlx.NewDb(db, "sqlmock")
+	rows := sqlmock.NewRows([]string{"id", "album_id", "artist_id", "title", "duration", "count_likes", "count_listening"}).
+		AddRow(105, 41, 45, "amogus1", 100, 0, 4321).
+		AddRow(106, 43, 55, "amogus2", 10, 0, 1321).
+		AddRow(107, 42, 85, "amogus3", 41, 0, 2321)
+
+	query := `SELECT \* FROM track ORDER BY count_listening DESC LIMIT \$1`
+	mock.ExpectQuery(query).WillReturnRows(rows)
+
+	a := TrackPostgres.NewTrackPostgresRepo(sqlxDb)
+	user, err := a.GetPopular()
+
+	assert.NoError(t, err)
+	assert.NotNil(t, user)
+}
+
+func TestGetLastIdTracksSuccess(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
+	}
+	defer db.Close()
+	sqlxDb := sqlx.NewDb(db, "sqlmock")
+
+	rows := sqlmock.NewRows([]string{"id"}).AddRow(100)
+	query := `SELECT max\(id\) from track`
+	mock.ExpectQuery(query).WillReturnRows(rows)
+
+	a := TrackPostgres.NewTrackPostgresRepo(sqlxDb)
+	id, err := a.GetLastId()
+	assert.NoError(t, err)
+	assert.Equal(t, 100, id)
+}
+
+func TestGetSizeTracksSuccess(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
+	}
+	defer db.Close()
+	sqlxDb := sqlx.NewDb(db, "sqlmock")
+
+	rows := sqlmock.NewRows([]string{"count"}).AddRow(100)
+
+	query := `SELECT count\(\*\) From track`
+	mock.ExpectQuery(query).WillReturnRows(rows)
+
+	a := TrackPostgres.NewTrackPostgresRepo(sqlxDb)
+	size, err := a.GetSize()
+	assert.NoError(t, err)
+	assert.Equal(t, 100, size)
+}
+
+func TestSelectPopularTracksFromArtistSuccess(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
+	}
+	defer db.Close()
+
+	expected := []domain.Track{
+		{
+			Id:             1,
+			AlbumId:        12,
+			ArtistId:       5,
+			Title:          "some song",
+			Duration:       310,
+			CountLikes:     10,
+			CountListening: 11110,
+		},
+		{
+			Id:             500,
+			AlbumId:        98,
+			ArtistId:       5,
+			Title:          "and more",
+			Duration:       10,
+			CountLikes:     40,
+			CountListening: 760,
+		},
+		{
+			Id:             56,
+			AlbumId:        111,
+			ArtistId:       5,
+			Title:          "and finish",
+			Duration:       110,
+			CountLikes:     76,
+			CountListening: 10,
+		},
+	}
+
+	sqlxDb := sqlx.NewDb(db, "sqlmock")
+	rows := sqlmock.NewRows([]string{"id", "album_id", "artist_id", "title", "duration", "count_likes", "count_listening"}).
+		AddRow(1, 12, 5, "some song", 310, 10, 11110).
+		AddRow(500, 98, 5, "and more", 10, 40, 760).
+		AddRow(56, 111, 5, "and finish", 110, 76, 10)
+
+	query := `SELECT \* FROM track WHERE artist_id \= \$1 ORDER BY count_listening DESC LIMIT \$2`
+	mock.ExpectQuery(query).WillReturnRows(rows)
+
+	a := TrackPostgres.NewTrackPostgresRepo(sqlxDb)
+	tracks, err := a.GetPopularTracksFromArtist(5)
+
+	assert.NoError(t, err)
+	assert.NotNil(t, tracks)
+	assert.Equal(t, expected, tracks)
+}
