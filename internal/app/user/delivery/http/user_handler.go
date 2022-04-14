@@ -22,7 +22,7 @@ const (
 	uploadAvatarError = "upload avatar error"
 
 	SessionIdKey  = "session_id"
-	PathToAvatars = "/assets"
+	PathToAvatars = "assets"
 )
 
 //var Handler UserHandler
