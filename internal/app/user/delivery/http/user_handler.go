@@ -2,6 +2,7 @@ package userHttp
 
 import (
 	"errors"
+	"fmt"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/domain"
 	"github.com/labstack/echo/v4"
 	"io"
@@ -163,11 +164,13 @@ func (a *UserHandler) UpdateSelfUser(c echo.Context) error {
 func (a *UserHandler) UploadAvatar(c echo.Context) error {
 	file, err := c.FormFile("avatar")
 	if err != nil {
+		fmt.Println("some1 = ", err)
 		return c.JSON(http.StatusBadRequest, getErrorUserResponse(errors.New(uploadAvatarError)))
 	}
 
 	src, err := file.Open()
 	if err != nil {
+		fmt.Println("some2 = ", err)
 		return c.JSON(http.StatusBadRequest, getErrorUserResponse(errors.New(uploadAvatarError)))
 	}
 	defer src.Close()
@@ -180,11 +183,13 @@ func (a *UserHandler) UploadAvatar(c echo.Context) error {
 	filename := PathToAvatars + "/user_" + strconv.Itoa(int(user.ID)) + "." + strs[len(strs)-1]
 	dst, err := os.Create(filename)
 	if err != nil {
+		fmt.Println("some3 = ", err)
 		return c.JSON(http.StatusBadRequest, getErrorUserResponse(errors.New(uploadAvatarError)))
 	}
 	defer dst.Close()
 
 	if _, err = io.Copy(dst, src); err != nil {
+		fmt.Println("some4 = ", err)
 		return c.JSON(http.StatusBadRequest, getErrorUserResponse(errors.New(uploadAvatarError)))
 	}
 
