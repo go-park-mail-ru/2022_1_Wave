@@ -32,9 +32,6 @@ type Postgres struct {
 
 func (storage Postgres) getPostgres() (*sql.DB, error) {
 	dsn := os.Getenv("DATABASE_CONNECTION")
-	if dsn == "" {
-		dsn = "user=test dbname=test password=test host=localhost port=5500 sslmode=disable"
-	}
 	db, err := sql.Open("pgx", dsn)
 	if err != nil {
 		return nil, err
@@ -75,9 +72,6 @@ func (storage Postgres) Init(quantity int) (utilsInterfaces.GlobalStorageInterfa
 
 	logger.GlobalLogger.Logrus.Warnln("Finding migrations...")
 	path := os.Getenv("DATABASE_MIGRATIONS")
-	if path == "" {
-		path = "../../../db/migrations"
-	}
 
 	db.MigrateDB(storage.Sqlx.DB, path)
 
