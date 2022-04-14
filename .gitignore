@@ -15,11 +15,18 @@
 # vendor/
 
 .idea/
-src/.air.toml
-src/tmp
-/src/config.toml
-src/wave
+.air.toml
+tmp
+config.toml
 
+wave
+docs
+assets
 *.png
 *.jp*
 
+*tmp*
+*s.PGSQL.5432.lock*
+
+docs.go
+src/docs

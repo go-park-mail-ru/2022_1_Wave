@@ -4,34 +4,64 @@ services:
     image: nginx
     ports:
       - "80:80"
-    working_dir: /var/www/service/server
+    working_dir: /var/www/wave/
     volumes:
-      - ../../../2022_1_Wave/public/build:/var/www/wave
-      - ../../config/nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ../../../2022_1_Wave:/var/www/wave/
+#      - ../../../2022_1_Wave/public/build:/var/www/wave
+      - ../../../2022_1_Wave/assets/:/var/www/wave/assets
+      - ../../config/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
     depends_on:
-    - wave_music
-    - db
+      - wave_music
+      - pgadmin
 
   wave_music:
-    image: cosmtrek/air
+    build: ./
+    tty: true
     expose:
       - 5000
-    working_dir: /var/www/wave.music
+    working_dir: /var/www/service/
+    entrypoint: ./entrypoint.sh
     volumes:
-      - ../../config/config.toml:/var/www/wave.music/config.toml
-      - ../../src:/var/www/wave.music
-      - ./.air.toml:/var/www/wave.music/.air.toml
+      - ../..:/var/www/service
+      - ./.air.toml:/var/www/service/.air.toml:ro
+      - ../../config/config.toml:/var/www/service/config.toml:ro
+    environment:
+      - DATABASE_CONNECTION=user=postgres password=music dbname=wave host=db port=5432 sslmode=disable
+      - DATABASE_MIGRATIONS=./db/migrations
+    depends_on:
+      - db
+      - redis
+
+  redis:
+    image: redis
+    ports:
+      - '6379:6379'
 
   db:
-    image: postgres
-    container_name: "wave-db"
+    image: postgres:14
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=music
+      - POSTGRES_DB=wave
     expose:
       - 5432
     volumes:
-      - ../../db_dump:/tmp
+      - ../../db/:/var/run/postgresql/
+
+  test_db:
+    image: postgres:14
     environment:
-      - POSTGRES_PASSWORD=music
-      - POSTGRES_USER=postgres
-      - POSTGRES_DB=wave
+      - POSTGRES_USER=test
+      - POSTGRES_PASSWORD=test
+      - POSTGRES_DB=test
+    ports:
+      - "5500:5432"
+
+  pgadmin:
+    hostname: pgadmin
+    image: dpage/pgadmin4:6
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: root
 
 

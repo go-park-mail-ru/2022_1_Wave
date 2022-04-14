@@ -7,6 +7,9 @@ dev:
 prod:
 	docker-compose -f env/prod/docker-compose.yaml up -d
 
+stop:
+	docker-compose -f env/dev/docker-compose.yaml stop
+	docker-compose -f env/prod/docker-compose.yaml stop
 
 # Actions with db
 run_db:
