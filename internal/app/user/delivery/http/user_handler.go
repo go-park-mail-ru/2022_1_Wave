@@ -162,12 +162,15 @@ func (a *UserHandler) UpdateSelfUser(c echo.Context) error {
 // @Failure      400    {object}  webUtils.Error  "invalid field values"
 // @Router       /api/v1/users/upload_avatar/ [patch]
 func (a *UserHandler) UploadAvatar(c echo.Context) error {
-	file, err := c.FormFile("avatar")
+	//	file, err := c.FormFile("avatar")
+	form, err := c.MultipartForm()
 	if err != nil {
 		fmt.Println("some1 = ", err)
 		return c.JSON(http.StatusBadRequest, getErrorUserResponse(errors.New(uploadAvatarError)))
 	}
-
+	fmt.Println("form", form.File["avatar"])
+	file := form.File["avatar"][0]
+	fmt.Println("form", file.Size)
 	src, err := file.Open()
 	if err != nil {
 		fmt.Println("some2 = ", err)
@@ -179,15 +182,17 @@ func (a *UserHandler) UploadAvatar(c echo.Context) error {
 	user, _ := a.UserUseCase.GetBySessionId(cookie.Value)
 
 	strs := strings.Split(file.Filename, ".")
-
+	fmt.Println("strs", strs)
+	fmt.Println("user", user)
 	filename := PathToAvatars + "/user_" + strconv.Itoa(int(user.ID)) + "." + strs[len(strs)-1]
+	fmt.Println("hui")
 	dst, err := os.Create(filename)
 	if err != nil {
 		fmt.Println("some3 = ", err)
 		return c.JSON(http.StatusBadRequest, getErrorUserResponse(errors.New(uploadAvatarError)))
 	}
 	defer dst.Close()
-
+	fmt.Println("src:", src)
 	if _, err = io.Copy(dst, src); err != nil {
 		fmt.Println("some4 = ", err)
 		return c.JSON(http.StatusBadRequest, getErrorUserResponse(errors.New(uploadAvatarError)))
