@@ -2,6 +2,7 @@ package system
 
 import (
 	"errors"
+	"github.com/go-park-mail-ru/2022_1_Wave/init/logger"
 	"github.com/go-park-mail-ru/2022_1_Wave/init/router"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal"
 	AlbumUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/app/album/usecase"
@@ -46,6 +47,39 @@ func Init(e *echo.Echo, quantity int, dataBaseType string) error {
 	sess := initedStorage.GetSessionRepo()
 	us := initedStorage.GetUserRepo()
 	tr := initedStorage.GetTrackRepo()
+
+	albumsQuant, err := al.GetSize()
+	if err != nil {
+		logger.GlobalLogger.Logrus.Fatal("Error:", err)
+	}
+
+	artistsQuant, err := ar.GetSize()
+	if err != nil {
+		logger.GlobalLogger.Logrus.Fatal("Error:", err)
+	}
+
+	albumCoversQuant, err := alc.GetSize()
+	if err != nil {
+		logger.GlobalLogger.Logrus.Fatal("Error:", err)
+	}
+
+	//sessionsQuant, err := sess.GetSize()
+
+	usersQuant, err := us.GetSize()
+	if err != nil {
+		logger.GlobalLogger.Logrus.Fatal("Error:", err)
+	}
+
+	tracksQuant, err := tr.GetSize()
+	if err != nil {
+		logger.GlobalLogger.Logrus.Fatal("Error:", err)
+	}
+
+	logger.GlobalLogger.Logrus.Info("Users:", usersQuant)
+	logger.GlobalLogger.Logrus.Info("Artists:", artistsQuant)
+	logger.GlobalLogger.Logrus.Info("Albums:", albumsQuant)
+	logger.GlobalLogger.Logrus.Info("AlbumCovers:", albumCoversQuant)
+	logger.GlobalLogger.Logrus.Info("Tracks:", tracksQuant)
 
 	auth := AuthUseCase.NewAuthUseCase(sess, us)
 	album := AlbumUseCase.MakeAlbumUseCase(tr, ar, al, alc)

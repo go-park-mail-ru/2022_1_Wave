@@ -18,13 +18,10 @@ const port = ":5000"
 const dbSize = 0
 
 func main() {
-	// database model, you can switch it
 	dbType := internal.Postgres
-	//dbType := internal.Local
 
 	e := echo.New()
 
-	//host, _ := os.Hostname()
 	logs, err := logger.InitLogrus(port, dbType)
 	if err != nil {
 		e.Logger.Fatalf("error to init logrus:", err)
@@ -39,44 +36,11 @@ func main() {
 	}
 	logs.Logrus.Info("config loaded successful")
 
-	//env, err := storage.InitStorage(dbSize, dbType)
-	//
-	//if err != nil {
-	//	logs.Logrus.Fatal("error to init storage type", dbType, "err:", err)
-	//}
-
-	logs.Logrus.Info("Success init storage type", dbType)
-
-	//artistRepoLen, err := artistUseCase.UseCase.GetSize()
-	//if err != nil {
-	//	logs.Logrus.Fatal("Error:", err)
-	//}
-	//
-	//albumRepoLen, err := albumUseCase.UseCase.GetSize()
-	//if err != nil {
-	//	logs.Logrus.Fatal("Error:", err)
-	//}
-	//
-	//albumRepoCoverLen, err := albumCoverUseCase.UseCase.GetSize()
-	//if err != nil {
-	//	logs.Logrus.Fatal("Error:", err)
-	//}
-	//
-	//trackRepoLen, err := trackUseCase.UseCase.GetSize()
-	//if err != nil {
-	//	logs.Logrus.Fatal("Error:", err)
-	//}
-
-	//logs.Logrus.Info("Artists:", artistRepoLen)
-	//logs.Logrus.Info("Albums:", albumRepoLen)
-	//logs.Logrus.Info("AlbumCovers:", albumRepoCoverLen)
-	//logs.Logrus.Info("Tracks:", trackRepoLen)
-	//
-
 	if err := system.Init(e, dbSize, dbType); err != nil {
 		logs.Logrus.Fatal("Error:", err)
 	}
 
+	logs.Logrus.Info("Success init storage type", dbType)
 	logs.Logrus.Warn("start listening on", port)
 
 	if err := e.Start("0.0.0.0:5000"); err != nil {
