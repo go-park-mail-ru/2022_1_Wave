@@ -15,16 +15,16 @@ import (
 )
 
 type Handler struct {
-	artistUseCase ArtistUseCase.ArtistUseCase
-	albumUseCase  AlbumUseCase.AlbumUseCase
-	trackUseCase  TrackUseCase.TrackUseCase
+	ArtistUseCase ArtistUseCase.ArtistUseCaseInterface
+	AlbumUseCase  AlbumUseCase.AlbumUseCaseInterface
+	TrackUseCase  TrackUseCase.TrackUseCaseInterface
 }
 
 func MakeHandler(artist ArtistUseCase.ArtistUseCase, album AlbumUseCase.AlbumUseCase, track TrackUseCase.TrackUseCase) Handler {
 	return Handler{
-		artistUseCase: artist,
-		albumUseCase:  album,
-		trackUseCase:  track,
+		ArtistUseCase: artist,
+		AlbumUseCase:  album,
+		TrackUseCase:  track,
 	}
 }
 
@@ -39,7 +39,7 @@ func MakeHandler(artist ArtistUseCase.ArtistUseCase, album AlbumUseCase.AlbumUse
 // @Failure      405  {object}  webUtils.Error  "Method is not allowed"
 // @Router       /api/v1/artists/ [get]
 func (h Handler) GetAll(ctx echo.Context) error {
-	domains, err := h.artistUseCase.GetAll(h.albumUseCase, h.trackUseCase)
+	domains, err := h.ArtistUseCase.GetAll(h.AlbumUseCase, h.TrackUseCase)
 
 	if err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
@@ -77,11 +77,11 @@ func (h Handler) Create(ctx echo.Context) error {
 		return err
 	}
 
-	if err := h.artistUseCase.Create(result); err != nil {
+	if err := h.ArtistUseCase.Create(result); err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 	}
 
-	lastId, err := h.artistUseCase.GetLastId()
+	lastId, err := h.ArtistUseCase.GetLastId()
 	if err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 	}
@@ -114,7 +114,7 @@ func (h Handler) Update(ctx echo.Context) error {
 		return err
 	}
 
-	if err := h.artistUseCase.Update(result); err != nil {
+	if err := h.ArtistUseCase.Update(result); err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 	}
 
@@ -145,7 +145,7 @@ func (h Handler) Get(ctx echo.Context) error {
 		return webUtils.WriteErrorEchoServer(ctx, errors.New(constants.IndexOutOfRange), http.StatusBadRequest)
 	}
 
-	obj, err := h.artistUseCase.GetById(h.trackUseCase, h.albumUseCase, id)
+	obj, err := h.ArtistUseCase.GetById(h.TrackUseCase, h.AlbumUseCase, id)
 
 	if err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
@@ -177,7 +177,7 @@ func (h Handler) Delete(ctx echo.Context) error {
 		return webUtils.WriteErrorEchoServer(ctx, errors.New(constants.IndexOutOfRange), http.StatusBadRequest)
 	}
 
-	if err := h.artistUseCase.Delete(id); err != nil {
+	if err := h.ArtistUseCase.Delete(id); err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 	}
 
@@ -198,7 +198,7 @@ func (h Handler) Delete(ctx echo.Context) error {
 // @Failure      405  {object}  webUtils.Error  "Method is not allowed"
 // @Router       /api/v1/artists/popular [get]
 func (h Handler) GetPopular(ctx echo.Context) error {
-	popular, err := h.artistUseCase.GetPopular(h.trackUseCase, h.albumUseCase)
+	popular, err := h.ArtistUseCase.GetPopular(h.TrackUseCase, h.AlbumUseCase)
 	if err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 	}
@@ -229,7 +229,7 @@ func (h Handler) GetPopularTracks(ctx echo.Context) error {
 		return webUtils.WriteErrorEchoServer(ctx, errors.New(constants.IndexOutOfRange), http.StatusBadRequest)
 	}
 
-	popular, err := h.trackUseCase.GetPopularTracksFromArtist(id)
+	popular, err := h.TrackUseCase.GetPopularTracksFromArtist(id)
 	if err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 	}

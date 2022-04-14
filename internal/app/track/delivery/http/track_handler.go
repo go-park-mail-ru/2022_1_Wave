@@ -14,14 +14,14 @@ import (
 )
 
 type Handler struct {
-	artistUseCase ArtistUseCase.ArtistUseCase
-	trackUseCase  TrackUseCase.TrackUseCase
+	ArtistUseCase ArtistUseCase.ArtistUseCaseInterface
+	TrackUseCase  TrackUseCase.TrackUseCaseInterface
 }
 
 func MakeHandler(artist ArtistUseCase.ArtistUseCase, track TrackUseCase.TrackUseCase) Handler {
 	return Handler{
-		artistUseCase: artist,
-		trackUseCase:  track,
+		ArtistUseCase: artist,
+		TrackUseCase:  track,
 	}
 }
 
@@ -36,7 +36,7 @@ func MakeHandler(artist ArtistUseCase.ArtistUseCase, track TrackUseCase.TrackUse
 // @Failure      405  {object}  webUtils.Error  "Method is not allowed"
 // @Router       /api/v1/tracks/ [get]
 func (h Handler) GetAll(ctx echo.Context) error {
-	domains, err := h.trackUseCase.GetAll()
+	domains, err := h.TrackUseCase.GetAll()
 
 	if err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
@@ -74,11 +74,11 @@ func (h Handler) Create(ctx echo.Context) error {
 		return err
 	}
 
-	if err := h.trackUseCase.Create(result); err != nil {
+	if err := h.TrackUseCase.Create(result); err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 	}
 
-	lastId, err := h.trackUseCase.GetLastId()
+	lastId, err := h.TrackUseCase.GetLastId()
 	if err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 	}
@@ -111,7 +111,7 @@ func (h Handler) Update(ctx echo.Context) error {
 		return err
 	}
 
-	if err := h.trackUseCase.Update(result); err != nil {
+	if err := h.TrackUseCase.Update(result); err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 	}
 
@@ -141,8 +141,7 @@ func (h Handler) Get(ctx echo.Context) error {
 	if id < 0 {
 		return webUtils.WriteErrorEchoServer(ctx, errors.New(constants.IndexOutOfRange), http.StatusBadRequest)
 	}
-
-	track, err := h.trackUseCase.GetById(id)
+	track, err := h.TrackUseCase.GetById(id)
 
 	if err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
@@ -174,7 +173,7 @@ func (h Handler) Delete(ctx echo.Context) error {
 		return webUtils.WriteErrorEchoServer(ctx, errors.New(constants.IndexOutOfRange), http.StatusBadRequest)
 	}
 
-	if err := h.trackUseCase.Delete(id); err != nil {
+	if err := h.TrackUseCase.Delete(id); err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 	}
 
@@ -195,7 +194,7 @@ func (h Handler) Delete(ctx echo.Context) error {
 // @Failure      405  {object}  webUtils.Error  "Method is not allowed"
 // @Router       /api/v1/tracks/popular [get]
 func (h Handler) GetPopular(ctx echo.Context) error {
-	popular, err := h.trackUseCase.GetPopular()
+	popular, err := h.TrackUseCase.GetPopular()
 	if err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 	}

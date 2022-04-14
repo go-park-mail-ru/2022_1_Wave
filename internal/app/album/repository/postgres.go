@@ -5,7 +5,6 @@ import (
 	constants "github.com/go-park-mail-ru/2022_1_Wave/internal"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/domain"
 	"github.com/jmoiron/sqlx"
-	"os"
 )
 
 type AlbumRepo struct {
@@ -116,7 +115,7 @@ func (table AlbumRepo) GetSize() (int, error) {
 	query := `SELECT count(*) From album;`
 	size := 0
 	if err := table.Sqlx.Get(&size, query); err != nil {
-		os.Exit(1)
+		return -1, err
 	}
 	return size, nil
 }

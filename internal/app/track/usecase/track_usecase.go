@@ -3,7 +3,6 @@ package TrackUseCase
 import (
 	"github.com/go-park-mail-ru/2022_1_Wave/internal"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/domain"
-	"reflect"
 )
 
 //var UseCase structsUseCase.UseCase
@@ -11,6 +10,19 @@ import (
 type TrackUseCase struct {
 	TrackRepo  domain.TrackRepo
 	ArtistRepo domain.ArtistRepo
+}
+type TrackUseCaseInterface interface {
+	CastToDTO(track domain.Track) (*domain.TrackDataTransfer, error)
+	GetAll() ([]domain.TrackDataTransfer, error)
+	GetLastId() (id int, err error)
+	Create(dom domain.Track) error
+	Update(dom domain.Track) error
+	Delete(id int) error
+	GetById(id int) (*domain.TrackDataTransfer, error)
+	GetPopular() ([]domain.TrackDataTransfer, error)
+	GetTracksFromAlbum(albumId int) ([]domain.TrackDataTransfer, error)
+	GetPopularTracksFromArtist(artistId int) ([]domain.TrackDataTransfer, error)
+	GetSize() (int, error)
 }
 
 func MakeTrackUseCase(track domain.TrackRepo, artist domain.ArtistRepo) TrackUseCase {
@@ -118,9 +130,9 @@ func (useCase TrackUseCase) GetPopular() ([]domain.TrackDataTransfer, error) {
 	return dto, nil
 }
 
-func (useCase TrackUseCase) GetType() reflect.Type {
-	return reflect.TypeOf(domain.Track{})
-}
+//func (useCase TrackUseCase) GetType() reflect.Type {
+//	return reflect.TypeOf(domain.Track{})
+//}
 
 //func (useCase TrackUseCase) GetRepo() (domain.RepoInterface, error) {
 //	return useCase.TrackRepo, nil

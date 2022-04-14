@@ -4,7 +4,6 @@ import (
 	"github.com/go-park-mail-ru/2022_1_Wave/internal"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/domain"
 	TrackUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/app/track/usecase"
-	"reflect"
 )
 
 type AlbumUseCase struct {
@@ -15,15 +14,15 @@ type AlbumUseCase struct {
 }
 
 type AlbumUseCaseInterface interface {
-	CastToDTO(album domain.Album, trackUseCase TrackUseCase.TrackUseCase) (*domain.AlbumDataTransfer, error)
-	GetAll(track TrackUseCase.TrackUseCase) ([]domain.AlbumDataTransfer, error)
+	CastToDTO(album domain.Album, trackUseCase TrackUseCase.TrackUseCaseInterface) (*domain.AlbumDataTransfer, error)
+	GetAll(track TrackUseCase.TrackUseCaseInterface) ([]domain.AlbumDataTransfer, error)
 	GetLastId() (id int, err error)
 	Create(dom domain.Album) error
 	Update(dom domain.Album) error
 	Delete(id int) error
-	GetById(track TrackUseCase.TrackUseCase, id int) (*domain.AlbumDataTransfer, error)
-	GetPopular(track TrackUseCase.TrackUseCase) ([]domain.AlbumDataTransfer, error)
-	GetAlbumsFromArtist(artist int, track TrackUseCase.TrackUseCase) ([]domain.AlbumDataTransfer, error)
+	GetById(track TrackUseCase.TrackUseCaseInterface, id int) (*domain.AlbumDataTransfer, error)
+	GetPopular(track TrackUseCase.TrackUseCaseInterface) ([]domain.AlbumDataTransfer, error)
+	GetAlbumsFromArtist(artist int, track TrackUseCase.TrackUseCaseInterface) ([]domain.AlbumDataTransfer, error)
 	GetSize() (int, error)
 }
 
@@ -39,7 +38,7 @@ func MakeAlbumUseCase(track domain.TrackRepo,
 	}
 }
 
-func (useCase AlbumUseCase) CastToDTO(album domain.Album, trackUseCase TrackUseCase.TrackUseCase) (*domain.AlbumDataTransfer, error) {
+func (useCase AlbumUseCase) CastToDTO(album domain.Album, trackUseCase TrackUseCase.TrackUseCaseInterface) (*domain.AlbumDataTransfer, error) {
 	artist, err := useCase.ArtistRepo.SelectByID(album.ArtistId)
 	if err != nil {
 		return nil, err
@@ -69,7 +68,7 @@ func (useCase AlbumUseCase) CastToDTO(album domain.Album, trackUseCase TrackUseC
 	}, nil
 }
 
-func (useCase AlbumUseCase) GetAll(track TrackUseCase.TrackUseCase) ([]domain.AlbumDataTransfer, error) {
+func (useCase AlbumUseCase) GetAll(track TrackUseCase.TrackUseCaseInterface) ([]domain.AlbumDataTransfer, error) {
 	albums, err := useCase.AlbumRepo.GetAll()
 	if err != nil {
 		return nil, err
@@ -104,7 +103,7 @@ func (useCase AlbumUseCase) Delete(id int) error {
 	return useCase.AlbumRepo.Delete(id)
 }
 
-func (useCase AlbumUseCase) GetById(track TrackUseCase.TrackUseCase, id int) (*domain.AlbumDataTransfer, error) {
+func (useCase AlbumUseCase) GetById(track TrackUseCase.TrackUseCaseInterface, id int) (*domain.AlbumDataTransfer, error) {
 	album, err := useCase.AlbumRepo.SelectByID(id)
 	if err != nil {
 		return nil, err
@@ -117,7 +116,7 @@ func (useCase AlbumUseCase) GetById(track TrackUseCase.TrackUseCase, id int) (*d
 	return dto, nil
 }
 
-func (useCase AlbumUseCase) GetPopular(track TrackUseCase.TrackUseCase) ([]domain.AlbumDataTransfer, error) {
+func (useCase AlbumUseCase) GetPopular(track TrackUseCase.TrackUseCaseInterface) ([]domain.AlbumDataTransfer, error) {
 	albums, err := useCase.AlbumRepo.GetPopular()
 	if err != nil {
 		return nil, err
@@ -136,11 +135,11 @@ func (useCase AlbumUseCase) GetPopular(track TrackUseCase.TrackUseCase) ([]domai
 	return dto, nil
 }
 
-func (useCase AlbumUseCase) GetType() reflect.Type {
-	return reflect.TypeOf(domain.Album{})
-}
+//func (useCase AlbumUseCase) GetType() reflect.Type {
+//	return reflect.TypeOf(domain.Album{})
+//}
 
-func (useCase AlbumUseCase) GetAlbumsFromArtist(artist int, track TrackUseCase.TrackUseCase) ([]domain.AlbumDataTransfer, error) {
+func (useCase AlbumUseCase) GetAlbumsFromArtist(artist int, track TrackUseCase.TrackUseCaseInterface) ([]domain.AlbumDataTransfer, error) {
 	albums, err := useCase.AlbumRepo.GetAlbumsFromArtist(artist)
 	if err != nil {
 		return nil, err
