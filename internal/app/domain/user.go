@@ -16,6 +16,7 @@ type UserRepo interface {
 	SelectByID(id uint) (*User, error)
 	SelectByUsername(username string) (*User, error)
 	SelectByEmail(email string) (*User, error)
+	GetSize() (int, error)
 }
 
 type UserUseCase interface {

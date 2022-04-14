@@ -192,3 +192,9 @@ func (a *redisSessionRepo) DeleteSession(sessionId string) error {
 
 	return err
 }
+
+func (a *redisSessionRepo) GetSize() (int, error) {
+	var size int
+	//todo вывести размер хранилища
+	return size, nil
+}

@@ -14,4 +14,5 @@ type SessionRepo interface {
 	MakeSessionAuthorized(sessionId string, userId uint) error
 	MakeSessionUnauthorized(sessionId string) error
 	DeleteSession(sessionId string) error
+	GetSize() (int, error)
 }

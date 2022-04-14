@@ -109,3 +109,12 @@ func (a *UserPostrgesRepo) SelectByEmail(email string) (*domain.User, error) {
 
 	return &user, nil
 }
+
+func (a *UserPostrgesRepo) GetSize() (int, error) {
+	query := `SELECT count(*) From users;`
+	size := 0
+	if err := a.DB.Get(&size, query); err != nil {
+		return -1, err
+	}
+	return size, nil
+}
