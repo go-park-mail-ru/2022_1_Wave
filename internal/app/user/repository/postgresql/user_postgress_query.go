@@ -5,9 +5,9 @@ import "errors"
 const (
 	insertUserCommand           = `INSERT INTO Users (username, email, avatar, password_hash) VALUES ($1, $2, $3, $4) RETURNING id`
 	deleteUserCommand           = `DELETE FROM Users WHERE id = $1`
-	selectUserByIdCommand       = `SELECT id, username, email, avatar, count_following FROM Users WHERE id = $1`
-	selectUserByUsernameCommand = `SELECT id, username, email, avatar, count_following FROM Users WHERE username = $1`
-	selectUserByEmailCommand    = `SELECT id, username, email, avatar, count_following FROM Users WHERE email = $1`
+	selectUserByIdCommand       = `SELECT id, username, email, avatar, password_hash, count_following FROM Users WHERE id = $1`
+	selectUserByUsernameCommand = `SELECT id, username, email, avatar, password_hash, count_following FROM Users WHERE username = $1`
+	selectUserByEmailCommand    = `SELECT id, username, email, avatar, password_hash, count_following FROM Users WHERE email = $1`
 )
 
 var (
