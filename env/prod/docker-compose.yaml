@@ -4,11 +4,13 @@ services:
     image: nginx
     ports:
       - "80:80"
+      - "443:443"
     working_dir: /var/www/wave/
     volumes:
       - ../../assets:/var/www/wave/assets
-      - ../../config/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ../../config/nginx/nginx.prod.conf:/etc/nginx/nginx.conf:ro
       - ../../../../front/2022_1_Wave/build:/var/www/wave
+      - ./certs:/var/www/certs
     depends_on:
       - wave_music
 
