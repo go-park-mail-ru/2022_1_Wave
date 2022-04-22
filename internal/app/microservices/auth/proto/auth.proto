@@ -1,0 +1,53 @@
+syntax = "proto3";
+
+package auth;
+
+option go_package = "microservices/auth/proto";
+
+message Session {
+  string session_id = 1;
+}
+
+message Empty {};
+
+message LoginData {
+  string login = 1;
+  string password = 2;
+  Session session = 3;
+}
+
+message LoginResult {
+  Session new_session = 2;
+}
+
+message LogoutResult {
+  Session new_session = 2;
+}
+
+message User {
+  string username = 1;
+  string email = 2;
+  string password = 3;
+}
+
+message SignUpData {
+  User user = 1;
+  Session session = 2;
+}
+
+message SignUpResult {
+  Session new_session = 2;
+}
+
+message GetSessionResult {
+  Session session = 2;
+}
+
+service Authorization {
+  rpc Login(LoginData) returns(LoginResult) {}
+  rpc Logout(Session) returns(LogoutResult) {}
+  rpc SignUp(SignUpData) returns(SignUpResult) {}
+  rpc GetUnauthorizedSession(Empty) returns(GetSessionResult) {}
+  rpc IsSession(Session) returns(Empty) {}
+  rpc IsAuthSession(Session) returns(Empty) {}
+}
