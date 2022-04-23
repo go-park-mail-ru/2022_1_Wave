@@ -13,15 +13,15 @@ type TrackUseCase struct {
 type TrackUseCaseInterface interface {
 	CastToDTO(track domain.Track) (*domain.TrackDataTransfer, error)
 	GetAll() ([]domain.TrackDataTransfer, error)
-	GetLastId() (id int, err error)
+	GetLastId() (id int64, err error)
 	Create(dom domain.Track) error
 	Update(dom domain.Track) error
-	Delete(id int) error
-	GetById(id int) (*domain.TrackDataTransfer, error)
+	Delete(id int64) error
+	GetById(id int64) (*domain.TrackDataTransfer, error)
 	GetPopular() ([]domain.TrackDataTransfer, error)
-	GetTracksFromAlbum(albumId int) ([]domain.TrackDataTransfer, error)
-	GetPopularTracksFromArtist(artistId int) ([]domain.TrackDataTransfer, error)
-	GetSize() (int, error)
+	GetTracksFromAlbum(albumId int64) ([]domain.TrackDataTransfer, error)
+	GetPopularTracksFromArtist(artistId int64) ([]domain.TrackDataTransfer, error)
+	GetSize() (int64, error)
 }
 
 func MakeTrackUseCase(track domain.TrackRepo, artist domain.ArtistRepo) TrackUseCase {
@@ -66,7 +66,7 @@ func (useCase TrackUseCase) GetAll() ([]domain.TrackDataTransfer, error) {
 	return dto, nil
 }
 
-func (useCase TrackUseCase) GetLastId() (id int, err error) {
+func (useCase TrackUseCase) GetLastId() (id int64, err error) {
 	return useCase.TrackRepo.GetLastId()
 }
 
@@ -78,11 +78,11 @@ func (useCase TrackUseCase) Update(dom domain.Track) error {
 	return useCase.TrackRepo.Update(dom)
 }
 
-func (useCase TrackUseCase) Delete(id int) error {
+func (useCase TrackUseCase) Delete(id int64) error {
 	return useCase.TrackRepo.Delete(id)
 }
 
-func (useCase TrackUseCase) GetById(id int) (*domain.TrackDataTransfer, error) {
+func (useCase TrackUseCase) GetById(id int64) (*domain.TrackDataTransfer, error) {
 	track, err := useCase.TrackRepo.SelectByID(id)
 	if err != nil {
 		return nil, err
@@ -116,7 +116,7 @@ func (useCase TrackUseCase) GetPopular() ([]domain.TrackDataTransfer, error) {
 	return dto, nil
 }
 
-func (useCase TrackUseCase) GetTracksFromAlbum(albumId int) ([]domain.TrackDataTransfer, error) {
+func (useCase TrackUseCase) GetTracksFromAlbum(albumId int64) ([]domain.TrackDataTransfer, error) {
 	tracks, err := useCase.TrackRepo.GetTracksFromAlbum(albumId)
 	if err != nil {
 		return nil, err
@@ -135,7 +135,7 @@ func (useCase TrackUseCase) GetTracksFromAlbum(albumId int) ([]domain.TrackDataT
 	return dto, nil
 }
 
-func (useCase TrackUseCase) GetPopularTracksFromArtist(artistId int) ([]domain.TrackDataTransfer, error) {
+func (useCase TrackUseCase) GetPopularTracksFromArtist(artistId int64) ([]domain.TrackDataTransfer, error) {
 	tracks, err := useCase.TrackRepo.GetPopularTracksFromArtist(artistId)
 	if err != nil {
 		return nil, err
@@ -154,6 +154,6 @@ func (useCase TrackUseCase) GetPopularTracksFromArtist(artistId int) ([]domain.T
 	return dto, nil
 }
 
-func (useCase TrackUseCase) GetSize() (int, error) {
+func (useCase TrackUseCase) GetSize() (int64, error) {
 	return useCase.TrackRepo.GetSize()
 }

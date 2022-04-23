@@ -39,7 +39,7 @@ func (table AlbumRepo) Update(dom domain.Album) error {
 	return err
 }
 
-func (table AlbumRepo) Delete(id int) error {
+func (table AlbumRepo) Delete(id int64) error {
 	query := `DELETE FROM album WHERE id = $1`
 
 	res, err := table.Sqlx.Exec(query, id)
@@ -60,7 +60,7 @@ func (table AlbumRepo) Delete(id int) error {
 	return nil
 }
 
-func (table AlbumRepo) SelectByID(id int) (*domain.Album, error) {
+func (table AlbumRepo) SelectByID(id int64) (*domain.Album, error) {
 	query := `SELECT * FROM album WHERE id = $1`
 	holder := domain.Album{}
 	if err := table.Sqlx.Get(&holder, query, id); err != nil {
@@ -98,10 +98,10 @@ func (table AlbumRepo) GetPopular() ([]domain.Album, error) {
 	return albums, nil
 }
 
-func (table AlbumRepo) GetLastId() (int, error) {
+func (table AlbumRepo) GetLastId() (int64, error) {
 	query := `SELECT max(id) from album;`
 
-	lastId := 0
+	lastId := int64(0)
 	err := table.Sqlx.Get(&lastId, query)
 
 	if err != nil {
@@ -111,16 +111,16 @@ func (table AlbumRepo) GetLastId() (int, error) {
 	return lastId, nil
 }
 
-func (table AlbumRepo) GetSize() (int, error) {
+func (table AlbumRepo) GetSize() (int64, error) {
 	query := `SELECT count(*) From album;`
-	size := 0
+	size := int64(0)
 	if err := table.Sqlx.Get(&size, query); err != nil {
 		return -1, err
 	}
 	return size, nil
 }
 
-func (table AlbumRepo) GetAlbumsFromArtist(artistId int) ([]domain.Album, error) {
+func (table AlbumRepo) GetAlbumsFromArtist(artistId int64) ([]domain.Album, error) {
 	var albums []domain.Album
 	if err := table.Sqlx.Select(&albums, `SELECT * FROM album WHERE artist_id = $1`, artistId); err != nil {
 		return nil, err

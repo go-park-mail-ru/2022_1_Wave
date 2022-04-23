@@ -145,7 +145,7 @@ func (h Handler) Get(ctx echo.Context) error {
 		return webUtils.WriteErrorEchoServer(ctx, errors.New(constants.IndexOutOfRange), http.StatusBadRequest)
 	}
 
-	obj, err := h.ArtistUseCase.GetById(id)
+	obj, err := h.ArtistUseCase.GetById(int64(id))
 
 	if err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
@@ -177,7 +177,7 @@ func (h Handler) Delete(ctx echo.Context) error {
 		return webUtils.WriteErrorEchoServer(ctx, errors.New(constants.IndexOutOfRange), http.StatusBadRequest)
 	}
 
-	if err := h.ArtistUseCase.Delete(id); err != nil {
+	if err := h.ArtistUseCase.Delete(int64(id)); err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 	}
 
@@ -229,7 +229,7 @@ func (h Handler) GetPopularTracks(ctx echo.Context) error {
 		return webUtils.WriteErrorEchoServer(ctx, errors.New(constants.IndexOutOfRange), http.StatusBadRequest)
 	}
 
-	popular, err := h.TrackUseCase.GetPopularTracksFromArtist(id)
+	popular, err := h.TrackUseCase.GetPopularTracksFromArtist(int64(id))
 	if err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 	}

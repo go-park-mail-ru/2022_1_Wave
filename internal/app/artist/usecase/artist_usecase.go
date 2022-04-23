@@ -17,13 +17,13 @@ type ArtistUseCase struct {
 type ArtistUseCaseInterface interface {
 	CastToDTO(artist domain.Artist) (*domain.ArtistDataTransfer, error)
 	GetAll() ([]domain.ArtistDataTransfer, error)
-	GetLastId() (id int, err error)
+	GetLastId() (id int64, err error)
 	Create(dom domain.Artist) error
 	Update(dom domain.Artist) error
-	Delete(id int) error
-	GetById(id int) (*domain.ArtistDataTransfer, error)
+	Delete(id int64) error
+	GetById(id int64) (*domain.ArtistDataTransfer, error)
 	GetPopular() ([]domain.ArtistDataTransfer, error)
-	GetSize() (int, error)
+	GetSize() (int64, error)
 }
 
 func (useCase ArtistUseCase) CastToDTO(artist domain.Artist) (*domain.ArtistDataTransfer, error) {
@@ -82,7 +82,7 @@ func (useCase ArtistUseCase) GetAll() ([]domain.ArtistDataTransfer, error) {
 	return dto, nil
 }
 
-func (useCase ArtistUseCase) GetLastId() (id int, err error) {
+func (useCase ArtistUseCase) GetLastId() (id int64, err error) {
 	return (*useCase.ArtistRepo).GetLastId()
 }
 
@@ -94,11 +94,11 @@ func (useCase ArtistUseCase) Update(dom domain.Artist) error {
 	return (*useCase.ArtistRepo).Update(dom)
 }
 
-func (useCase ArtistUseCase) Delete(id int) error {
+func (useCase ArtistUseCase) Delete(id int64) error {
 	return (*useCase.ArtistRepo).Delete(id)
 }
 
-func (useCase ArtistUseCase) GetById(id int) (*domain.ArtistDataTransfer, error) {
+func (useCase ArtistUseCase) GetById(id int64) (*domain.ArtistDataTransfer, error) {
 	artist, err := (*useCase.ArtistRepo).SelectByID(id)
 	if err != nil {
 		return nil, err
@@ -130,6 +130,6 @@ func (useCase ArtistUseCase) GetPopular() ([]domain.ArtistDataTransfer, error) {
 	return dto, nil
 }
 
-func (useCase ArtistUseCase) GetSize() (int, error) {
+func (useCase ArtistUseCase) GetSize() (int64, error) {
 	return (*useCase.ArtistRepo).GetSize()
 }

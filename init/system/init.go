@@ -20,7 +20,7 @@ const local = "local"
 const database = local
 
 // вынести юзкейсы из свича
-func Init(e *echo.Echo, quantity int, dataBaseType string) error {
+func Init(e *echo.Echo, quantity int64, dataBaseType string) error {
 	var initedStorage utilsInterfaces.GlobalStorageInterface
 	var err error
 	switch dataBaseType {

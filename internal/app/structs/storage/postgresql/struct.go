@@ -62,7 +62,7 @@ func (storage Postgres) Open() (utilsInterfaces.GlobalStorageInterface, error) {
 	return storage, nil
 }
 
-func (storage Postgres) Init(quantity int) (utilsInterfaces.GlobalStorageInterface, error) {
+func (storage Postgres) Init(quantity int64) (utilsInterfaces.GlobalStorageInterface, error) {
 	if quantity < 0 {
 		return nil, errors.New("quantity for db is negative")
 	}
@@ -109,7 +109,7 @@ func (storage Postgres) Init(quantity int) (utilsInterfaces.GlobalStorageInterfa
 	wg.Add(1)
 	go func(wg *sync.WaitGroup, ch chan error, mutex *sync.Mutex) {
 		defer wg.Done()
-		for i := 0; i < quantity; i++ {
+		for i := int64(0); i < quantity; i++ {
 			id := i + 1
 			albumsCover[i] = domainCreator.AlbumCoverConstructorRandom(id)
 			if err := storage.AlbumCoverRepo.Insert(albumsCover[i]); err != nil {
@@ -129,7 +129,7 @@ func (storage Postgres) Init(quantity int) (utilsInterfaces.GlobalStorageInterfa
 	wg.Add(1)
 	go func(wg *sync.WaitGroup, ch chan error, mutex *sync.Mutex) {
 		defer wg.Done()
-		for i := 0; i < quantity; i++ {
+		for i := int64(0); i < quantity; i++ {
 			id := i + 1
 			artists[i] = domainCreator.ArtistConstructorRandom(id, nameLen, maxFollowers, maxListening)
 			if err := storage.ArtistRepo.Insert(artists[i]); err != nil {
@@ -159,7 +159,7 @@ func (storage Postgres) Init(quantity int) (utilsInterfaces.GlobalStorageInterfa
 	}
 
 	// albums
-	for i := 0; i < quantity; i++ {
+	for i := int64(0); i < quantity; i++ {
 		id := i + 1
 		albums[i] = domainCreator.AlbumConstructorRandom(id, quantity, albumLen, maxListening, maxLikes)
 		if err := storage.AlbumRepo.Insert(albums[i]); err != nil {
@@ -169,7 +169,7 @@ func (storage Postgres) Init(quantity int) (utilsInterfaces.GlobalStorageInterfa
 
 	const maxDuration = max / 10
 	// tracks
-	for i := 0; i < quantity; i++ {
+	for i := int64(0); i < quantity; i++ {
 		id := i + 1
 		tracks[i] = domainCreator.TrackConstructorRandom(id, albums, songLen, maxDuration, maxLikes, maxListening)
 		if err := storage.TrackRepo.Insert(tracks[i]); err != nil {

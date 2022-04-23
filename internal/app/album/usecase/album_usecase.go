@@ -15,14 +15,14 @@ type AlbumUseCase struct {
 type AlbumUseCaseInterface interface {
 	CastToDTO(album domain.Album) (*domain.AlbumDataTransfer, error)
 	GetAll() ([]domain.AlbumDataTransfer, error)
-	GetLastId() (id int, err error)
+	GetLastId() (id int64, err error)
 	Create(dom domain.Album) error
 	Update(dom domain.Album) error
-	Delete(id int) error
-	GetById(id int) (*domain.AlbumDataTransfer, error)
+	Delete(id int64) error
+	GetById(id int64) (*domain.AlbumDataTransfer, error)
 	GetPopular() ([]domain.AlbumDataTransfer, error)
-	GetAlbumsFromArtist(artist int) ([]domain.AlbumDataTransfer, error)
-	GetSize() (int, error)
+	GetAlbumsFromArtist(artist int64) ([]domain.AlbumDataTransfer, error)
+	GetSize() (int64, error)
 }
 
 func MakeAlbumUseCase(track domain.TrackRepo,
@@ -64,7 +64,7 @@ func (useCase AlbumUseCase) GetAll() ([]domain.AlbumDataTransfer, error) {
 	return dto, nil
 }
 
-func (useCase AlbumUseCase) GetLastId() (id int, err error) {
+func (useCase AlbumUseCase) GetLastId() (id int64, err error) {
 	return (*useCase.AlbumRepo).GetLastId()
 }
 
@@ -76,11 +76,11 @@ func (useCase AlbumUseCase) Update(dom domain.Album) error {
 	return (*useCase.AlbumRepo).Update(dom)
 }
 
-func (useCase AlbumUseCase) Delete(id int) error {
+func (useCase AlbumUseCase) Delete(id int64) error {
 	return (*useCase.AlbumRepo).Delete(id)
 }
 
-func (useCase AlbumUseCase) GetById(id int) (*domain.AlbumDataTransfer, error) {
+func (useCase AlbumUseCase) GetById(id int64) (*domain.AlbumDataTransfer, error) {
 	album, err := (*useCase.AlbumRepo).SelectByID(id)
 	if err != nil {
 		return nil, err
@@ -112,7 +112,7 @@ func (useCase AlbumUseCase) GetPopular() ([]domain.AlbumDataTransfer, error) {
 	return dto, nil
 }
 
-func (useCase AlbumUseCase) GetAlbumsFromArtist(artist int) ([]domain.AlbumDataTransfer, error) {
+func (useCase AlbumUseCase) GetAlbumsFromArtist(artist int64) ([]domain.AlbumDataTransfer, error) {
 	albums, err := (*useCase.AlbumRepo).GetAlbumsFromArtist(artist)
 	if err != nil {
 		return nil, err
@@ -131,6 +131,6 @@ func (useCase AlbumUseCase) GetAlbumsFromArtist(artist int) ([]domain.AlbumDataT
 	return dto, nil
 }
 
-func (useCase AlbumUseCase) GetSize() (int, error) {
+func (useCase AlbumUseCase) GetSize() (int64, error) {
 	return (*useCase.AlbumRepo).GetSize()
 }

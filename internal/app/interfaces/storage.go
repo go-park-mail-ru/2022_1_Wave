@@ -4,7 +4,7 @@ import "github.com/go-park-mail-ru/2022_1_Wave/internal/app/domain"
 
 type GlobalStorageInterface interface {
 	Open() (GlobalStorageInterface, error)
-	Init(quantity int) (GlobalStorageInterface, error)
+	Init(quantity int64) (GlobalStorageInterface, error)
 	Close() error
 
 	GetAlbumRepo() domain.AlbumRepo

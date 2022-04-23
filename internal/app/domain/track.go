@@ -7,38 +7,38 @@ import (
 )
 
 type Track struct {
-	Id             int    `json:"id" example:"4" db:"id" validate:"min=0"`
-	AlbumId        int    `json:"albumId" example:"8" db:"album_id" validate:"min=0"`
-	ArtistId       int    `json:"artistId" example:"8" db:"artist_id" validate:"min=0,nonnil"`
+	Id             int64  `json:"id" example:"4" db:"id" validate:"min=0"`
+	AlbumId        int64  `json:"albumId" example:"8" db:"album_id" validate:"min=0"`
+	ArtistId       int64  `json:"artistId" example:"8" db:"artist_id" validate:"min=0,nonnil"`
 	Title          string `json:"title" example:"Rain" db:"title" validate:"max=256,nonnil"`
-	Duration       int    `json:"duration" example:"180" db:"duration" validate:"min=0,nonnil"`
-	CountLikes     int    `json:"countLikes" example:"54" db:"count_likes" validate:"min=0,nonnil"`
-	CountListening int    `json:"countListening" example:"15632" db:"count_listening" validate:"min=0,nonnil"`
+	Duration       int64  `json:"duration" example:"180" db:"duration" validate:"min=0,nonnil"`
+	CountLikes     int64  `json:"countLikes" example:"54" db:"count_likes" validate:"min=0,nonnil"`
+	CountListening int64  `json:"countListening" example:"15632" db:"count_listening" validate:"min=0,nonnil"`
 }
 
 type TrackRepo interface {
 	Insert(Track) error
 	Update(Track) error
-	Delete(int) error
-	SelectByID(int) (*Track, error)
+	Delete(int64) error
+	SelectByID(int64) (*Track, error)
 	GetAll() ([]Track, error)
 	GetPopular() ([]Track, error)
-	GetLastId() (id int, err error)
+	GetLastId() (id int64, err error)
 	//GetType() reflect.Type
-	GetSize() (int, error)
-	GetTracksFromAlbum(albumId int) ([]Track, error)
-	GetPopularTracksFromArtist(artistId int) ([]Track, error)
+	GetSize() (int64, error)
+	GetTracksFromAlbum(albumId int64) ([]Track, error)
+	GetPopularTracksFromArtist(artistId int64) ([]Track, error)
 }
 
 type TrackDataTransfer struct {
-	Id         int    `json:"id" example:"1"`
+	Id         int64  `json:"id" example:"1"`
 	Title      string `json:"title" example:"Mercury"`
 	Artist     string `json:"artist" example:"Hexed"`
 	Cover      string `json:"cover" example:"assets/track_1.png"`
 	Src        string `json:"src" example:"assets/track_1.mp4"`
-	Likes      int    `json:"likes" example:"5"`
-	Listenings int    `json:"listenings" example:"500"`
-	Duration   int    `json:"duration" example:"531"`
+	Likes      int64  `json:"likes" example:"5"`
+	Listenings int64  `json:"listenings" example:"500"`
+	Duration   int64  `json:"duration" example:"531"`
 }
 
 func (track *Track) CastToDtoWithoutArtistName() (*TrackDataTransfer, error) {
@@ -77,11 +77,11 @@ func CastTracksByArtistToDto(tracks []Track, artist Artist) ([]TrackDataTransfer
 	return tracksDto, nil
 }
 
-func (track *Track) GetId() int {
+func (track *Track) GetId() int64 {
 	return track.Id
 }
 
-func (track *Track) SetId(id int) error {
+func (track *Track) SetId(id int64) error {
 	track.Id = id
 	return nil
 }
@@ -90,7 +90,7 @@ func (track *Track) Check() error {
 	return validator.Validate(track)
 }
 
-func (track *Track) GetCountListening() int {
+func (track *Track) GetCountListening() int64 {
 	return track.CountListening
 }
 
@@ -98,6 +98,6 @@ func (track *Track) CreatePath(fileFormat string) (string, error) {
 	return constants.AssetsPrefix + constants.TrackPreName + fmt.Sprint(track.Id) + fileFormat, nil
 }
 
-func (track *Track) CreatePathById(fileFormat string, albumId int) (string, error) {
+func (track *Track) CreatePathById(fileFormat string, albumId int64) (string, error) {
 	return constants.AssetsPrefix + constants.AlbumPreName + fmt.Sprint(albumId) + fileFormat, nil
 }

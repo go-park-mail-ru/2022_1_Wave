@@ -39,7 +39,7 @@ func (table TrackRepo) Update(dom domain.Track) error {
 	return err
 }
 
-func (table TrackRepo) Delete(id int) error {
+func (table TrackRepo) Delete(id int64) error {
 	query := `DELETE FROM track WHERE id = $1`
 
 	_, err := table.Sqlx.Exec(query, id)
@@ -61,7 +61,7 @@ func (table TrackRepo) Delete(id int) error {
 	//return nil
 }
 
-func (table TrackRepo) SelectByID(id int) (*domain.Track, error) {
+func (table TrackRepo) SelectByID(id int64) (*domain.Track, error) {
 	query := `SELECT * FROM track WHERE id = $1;`
 	holder := domain.Track{}
 	if err := table.Sqlx.Get(&holder, query, id); err != nil {
@@ -98,10 +98,10 @@ func (table TrackRepo) GetPopular() ([]domain.Track, error) {
 	return tracks, nil
 }
 
-func (table TrackRepo) GetLastId() (int, error) {
+func (table TrackRepo) GetLastId() (int64, error) {
 	query := `SELECT max(id) from track;`
 
-	lastId := 0
+	lastId := int64(0)
 	err := table.Sqlx.Get(&lastId, query)
 
 	if err != nil {
@@ -111,16 +111,16 @@ func (table TrackRepo) GetLastId() (int, error) {
 	return lastId, nil
 }
 
-func (table TrackRepo) GetSize() (int, error) {
+func (table TrackRepo) GetSize() (int64, error) {
 	query := `SELECT count(*) From track;`
-	size := 0
+	size := int64(0)
 	if err := table.Sqlx.Get(&size, query); err != nil {
 		os.Exit(1)
 	}
 	return size, nil
 }
 
-func (table TrackRepo) GetTracksFromAlbum(albumId int) ([]domain.Track, error) {
+func (table TrackRepo) GetTracksFromAlbum(albumId int64) ([]domain.Track, error) {
 	var tracks []domain.Track
 	if err := table.Sqlx.Select(&tracks, `SELECT * FROM track WHERE album_id = $1`, albumId); err != nil {
 		return nil, err
@@ -128,7 +128,7 @@ func (table TrackRepo) GetTracksFromAlbum(albumId int) ([]domain.Track, error) {
 	return tracks, nil
 }
 
-func (table TrackRepo) GetPopularTracksFromArtist(artistId int) ([]domain.Track, error) {
+func (table TrackRepo) GetPopularTracksFromArtist(artistId int64) ([]domain.Track, error) {
 	var tracks []domain.Track
 	if err := table.Sqlx.Select(&tracks, `
 			SELECT * FROM track

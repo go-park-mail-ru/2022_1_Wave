@@ -39,7 +39,7 @@ func (useCase AlbumCoverUseCase) GetAll() ([]domain.AlbumCoverDataTransfer, erro
 	return dto, nil
 }
 
-func (useCase AlbumCoverUseCase) GetLastId() (id int, err error) {
+func (useCase AlbumCoverUseCase) GetLastId() (id int64, err error) {
 	return (*useCase.AlbumCoverRepo).GetLastId()
 }
 
@@ -51,11 +51,11 @@ func (useCase AlbumCoverUseCase) Update(dom domain.AlbumCover) error {
 	return (*useCase.AlbumCoverRepo).Update(dom)
 }
 
-func (useCase AlbumCoverUseCase) Delete(id int) error {
+func (useCase AlbumCoverUseCase) Delete(id int64) error {
 	return (*useCase.AlbumCoverRepo).Delete(id)
 }
 
-func (useCase AlbumCoverUseCase) GetById(id int) (*domain.AlbumCoverDataTransfer, error) {
+func (useCase AlbumCoverUseCase) GetById(id int64) (*domain.AlbumCoverDataTransfer, error) {
 	album, err := (*useCase.AlbumCoverRepo).SelectByID(id)
 	if err != nil {
 		return nil, err
@@ -72,6 +72,6 @@ func (useCase AlbumCoverUseCase) GetType() reflect.Type {
 	return reflect.TypeOf(domain.AlbumCover{})
 }
 
-func (useCase AlbumCoverUseCase) GetSize() (int, error) {
+func (useCase AlbumCoverUseCase) GetSize() (int64, error) {
 	return (*useCase.AlbumCoverRepo).GetSize()
 }
