@@ -7,6 +7,7 @@ services:
       - "443:443"
     working_dir: /var/www/wave/
     volumes:
+      - ../../logs/nginx_logs:/var/log/nginx
       - ../../assets:/var/www/wave/assets
       - ../../config/nginx/nginx.prod.conf:/etc/nginx/nginx.conf:ro
       - ../../../../front/2022_1_Wave/build:/var/www/wave
