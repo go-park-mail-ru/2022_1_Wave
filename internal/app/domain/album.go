@@ -36,6 +36,22 @@ type AlbumDataTransfer struct {
 	Tracks []TrackDataTransfer `json:"tracks"`
 }
 
+func (album *Album) CastToDtoWithoutArtistNameAndTracks() (*AlbumDataTransfer, error) {
+	cover, err := album.CreatePath(constants.PngFormat)
+	if err != nil {
+		return nil, err
+	}
+
+	return &AlbumDataTransfer{
+		Id:     album.Id,
+		Title:  album.Title,
+		Artist: "",
+		Cover:  cover,
+		Tracks: nil,
+	}, nil
+
+}
+
 func (album *Album) GetId() int {
 	return album.Id
 }

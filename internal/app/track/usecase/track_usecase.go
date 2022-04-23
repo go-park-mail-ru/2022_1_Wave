@@ -1,7 +1,6 @@
 package TrackUseCase
 
 import (
-	"github.com/go-park-mail-ru/2022_1_Wave/internal"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/domain"
 )
 
@@ -38,26 +37,13 @@ func (useCase TrackUseCase) CastToDTO(track domain.Track) (*domain.TrackDataTran
 		return nil, err
 	}
 
-	coverPath, err := track.CreatePathById(internal.PngFormat, track.AlbumId)
+	trackDto, err := track.CastToDtoWithoutArtistName()
 	if err != nil {
 		return nil, err
 	}
 
-	srcPath, err := track.CreatePath(internal.Mp3Format)
-	if err != nil {
-		return nil, err
-	}
-
-	return &domain.TrackDataTransfer{
-		Id:         track.Id,
-		Title:      track.Title,
-		Artist:     artist.Name,
-		Cover:      coverPath,
-		Src:        srcPath,
-		Likes:      track.CountLikes,
-		Listenings: track.CountListening,
-		Duration:   track.Duration,
-	}, nil
+	trackDto.Artist = artist.Name
+	return trackDto, nil
 }
 
 func (useCase TrackUseCase) GetAll() ([]domain.TrackDataTransfer, error) {
@@ -129,14 +115,6 @@ func (useCase TrackUseCase) GetPopular() ([]domain.TrackDataTransfer, error) {
 
 	return dto, nil
 }
-
-//func (useCase TrackUseCase) GetType() reflect.Type {
-//	return reflect.TypeOf(domain.Track{})
-//}
-
-//func (useCase TrackUseCase) GetRepo() (domain.RepoInterface, error) {
-//	return useCase.TrackRepo, nil
-//}
 
 func (useCase TrackUseCase) GetTracksFromAlbum(albumId int) ([]domain.TrackDataTransfer, error) {
 	tracks, err := useCase.TrackRepo.GetTracksFromAlbum(albumId)

@@ -72,15 +72,6 @@ func (useCase AlbumCoverUseCase) GetType() reflect.Type {
 	return reflect.TypeOf(domain.AlbumCover{})
 }
 
-//func (useCase AlbumCoverUseCase) GetRepo() (domain.RepoInterface, error) {
-//	return *useCase.AlbumCoverRepo, nil
-//}
-
-//func (useCase ArtistUseCase) SetRepo(Repo domain.RepoInterface) error {
-//	(*useCase.Repo) = Repo
-//	return useCase, nil
-//}
-
 func (useCase AlbumCoverUseCase) GetSize() (int, error) {
 	return (*useCase.AlbumCoverRepo).GetSize()
 }

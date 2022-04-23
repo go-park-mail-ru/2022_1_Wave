@@ -1,28 +1,27 @@
 package AlbumUseCase
 
 import (
-	"github.com/go-park-mail-ru/2022_1_Wave/internal"
+	AlbumPostgres "github.com/go-park-mail-ru/2022_1_Wave/internal/app/album/repository"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/domain"
-	TrackUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/app/track/usecase"
 )
 
 type AlbumUseCase struct {
-	TrackRepo      domain.TrackRepo
-	ArtistRepo     domain.ArtistRepo
-	AlbumRepo      domain.AlbumRepo
-	AlbumCoverRepo domain.AlbumCoverRepo
+	TrackRepo      *domain.TrackRepo
+	ArtistRepo     *domain.ArtistRepo
+	AlbumRepo      *domain.AlbumRepo
+	AlbumCoverRepo *domain.AlbumCoverRepo
 }
 
 type AlbumUseCaseInterface interface {
-	CastToDTO(album domain.Album, trackUseCase TrackUseCase.TrackUseCaseInterface) (*domain.AlbumDataTransfer, error)
-	GetAll(track TrackUseCase.TrackUseCaseInterface) ([]domain.AlbumDataTransfer, error)
+	CastToDTO(album domain.Album) (*domain.AlbumDataTransfer, error)
+	GetAll() ([]domain.AlbumDataTransfer, error)
 	GetLastId() (id int, err error)
 	Create(dom domain.Album) error
 	Update(dom domain.Album) error
 	Delete(id int) error
-	GetById(track TrackUseCase.TrackUseCaseInterface, id int) (*domain.AlbumDataTransfer, error)
-	GetPopular(track TrackUseCase.TrackUseCaseInterface) ([]domain.AlbumDataTransfer, error)
-	GetAlbumsFromArtist(artist int, track TrackUseCase.TrackUseCaseInterface) ([]domain.AlbumDataTransfer, error)
+	GetById(id int) (*domain.AlbumDataTransfer, error)
+	GetPopular() ([]domain.AlbumDataTransfer, error)
+	GetAlbumsFromArtist(artist int) ([]domain.AlbumDataTransfer, error)
 	GetSize() (int, error)
 }
 
@@ -31,45 +30,23 @@ func MakeAlbumUseCase(track domain.TrackRepo,
 	album domain.AlbumRepo,
 	albumCover domain.AlbumCoverRepo) AlbumUseCase {
 	return AlbumUseCase{
-		TrackRepo:      track,
-		ArtistRepo:     artist,
-		AlbumRepo:      album,
-		AlbumCoverRepo: albumCover,
+		TrackRepo:      &track,
+		ArtistRepo:     &artist,
+		AlbumRepo:      &album,
+		AlbumCoverRepo: &albumCover,
 	}
 }
 
-func (useCase AlbumUseCase) CastToDTO(album domain.Album, trackUseCase TrackUseCase.TrackUseCaseInterface) (*domain.AlbumDataTransfer, error) {
-	artist, err := useCase.ArtistRepo.SelectByID(album.ArtistId)
+func (useCase AlbumUseCase) CastToDTO(album domain.Album) (*domain.AlbumDataTransfer, error) {
+	artist, err := (*useCase.ArtistRepo).SelectByID(album.ArtistId)
 	if err != nil {
 		return nil, err
 	}
-
-	coverPath, err := album.CreatePath(internal.PngFormat)
-	if err != nil {
-		return nil, err
-	}
-
-	tracks, err := useCase.TrackRepo.GetTracksFromAlbum(album.Id)
-	tracksDto := make([]domain.TrackDataTransfer, len(tracks))
-	for idx, obj := range tracks {
-		dto, err := trackUseCase.CastToDTO(obj)
-		if err != nil {
-			return nil, err
-		}
-		tracksDto[idx] = *dto
-	}
-
-	return &domain.AlbumDataTransfer{
-		Id:     album.Id,
-		Title:  album.Title,
-		Artist: artist.Name,
-		Cover:  coverPath,
-		Tracks: tracksDto,
-	}, nil
+	return AlbumPostgres.GetFullAlbumByArtist(*useCase.TrackRepo, album, *artist)
 }
 
-func (useCase AlbumUseCase) GetAll(track TrackUseCase.TrackUseCaseInterface) ([]domain.AlbumDataTransfer, error) {
-	albums, err := useCase.AlbumRepo.GetAll()
+func (useCase AlbumUseCase) GetAll() ([]domain.AlbumDataTransfer, error) {
+	albums, err := (*useCase.AlbumRepo).GetAll()
 	if err != nil {
 		return nil, err
 	}
@@ -77,7 +54,7 @@ func (useCase AlbumUseCase) GetAll(track TrackUseCase.TrackUseCaseInterface) ([]
 	dto := make([]domain.AlbumDataTransfer, len(albums))
 
 	for idx, obj := range albums {
-		data, err := useCase.CastToDTO(obj, track)
+		data, err := useCase.CastToDTO(obj)
 		if err != nil {
 			return nil, err
 		}
@@ -88,27 +65,27 @@ func (useCase AlbumUseCase) GetAll(track TrackUseCase.TrackUseCaseInterface) ([]
 }
 
 func (useCase AlbumUseCase) GetLastId() (id int, err error) {
-	return useCase.AlbumRepo.GetLastId()
+	return (*useCase.AlbumRepo).GetLastId()
 }
 
 func (useCase AlbumUseCase) Create(dom domain.Album) error {
-	return useCase.AlbumRepo.Insert(dom)
+	return (*useCase.AlbumRepo).Insert(dom)
 }
 
 func (useCase AlbumUseCase) Update(dom domain.Album) error {
-	return useCase.AlbumRepo.Update(dom)
+	return (*useCase.AlbumRepo).Update(dom)
 }
 
 func (useCase AlbumUseCase) Delete(id int) error {
-	return useCase.AlbumRepo.Delete(id)
+	return (*useCase.AlbumRepo).Delete(id)
 }
 
-func (useCase AlbumUseCase) GetById(track TrackUseCase.TrackUseCaseInterface, id int) (*domain.AlbumDataTransfer, error) {
-	album, err := useCase.AlbumRepo.SelectByID(id)
+func (useCase AlbumUseCase) GetById(id int) (*domain.AlbumDataTransfer, error) {
+	album, err := (*useCase.AlbumRepo).SelectByID(id)
 	if err != nil {
 		return nil, err
 	}
-	dto, err := useCase.CastToDTO(*album, track)
+	dto, err := useCase.CastToDTO(*album)
 	if err != nil {
 		return nil, err
 	}
@@ -116,8 +93,8 @@ func (useCase AlbumUseCase) GetById(track TrackUseCase.TrackUseCaseInterface, id
 	return dto, nil
 }
 
-func (useCase AlbumUseCase) GetPopular(track TrackUseCase.TrackUseCaseInterface) ([]domain.AlbumDataTransfer, error) {
-	albums, err := useCase.AlbumRepo.GetPopular()
+func (useCase AlbumUseCase) GetPopular() ([]domain.AlbumDataTransfer, error) {
+	albums, err := (*useCase.AlbumRepo).GetPopular()
 	if err != nil {
 		return nil, err
 	}
@@ -125,7 +102,7 @@ func (useCase AlbumUseCase) GetPopular(track TrackUseCase.TrackUseCaseInterface)
 	dto := make([]domain.AlbumDataTransfer, len(albums))
 
 	for idx, obj := range albums {
-		data, err := useCase.CastToDTO(obj, track)
+		data, err := useCase.CastToDTO(obj)
 		if err != nil {
 			return nil, err
 		}
@@ -135,12 +112,8 @@ func (useCase AlbumUseCase) GetPopular(track TrackUseCase.TrackUseCaseInterface)
 	return dto, nil
 }
 
-//func (useCase AlbumUseCase) GetType() reflect.Type {
-//	return reflect.TypeOf(domain.Album{})
-//}
-
-func (useCase AlbumUseCase) GetAlbumsFromArtist(artist int, track TrackUseCase.TrackUseCaseInterface) ([]domain.AlbumDataTransfer, error) {
-	albums, err := useCase.AlbumRepo.GetAlbumsFromArtist(artist)
+func (useCase AlbumUseCase) GetAlbumsFromArtist(artist int) ([]domain.AlbumDataTransfer, error) {
+	albums, err := (*useCase.AlbumRepo).GetAlbumsFromArtist(artist)
 	if err != nil {
 		return nil, err
 	}
@@ -148,7 +121,7 @@ func (useCase AlbumUseCase) GetAlbumsFromArtist(artist int, track TrackUseCase.T
 	dto := make([]domain.AlbumDataTransfer, len(albums))
 
 	for idx, obj := range albums {
-		data, err := useCase.CastToDTO(obj, track)
+		data, err := useCase.CastToDTO(obj)
 		if err != nil {
 			return nil, err
 		}
@@ -157,12 +130,7 @@ func (useCase AlbumUseCase) GetAlbumsFromArtist(artist int, track TrackUseCase.T
 
 	return dto, nil
 }
-
-//func (useCase ArtistUseCase) SetRepo(Repo domain.RepoInterface) error {
-//	useCase.Repo) = Repo
-//	return useCase, nil
-//}
 
 func (useCase AlbumUseCase) GetSize() (int, error) {
-	return useCase.AlbumRepo.GetSize()
+	return (*useCase.AlbumRepo).GetSize()
 }

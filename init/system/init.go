@@ -84,7 +84,7 @@ func Init(e *echo.Echo, quantity int, dataBaseType string) error {
 	auth := AuthUseCase.NewAuthUseCase(sess, us)
 	album := AlbumUseCase.MakeAlbumUseCase(tr, ar, al, alc)
 	albumCover := AlbumCoverUseCase.MakeAlbumCoverUseCase(alc)
-	artist := ArtistUseCase.MakeArtistUseCase(ar)
+	artist := ArtistUseCase.MakeArtistUseCase(ar, al, tr)
 	track := TrackUseCase.MakeTrackUseCase(tr, ar)
 	user := UserUsecase.NewUserUseCase(us, sess)
 

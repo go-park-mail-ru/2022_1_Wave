@@ -41,6 +41,42 @@ type TrackDataTransfer struct {
 	Duration   int    `json:"duration" example:"531"`
 }
 
+func (track *Track) CastToDtoWithoutArtistName() (*TrackDataTransfer, error) {
+	cover, err := track.CreatePathById(constants.PngFormat, track.AlbumId)
+	if err != nil {
+		return nil, err
+	}
+
+	src, err := track.CreatePath(constants.Mp3Format)
+	if err != nil {
+		return nil, err
+	}
+
+	return &TrackDataTransfer{
+		Id:         track.Id,
+		Title:      track.Title,
+		Artist:     "",
+		Cover:      cover,
+		Src:        src,
+		Likes:      track.CountLikes,
+		Listenings: track.CountListening,
+		Duration:   track.Duration,
+	}, nil
+}
+
+func CastTracksByArtistToDto(tracks []Track, artist Artist) ([]TrackDataTransfer, error) {
+	tracksDto := make([]TrackDataTransfer, len(tracks))
+	for idx, track := range tracks {
+		trackDto, err := track.CastToDtoWithoutArtistName()
+		if err != nil {
+			return nil, err
+		}
+		trackDto.Artist = artist.Name
+		tracksDto[idx] = *trackDto
+	}
+	return tracksDto, nil
+}
+
 func (track *Track) GetId() int {
 	return track.Id
 }
