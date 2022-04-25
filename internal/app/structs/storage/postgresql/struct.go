@@ -10,6 +10,9 @@ import (
 	ArtistPostgres "github.com/go-park-mail-ru/2022_1_Wave/internal/app/artist/repository/postgres"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/domain"
 	utilsInterfaces "github.com/go-park-mail-ru/2022_1_Wave/internal/app/interfaces"
+	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/microservices/album/albumProto"
+	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/microservices/artist/artistProto"
+	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/microservices/track/trackProto"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/session/repository/redis"
 	domainCreator "github.com/go-park-mail-ru/2022_1_Wave/internal/app/tools/domain"
 	TrackPostgres "github.com/go-park-mail-ru/2022_1_Wave/internal/app/track/repository"
@@ -87,10 +90,10 @@ func (storage Postgres) Init(quantity int64) (utilsInterfaces.GlobalStorageInter
 	storage.UserRepo = postgresql.NewUserPostgresRepo(storage.Sqlx)
 	storage.SessionRepo = redis.NewRedisSessionRepo("redis:6379")
 
-	albums := make([]domain.Album, quantity)
-	albumsCover := make([]domain.AlbumCover, quantity)
-	tracks := make([]domain.Track, quantity)
-	artists := make([]domain.Artist, quantity)
+	albums := make([]*albumProto.Album, quantity)
+	albumsCover := make([]*albumProto.AlbumCover, quantity)
+	tracks := make([]*trackProto.Track, quantity)
+	artists := make([]*artistProto.Artist, quantity)
 
 	const max = 10000
 	const nameLen = 10
@@ -112,7 +115,7 @@ func (storage Postgres) Init(quantity int64) (utilsInterfaces.GlobalStorageInter
 		for i := int64(0); i < quantity; i++ {
 			id := i + 1
 			albumsCover[i] = domainCreator.AlbumCoverConstructorRandom(id)
-			if err := storage.AlbumCoverRepo.Insert(albumsCover[i]); err != nil {
+			if err := storage.AlbumCoverRepo.Create(albumsCover[i]); err != nil {
 				ch <- err
 				close(ch)
 				return
@@ -132,7 +135,7 @@ func (storage Postgres) Init(quantity int64) (utilsInterfaces.GlobalStorageInter
 		for i := int64(0); i < quantity; i++ {
 			id := i + 1
 			artists[i] = domainCreator.ArtistConstructorRandom(id, nameLen, maxFollowers, maxListening)
-			if err := storage.ArtistRepo.Insert(artists[i]); err != nil {
+			if err := storage.ArtistRepo.Create(artists[i]); err != nil {
 				ch <- err
 				close(ch)
 				return
@@ -162,7 +165,7 @@ func (storage Postgres) Init(quantity int64) (utilsInterfaces.GlobalStorageInter
 	for i := int64(0); i < quantity; i++ {
 		id := i + 1
 		albums[i] = domainCreator.AlbumConstructorRandom(id, quantity, albumLen, maxListening, maxLikes)
-		if err := storage.AlbumRepo.Insert(albums[i]); err != nil {
+		if err := storage.AlbumRepo.Create(albums[i]); err != nil {
 			return storage, err
 		}
 	}
@@ -172,7 +175,7 @@ func (storage Postgres) Init(quantity int64) (utilsInterfaces.GlobalStorageInter
 	for i := int64(0); i < quantity; i++ {
 		id := i + 1
 		tracks[i] = domainCreator.TrackConstructorRandom(id, albums, songLen, maxDuration, maxLikes, maxListening)
-		if err := storage.TrackRepo.Insert(tracks[i]); err != nil {
+		if err := storage.TrackRepo.Create(tracks[i]); err != nil {
 			return storage, err
 		}
 	}
