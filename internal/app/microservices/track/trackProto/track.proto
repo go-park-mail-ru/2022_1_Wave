@@ -1,0 +1,47 @@
+syntax = "proto3";
+package track;
+option go_package = "github.com/go-park-mail-ru/2022_1_Wave/internal/app/microservices/track/trackProto";
+import "google/protobuf/empty.proto";
+import "common/commonProto/common.proto";
+
+message Track {
+  int64 id = 1; // @gotags: json:"id" example:"4" db:"id" validate:"min=0"
+  int64 album_id = 2; // @gotags: json:"albumId" example:"8" db:"album_id" validate:"min=0"
+  int64 artist_id = 3; // @gotags: json:"artistId" example:"8" db:"artist_id" validate:"min=0,nonnil"
+  string title = 4; // @gotags: json:"title" example:"Rain" db:"title" validate:"max=256,nonnil"
+  int64 duration = 5; // @gotags: json:"duration" example:"180" db:"duration" validate:"min=0,nonnil"
+  int64 count_likes = 6; // @gotags: json:"countLikes" example:"54" db:"count_likes" validate:"min=0,nonnil"
+  int64 count_listenings = 7; // @gotags: json:"countListening" example:"15632" db:"count_listening" validate:"min=0,nonnil"
+}
+
+message TrackDataTransfer {
+  int64 id = 1; // @gotags: json:"id" example:"1"
+  string title = 2; // @gotags: json:"title" example:"Mercury"
+  string artist = 3; // @gotags: json:"artist" example:"Hexed"
+  string cover = 4; // @gotags: json:"cover" example:"assets/track_1.png"
+  string src = 5; // @gotags: json:"src" example:"assets/track_1.mp4"
+  int64 likes = 6; // @gotags: json:"likes" example:"5"
+  int64 listenings = 7; // @gotags: json:"listenings" example:"500"
+  int64 duration = 8; // @gotags: json:"duration" example:"531"
+}
+
+message TrackUseCaseResponse {
+  TrackDataTransfer data = 1;
+}
+
+message TracksResponse {
+  repeated TrackDataTransfer tracks = 1;
+}
+
+service TrackUseCase {
+  rpc GetAll(google.protobuf.Empty) returns (TracksResponse) {};
+  rpc GetLastId(google.protobuf.Empty) returns (common.IntResponse) {};
+  rpc Create(Track) returns (google.protobuf.Empty) {};
+  rpc Update(Track) returns (google.protobuf.Empty) {};
+  rpc Delete(common.IdArg) returns (google.protobuf.Empty) {};
+  rpc GetById(common.IdArg) returns (TrackDataTransfer) {};
+  rpc GetPopular(google.protobuf.Empty) returns (TracksResponse) {};
+  rpc GetTracksFromAlbum(common.IdArg) returns (TracksResponse) {};
+  rpc GetPopularTracksFromArtist(common.IdArg) returns (TracksResponse) {};
+  rpc GetSize(google.protobuf.Empty) returns (common.IntResponse) {};
+}
