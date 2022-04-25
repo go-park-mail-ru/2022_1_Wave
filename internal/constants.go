@@ -187,6 +187,12 @@ const (
 	Top           = 20
 )
 
+// network
+const (
+	Tcp       = "tcp"
+	LocalHost = "localhost"
+)
+
 // formats
 const (
 	PngFormat = ".png"
