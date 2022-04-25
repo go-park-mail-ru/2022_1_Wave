@@ -16,7 +16,8 @@ services:
 
   wave_music:
     tty: true
-    image: golang:latest
+    #    build: .
+    image: mausved/wave_music_api_v1
     expose:
       - 5000
     working_dir: /var/www/service/
