@@ -4,6 +4,7 @@ import (
 	"errors"
 	constants "github.com/go-park-mail-ru/2022_1_Wave/internal"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/domain"
+	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/microservices/album/albumProto"
 	"github.com/jmoiron/sqlx"
 	"os"
 )
@@ -19,7 +20,7 @@ func NewAlbumCoverPostgresRepo(db *sqlx.DB) domain.AlbumCoverRepo {
 }
 
 // ----------------------------------------------------------------------
-func (table AlbumCoverRepo) Insert(cover domain.AlbumCover) error {
+func (table AlbumCoverRepo) Create(cover *albumProto.AlbumCover) error {
 	query := `
 		INSERT INTO albumcover (quote, is_dark)
 		VALUES ($1, $2)
@@ -31,7 +32,7 @@ func (table AlbumCoverRepo) Insert(cover domain.AlbumCover) error {
 	return err
 }
 
-func (table AlbumCoverRepo) Update(cover domain.AlbumCover) error {
+func (table AlbumCoverRepo) Update(cover *albumProto.AlbumCover) error {
 	query := `
 		UPDATE albumcover
 		SET quote = $1, is_dark = $2
@@ -76,19 +77,19 @@ func (table AlbumCoverRepo) Delete(id int64) error {
 	return nil
 }
 
-func (table AlbumCoverRepo) SelectByID(id int64) (*domain.AlbumCover, error) {
+func (table AlbumCoverRepo) SelectByID(id int64) (*albumProto.AlbumCover, error) {
 	query := `SELECT * FROM albumcover WHERE id = $1;`
-	holder := domain.AlbumCover{}
+	holder := albumProto.AlbumCover{}
 	if err := table.Sqlx.Get(&holder, query, id); err != nil {
 		return nil, err
 	}
 	return &holder, nil
 }
 
-func (table AlbumCoverRepo) GetAll() ([]domain.AlbumCover, error) {
+func (table AlbumCoverRepo) GetAll() ([]*albumProto.AlbumCover, error) {
 	query := `SELECT * FROM albumcover ORDER BY id;`
 
-	var covers []domain.AlbumCover
+	var covers []*albumProto.AlbumCover
 	err := table.Sqlx.Select(&covers, query)
 	if err != nil {
 		return nil, err

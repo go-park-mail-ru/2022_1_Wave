@@ -4,16 +4,14 @@ import (
 	_ "github.com/go-park-mail-ru/2022_1_Wave/docs"
 	"github.com/go-park-mail-ru/2022_1_Wave/init/logger"
 	albumDeliveryHttp "github.com/go-park-mail-ru/2022_1_Wave/internal/app/album/delivery/http"
-	AlbumUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/app/album/usecase"
-	albumCoverDeliveryHttp "github.com/go-park-mail-ru/2022_1_Wave/internal/app/albumCover/delivery/http"
-	albumCoverUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/app/albumCover/usecase"
 	artistDeliveryHttp "github.com/go-park-mail-ru/2022_1_Wave/internal/app/artist/delivery/http"
-	ArtistUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/app/artist/usecase"
 	authHttp "github.com/go-park-mail-ru/2022_1_Wave/internal/app/auth/delivery/http"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/auth/delivery/http/http_middleware"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/domain"
+	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/microservices/album/albumProto"
+	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/microservices/artist/artistProto"
+	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/microservices/track/trackProto"
 	trackDeliveryHttp "github.com/go-park-mail-ru/2022_1_Wave/internal/app/track/delivery/http"
-	TrackUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/app/track/usecase"
 	userHttp "github.com/go-park-mail-ru/2022_1_Wave/internal/app/user/delivery/http"
 	"github.com/labstack/echo/v4"
 	"github.com/swaggo/echo-swagger"
@@ -21,17 +19,15 @@ import (
 
 func Router(e *echo.Echo,
 	auth domain.AuthUseCase,
-	album AlbumUseCase.AlbumUseCase,
-	albumCover albumCoverUseCase.AlbumCoverUseCase,
-	artist ArtistUseCase.ArtistUseCase,
-	track TrackUseCase.TrackUseCase,
+	album albumProto.AlbumUseCaseClient,
+	artist artistProto.ArtistUseCaseClient,
+	track trackProto.TrackUseCaseClient,
 	user domain.UserUseCase) error {
 
 	api := e.Group(apiPrefix)
 	v1 := api.Group(v1Prefix)
 
 	albumHandler := albumDeliveryHttp.MakeHandler(album, track)
-	albumCoverHandler := albumCoverDeliveryHttp.MakeHandler(albumCover)
 	artistHandler := artistDeliveryHttp.MakeHandler(artist, album, track)
 	trackHandler := trackDeliveryHttp.MakeHandler(artist, track)
 	authHandler := authHttp.MakeHandler(auth)
@@ -42,9 +38,6 @@ func Router(e *echo.Echo,
 
 	SetAlbumsRoutes(v1, albumHandler)
 	logger.GlobalLogger.Logrus.Warnln("setting albums routes")
-
-	SetAlbumCoversRoutes(v1, albumCoverHandler)
-	logger.GlobalLogger.Logrus.Warnln("setting album covers routes")
 
 	SetArtistsRoutes(v1, artistHandler)
 	logger.GlobalLogger.Logrus.Warnln("setting artists routes")
@@ -70,23 +63,19 @@ func Router(e *echo.Echo,
 // SetAlbumsRoutes albums
 func SetAlbumsRoutes(apiVersion *echo.Group, handler albumDeliveryHttp.Handler) {
 	albumRoutes := apiVersion.Group(albumsPrefix)
-
 	albumRoutes.GET(idEchoPattern, handler.Get)
 	albumRoutes.GET(locate, handler.GetAll)
 	albumRoutes.POST(locate, handler.Create)
 	albumRoutes.PUT(locate, handler.Update)
 	albumRoutes.GET(popularPrefix, handler.GetPopular)
 	albumRoutes.DELETE(idEchoPattern, handler.Delete)
-}
 
-// SetAlbumCoversRoutes albumCovers
-func SetAlbumCoversRoutes(apiVersion *echo.Group, handler albumCoverDeliveryHttp.Handler) {
-	albumRoutes := apiVersion.Group(albumCoversPrefix)
-	albumRoutes.GET(idEchoPattern, handler.Get)
-	albumRoutes.GET(locate, handler.GetAll)
-	albumRoutes.POST(locate, handler.Create)
-	albumRoutes.PUT(locate, handler.Update)
-	albumRoutes.DELETE(idEchoPattern, handler.Delete)
+	coverRoutes := apiVersion.Group(albumCoversPrefix)
+	coverRoutes.GET(idEchoPattern, handler.GetCover)
+	coverRoutes.GET(locate, handler.GetAllCovers)
+	coverRoutes.POST(locate, handler.CreateCover)
+	coverRoutes.PUT(locate, handler.UpdateCover)
+	coverRoutes.DELETE(idEchoPattern, handler.DeleteCover)
 }
 
 // SetArtistsRoutes artists

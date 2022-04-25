@@ -4,6 +4,7 @@ import (
 	"errors"
 	constants "github.com/go-park-mail-ru/2022_1_Wave/internal"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/domain"
+	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/microservices/artist/artistProto"
 	"github.com/jmoiron/sqlx"
 	"os"
 )
@@ -19,24 +20,24 @@ func NewArtistPostgresRepo(db *sqlx.DB) domain.ArtistRepo {
 }
 
 // ----------------------------------------------------------------------
-func (table ArtistRepo) Insert(dom domain.Artist) error {
+func (table ArtistRepo) Create(dom *artistProto.Artist) error {
 	query := `
 		INSERT INTO artist (name, count_followers, count_listening)
 		VALUES ($1, $2, $3)
 		RETURNING id`
 
 	// do query
-	_, err := table.Sqlx.Exec(query, dom.Name, dom.CountFollowers, dom.CountListening)
+	_, err := table.Sqlx.Exec(query, dom.Name, dom.CountFollowers, dom.CountListenings)
 
 	return err
 }
 
-func (table ArtistRepo) Update(dom domain.Artist) error {
+func (table ArtistRepo) Update(dom *artistProto.Artist) error {
 	query := `
 		UPDATE artist SET name = $1, count_followers = $2, count_listening = $3
 		WHERE id = $4`
 
-	res, err := table.Sqlx.Exec(query, dom.Name, dom.CountFollowers, dom.CountListening, dom.Id)
+	res, err := table.Sqlx.Exec(query, dom.Name, dom.CountFollowers, dom.CountListenings, dom.Id)
 	if err != nil {
 		return err
 	}
@@ -74,19 +75,19 @@ func (table ArtistRepo) Delete(id int64) error {
 	return nil
 }
 
-func (table ArtistRepo) SelectByID(id int64) (*domain.Artist, error) {
+func (table ArtistRepo) SelectByID(id int64) (*artistProto.Artist, error) {
 	query := `SELECT * FROM artist WHERE id = $1;`
-	holder := domain.Artist{}
+	holder := artistProto.Artist{}
 	if err := table.Sqlx.Get(&holder, query, id); err != nil {
 		return nil, err
 	}
 	return &holder, nil
 }
 
-func (table ArtistRepo) GetAll() ([]domain.Artist, error) {
+func (table ArtistRepo) GetAll() ([]*artistProto.Artist, error) {
 	query := `SELECT * FROM artist ORDER BY id;`
 
-	var artists []domain.Artist
+	var artists []*artistProto.Artist
 	err := table.Sqlx.Select(&artists, query)
 	if err != nil {
 		return nil, err
@@ -95,14 +96,14 @@ func (table ArtistRepo) GetAll() ([]domain.Artist, error) {
 	return artists, nil
 }
 
-func (table ArtistRepo) GetPopular() ([]domain.Artist, error) {
+func (table ArtistRepo) GetPopular() ([]*artistProto.Artist, error) {
 	query := `
 			SELECT *
 			FROM artist
 			ORDER BY count_listening DESC
 			LIMIT $1;`
 
-	var artists []domain.Artist
+	var artists []*artistProto.Artist
 	err := table.Sqlx.Select(&artists, query, constants.Top)
 	if err != nil {
 		return nil, err

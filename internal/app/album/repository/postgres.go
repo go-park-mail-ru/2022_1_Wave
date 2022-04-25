@@ -1,9 +1,11 @@
-package AlbumPostgres
+package AlbumRepo
 
 import (
 	"errors"
+	"fmt"
 	constants "github.com/go-park-mail-ru/2022_1_Wave/internal"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/domain"
+	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/microservices/album/albumProto"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -18,24 +20,24 @@ func NewAlbumPostgresRepo(db *sqlx.DB) domain.AlbumRepo {
 }
 
 // ----------------------------------------------------------------------
-func (table AlbumRepo) Insert(dom domain.Album) error {
+func (table AlbumRepo) Create(dom *albumProto.Album) error {
 	query := `
 		INSERT INTO album (title, artist_id, count_likes, count_listening, date)
 		VALUES ($1, $2, $3, $4, $5)
 		RETURNING id`
 
 	// do query
-	_, err := table.Sqlx.Exec(query, dom.Title, dom.ArtistId, dom.CountLikes, dom.CountListening, dom.Date)
+	_, err := table.Sqlx.Exec(query, dom.Title, dom.ArtistId, dom.CountLikes, dom.CountListenings, dom.Date)
 
 	return err
 }
 
-func (table AlbumRepo) Update(dom domain.Album) error {
+func (table AlbumRepo) Update(dom *albumProto.Album) error {
 	query := `
 		UPDATE album SET title = $1, artist_id = $2, count_likes = $3, count_listening = $4, date = $5
 		WHERE id = $6`
 
-	_, err := table.Sqlx.Exec(query, dom.Title, dom.ArtistId, dom.CountLikes, dom.CountListening, dom.Date, dom.Id)
+	_, err := table.Sqlx.Exec(query, dom.Title, dom.ArtistId, dom.CountLikes, dom.CountListenings, dom.Date, dom.Id)
 	return err
 }
 
@@ -60,9 +62,9 @@ func (table AlbumRepo) Delete(id int64) error {
 	return nil
 }
 
-func (table AlbumRepo) SelectByID(id int64) (*domain.Album, error) {
+func (table AlbumRepo) SelectByID(id int64) (*albumProto.Album, error) {
 	query := `SELECT * FROM album WHERE id = $1`
-	holder := domain.Album{}
+	holder := albumProto.Album{}
 	if err := table.Sqlx.Get(&holder, query, id); err != nil {
 		return nil, err
 	}
@@ -70,11 +72,15 @@ func (table AlbumRepo) SelectByID(id int64) (*domain.Album, error) {
 
 }
 
-func (table AlbumRepo) GetAll() ([]domain.Album, error) {
+func (table AlbumRepo) GetAll() ([]*albumProto.Album, error) {
 	query := `SELECT * FROM album ORDER BY id;`
 
-	var albums []domain.Album
+	var albums []*albumProto.Album
+
 	err := table.Sqlx.Select(&albums, query)
+
+	fmt.Println(err)
+
 	if err != nil {
 		return nil, err
 	}
@@ -82,14 +88,14 @@ func (table AlbumRepo) GetAll() ([]domain.Album, error) {
 	return albums, nil
 }
 
-func (table AlbumRepo) GetPopular() ([]domain.Album, error) {
+func (table AlbumRepo) GetPopular() ([]*albumProto.Album, error) {
 	query := `
 			SELECT *
 			FROM album
 			ORDER BY count_listening DESC
 			LIMIT $1;`
 
-	var albums []domain.Album
+	var albums []*albumProto.Album
 	err := table.Sqlx.Select(&albums, query, constants.Top)
 	if err != nil {
 		return nil, err
@@ -120,8 +126,8 @@ func (table AlbumRepo) GetSize() (int64, error) {
 	return size, nil
 }
 
-func (table AlbumRepo) GetAlbumsFromArtist(artistId int64) ([]domain.Album, error) {
-	var albums []domain.Album
+func (table AlbumRepo) GetAlbumsFromArtist(artistId int64) ([]*albumProto.Album, error) {
+	var albums []*albumProto.Album
 	if err := table.Sqlx.Select(&albums, `SELECT * FROM album WHERE artist_id = $1`, artistId); err != nil {
 		return nil, err
 	}

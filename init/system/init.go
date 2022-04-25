@@ -2,16 +2,16 @@ package system
 
 import (
 	"errors"
+	"github.com/go-park-mail-ru/2022_1_Wave/init/gRPC"
 	"github.com/go-park-mail-ru/2022_1_Wave/init/logger"
 	"github.com/go-park-mail-ru/2022_1_Wave/init/router"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal"
-	AlbumUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/app/album/usecase"
-	AlbumCoverUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/app/albumCover/usecase"
-	ArtistUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/app/artist/usecase"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/auth/usecase"
 	utilsInterfaces "github.com/go-park-mail-ru/2022_1_Wave/internal/app/interfaces"
+	AlbumUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/app/microservices/album/useCase"
+	ArtistUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/app/microservices/artist/useCase"
+	TrackUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/app/microservices/track/useCase"
 	structStoragePostgresql "github.com/go-park-mail-ru/2022_1_Wave/internal/app/structs/storage/postgresql"
-	TrackUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/app/track/usecase"
 	UserUsecase "github.com/go-park-mail-ru/2022_1_Wave/internal/app/user/userUseCase"
 	"github.com/labstack/echo/v4"
 )
@@ -19,7 +19,6 @@ import (
 const local = "local"
 const database = local
 
-// вынести юзкейсы из свича
 func Init(e *echo.Echo, quantity int64, dataBaseType string) error {
 	var initedStorage utilsInterfaces.GlobalStorageInterface
 	var err error
@@ -63,8 +62,6 @@ func Init(e *echo.Echo, quantity int64, dataBaseType string) error {
 		logger.GlobalLogger.Logrus.Fatal("Error:", err)
 	}
 
-	//sessionsQuant, err := sess.GetSize()
-
 	usersQuant, err := us.GetSize()
 	if err != nil {
 		logger.GlobalLogger.Logrus.Fatal("Error:", err)
@@ -82,12 +79,18 @@ func Init(e *echo.Echo, quantity int64, dataBaseType string) error {
 	logger.GlobalLogger.Logrus.Info("Tracks:", tracksQuant)
 
 	auth := AuthUseCase.NewAuthUseCase(sess, us)
-	album := AlbumUseCase.MakeAlbumUseCase(tr, ar, al, alc)
-	albumCover := AlbumCoverUseCase.MakeAlbumCoverUseCase(alc)
-	artist := ArtistUseCase.MakeArtistUseCase(ar, al, tr)
-	track := TrackUseCase.MakeTrackUseCase(tr, ar)
+
+	grpcLauncher := gRPC.Launcher{
+		Network:      internal.LocalHost,
+		AlbumServer:  AlbumUseCase.MakeAlbumService(tr, ar, al, alc),
+		ArtistServer: ArtistUseCase.MakeArtistService(ar, al, tr),
+		TrackServer:  TrackUseCase.MakeTrackService(tr, ar),
+	}
+
+	albumManager := grpcLauncher.LaunchAlbumService(":8081")
+	artistManager := grpcLauncher.LaunchArtistService(":8082")
+	trackManager := grpcLauncher.LaunchTrackService(":8083")
+
 	user := UserUsecase.NewUserUseCase(us, sess)
-
-	return router.Router(e, auth, album, albumCover, artist, track, user)
-
+	return router.Router(e, auth, albumManager, artistManager, trackManager, user)
 }
