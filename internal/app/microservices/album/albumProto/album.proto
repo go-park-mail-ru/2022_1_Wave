@@ -1,0 +1,64 @@
+syntax = "proto3";
+package album;
+option go_package = "github.com/go-park-mail-ru/2022_1_Wave/internal/app/microservices/album/albumProto";
+import "google/protobuf/empty.proto";
+import "common/commonProto/common.proto";
+import "track/trackProto/track.proto";
+
+message Album {
+  int64 id = 1; // @gotags: json:"id" example:"8" db:"id" validate:"min=0,nonnil"
+  string title = 2; // @gotags: json:"title" example:"Mercury" db:"title" validate:"max=256,nonnil"
+  int64 artist_id = 3; // @gotags: json:"artistId" example:"4" db:"artist_id" validate:"min=0,nonnil"
+  int64 count_likes = 4; // @gotags: json:"countLikes" example:"54" db:"count_likes" validate:"min=0,nonnil"
+  int64 count_listenings = 5; // @gotags: json:"countListening" example:"15632" db:"count_listening" validate:"min=0,nonnil"
+  int64 date = 6; // @gotags: json:"date" example:"0" db:"date,nonnil"
+}
+
+message AlbumDataTransfer {
+  int64 id = 1; // @gotags: json:"id" example:"1"
+  string title = 2; // @gotags: json:"title" example:"Mercury"
+  string artist = 3; // @gotags: json:"artist" example:"Hexed"
+  string cover = 4; // @gotags: json:"cover" example:"assets/album_1.png"
+  repeated track.TrackDataTransfer Tracks = 5; // @gotags: json:"tracks"
+}
+
+message AlbumCover {
+  int64 id = 1; // @gotags: json:"id" example:"1" db:"id" validate:"min=0,nonnil"
+  string quote = 2; // @gotags: json:"quote" example:"some phrases" db:"quote" validate:"max=512,nonnil"
+  bool is_dark = 3; // @gotags: json:"isDark" example:"true" db:"is_dark" validate:"nonnil"
+}
+
+message AlbumCoverDataTransfer {
+  string quote = 1; // @gotags: json:"quote" example:"some phrases"
+  bool is_dark = 2; // @gotags: json:"isDark" example:"true"
+}
+
+message AlbumUseCaseResponse {
+  AlbumDataTransfer data = 1;
+}
+
+message AlbumsResponse {
+  repeated AlbumDataTransfer albums = 1;
+}
+
+message AlbumsCoverResponse {
+  repeated AlbumCoverDataTransfer albums = 1;
+}
+
+service AlbumUseCase {
+  rpc GetAll(google.protobuf.Empty) returns (AlbumsResponse) {};
+  rpc GetAllCovers(google.protobuf.Empty) returns (AlbumsCoverResponse) {};
+  rpc GetLastId(google.protobuf.Empty) returns (common.IntResponse) {};
+  rpc GetLastCoverId(google.protobuf.Empty) returns (common.IntResponse) {};
+  rpc Create(Album) returns (google.protobuf.Empty) {};
+  rpc CreateCover(AlbumCover) returns (google.protobuf.Empty) {};
+  rpc Update(Album) returns (google.protobuf.Empty) {};
+  rpc UpdateCover(AlbumCover) returns (google.protobuf.Empty) {};
+  rpc Delete(common.IdArg) returns (google.protobuf.Empty) {};
+  rpc DeleteCover(common.IdArg) returns (google.protobuf.Empty) {};
+  rpc GetById(common.IdArg) returns (AlbumDataTransfer) {};
+  rpc GetCoverById(common.IdArg) returns (AlbumCoverDataTransfer) {};
+  rpc GetPopular(google.protobuf.Empty) returns (AlbumsResponse) {};
+  rpc GetAlbumsFromArtist(common.IdArg) returns (AlbumsResponse) {};
+  rpc GetSize(google.protobuf.Empty) returns (common.IntResponse) {};
+}
