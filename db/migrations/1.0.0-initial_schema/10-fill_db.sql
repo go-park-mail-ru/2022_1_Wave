@@ -89,5 +89,39 @@ VALUES (1, 1, 'Youre My Best Friend', 172, 0, 0),     -- 1
        (10, 10, 'Low', 295, 0, 0); -- 39
 
 
+CREATE INDEX album_search_ru
+    ON album
+        USING gin (to_tsvector('russian', "title"));
+CREATE INDEX album_search_en
+    ON album
+        USING gin (to_tsvector('english', "title"));
+CREATE INDEX album_search_fr
+    ON album
+        USING gin (to_tsvector('french', "title"));
+
+CREATE INDEX track_search_ru
+    ON track
+        USING gin (to_tsvector('russian', "title"));
+CREATE INDEX track_search_en
+    ON track
+        USING gin (to_tsvector('english', "title"));
+CREATE INDEX track_search_fr
+    ON track
+        USING gin (to_tsvector('french', "title"));
 
 
+-- SELECT * from album;
+--
+-- SELECT * FROM Album WHERE to_tsvector(title)
+--                               @@ plainto_tsquery('Часы');
+
+EXPLAIN ANALYSE
+SELECT *
+FROM album
+WHERE to_tsvector("title") @@ plainto_tsquery('rkpnysiugz')
+ORDER BY ts_rank(to_tsvector("title"), plainto_tsquery('rkpnysiugz')) DESC;
+
+-- EXPLAIN ANALYSE SELECT *
+--                 FROM album
+--                 WHERE title = 'rkpnysiugz'
+--                 ORDER BY title DESC;
