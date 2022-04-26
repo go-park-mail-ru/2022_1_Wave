@@ -1,7 +1,10 @@
 package userHttp
 
 import (
+	"crypto/sha1"
+	"encoding/hex"
 	"errors"
+	"fmt"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/domain"
 	"github.com/labstack/echo/v4"
 	"io"
@@ -183,7 +186,11 @@ func (a *UserHandler) UploadAvatar(c echo.Context) error {
 	user, _ := a.UserUseCase.GetBySessionId(cookie.Value)
 
 	strs := strings.Split(file.Filename, ".")
-	filename := PathToAvatars + "/user_" + strconv.Itoa(int(user.ID)) + "." + strs[len(strs)-1]
+	hash := sha1.New()
+	hash.Write([]byte("user_" + strconv.Itoa(int(user.ID))))
+
+	filename := PathToAvatars + "/" + hex.EncodeToString(hash.Sum(nil)) + "." + strs[len(strs)-1]
+	fmt.Println(filename)
 	dst, err := os.Create(filename)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, getErrorUserResponse(errors.New(uploadAvatarError)))
