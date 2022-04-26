@@ -4,8 +4,8 @@ import (
 	"crypto/sha1"
 	"encoding/hex"
 	"errors"
-	"fmt"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/domain"
+	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 	"io"
 	"net/http"
@@ -187,10 +187,9 @@ func (a *UserHandler) UploadAvatar(c echo.Context) error {
 
 	strs := strings.Split(file.Filename, ".")
 	hash := sha1.New()
-	hash.Write([]byte("user_" + strconv.Itoa(int(user.ID))))
+	hash.Write([]byte("user_" + strconv.Itoa(int(user.ID)) + uuid.NewString()))
 
 	filename := PathToAvatars + "/" + hex.EncodeToString(hash.Sum(nil)) + "." + strs[len(strs)-1]
-	fmt.Println(filename)
 	dst, err := os.Create(filename)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, getErrorUserResponse(errors.New(uploadAvatarError)))
