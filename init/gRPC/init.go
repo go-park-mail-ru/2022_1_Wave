@@ -3,12 +3,12 @@ package gRPC
 import (
 	"github.com/go-park-mail-ru/2022_1_Wave/init/logger"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal"
-	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/microservices/album/albumProto"
-	AlbumUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/app/microservices/album/useCase"
-	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/microservices/artist/artistProto"
-	ArtistUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/app/microservices/artist/useCase"
-	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/microservices/track/trackProto"
-	TrackUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/app/microservices/track/useCase"
+	"github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/album/albumProto"
+	AlbumGrpc "github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/album/gRPC"
+	"github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/artist/artistProto"
+	ArtistGrpc "github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/artist/gRPC"
+	TrackGrpc "github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/track/gRPC"
+	"github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/track/trackProto"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"net"
@@ -16,12 +16,12 @@ import (
 
 type Launcher struct {
 	Network      string
-	AlbumServer  AlbumUseCase.AlbumUseCase
-	ArtistServer ArtistUseCase.ArtistUseCase
-	TrackServer  TrackUseCase.TrackUseCase
+	AlbumServer  AlbumGrpc.AlbumGrpc
+	ArtistServer ArtistGrpc.ArtistGrpc
+	TrackServer  TrackGrpc.TrackGrpc
 }
 
-func (launcher *Launcher) LaunchAlbumService(address string) albumProto.AlbumUseCaseClient {
+func (launcher *Launcher) MakeAlbumGrpcClient(address string) albumProto.AlbumUseCaseClient {
 	server := grpc.NewServer()
 	albumProto.RegisterAlbumUseCaseServer(server, launcher.AlbumServer)
 
@@ -31,7 +31,7 @@ func (launcher *Launcher) LaunchAlbumService(address string) albumProto.AlbumUse
 	return albumManager
 }
 
-func (launcher *Launcher) LaunchArtistService(address string) artistProto.ArtistUseCaseClient {
+func (launcher *Launcher) MakeArtistGrpcClient(address string) artistProto.ArtistUseCaseClient {
 	server := grpc.NewServer()
 	artistProto.RegisterArtistUseCaseServer(server, launcher.ArtistServer)
 
@@ -41,7 +41,7 @@ func (launcher *Launcher) LaunchArtistService(address string) artistProto.Artist
 	return artistManager
 }
 
-func (launcher *Launcher) LaunchTrackService(address string) trackProto.TrackUseCaseClient {
+func (launcher *Launcher) MakeTrackGrpcClient(address string) trackProto.TrackUseCaseClient {
 	server := grpc.NewServer()
 	trackProto.RegisterTrackUseCaseServer(server, launcher.TrackServer)
 
@@ -53,6 +53,9 @@ func (launcher *Launcher) LaunchTrackService(address string) trackProto.TrackUse
 
 func (launcher *Launcher) createConnection(address string, server *grpc.Server) *grpc.ClientConn {
 	listener, err := net.Listen(launcher.Network, address)
+	if err != nil {
+		logger.GlobalLogger.Logrus.Fatalln("Error to launch grpc:", err)
+	}
 	go server.Serve(listener)
 	grpcConn, err := grpc.Dial(internal.LocalHost+address, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {

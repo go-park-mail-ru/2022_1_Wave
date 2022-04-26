@@ -1,0 +1,41 @@
+syntax = "proto3";
+package track;
+option go_package = "github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/artist/artistProto";
+import "google/protobuf/empty.proto";
+import "gateway/gatewayProto/gateway.proto";
+import "album/albumProto/album.proto";
+
+message Artist {
+  int64 id = 1;  // @gotags: json:"id" example:"6" db:"id" validate:"min=0,nonnil"
+  string name = 2;  // @gotags: json:"name" example:"Imagine Dragons" db:"name" validate:"max=256,nonnil"
+  int64 count_likes = 3;  // @gotags: json:"countLikes" example:"54" db:"count_likes" validate:"min=0,nonnil"
+  int64 count_followers = 4;  // @gotags: json:"countFollowers" example:"1001" db:"count_followers" validate:"min=0,nonnil"
+  int64 count_listenings = 5;  // @gotags: json:"countListening" example:"7654" db:"count_listening" validate:"min=0,nonnil"
+}
+
+message ArtistDataTransfer {
+  int64 id = 1; // @gotags: json:"id" example:"1"
+  string name = 2; // @gotags: json:"name" example:"Mercury"
+  string cover = 3; // @gotags: json:"cover" example:"assets/artist_1.png"
+  int64 likes = 4; // @gotags: json:"likes" example:"5"
+  repeated album.AlbumDataTransfer Albums = 5; // @gotags: json:"albums"
+}
+
+message ArtistUseCaseResponse {
+  ArtistDataTransfer data = 1;
+}
+
+message ArtistsResponse {
+  repeated ArtistDataTransfer artists = 1;
+}
+
+service ArtistUseCase {
+  rpc GetAll(google.protobuf.Empty) returns (ArtistsResponse) {};
+  rpc GetLastId(google.protobuf.Empty) returns (gateway.IntResponse) {};
+  rpc Create(Artist) returns (google.protobuf.Empty) {};
+  rpc Update(Artist) returns (google.protobuf.Empty) {};
+  rpc Delete(gateway.IdArg) returns (google.protobuf.Empty) {};
+  rpc GetById(gateway.IdArg) returns (ArtistDataTransfer) {};
+  rpc GetPopular(google.protobuf.Empty) returns (ArtistsResponse) {};
+  rpc GetSize(google.protobuf.Empty) returns (gateway.IntResponse) {};
+}

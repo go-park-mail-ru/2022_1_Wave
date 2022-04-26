@@ -1,0 +1,6 @@
+#!/bin/bash
+go list ./...
+CVPKG=$(go list ./... | grep -Ev 'mocks|*.(P|p)roto' | tr '\n' ',')
+go test -coverpkg "$CVPKG" -coverprofile cover.out ./...
+go tool cover -func cover.out | grep total
+go tool cover -html=cover.out

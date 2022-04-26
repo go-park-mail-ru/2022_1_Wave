@@ -1,0 +1,12 @@
+syntax = "proto3";
+package gateway;
+option go_package = "github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/gateway/gatewayProto";
+
+message IntResponse {
+  int64 Data = 1;
+}
+
+
+message IdArg {
+  int64 Id = 1;
+}

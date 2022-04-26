@@ -16,7 +16,6 @@ services:
 
   wave_music:
     tty: true
-    #    build: .
     image: mausved/wave_music_api_v1
     expose:
       - 5000

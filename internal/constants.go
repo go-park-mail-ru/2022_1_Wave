@@ -15,9 +15,11 @@ const (
 
 // success
 const (
-	SuccessCreated = "success created"
-	SuccessUpdated = "success updated"
-	SuccessDeleted = "success deleted"
+	SuccessCreated  = "success created"
+	SuccessUpdated  = "success updated"
+	SuccessDeleted  = "success deleted"
+	SuccessLiked    = "success liked"
+	SuccessListened = "success listened"
 )
 
 // success albums
@@ -191,6 +193,11 @@ const (
 const (
 	Tcp       = "tcp"
 	LocalHost = "localhost"
+)
+
+// clients
+const (
+	Grpc = "gRPC"
 )
 
 // formats
