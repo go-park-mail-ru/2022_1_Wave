@@ -15,8 +15,8 @@ services:
       - pgadmin
 
   wave_music:
-    build: ./
     tty: true
+    image: golang:latest
     expose:
       - 5000
     working_dir: /var/www/service/
