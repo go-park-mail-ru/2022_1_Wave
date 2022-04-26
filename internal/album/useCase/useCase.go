@@ -21,4 +21,5 @@ type AlbumAgent interface {
 	GetPopular() (*albumProto.AlbumsResponse, error)
 	GetAlbumsFromArtist(*gatewayProto.IdArg) (*albumProto.AlbumsResponse, error)
 	GetSize() (*gatewayProto.IntResponse, error)
+	SearchByTitle(arg *gatewayProto.StringArg) (*albumProto.AlbumsResponse, error)
 }

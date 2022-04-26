@@ -226,3 +226,23 @@ func (agent GrpcAgent) Listen(data *gatewayProto.IdArg) error {
 	_, err := agent.TrackGrpc.Listen(context.Background(), &gatewayProto.IdArg{Id: data.Id})
 	return err
 }
+
+func (useCase TrackGrpc) SearchByTitle(ctx context.Context, title *gatewayProto.StringArg) (*trackProto.TracksResponse, error) {
+	tracks, err := (*useCase.TrackRepo).SearchByTitle(title.Str)
+
+	dto := make([]*trackProto.TrackDataTransfer, len(tracks))
+
+	for idx, track := range tracks {
+		data, err := useCase.CastToDTO(track)
+		if err != nil {
+			return nil, err
+		}
+		dto[idx] = data
+	}
+
+	return &trackProto.TracksResponse{Tracks: dto}, err
+}
+
+func (agent GrpcAgent) SearchByTitle(title *gatewayProto.StringArg) (*trackProto.TracksResponse, error) {
+	return agent.TrackGrpc.SearchByTitle(context.Background(), title)
+}

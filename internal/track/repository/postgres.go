@@ -165,3 +165,20 @@ func (table TrackRepo) Listen(trackId int64) error {
 	}
 	return nil
 }
+
+func (table TrackRepo) SearchByTitle(title string) ([]*trackProto.Track, error) {
+	query := `
+			SELECT *
+			FROM track
+			WHERE to_tsvector("title") @@ plainto_tsquery($1)
+			ORDER BY ts_rank(to_tsvector("title"), plainto_tsquery($1)) DESC;
+			`
+
+	var tracks []*trackProto.Track
+	err := table.Sqlx.Select(&tracks, query, title)
+	if err != nil {
+		return nil, err
+	}
+
+	return tracks, nil
+}

@@ -10,6 +10,7 @@ import (
 	authHttp "github.com/go-park-mail-ru/2022_1_Wave/internal/auth/delivery/http"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/auth/delivery/http/http_middleware"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/domain"
+	gatewayDeliveryHttp "github.com/go-park-mail-ru/2022_1_Wave/internal/gateway/delivery/http"
 	trackDeliveryHttp "github.com/go-park-mail-ru/2022_1_Wave/internal/track/delivery/http"
 	TrackUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/track/useCase"
 	userHttp "github.com/go-park-mail-ru/2022_1_Wave/internal/user/delivery/http"
@@ -32,6 +33,8 @@ func Router(e *echo.Echo,
 	trackHandler := trackDeliveryHttp.MakeHandler(track)
 	authHandler := authHttp.MakeHandler(auth)
 	userHandler := userHttp.MakeHandler(user)
+	gatewayHandler := gatewayDeliveryHttp.MakeHandler(album, artist, track)
+
 	m := http_middleware.InitMiddleware(auth)
 
 	logger.GlobalLogger.Logrus.Warnln("api version:", v1Prefix)
@@ -44,6 +47,9 @@ func Router(e *echo.Echo,
 
 	SetTracksRoutes(v1, trackHandler)
 	logger.GlobalLogger.Logrus.Warnln("setting tracks routes")
+
+	SetGatewayRoutes(v1, gatewayHandler)
+	logger.GlobalLogger.Logrus.Warnln("setting gateway routes")
 
 	SetDocsPath(v1)
 	logger.GlobalLogger.Logrus.Warnln("setting docs routes")
@@ -91,7 +97,7 @@ func SetArtistsRoutes(apiVersion *echo.Group, handler artistDeliveryHttp.Handler
 	artistRoutes.DELETE(idEchoPattern, handler.Delete)
 }
 
-// SetTracksRoutes songs
+// SetTracksRoutes tracks
 func SetTracksRoutes(apiVersion *echo.Group, handler trackDeliveryHttp.Handler) {
 	trackRoutes := apiVersion.Group(tracksPrefix)
 
@@ -103,6 +109,12 @@ func SetTracksRoutes(apiVersion *echo.Group, handler trackDeliveryHttp.Handler) 
 	trackRoutes.DELETE(idEchoPattern, handler.Delete)
 	trackRoutes.PUT(likePrefix+idEchoPattern, handler.Like)
 	trackRoutes.PUT(listenPrefix+idEchoPattern, handler.Listen)
+}
+
+// SetGatewayRoutes songs
+func SetGatewayRoutes(apiVersion *echo.Group, handler gatewayDeliveryHttp.Handler) {
+	searchRoutes := apiVersion.Group(searchPrefix)
+	searchRoutes.GET(strEchoPattern, handler.Search)
 }
 
 func SetUserRoutes(apiVersion *echo.Group, handler userHttp.UserHandler, m *http_middleware.HttpMiddleware) {
@@ -157,6 +169,7 @@ const (
 	artistsPrefix     = "/artists"
 	tracksPrefix      = "/tracks"
 	usersPrefix       = "/users"
+	searchPrefix      = "/search"
 	docsPrefix        = "/docs"
 	popularPrefix     = "/popular"
 	likePrefix        = "/like"
@@ -180,14 +193,15 @@ const (
 
 // destinations
 const (
-	login         = "login"
-	logout        = "logout"
-	signUp        = "signup"
-	getCSRF       = "get_csrf"
-	self          = "self"
-	popular       = "popular"
-	idMuxPattern  = "{id:[0-9]+}"
-	idEchoPattern = "/:id"
+	login          = "login"
+	logout         = "logout"
+	signUp         = "signup"
+	getCSRF        = "get_csrf"
+	self           = "self"
+	popular        = "popular"
+	idMuxPattern   = "{id:[0-9]+}"
+	idEchoPattern  = "/:id"
+	strEchoPattern = "/:toFind"
 )
 
 // words

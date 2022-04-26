@@ -18,4 +18,5 @@ type TrackAgent interface {
 	GetSize() (*gatewayProto.IntResponse, error)
 	Like(arg *gatewayProto.IdArg) error
 	Listen(arg *gatewayProto.IdArg) error
+	SearchByTitle(arg *gatewayProto.StringArg) (*trackProto.TracksResponse, error)
 }

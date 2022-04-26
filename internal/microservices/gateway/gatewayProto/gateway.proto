@@ -6,6 +6,9 @@ message IntResponse {
   int64 Data = 1;
 }
 
+message StringArg {
+  string str = 1;
+}
 
 message IdArg {
   int64 Id = 1;

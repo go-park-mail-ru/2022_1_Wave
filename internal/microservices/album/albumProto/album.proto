@@ -61,4 +61,5 @@ service AlbumUseCase {
   rpc GetPopular(google.protobuf.Empty) returns (AlbumsResponse) {};
   rpc GetAlbumsFromArtist(gateway.IdArg) returns (AlbumsResponse) {};
   rpc GetSize(google.protobuf.Empty) returns (gateway.IntResponse) {};
+  rpc SearchByTitle(gateway.StringArg) returns (AlbumsResponse) {}
 }

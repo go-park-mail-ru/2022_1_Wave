@@ -140,6 +140,7 @@ func (h Handler) Get(ctx echo.Context) error {
 	if err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 	}
+
 	if id < 0 {
 		return webUtils.WriteErrorEchoServer(ctx, errors.New(constants.IndexOutOfRange), http.StatusBadRequest)
 	}

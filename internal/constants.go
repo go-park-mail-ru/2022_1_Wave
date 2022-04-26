@@ -175,6 +175,8 @@ const (
 	FieldQuote          = "quote"
 	FieldAlbums         = "albums"
 	FieldTracks         = "tracks"
+	FieldStr            = "str"
+	FieldToFind         = "toFind"
 )
 
 // others

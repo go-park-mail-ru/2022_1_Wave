@@ -177,3 +177,23 @@ func (useCase ArtistGrpc) GetSize(context.Context, *emptypb.Empty) (*gatewayProt
 func (agent GrpcAgent) GetSize() (*gatewayProto.IntResponse, error) {
 	return agent.ArtistGrpc.GetSize(context.Background(), &emptypb.Empty{})
 }
+
+func (useCase ArtistGrpc) SearchByName(ctx context.Context, title *gatewayProto.StringArg) (*artistProto.ArtistsResponse, error) {
+	artists, err := (*useCase.ArtistRepo).SearchByName(title.Str)
+
+	dto := make([]*artistProto.ArtistDataTransfer, len(artists))
+
+	for idx, artist := range artists {
+		data, err := useCase.CastToDTO(artist)
+		if err != nil {
+			return nil, err
+		}
+		dto[idx] = data
+	}
+
+	return &artistProto.ArtistsResponse{Artists: dto}, err
+}
+
+func (agent GrpcAgent) SearchByName(title *gatewayProto.StringArg) (*artistProto.ArtistsResponse, error) {
+	return agent.ArtistGrpc.SearchByName(context.Background(), title)
+}

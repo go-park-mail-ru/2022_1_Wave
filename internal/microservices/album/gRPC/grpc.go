@@ -274,3 +274,23 @@ func (useCase AlbumGrpc) GetSize(context.Context, *emptypb.Empty) (*gatewayProto
 func (agent GrpcAgent) GetSize() (*gatewayProto.IntResponse, error) {
 	return agent.AlbumGrpc.GetSize(context.Background(), &emptypb.Empty{})
 }
+
+func (useCase AlbumGrpc) SearchByTitle(ctx context.Context, title *gatewayProto.StringArg) (*albumProto.AlbumsResponse, error) {
+	albums, err := (*useCase.AlbumRepo).SearchByTitle(title.Str)
+
+	dto := make([]*albumProto.AlbumDataTransfer, len(albums))
+
+	for idx, album := range albums {
+		data, err := useCase.CastToDTO(album)
+		if err != nil {
+			return nil, err
+		}
+		dto[idx] = data
+	}
+
+	return &albumProto.AlbumsResponse{Albums: dto}, err
+}
+
+func (agent GrpcAgent) SearchByTitle(title *gatewayProto.StringArg) (*albumProto.AlbumsResponse, error) {
+	return agent.AlbumGrpc.SearchByTitle(context.Background(), title)
+}

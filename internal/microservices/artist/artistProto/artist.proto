@@ -38,4 +38,5 @@ service ArtistUseCase {
   rpc GetById(gateway.IdArg) returns (ArtistDataTransfer) {};
   rpc GetPopular(google.protobuf.Empty) returns (ArtistsResponse) {};
   rpc GetSize(google.protobuf.Empty) returns (gateway.IntResponse) {};
+  rpc SearchByName(gateway.StringArg) returns (ArtistsResponse) {}
 }

@@ -46,4 +46,5 @@ service TrackUseCase {
   rpc GetSize(google.protobuf.Empty) returns (gateway.IntResponse) {};
   rpc Like(gateway.IdArg) returns (google.protobuf.Empty) {};
   rpc Listen(gateway.IdArg) returns (google.protobuf.Empty) {};
+  rpc SearchByTitle(gateway.StringArg) returns (TracksResponse) {}
 }

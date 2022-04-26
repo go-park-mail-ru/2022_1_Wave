@@ -133,3 +133,20 @@ func (table ArtistRepo) GetSize() (int64, error) {
 	}
 	return size, nil
 }
+
+func (table ArtistRepo) SearchByName(title string) ([]*artistProto.Artist, error) {
+	query := `
+			SELECT *
+			FROM artist
+			WHERE to_tsvector("name") @@ plainto_tsquery($1)
+			ORDER BY ts_rank(to_tsvector("name"), plainto_tsquery($1)) DESC;
+			`
+
+	var artists []*artistProto.Artist
+	err := table.Sqlx.Select(&artists, query, title)
+	if err != nil {
+		return nil, err
+	}
+
+	return artists, nil
+}

@@ -14,4 +14,5 @@ type ArtistAgent interface {
 	GetById(*gatewayProto.IdArg) (*artistProto.ArtistDataTransfer, error)
 	GetPopular() (*artistProto.ArtistsResponse, error)
 	GetSize() (*gatewayProto.IntResponse, error)
+	SearchByName(arg *gatewayProto.StringArg) (*artistProto.ArtistsResponse, error)
 }

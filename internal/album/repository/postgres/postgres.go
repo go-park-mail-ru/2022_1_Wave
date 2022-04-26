@@ -136,4 +136,21 @@ func (table AlbumRepo) GetAlbumsFromArtist(artistId int64) ([]*albumProto.Album,
 
 }
 
+func (table AlbumRepo) SearchByTitle(title string) ([]*albumProto.Album, error) {
+	query := `
+			SELECT *
+			FROM album
+			WHERE to_tsvector("title") @@ plainto_tsquery($1)
+			ORDER BY ts_rank(to_tsvector("title"), plainto_tsquery($1)) DESC;
+			`
+
+	var albums []*albumProto.Album
+	err := table.Sqlx.Select(&albums, query, title)
+	if err != nil {
+		return nil, err
+	}
+
+	return albums, nil
+}
+
 // ----------------------------------------------------------------------
