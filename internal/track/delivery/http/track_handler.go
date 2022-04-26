@@ -1,30 +1,26 @@
 package trackDeliveryHttp
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	constants "github.com/go-park-mail-ru/2022_1_Wave/internal"
-	AlbumRepo "github.com/go-park-mail-ru/2022_1_Wave/internal/app/album/repository"
-	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/microservices/artist/artistProto"
-	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/microservices/common/commonProto"
-	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/microservices/track/trackProto"
+	Gateway "github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/gateway"
+	"github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/gateway/gatewayProto"
+	"github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/track/trackProto"
+	TrackUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/track/useCase"
 	"github.com/go-park-mail-ru/2022_1_Wave/pkg/webUtils"
 	"github.com/labstack/echo/v4"
-	"google.golang.org/protobuf/types/known/emptypb"
 	"net/http"
 	"strconv"
 )
 
 type Handler struct {
-	ArtistUseCase artistProto.ArtistUseCaseClient
-	TrackUseCase  trackProto.TrackUseCaseClient
+	TrackUseCase TrackUseCase.TrackAgent
 }
 
-func MakeHandler(artist artistProto.ArtistUseCaseClient, track trackProto.TrackUseCaseClient) Handler {
+func MakeHandler(track TrackUseCase.TrackAgent) Handler {
 	return Handler{
-		ArtistUseCase: artist,
-		TrackUseCase:  track,
+		TrackUseCase: track,
 	}
 }
 
@@ -39,7 +35,7 @@ func MakeHandler(artist artistProto.ArtistUseCaseClient, track trackProto.TrackU
 // @Failure      405  {object}  webUtils.Error  "Method is not allowed"
 // @Router       /api/v1/tracks/ [get]
 func (h Handler) GetAll(ctx echo.Context) error {
-	domains, err := h.TrackUseCase.GetAll(context.Background(), &emptypb.Empty{})
+	domains, err := h.TrackUseCase.GetAll()
 
 	if err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
@@ -73,15 +69,15 @@ func (h Handler) Create(ctx echo.Context) error {
 		return err
 	}
 
-	if err := AlbumRepo.Check(&result); err != nil {
+	if err := Gateway.Check(&result); err != nil {
 		return err
 	}
 
-	if _, err := h.TrackUseCase.Create(context.Background(), &result); err != nil {
+	if err := h.TrackUseCase.Create(&result); err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 	}
 
-	lastId, err := h.TrackUseCase.GetLastId(context.Background(), &emptypb.Empty{})
+	lastId, err := h.TrackUseCase.GetLastId()
 	if err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 	}
@@ -110,11 +106,11 @@ func (h Handler) Update(ctx echo.Context) error {
 		return err
 	}
 
-	if err := AlbumRepo.Check(&result); err != nil {
+	if err := Gateway.Check(&result); err != nil {
 		return err
 	}
 
-	if _, err := h.TrackUseCase.Update(context.Background(), &result); err != nil {
+	if err := h.TrackUseCase.Update(&result); err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 	}
 
@@ -144,7 +140,7 @@ func (h Handler) Get(ctx echo.Context) error {
 	if id < 0 {
 		return webUtils.WriteErrorEchoServer(ctx, errors.New(constants.IndexOutOfRange), http.StatusBadRequest)
 	}
-	track, err := h.TrackUseCase.GetById(context.Background(), &commonProto.IdArg{Id: int64(id)})
+	track, err := h.TrackUseCase.GetById(&gatewayProto.IdArg{Id: int64(id)})
 
 	if err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
@@ -176,7 +172,7 @@ func (h Handler) Delete(ctx echo.Context) error {
 		return webUtils.WriteErrorEchoServer(ctx, errors.New(constants.IndexOutOfRange), http.StatusBadRequest)
 	}
 
-	if _, err := h.TrackUseCase.Delete(context.Background(), &commonProto.IdArg{Id: int64(id)}); err != nil {
+	if err := h.TrackUseCase.Delete(&gatewayProto.IdArg{Id: int64(id)}); err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 	}
 
@@ -197,7 +193,7 @@ func (h Handler) Delete(ctx echo.Context) error {
 // @Failure      405  {object}  webUtils.Error  "Method is not allowed"
 // @Router       /api/v1/tracks/popular [get]
 func (h Handler) GetPopular(ctx echo.Context) error {
-	popular, err := h.TrackUseCase.GetPopular(context.Background(), &emptypb.Empty{})
+	popular, err := h.TrackUseCase.GetPopular()
 	if err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 	}
@@ -206,4 +202,64 @@ func (h Handler) GetPopular(ctx echo.Context) error {
 		webUtils.Success{
 			Status: webUtils.OK,
 			Result: popular})
+}
+
+// Like godoc
+// @Summary      Like
+// @Description  like track by id
+// @Tags         track
+// @Accept          application/json
+// @Produce      application/json
+// @Param        id   path      integer  true  "id of track which need to be liked"
+// @Success      200  {object}  webUtils.Success
+// @Failure      400  {object}  webUtils.Error  "Data is invalid"
+// @Failure      405  {object}  webUtils.Error  "Method is not allowed"
+// @Router       /api/v1/tracks/like/{id} [put]
+func (h Handler) Like(ctx echo.Context) error {
+	id, err := strconv.Atoi(ctx.Param(constants.FieldId))
+	if err != nil {
+		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
+	}
+	if id < 0 {
+		return webUtils.WriteErrorEchoServer(ctx, errors.New(constants.IndexOutOfRange), http.StatusBadRequest)
+	}
+
+	if err := h.TrackUseCase.Like(&gatewayProto.IdArg{Id: int64(id)}); err != nil {
+		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
+	}
+
+	return ctx.JSON(http.StatusOK,
+		webUtils.Success{
+			Status: webUtils.OK,
+			Result: constants.SuccessLiked + "(" + fmt.Sprint(id) + ")"})
+}
+
+// Listen godoc
+// @Summary      Listen
+// @Description  listen track by id
+// @Tags         track
+// @Accept          application/json
+// @Produce      application/json
+// @Param        id   path      integer  true  "id of track which need to be listen"
+// @Success      200  {object}  webUtils.Success
+// @Failure      400  {object}  webUtils.Error  "Data is invalid"
+// @Failure      405  {object}  webUtils.Error  "Method is not allowed"
+// @Router       /api/v1/tracks/listen/{id} [put]
+func (h Handler) Listen(ctx echo.Context) error {
+	id, err := strconv.Atoi(ctx.Param(constants.FieldId))
+	if err != nil {
+		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
+	}
+	if id < 0 {
+		return webUtils.WriteErrorEchoServer(ctx, errors.New(constants.IndexOutOfRange), http.StatusBadRequest)
+	}
+
+	if err := h.TrackUseCase.Listen(&gatewayProto.IdArg{Id: int64(id)}); err != nil {
+		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
+	}
+
+	return ctx.JSON(http.StatusOK,
+		webUtils.Success{
+			Status: webUtils.OK,
+			Result: constants.SuccessListened + "(" + fmt.Sprint(id) + ")"})
 }

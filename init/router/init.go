@@ -3,33 +3,33 @@ package router
 import (
 	_ "github.com/go-park-mail-ru/2022_1_Wave/docs"
 	"github.com/go-park-mail-ru/2022_1_Wave/init/logger"
-	albumDeliveryHttp "github.com/go-park-mail-ru/2022_1_Wave/internal/app/album/delivery/http"
-	artistDeliveryHttp "github.com/go-park-mail-ru/2022_1_Wave/internal/app/artist/delivery/http"
-	authHttp "github.com/go-park-mail-ru/2022_1_Wave/internal/app/auth/delivery/http"
-	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/auth/delivery/http/http_middleware"
-	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/domain"
-	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/microservices/album/albumProto"
-	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/microservices/artist/artistProto"
-	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/microservices/track/trackProto"
-	trackDeliveryHttp "github.com/go-park-mail-ru/2022_1_Wave/internal/app/track/delivery/http"
-	userHttp "github.com/go-park-mail-ru/2022_1_Wave/internal/app/user/delivery/http"
+	albumDeliveryHttp "github.com/go-park-mail-ru/2022_1_Wave/internal/album/delivery/http"
+	AlbumUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/album/useCase"
+	artistDeliveryHttp "github.com/go-park-mail-ru/2022_1_Wave/internal/artist/delivery/http"
+	ArtistUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/artist/useCase"
+	authHttp "github.com/go-park-mail-ru/2022_1_Wave/internal/auth/delivery/http"
+	"github.com/go-park-mail-ru/2022_1_Wave/internal/auth/delivery/http/http_middleware"
+	"github.com/go-park-mail-ru/2022_1_Wave/internal/domain"
+	trackDeliveryHttp "github.com/go-park-mail-ru/2022_1_Wave/internal/track/delivery/http"
+	TrackUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/track/useCase"
+	userHttp "github.com/go-park-mail-ru/2022_1_Wave/internal/user/delivery/http"
 	"github.com/labstack/echo/v4"
 	"github.com/swaggo/echo-swagger"
 )
 
 func Router(e *echo.Echo,
 	auth domain.AuthUseCase,
-	album albumProto.AlbumUseCaseClient,
-	artist artistProto.ArtistUseCaseClient,
-	track trackProto.TrackUseCaseClient,
+	album AlbumUseCase.AlbumAgent,
+	artist ArtistUseCase.ArtistAgent,
+	track TrackUseCase.TrackAgent,
 	user domain.UserUseCase) error {
 
 	api := e.Group(apiPrefix)
 	v1 := api.Group(v1Prefix)
 
-	albumHandler := albumDeliveryHttp.MakeHandler(album, track)
-	artistHandler := artistDeliveryHttp.MakeHandler(artist, album, track)
-	trackHandler := trackDeliveryHttp.MakeHandler(artist, track)
+	albumHandler := albumDeliveryHttp.MakeHandler(album)
+	artistHandler := artistDeliveryHttp.MakeHandler(artist, track)
+	trackHandler := trackDeliveryHttp.MakeHandler(track)
 	authHandler := authHttp.MakeHandler(auth)
 	userHandler := userHttp.MakeHandler(user)
 	m := http_middleware.InitMiddleware(auth)
@@ -101,6 +101,8 @@ func SetTracksRoutes(apiVersion *echo.Group, handler trackDeliveryHttp.Handler) 
 	trackRoutes.PUT(locate, handler.Update)
 	trackRoutes.GET(popularPrefix, handler.GetPopular)
 	trackRoutes.DELETE(idEchoPattern, handler.Delete)
+	trackRoutes.PUT(likePrefix+idEchoPattern, handler.Like)
+	trackRoutes.PUT(listenPrefix+idEchoPattern, handler.Listen)
 }
 
 func SetUserRoutes(apiVersion *echo.Group, handler userHttp.UserHandler, m *http_middleware.HttpMiddleware) {
@@ -157,6 +159,8 @@ const (
 	usersPrefix       = "/users"
 	docsPrefix        = "/docs"
 	popularPrefix     = "/popular"
+	likePrefix        = "/like"
+	listenPrefix      = "/listen"
 	loginPrefix       = "/login"
 	logoutPrefix      = "/logout"
 	signUpPrefix      = "/signup"

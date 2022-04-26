@@ -2,8 +2,8 @@ package TrackPostgres
 
 import (
 	constants "github.com/go-park-mail-ru/2022_1_Wave/internal"
-	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/domain"
-	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/microservices/track/trackProto"
+	"github.com/go-park-mail-ru/2022_1_Wave/internal/domain"
+	"github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/track/trackProto"
 	"github.com/jmoiron/sqlx"
 	"os"
 )
@@ -140,4 +140,28 @@ func (table TrackRepo) GetPopularTracksFromArtist(artistId int64) ([]*trackProto
 	}
 
 	return tracks, nil
+}
+
+func (table TrackRepo) Like(trackId int64) error {
+	track, err := table.SelectByID(trackId)
+	if err != nil {
+		return err
+	}
+	track.CountLikes = track.CountLikes + 1
+	if err := table.Update(track); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (table TrackRepo) Listen(trackId int64) error {
+	track, err := table.SelectByID(trackId)
+	if err != nil {
+		return err
+	}
+	track.CountListenings = track.CountListenings + 1
+	if err := table.Update(track); err != nil {
+		return err
+	}
+	return nil
 }
