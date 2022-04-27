@@ -63,7 +63,7 @@ func (table AlbumRepo) Delete(id int64) error {
 }
 
 func (table AlbumRepo) SelectByID(id int64) (*albumProto.Album, error) {
-	query := `SELECT * FROM album WHERE id = $1`
+	query := `SELECT * FROM album WHERE id = $1 ORDER BY id`
 	holder := albumProto.Album{}
 	if err := table.Sqlx.Get(&holder, query, id); err != nil {
 		return nil, err
@@ -128,12 +128,36 @@ func (table AlbumRepo) GetSize() (int64, error) {
 
 func (table AlbumRepo) GetAlbumsFromArtist(artistId int64) ([]*albumProto.Album, error) {
 	var albums []*albumProto.Album
-	if err := table.Sqlx.Select(&albums, `SELECT * FROM album WHERE artist_id = $1`, artistId); err != nil {
+	if err := table.Sqlx.Select(&albums, `SELECT * FROM album WHERE artist_id = $1 ORDER BY id`, artistId); err != nil {
 		return nil, err
 	}
 
 	return albums, nil
 
+}
+
+func (table AlbumRepo) Like(trackId int64) error {
+	album, err := table.SelectByID(trackId)
+	if err != nil {
+		return err
+	}
+	album.CountLikes = album.CountLikes + 1
+	if err := table.Update(album); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (table AlbumRepo) Listen(trackId int64) error {
+	album, err := table.SelectByID(trackId)
+	if err != nil {
+		return err
+	}
+	album.CountListenings = album.CountListenings + 1
+	if err := table.Update(album); err != nil {
+		return err
+	}
+	return nil
 }
 
 func (table AlbumRepo) SearchByTitle(title string) ([]*albumProto.Album, error) {

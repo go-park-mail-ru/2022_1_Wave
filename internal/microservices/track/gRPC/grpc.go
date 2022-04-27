@@ -2,6 +2,7 @@ package TrackGrpc
 
 import (
 	"context"
+	"fmt"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/domain"
 	Gateway "github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/gateway"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/gateway/gatewayProto"
@@ -20,13 +21,15 @@ func MakeAgent(gRPC trackProto.TrackUseCaseClient) GrpcAgent {
 type TrackGrpc struct {
 	TrackRepo  *domain.TrackRepo
 	ArtistRepo *domain.ArtistRepo
+	AlbumRepo  *domain.AlbumRepo
 	trackProto.UnimplementedTrackUseCaseServer
 }
 
-func MakeTrackGrpc(track domain.TrackRepo, artist domain.ArtistRepo) TrackGrpc {
+func MakeTrackGrpc(track domain.TrackRepo, artist domain.ArtistRepo, album domain.AlbumRepo) TrackGrpc {
 	return TrackGrpc{
 		TrackRepo:  &track,
 		ArtistRepo: &artist,
+		AlbumRepo:  &album,
 	}
 }
 
@@ -208,8 +211,26 @@ func (agent GrpcAgent) GetSize() (*gatewayProto.IntResponse, error) {
 }
 
 func (useCase TrackGrpc) Like(ctx context.Context, data *gatewayProto.IdArg) (*emptypb.Empty, error) {
-	err := (*useCase.TrackRepo).Like(data.Id)
-	return &emptypb.Empty{}, err
+	track, err := (*useCase.TrackRepo).SelectByID(data.Id)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := (*useCase.TrackRepo).Like(track.Id); err != nil {
+		return nil, err
+	}
+
+	fmt.Println(track.ArtistId, track.AlbumId)
+
+	if err := (*useCase.ArtistRepo).Like(track.ArtistId); err != nil {
+		return nil, err
+	}
+
+	if err := (*useCase.AlbumRepo).Like(track.AlbumId); err != nil {
+		return nil, err
+	}
+
+	return &emptypb.Empty{}, nil
 }
 
 func (agent GrpcAgent) Like(data *gatewayProto.IdArg) error {
@@ -218,8 +239,24 @@ func (agent GrpcAgent) Like(data *gatewayProto.IdArg) error {
 }
 
 func (useCase TrackGrpc) Listen(ctx context.Context, data *gatewayProto.IdArg) (*emptypb.Empty, error) {
-	err := (*useCase.TrackRepo).Listen(data.Id)
-	return &emptypb.Empty{}, err
+	track, err := (*useCase.TrackRepo).SelectByID(data.Id)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := (*useCase.TrackRepo).Listen(track.Id); err != nil {
+		return nil, err
+	}
+
+	if err := (*useCase.ArtistRepo).Listen(track.ArtistId); err != nil {
+		return nil, err
+	}
+
+	if err := (*useCase.AlbumRepo).Listen(track.AlbumId); err != nil {
+		return nil, err
+	}
+
+	return &emptypb.Empty{}, nil
 }
 
 func (agent GrpcAgent) Listen(data *gatewayProto.IdArg) error {

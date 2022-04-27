@@ -17,6 +17,8 @@ type AlbumRepo interface {
 	GetSize() (int64, error)
 	GetAlbumsFromArtist(artist int64) ([]*albumProto.Album, error)
 	SearchByTitle(title string) ([]*albumProto.Album, error)
+	Like(id int64) error
+	Listen(id int64) error
 }
 
 type AlbumCoverRepo interface {
@@ -39,6 +41,8 @@ type ArtistRepo interface {
 	GetLastId() (id int64, err error)
 	GetSize() (int64, error)
 	SearchByName(string) ([]*artistProto.Artist, error)
+	Like(id int64) error
+	Listen(id int64) error
 }
 
 type TrackRepo interface {

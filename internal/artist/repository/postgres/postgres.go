@@ -2,6 +2,7 @@ package ArtistPostgres
 
 import (
 	"errors"
+	"fmt"
 	constants "github.com/go-park-mail-ru/2022_1_Wave/internal"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/domain"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/artist/artistProto"
@@ -22,22 +23,22 @@ func NewArtistPostgresRepo(db *sqlx.DB) domain.ArtistRepo {
 // ----------------------------------------------------------------------
 func (table ArtistRepo) Create(dom *artistProto.Artist) error {
 	query := `
-		INSERT INTO artist (name, count_followers, count_listening)
-		VALUES ($1, $2, $3)
+		INSERT INTO artist (name, count_followers, count_listening, count_likes)
+		VALUES ($1, $2, $3, $4)
 		RETURNING id`
 
 	// do query
-	_, err := table.Sqlx.Exec(query, dom.Name, dom.CountFollowers, dom.CountListenings)
+	_, err := table.Sqlx.Exec(query, dom.Name, dom.CountFollowers, dom.CountListenings, dom.CountLikes)
 
 	return err
 }
 
 func (table ArtistRepo) Update(dom *artistProto.Artist) error {
 	query := `
-		UPDATE artist SET name = $1, count_followers = $2, count_listening = $3
-		WHERE id = $4`
+		UPDATE artist SET name = $1, count_followers = $2, count_listening = $3, count_likes = $4
+		WHERE id = $5`
 
-	res, err := table.Sqlx.Exec(query, dom.Name, dom.CountFollowers, dom.CountListenings, dom.Id)
+	res, err := table.Sqlx.Exec(query, dom.Name, dom.CountFollowers, dom.CountListenings, dom.CountLikes, dom.Id)
 	if err != nil {
 		return err
 	}
@@ -76,7 +77,7 @@ func (table ArtistRepo) Delete(id int64) error {
 }
 
 func (table ArtistRepo) SelectByID(id int64) (*artistProto.Artist, error) {
-	query := `SELECT * FROM artist WHERE id = $1;`
+	query := `SELECT * FROM artist WHERE id = $1 ORDER BY id;`
 	holder := artistProto.Artist{}
 	if err := table.Sqlx.Get(&holder, query, id); err != nil {
 		return nil, err
@@ -132,6 +133,36 @@ func (table ArtistRepo) GetSize() (int64, error) {
 		os.Exit(1)
 	}
 	return size, nil
+}
+
+func (table ArtistRepo) Like(artistId int64) error {
+	artist, err := table.SelectByID(artistId)
+	if err != nil {
+		return err
+	}
+
+	fmt.Println("before like=", artist.CountLikes)
+
+	artist.CountLikes = artist.CountLikes + 1
+	if err := table.Update(artist); err != nil {
+		return err
+	}
+
+	fmt.Println("after like=", artist)
+
+	return nil
+}
+
+func (table ArtistRepo) Listen(trackId int64) error {
+	artist, err := table.SelectByID(trackId)
+	if err != nil {
+		return err
+	}
+	artist.CountListenings = artist.CountListenings + 1
+	if err := table.Update(artist); err != nil {
+		return err
+	}
+	return nil
 }
 
 func (table ArtistRepo) SearchByName(title string) ([]*artistProto.Artist, error) {

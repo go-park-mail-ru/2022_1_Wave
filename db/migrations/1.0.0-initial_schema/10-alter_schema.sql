@@ -5,21 +5,21 @@ SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
 SELECT pg_catalog.set_config('search_path', '', false);
 SET
-check_function_bodies = false;
+    check_function_bodies = false;
 SET
-xmloption = content;
+    xmloption = content;
 SET
-client_min_messages = warning;
+    client_min_messages = warning;
 SET
-row_security = off;
+    row_security = off;
 SET
-default_tablespace = '';
+    default_tablespace = '';
 SET
-default_with_oids = false;
+    default_with_oids = false;
 SET
-default_table_access_method = heap;
+    default_table_access_method = heap;
 SET
-search_path = public, pg_catalog;
+    search_path = public, pg_catalog;
 
 
 
@@ -49,7 +49,7 @@ CREATE TABLE Users
     username        varchar(128) NOT NULL UNIQUE,
     avatar          varchar(255),
     password_hash   varchar(64),
-    count_following integer      DEFAULT 0,
+    count_following integer DEFAULT 0,
     CONSTRAINT Users_pk PRIMARY KEY (id)
 ) WITH (
       OIDS= FALSE
@@ -81,7 +81,7 @@ CREATE TABLE UserTracksLike
     track_id integer NOT NULL
 ) WITH (
       OIDS = FALSE
-      );
+    );
 
 
 
@@ -102,7 +102,7 @@ CREATE TABLE UserListenedTrack
     listening_date DATE    NOT NULL DEFAULT 'now'
 ) WITH (
       OIDS = FALSE
-      );
+    );
 
 
 
@@ -142,7 +142,7 @@ CREATE TABLE PlaylistTrack
     track_id    integer NOT NULL
 ) WITH (
       OIDS = FALSE
-      );
+    );
 
 
 
@@ -152,7 +152,7 @@ CREATE TABLE UserPlaylist
     playlist_id integer NOT NULL
 ) WITH (
       OIDS = FALSE
-      );
+    );
 
 
 
@@ -163,7 +163,7 @@ CREATE TABLE UserListenedPlaylist
     date_listening DATE    NOT NULL
 ) WITH (
       OIDS = FALSE
-      );
+    );
 
 
 
@@ -179,7 +179,7 @@ CREATE TABLE Album
     CONSTRAINT Album_pk PRIMARY KEY (id)
 ) WITH (
       OIDS = FALSE
-      );
+    );
 
 -- CREATE TABLE Single
 -- (
@@ -197,6 +197,7 @@ CREATE TABLE Artist
     id              serial       NOT NULL,
     name            varchar(255) NOT NULL,
 --     photo_id        serial      NOT NULL,
+    count_likes     integer      NOT NULL,
     count_followers integer      NOT NULL,
     count_listening integer      NOT NULL,
     CONSTRAINT Artist_pk PRIMARY KEY (id)
@@ -214,7 +215,7 @@ CREATE TABLE AlbumCover
     CONSTRAINT AlbumCover_pk PRIMARY KEY (id)
 ) WITH (
       OIDS = FALSE
-      );
+    );
 
 
 CREATE TABLE UserAlbumsLike

@@ -45,25 +45,10 @@ func (table TrackRepo) Delete(id int64) error {
 
 	_, err := table.Sqlx.Exec(query, id)
 	return err
-	//
-	//if err != nil {
-	//	return err
-	//}
-	//
-	//deleted, err := res.RowsAffected()
-	//
-	//if err != nil {
-	//	return err
-	//}
-	//
-	//if deleted == 0 {
-	//	return errors.New(constants.IndexOutOfRange)
-	//}
-	//return nil
 }
 
 func (table TrackRepo) SelectByID(id int64) (*trackProto.Track, error) {
-	query := `SELECT * FROM track WHERE id = $1;`
+	query := `SELECT * FROM track WHERE id = $1 ORDER BY id;`
 	holder := trackProto.Track{}
 	if err := table.Sqlx.Get(&holder, query, id); err != nil {
 		return nil, err
@@ -123,7 +108,7 @@ func (table TrackRepo) GetSize() (int64, error) {
 
 func (table TrackRepo) GetTracksFromAlbum(albumId int64) ([]*trackProto.Track, error) {
 	var tracks []*trackProto.Track
-	if err := table.Sqlx.Select(&tracks, `SELECT * FROM track WHERE album_id = $1`, albumId); err != nil {
+	if err := table.Sqlx.Select(&tracks, `SELECT * FROM track WHERE album_id = $1 ORDER BY id`, albumId); err != nil {
 		return nil, err
 	}
 	return tracks, nil

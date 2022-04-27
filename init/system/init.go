@@ -109,7 +109,7 @@ func makeGrpcClients(repoContainer container) (AlbumUseCase.AlbumAgent, ArtistUs
 		Network:      internal.Tcp,
 		AlbumServer:  AlbumGrpc.MakeAlbumGrpc(repoContainer.Tr, repoContainer.Ar, repoContainer.Al, repoContainer.Alc),
 		ArtistServer: ArtistGrpc.MakeArtistGrpc(repoContainer.Ar, repoContainer.Al, repoContainer.Tr),
-		TrackServer:  TrackGrpc.MakeTrackGrpc(repoContainer.Tr, repoContainer.Ar),
+		TrackServer:  TrackGrpc.MakeTrackGrpc(repoContainer.Tr, repoContainer.Ar, repoContainer.Al),
 	}
 
 	albumClient := grpcLauncher.MakeAlbumGrpcClient(":8081")
