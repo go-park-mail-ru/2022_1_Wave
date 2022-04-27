@@ -199,6 +199,11 @@ const (
 	LocalHost = "localhost"
 )
 
+// auth
+const (
+	SessionIdKey = "session_id"
+)
+
 // clients
 const (
 	Grpc = "gRPC"

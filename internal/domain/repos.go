@@ -3,6 +3,7 @@ package domain
 import (
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/album/albumProto"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/artist/artistProto"
+	"github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/playlist/playlistProto"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/track/trackProto"
 )
 
@@ -68,4 +69,14 @@ type TrackRepo interface {
 	GetFavorites(userId int64) ([]*trackProto.Track, error)
 	AddToFavorites(id int64, userId int64) error
 	RemoveFromFavorites(trackId int64, userId int64) error
+}
+
+type PlaylistRepo interface {
+	Create(userId int64, playlist *playlistProto.Playlist) error
+	Update(userId int64, playlist *playlistProto.Playlist) error
+	Delete(userId int64, playlistId int64) error
+	SelectByID(userId int64, playlistId int64) (*playlistProto.Playlist, error)
+	GetAll(userId int64) ([]*playlistProto.Playlist, error)
+	GetLastId(userId int64) (id int64, err error)
+	GetSize(userId int64) (int64, error)
 }

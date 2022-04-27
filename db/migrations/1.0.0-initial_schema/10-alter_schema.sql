@@ -146,18 +146,13 @@ CREATE TABLE UserPlayer
 
 CREATE TABLE Playlist
 (
-    id              serial       NOT NULL,
-    title           varchar(255) NOT NULL,
-    artist_id       integer      NOT NULL,
-    date_create     DATE         NOT NULL DEFAULT 'now',
-    count_likes     integer      NOT NULL,
-    count_added     integer      NOT NULL,
-    count_listening integer      NOT NULL,
+    id        serial       NOT NULL,
+    title     varchar(255) NOT NULL,
+    tracks_id int[],
     CONSTRAINT Playlist_pk PRIMARY KEY (id)
 ) WITH (
       OIDS= FALSE
     );
-
 
 
 CREATE TABLE PlaylistTrack
@@ -303,8 +298,11 @@ ALTER TABLE UserPlayer
 ALTER TABLE UserPlayer
     ADD CONSTRAINT UserPlayer_fk3 FOREIGN KEY (album_id) REFERENCES Track (id);
 
-ALTER TABLE Playlist
-    ADD CONSTRAINT Playlist_fk0 FOREIGN KEY (artist_id) REFERENCES Users (id);
+-- ALTER TABLE Playlist
+--     ADD CONSTRAINT Playlist_fk0 FOREIGN KEY (track_id) REFERENCES Track (id);
+
+-- ALTER TABLE Playlist
+--     ADD CONSTRAINT Playlist_fk0 CHECK (unnest(tracks_id) = Track.id );
 
 ALTER TABLE PlaylistTrack
     ADD CONSTRAINT PlaylistTrack_fk0 FOREIGN KEY (playlist_id) REFERENCES Playlist (id);
