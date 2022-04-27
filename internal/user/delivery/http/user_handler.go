@@ -1,8 +1,12 @@
 package userHttp
 
 import (
+	"crypto/sha1"
+	"encoding/hex"
 	"errors"
-	"github.com/go-park-mail-ru/2022_1_Wave/internal/domain"
+	user_microservice_domain "github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/user"
+	user_domain "github.com/go-park-mail-ru/2022_1_Wave/internal/user"
+	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 	"io"
 	"net/http"
@@ -12,7 +16,7 @@ import (
 )
 
 type UserHandler struct {
-	UserUseCase domain.UserUseCase
+	UserUseCase user_domain.UserUseCase
 }
 
 const (
@@ -27,7 +31,7 @@ const (
 
 //var Handler UserHandler
 
-func MakeHandler(userUseCase domain.UserUseCase) UserHandler {
+func MakeHandler(userUseCase user_domain.UserUseCase) UserHandler {
 	return UserHandler{
 		UserUseCase: userUseCase,
 	}
@@ -71,7 +75,7 @@ func (a *UserHandler) GetUser(c echo.Context) error {
 		return c.JSON(http.StatusNotFound, getErrorUserResponse(err))
 	}
 
-	return c.JSON(http.StatusOK, getSuccessGetUserResponse(user))
+	return c.JSON(http.StatusOK, getSuccessGetUserResponseProto(user))
 }
 
 // GetSelfUser godoc
@@ -96,7 +100,7 @@ func (a *UserHandler) GetSelfUser(c echo.Context) error {
 		return c.JSON(http.StatusUnauthorized, getErrorUserResponse(err))
 	}
 
-	return c.JSON(http.StatusOK, getSuccessGetUserResponse(user))
+	return c.JSON(http.StatusOK, getSuccessGetUserResponseProto(user))
 }
 
 /*func (a *UserHandler) UpdateUser(c echo.Context) error {
@@ -141,7 +145,7 @@ func (a *UserHandler) UpdateSelfUser(c echo.Context) error {
 		return c.JSON(http.StatusUnauthorized, getErrorUserResponse(err))
 	}
 
-	var userUpdates domain.User
+	var userUpdates user_microservice_domain.User
 	err = c.Bind(&userUpdates)
 	if err != nil {
 		return c.JSON(http.StatusUnprocessableEntity, getErrorUserResponse(errors.New(invalidUserJSON)))
@@ -183,12 +187,16 @@ func (a *UserHandler) UploadAvatar(c echo.Context) error {
 	user, _ := a.UserUseCase.GetBySessionId(cookie.Value)
 
 	strs := strings.Split(file.Filename, ".")
-	filename := PathToAvatars + "/user_" + strconv.Itoa(int(user.ID)) + "." + strs[len(strs)-1]
+	hash := sha1.New()
+	hash.Write([]byte("user_" + strconv.Itoa(int(user.ID)) + uuid.NewString()))
+
+	filename := PathToAvatars + "/" + hex.EncodeToString(hash.Sum(nil)) + "." + strs[len(strs)-1]
 	dst, err := os.Create(filename)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, getErrorUserResponse(errors.New(uploadAvatarError)))
 	}
 	defer dst.Close()
+
 	if _, err = io.Copy(dst, src); err != nil {
 		return c.JSON(http.StatusBadRequest, getErrorUserResponse(errors.New(uploadAvatarError)))
 	}

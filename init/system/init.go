@@ -12,6 +12,7 @@ import (
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/domain"
 	AlbumGrpc "github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/album/gRPC"
 	ArtistGrpc "github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/artist/gRPC"
+	auth_domain "github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/auth"
 	TrackGrpc "github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/track/gRPC"
 	structStoragePostgresql "github.com/go-park-mail-ru/2022_1_Wave/internal/structs/storage/postgresql"
 	TrackUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/track/useCase"
@@ -26,7 +27,7 @@ type container struct {
 	Al   domain.AlbumRepo
 	Alc  domain.AlbumCoverRepo
 	Ar   domain.ArtistRepo
-	Sess domain.SessionRepo
+	Sess auth_domain.AuthRepo
 	Us   domain.UserRepo
 	Tr   domain.TrackRepo
 }
@@ -88,7 +89,7 @@ func Init(e *echo.Echo, quantity int64, dataBaseType string) error {
 
 	printDbQuants(usersQuant, artistsQuant, albumsQuant, albumCoversQuant, tracksQuant)
 
-	auth := AuthUseCase.NewAuthUseCase(repoContainer.Sess, repoContainer.Us)
+	auth := AuthUseCase.NewAuthService(repoContainer.Sess, repoContainer.Us)
 
 	albumClient, artistClient, trackClient := makeClients(internal.Grpc, repoContainer)
 

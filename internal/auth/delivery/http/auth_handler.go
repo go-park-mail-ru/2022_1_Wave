@@ -1,11 +1,11 @@
-package authHttp
+package auth_http
 
 import (
 	"errors"
-	"fmt"
-	"github.com/go-park-mail-ru/2022_1_Wave/config"
-	AuthUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/auth/usecase"
+	auth_domain "github.com/go-park-mail-ru/2022_1_Wave/internal/auth"
+	auth_usecase "github.com/go-park-mail-ru/2022_1_Wave/internal/auth/usecase"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/domain"
+	user_microservice_domain "github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/user"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/tools/utils"
 	"github.com/labstack/echo/v4"
 	"net/http"
@@ -14,11 +14,12 @@ import (
 
 const (
 	invalidUserJSON = "invalid json"
-	sessionIdKey    = "session_id"
+	SessionIdKey    = "session_id"
+	CsrfTokenKey    = echo.HeaderXCSRFToken
 )
 
 type AuthHandler struct {
-	AuthUseCase domain.AuthUseCase
+	AuthUseCase auth_domain.AuthUseCase
 }
 
 //var Handler AuthHandler
@@ -26,16 +27,34 @@ type AuthHandler struct {
 
 var csrfTokenExpire = time.Hour * 1
 
-func formCookie(sessionId string) *http.Cookie {
+func formSessionCookie(sessionId string) *http.Cookie {
 	return &http.Cookie{
-		Name:     sessionIdKey,
+		Name:     SessionIdKey,
 		Value:    sessionId,
-		Expires:  time.Now().Add(AuthUseCase.SessionExpire),
+		Expires:  time.Now().Add(auth_usecase.SessionExpires),
 		HttpOnly: true,
 	}
 }
 
-func MakeHandler(authUseCase domain.AuthUseCase) AuthHandler {
+func formCSRFCookie(csrfToken string) *http.Cookie {
+	return &http.Cookie{
+		Name:     CsrfTokenKey,
+		Value:    csrfToken,
+		Expires:  time.Now().Add(csrfTokenExpire),
+		HttpOnly: true,
+	}
+}
+
+func deleteCookie(sessionId string) *http.Cookie {
+	return &http.Cookie{
+		Name:     SessionIdKey,
+		Value:    sessionId,
+		Expires:  time.Now().Add(-auth_usecase.SessionExpires),
+		HttpOnly: true,
+	}
+}
+
+func MakeHandler(authUseCase auth_domain.AuthUseCase) AuthHandler {
 	return AuthHandler{
 		AuthUseCase: authUseCase,
 	}
@@ -59,16 +78,18 @@ func (a *AuthHandler) Login(c echo.Context) error {
 		return c.JSON(http.StatusUnprocessableEntity, getErrorAuthResponse(errors.New(invalidUserJSON)))
 	}
 
-	cookie, _ := c.Cookie(config.C.SessionIDKey)
+	var sessionId string
 	if user.Username != "" {
-		err = a.AuthUseCase.Login(user.Username, user.Password, cookie.Value)
+		sessionId, err = a.AuthUseCase.Login(user.Username, user.Password)
 	} else {
-		err = a.AuthUseCase.Login(user.Email, user.Password, cookie.Value)
+		sessionId, err = a.AuthUseCase.Login(user.Email, user.Password)
 	}
 
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, getErrorAuthResponse(err))
 	}
+
+	c.SetCookie(formSessionCookie(sessionId))
 
 	return c.JSON(http.StatusOK, getSuccessLoginResponse())
 }
@@ -82,9 +103,11 @@ func (a *AuthHandler) Login(c echo.Context) error {
 // @Success      200    {object}  webUtils.Success
 // @Router       /api/v1/logout/ [post]
 func (a *AuthHandler) Logout(c echo.Context) error {
-	cookie, _ := c.Cookie(sessionIdKey)
+	cookie, _ := c.Cookie(SessionIdKey)
 
 	_ = a.AuthUseCase.Logout(cookie.Value)
+
+	c.SetCookie(deleteCookie(cookie.Value))
 
 	return c.JSON(http.StatusOK, getSuccessLogoutResponse())
 }
@@ -101,19 +124,18 @@ func (a *AuthHandler) Logout(c echo.Context) error {
 // @Failure      400    {object}  webUtils.Error  "invalid sign up"
 // @Router       /api/v1/signup/ [post]
 func (a *AuthHandler) SignUp(c echo.Context) error {
-	var user domain.User
+	var user user_microservice_domain.User
 	err := c.Bind(&user)
 	if err != nil {
-		fmt.Println(err)
 		return c.JSON(http.StatusUnprocessableEntity, getErrorAuthResponse(errors.New(invalidUserJSON)))
 	}
 
-	cookie, _ := c.Cookie(sessionIdKey)
-
-	err = a.AuthUseCase.SignUp(&user, cookie.Value)
+	sessionId, err := a.AuthUseCase.SignUp(&user)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, getErrorAuthResponse(err))
 	}
+
+	c.SetCookie(formSessionCookie(sessionId))
 
 	return c.JSON(http.StatusOK, getSuccessSignUpResponse())
 }
@@ -128,20 +150,9 @@ func (a *AuthHandler) SignUp(c echo.Context) error {
 // @Failure      500    {object}  webUtils.Error  "Internal server error"
 // @Router       /api/v1/get_csrf/ [post]
 func (a *AuthHandler) GetCSRF(c echo.Context) error {
-	cookie, err := c.Cookie(sessionIdKey)
-	var csrfToken string
-	if err == nil && a.AuthUseCase.IsSession(cookie.Value) { // уже есть сессия, выставляем csrf как session_id
-		csrfToken = utils.CreateCSRF(cookie.Value, int64(csrfTokenExpire))
-	} else { // нет сессии - создаем
-		sessionId, err := a.AuthUseCase.GetUnauthorizedSession()
-		if err != nil {
-			return c.JSON(http.StatusInternalServerError, getErrorAuthResponse(err))
-		}
-
-		csrfToken = utils.CreateCSRF(sessionId, int64(csrfTokenExpire))
-		c.SetCookie(formCookie(sessionId))
-	}
-
+	csrfToken := utils.CreateCSRF()
 	c.Response().Header().Set(echo.HeaderXCSRFToken, csrfToken)
+	c.SetCookie(formCSRFCookie(csrfToken))
+
 	return c.JSON(http.StatusOK, getSuccessGetCSRFResponse())
 }

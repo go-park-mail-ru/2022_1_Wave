@@ -11,8 +11,9 @@ import (
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/domain"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/album/albumProto"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/artist/artistProto"
+	auth_domain "github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/auth"
+	auth_redis "github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/auth/repository/redis"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/track/trackProto"
-	"github.com/go-park-mail-ru/2022_1_Wave/internal/session/repository/redis"
 	domainCreator "github.com/go-park-mail-ru/2022_1_Wave/internal/tools/domain"
 	TrackPostgres "github.com/go-park-mail-ru/2022_1_Wave/internal/track/repository"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/user/repository/postgresql"
@@ -24,7 +25,7 @@ import (
 
 type Postgres struct {
 	Sqlx           *sqlx.DB
-	SessionRepo    domain.SessionRepo
+	SessionRepo    auth_domain.AuthRepo
 	UserRepo       domain.UserRepo
 	AlbumRepo      domain.AlbumRepo
 	AlbumCoverRepo domain.AlbumCoverRepo
@@ -87,7 +88,7 @@ func (storage Postgres) Init(quantity int64) (domain.GlobalStorageInterface, err
 	storage.ArtistRepo = &ArtistPostgres.ArtistRepo{Sqlx: storage.Sqlx}
 	storage.TrackRepo = &TrackPostgres.TrackRepo{Sqlx: storage.Sqlx}
 	storage.UserRepo = postgresql.NewUserPostgresRepo(storage.Sqlx)
-	storage.SessionRepo = redis.NewRedisSessionRepo("redis:6379")
+	storage.SessionRepo = auth_redis.NewRedisAuthRepo("redis:6379")
 
 	albums := make([]*albumProto.Album, quantity)
 	albumsCover := make([]*albumProto.AlbumCover, quantity)
@@ -202,7 +203,7 @@ func (storage Postgres) GetTrackRepo() domain.TrackRepo {
 	return storage.TrackRepo
 }
 
-func (storage Postgres) GetSessionRepo() domain.SessionRepo {
+func (storage Postgres) GetSessionRepo() auth_domain.AuthRepo {
 	return storage.SessionRepo
 }
 

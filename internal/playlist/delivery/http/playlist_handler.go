@@ -6,8 +6,9 @@ import (
 	constants "github.com/go-park-mail-ru/2022_1_Wave/internal"
 	Gateway "github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/gateway"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/gateway/gatewayProto"
-	"github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/track/trackProto"
+	"github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/playlist/playlistProto"
 	PlaylistUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/playlist/useCase"
+	user_domain "github.com/go-park-mail-ru/2022_1_Wave/internal/user"
 	"github.com/go-park-mail-ru/2022_1_Wave/pkg/webUtils"
 	"github.com/labstack/echo/v4"
 	"net/http"
@@ -16,9 +17,10 @@ import (
 
 type Handler struct {
 	PlaylistUseCase PlaylistUseCase.PlaylistAgent
+	UserUseCase     user_domain.UserUseCase
 }
 
-func MakeHandler(playlist PlaylistUseCase.PlaylistAgent, user user_do) Handler {
+func MakeHandler(playlist PlaylistUseCase.PlaylistAgent, user user_domain.UserUseCase) Handler {
 	return Handler{
 		PlaylistUseCase: playlist,
 		UserUseCase:     user,
@@ -40,55 +42,64 @@ func (h Handler) GetAll(ctx echo.Context) error {
 	if err != nil {
 		return ctx.JSON(http.StatusUnauthorized, err)
 	}
-
-	user, err := UserUseCase.GetBySessionId(cookie.Value)
+	user, err := h.UserUseCase.GetBySessionId(cookie.Value)
 	if err != nil {
-		return c.JSON(http.StatusUnauthorized, getErrorUserResponse(err))
+		return ctx.JSON(http.StatusUnauthorized, err)
 	}
 
-	domains, err := h.PlaylistUseCase.GetAll()
-
+	playlists, err := h.PlaylistUseCase.GetAll(&gatewayProto.IdArg{Id: int64(user.ID)})
 	if err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 	}
 
-	if domains == nil {
-		domains = &trackProto.TracksResponse{}
+	if playlists == nil {
+		playlists = &playlistProto.PlaylistsResponse{}
 	}
 
 	return ctx.JSON(http.StatusOK,
 		webUtils.Success{
 			Status: webUtils.OK,
-			Result: domains})
+			Result: playlists})
 }
 
 // Create godoc
 // @Summary      Create
-// @Description  creating new track
-// @Tags         track
+// @Description  creating new playlist
+// @Tags         playlist
 // @Accept          application/json
 // @Produce      application/json
-// @Param        Track  body      trackProto.Track  true  "params of new track. Id will be set automatically."
 // @Success      200    {object}  webUtils.Success
 // @Failure      400    {object}  webUtils.Error  "Data is invalid"
 // @Failure      405    {object}  webUtils.Error  "Method is not allowed"
-// @Router       /api/v1/tracks/ [post]
+// @Router       /api/v1/playlists/ [post]
 func (h Handler) Create(ctx echo.Context) error {
-	result := trackProto.Track{}
+	cookie, err := ctx.Cookie(constants.SessionIdKey)
+	if err != nil {
+		return ctx.JSON(http.StatusUnauthorized, err)
+	}
+	user, err := h.UserUseCase.GetBySessionId(cookie.Value)
+	if err != nil {
+		return ctx.JSON(http.StatusUnauthorized, err)
+	}
 
-	if err := ctx.Bind(&result); err != nil {
+	toCreate := playlistProto.Playlist{}
+
+	if err := ctx.Bind(&toCreate); err != nil {
 		return err
 	}
 
-	if err := Gateway.Check(&result); err != nil {
+	if err := Gateway.Check(&toCreate); err != nil {
 		return err
 	}
 
-	if err := h.PlaylistUseCase.Create(&result); err != nil {
+	if err := h.PlaylistUseCase.Create(&playlistProto.UserIdPlaylistArg{
+		UserId:   int64(user.ID),
+		Playlist: &toCreate,
+	}); err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 	}
 
-	lastId, err := h.PlaylistUseCase.GetLastId()
+	lastId, err := h.PlaylistUseCase.GetLastId(&gatewayProto.IdArg{Id: int64(user.ID)})
 	if err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 	}
@@ -101,31 +112,43 @@ func (h Handler) Create(ctx echo.Context) error {
 
 // Update godoc
 // @Summary      Update
-// @Description  updating track by id
-// @Tags         track
+// @Description  updating playlist by id
+// @Tags         playlist
 // @Accept          application/json
 // @Produce      application/json
-// @Param        Track  body      trackProto.Track  true  "id of updating track and params of it."
+// @Param        playlist  body      playlistProto.Playlist  true  "id of updating playlist and params of it."
 // @Success      200    {object}  webUtils.Success
 // @Failure      400    {object}  webUtils.Error  "Data is invalid"
 // @Failure      405    {object}  webUtils.Error  "Method is not allowed"
-// @Router       /api/v1/tracks/ [put]
+// @Router       /api/v1/playlists/ [put]
 func (h Handler) Update(ctx echo.Context) error {
-	result := trackProto.Track{}
+	cookie, err := ctx.Cookie(constants.SessionIdKey)
+	if err != nil {
+		return ctx.JSON(http.StatusUnauthorized, err)
+	}
+	user, err := h.UserUseCase.GetBySessionId(cookie.Value)
+	if err != nil {
+		return ctx.JSON(http.StatusUnauthorized, err)
+	}
 
-	if err := ctx.Bind(&result); err != nil {
+	toUpdate := playlistProto.Playlist{}
+
+	if err := ctx.Bind(&toUpdate); err != nil {
 		return err
 	}
 
-	if err := Gateway.Check(&result); err != nil {
+	if err := Gateway.Check(&toUpdate); err != nil {
 		return err
 	}
 
-	if err := h.PlaylistUseCase.Update(&result); err != nil {
+	if err := h.PlaylistUseCase.Update(&playlistProto.UserIdPlaylistArg{
+		UserId:   int64(user.ID),
+		Playlist: &toUpdate,
+	}); err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 	}
 
-	id := result.Id
+	id := toUpdate.Id
 	return ctx.JSON(http.StatusOK,
 		webUtils.Success{
 			Status: webUtils.OK,
@@ -134,16 +157,25 @@ func (h Handler) Update(ctx echo.Context) error {
 
 // Get godoc
 // @Summary      Get
-// @Description  getting track by id
-// @Tags         track
+// @Description  getting playlist by id
+// @Tags         playlist
 // @Accept          application/json
 // @Produce      application/json
-// @Param        id   path      integer  true  "id of track which need to be getted"
-// @Success      200  {object}  trackProto.Track
+// @Param        id   path      integer  true  "id of playlist which need to be getted"
+// @Success      200  {object}  webUtils.Success
 // @Failure      400  {object}  webUtils.Error  "Data is invalid"
 // @Failure      405  {object}  webUtils.Error  "Method is not allowed"
-// @Router       /api/v1/tracks/{id} [get]
+// @Router       /api/v1/playlists/{id} [get]
 func (h Handler) Get(ctx echo.Context) error {
+	cookie, err := ctx.Cookie(constants.SessionIdKey)
+	if err != nil {
+		return ctx.JSON(http.StatusUnauthorized, err)
+	}
+	user, err := h.UserUseCase.GetBySessionId(cookie.Value)
+	if err != nil {
+		return ctx.JSON(http.StatusUnauthorized, err)
+	}
+
 	id, err := strconv.Atoi(ctx.Param(constants.FieldId))
 	if err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
@@ -151,7 +183,10 @@ func (h Handler) Get(ctx echo.Context) error {
 	if id < 0 {
 		return webUtils.WriteErrorEchoServer(ctx, errors.New(constants.IndexOutOfRange), http.StatusBadRequest)
 	}
-	track, err := h.PlaylistUseCase.GetById(&gatewayProto.IdArg{Id: int64(id)})
+	playlist, err := h.PlaylistUseCase.GetById(&playlistProto.UserIdPlaylistIdArg{
+		UserId:     int64(user.ID),
+		PlaylistId: int64(id),
+	})
 
 	if err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
@@ -160,21 +195,30 @@ func (h Handler) Get(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK,
 		webUtils.Success{
 			Status: webUtils.OK,
-			Result: track})
+			Result: playlist})
 }
 
 // Delete godoc
 // @Summary      Delete
-// @Description  deleting track by id
-// @Tags         track
+// @Description  deleting playlists by id
+// @Tags         playlists
 // @Accept       application/json
 // @Produce      application/json
-// @Param        id   path      integer  true  "id of track which need to be deleted"
+// @Param        id   path      integer  true  "id of playlists which need to be deleted"
 // @Success      200  {object}  webUtils.Success
 // @Failure      400  {object}  webUtils.Error  "Data is invalid"
 // @Failure      405  {object}  webUtils.Error  "Method is not allowed"
-// @Router       /api/v1/tracks/{id} [delete]
+// @Router       /api/v1/playlists/{id} [delete]
 func (h Handler) Delete(ctx echo.Context) error {
+	cookie, err := ctx.Cookie(constants.SessionIdKey)
+	if err != nil {
+		return ctx.JSON(http.StatusUnauthorized, err)
+	}
+	user, err := h.UserUseCase.GetBySessionId(cookie.Value)
+	if err != nil {
+		return ctx.JSON(http.StatusUnauthorized, err)
+	}
+
 	id, err := strconv.Atoi(ctx.Param(constants.FieldId))
 	if err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
@@ -183,7 +227,10 @@ func (h Handler) Delete(ctx echo.Context) error {
 		return webUtils.WriteErrorEchoServer(ctx, errors.New(constants.IndexOutOfRange), http.StatusBadRequest)
 	}
 
-	if err := h.PlaylistUseCase.Delete(&gatewayProto.IdArg{Id: int64(id)}); err != nil {
+	if err := h.PlaylistUseCase.Delete(&playlistProto.UserIdPlaylistIdArg{
+		UserId:     int64(user.ID),
+		PlaylistId: int64(id),
+	}); err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 	}
 
@@ -191,174 +238,4 @@ func (h Handler) Delete(ctx echo.Context) error {
 		webUtils.Success{
 			Status: webUtils.OK,
 			Result: constants.SuccessDeleted + "(" + fmt.Sprint(id) + ")"})
-}
-
-// GetPopular godoc
-// @Summary      GetPopular
-// @Description  getting top20 popular tracks
-// @Tags         track
-// @Accept          application/json
-// @Produce      application/json
-// @Success      200  {object}  webUtils.Success
-// @Failure      400  {object}  webUtils.Error  "Data is invalid"
-// @Failure      405  {object}  webUtils.Error  "Method is not allowed"
-// @Router       /api/v1/tracks/popular [get]
-func (h Handler) GetPopular(ctx echo.Context) error {
-	popular, err := h.PlaylistUseCase.GetPopular()
-	if err != nil {
-		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
-	}
-
-	return ctx.JSON(http.StatusOK,
-		webUtils.Success{
-			Status: webUtils.OK,
-			Result: popular})
-}
-
-// Like godoc
-// @Summary      Like
-// @Description  like track by id
-// @Tags         track
-// @Accept          application/json
-// @Produce      application/json
-// @Param        id   path      integer  true  "id of track which need to be liked"
-// @Success      200  {object}  webUtils.Success
-// @Failure      400  {object}  webUtils.Error  "Data is invalid"
-// @Failure      405  {object}  webUtils.Error  "Method is not allowed"
-// @Router       /api/v1/tracks/like/{id} [put]
-func (h Handler) Like(ctx echo.Context) error {
-	id, err := strconv.Atoi(ctx.Param(constants.FieldId))
-	if err != nil {
-		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
-	}
-	if id < 0 {
-		return webUtils.WriteErrorEchoServer(ctx, errors.New(constants.IndexOutOfRange), http.StatusBadRequest)
-	}
-
-	if err := h.PlaylistUseCase.Like(&gatewayProto.IdArg{Id: int64(id)}); err != nil {
-		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
-	}
-
-	return ctx.JSON(http.StatusOK,
-		webUtils.Success{
-			Status: webUtils.OK,
-			Result: constants.SuccessLiked + "(" + fmt.Sprint(id) + ")"})
-}
-
-// Listen godoc
-// @Summary      Listen
-// @Description  listen track by id
-// @Tags         track
-// @Accept          application/json
-// @Produce      application/json
-// @Param        id   path      integer  true  "id of track which need to be listen"
-// @Success      200  {object}  webUtils.Success
-// @Failure      400  {object}  webUtils.Error  "Data is invalid"
-// @Failure      405  {object}  webUtils.Error  "Method is not allowed"
-// @Router       /api/v1/tracks/listen/{id} [put]
-func (h Handler) Listen(ctx echo.Context) error {
-	id, err := strconv.Atoi(ctx.Param(constants.FieldId))
-	if err != nil {
-		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
-	}
-	if id < 0 {
-		return webUtils.WriteErrorEchoServer(ctx, errors.New(constants.IndexOutOfRange), http.StatusBadRequest)
-	}
-
-	if err := h.PlaylistUseCase.Listen(&gatewayProto.IdArg{Id: int64(id)}); err != nil {
-		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
-	}
-
-	return ctx.JSON(http.StatusOK,
-		webUtils.Success{
-			Status: webUtils.OK,
-			Result: constants.SuccessListened + "(" + fmt.Sprint(id) + ")"})
-}
-
-// GetFavorites godoc
-// @Summary      GetFavorites
-// @Description  getting favorites tracks
-// @Tags         track
-// @Accept          application/json
-// @Produce      application/json
-// @Success      200  {object}  webUtils.Success
-// @Failure      400  {object}  webUtils.Error  "Data is invalid"
-// @Failure      405  {object}  webUtils.Error  "Method is not allowed"
-// @Router       /api/v1/tracks/favorites [get]
-func (h Handler) GetFavorites(ctx echo.Context) error {
-	//todo userId is not 0!!!
-	userId := int64(0)
-	favorites, err := h.PlaylistUseCase.GetFavorites(&gatewayProto.IdArg{Id: userId})
-	if err != nil {
-		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
-	}
-
-	return ctx.JSON(http.StatusOK,
-		webUtils.Success{
-			Status: webUtils.OK,
-			Result: favorites})
-}
-
-// AddToFavorites godoc
-// @Summary      AddToFavorites
-// @Description  add to favorites
-// @Tags         track
-// @Accept          application/json
-// @Produce      application/json
-// @Param        trackId  path      int  true  "trackId"
-// @Success      200    {object}  webUtils.Success
-// @Failure      400    {object}  webUtils.Error  "Data is invalid"
-// @Failure      405    {object}  webUtils.Error  "Method is not allowed"
-// @Router       /api/v1/tracks/favorites/{id} [post]
-func (h Handler) AddToFavorites(ctx echo.Context) error {
-	trackId, err := strconv.Atoi(ctx.Param(constants.FieldId))
-	if err != nil {
-		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
-	}
-	//todo userId is not 0!!!
-	userId := int64(0)
-
-	if _, err := h.PlaylistUseCase.AddToFavorites(&gatewayProto.UserIdTrackIdArg{
-		UserId:  userId,
-		TrackId: int64(trackId),
-	}); err != nil {
-		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
-	}
-
-	return ctx.JSON(http.StatusOK,
-		webUtils.Success{
-			Status: webUtils.OK,
-			Result: constants.SuccessAddedToFavorites + "(" + fmt.Sprint(trackId) + ")"})
-}
-
-// RemoveFromFavorites godoc
-// @Summary      RemoveFromFavorites
-// @Description  remove from favorite
-// @Tags         track
-// @Accept          application/json
-// @Produce      application/json
-// @Param        trackId  path      int  true  "trackId"
-// @Success      200    {object}  webUtils.Success
-// @Failure      400    {object}  webUtils.Error  "Data is invalid"
-// @Failure      405    {object}  webUtils.Error  "Method is not allowed"
-// @Router       /api/v1/tracks/favorites/{id} [delete]
-func (h Handler) RemoveFromFavorites(ctx echo.Context) error {
-	trackId, err := strconv.Atoi(ctx.Param(constants.FieldId))
-	if err != nil {
-		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
-	}
-	//todo userId is not 0!!!
-	userId := int64(0)
-
-	if _, err := h.PlaylistUseCase.RemoveFromFavorites(&gatewayProto.UserIdTrackIdArg{
-		UserId:  userId,
-		TrackId: int64(trackId),
-	}); err != nil {
-		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
-	}
-
-	return ctx.JSON(http.StatusOK,
-		webUtils.Success{
-			Status: webUtils.OK,
-			Result: constants.SuccessRemoveFromFavorites + "(" + fmt.Sprint(trackId) + ")"})
 }

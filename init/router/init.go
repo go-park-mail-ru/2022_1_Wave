@@ -7,27 +7,27 @@ import (
 	AlbumUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/album/useCase"
 	artistDeliveryHttp "github.com/go-park-mail-ru/2022_1_Wave/internal/artist/delivery/http"
 	ArtistUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/artist/useCase"
+	auth_domain "github.com/go-park-mail-ru/2022_1_Wave/internal/auth"
 	authHttp "github.com/go-park-mail-ru/2022_1_Wave/internal/auth/delivery/http"
-	"github.com/go-park-mail-ru/2022_1_Wave/internal/auth/delivery/http/http_middleware"
-	"github.com/go-park-mail-ru/2022_1_Wave/internal/domain"
+	auth_middleware "github.com/go-park-mail-ru/2022_1_Wave/internal/auth/delivery/http/middleware"
 	gatewayDeliveryHttp "github.com/go-park-mail-ru/2022_1_Wave/internal/gateway/delivery/http"
 	trackDeliveryHttp "github.com/go-park-mail-ru/2022_1_Wave/internal/track/delivery/http"
 	TrackUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/track/useCase"
+	user_domain "github.com/go-park-mail-ru/2022_1_Wave/internal/user"
 	userHttp "github.com/go-park-mail-ru/2022_1_Wave/internal/user/delivery/http"
 	"github.com/labstack/echo/v4"
 	"github.com/swaggo/echo-swagger"
 )
 
 func Router(e *echo.Echo,
-	auth domain.AuthUseCase,
+	auth auth_domain.AuthUseCase,
 	album AlbumUseCase.AlbumAgent,
 	artist ArtistUseCase.ArtistAgent,
 	track TrackUseCase.TrackAgent,
-	user domain.UserUseCase) error {
+	user user_domain.UserUseCase) error {
 
 	api := e.Group(apiPrefix)
 	v1 := api.Group(v1Prefix)
-
 	albumHandler := albumDeliveryHttp.MakeHandler(album)
 	artistHandler := artistDeliveryHttp.MakeHandler(artist, track)
 	trackHandler := trackDeliveryHttp.MakeHandler(track)
@@ -35,7 +35,7 @@ func Router(e *echo.Echo,
 	userHandler := userHttp.MakeHandler(user)
 	gatewayHandler := gatewayDeliveryHttp.MakeHandler(album, artist, track)
 
-	m := http_middleware.InitMiddleware(auth)
+	m := auth_middleware.InitMiddleware(auth)
 
 	logger.GlobalLogger.Logrus.Warnln("api version:", v1Prefix)
 
@@ -117,7 +117,7 @@ func SetGatewayRoutes(apiVersion *echo.Group, handler gatewayDeliveryHttp.Handle
 	searchRoutes.GET(strEchoPattern, handler.Search)
 }
 
-func SetUserRoutes(apiVersion *echo.Group, handler userHttp.UserHandler, m *http_middleware.HttpMiddleware) {
+func SetUserRoutes(apiVersion *echo.Group, handler userHttp.UserHandler, m *auth_middleware.HttpMiddleware) {
 	userRoutes := apiVersion.Group(usersPrefix)
 
 	userRoutes.GET("/:id", handler.GetUser)
@@ -128,7 +128,7 @@ func SetUserRoutes(apiVersion *echo.Group, handler userHttp.UserHandler, m *http
 }
 
 // InitAuthModule auth
-func SetAuthRoutes(apiVersion *echo.Group, handler authHttp.AuthHandler, m *http_middleware.HttpMiddleware) {
+func SetAuthRoutes(apiVersion *echo.Group, handler authHttp.AuthHandler, m *auth_middleware.HttpMiddleware) {
 	apiVersion.POST(loginPrefix, handler.Login, m.IsSession, m.CSRF)
 	apiVersion.POST(logoutPrefix, handler.Logout, m.IsSession, m.CSRF)
 	apiVersion.POST(signUpPrefix, handler.SignUp, m.IsSession, m.CSRF)

@@ -1,4 +1,4 @@
-package authHttp
+package auth_http
 
 type AuthResponse struct {
 	Status string `json:"status"`

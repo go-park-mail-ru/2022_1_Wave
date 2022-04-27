@@ -1,99 +1,104 @@
-package AuthUseCase
+package auth_usecase
 
 import (
-	"github.com/go-park-mail-ru/2022_1_Wave/internal/domain"
+	auth_domain "github.com/go-park-mail-ru/2022_1_Wave/internal/auth"
+	user_microservice_domain "github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/user"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/tools/utils"
+	user_domain "github.com/go-park-mail-ru/2022_1_Wave/internal/user"
 	"time"
 )
 
-type authUseCase struct {
-	sessionRepo domain.SessionRepo
-	userRepo    domain.UserRepo
+type authService struct {
+	authAgent auth_domain.AuthAgent
+	userAgent user_domain.UserAgent
 }
 
-var SessionExpire = time.Hour * 24
+var SessionExpires = time.Hour * 24
 
-func NewAuthUseCase(sessionRepo domain.SessionRepo, userRepo domain.UserRepo) domain.AuthUseCase {
-	return &authUseCase{
-		sessionRepo: sessionRepo,
-		userRepo:    userRepo,
-	}
+func NewAuthService(authAgent auth_domain.AuthAgent, userAgent user_domain.UserAgent) auth_domain.AuthUseCase {
+	return &authService{authAgent: authAgent, userAgent: userAgent}
 }
 
-func (a *authUseCase) Login(login string, password string, sessionId string) error {
-	var user *domain.User
-	user, err := a.userRepo.SelectByUsername(login)
+func (a *authService) Login(login string, password string) (string, error) {
+	user, err := a.userAgent.GetByUsername(login)
+
 	if err != nil {
-		user, err = a.userRepo.SelectByEmail(login)
+		user, err = a.userAgent.GetByEmail(login)
 		if err != nil {
-			return domain.ErrUserDoesNotExist
+			return "", err
 		}
 	}
+
 	if !utils.CheckPassword(user.Password, password) {
-		return domain.ErrInvalidLoginOrPassword
+		return "", auth_domain.ErrInvalidLoginOrPassword
 	}
 
-	err = a.sessionRepo.MakeSessionAuthorized(sessionId, user.ID)
+	sessionId, err := a.authAgent.SetNewAuthorizedSession(user.ID, SessionExpires)
 
 	if err != nil {
-		return domain.ErrWhileChangeSession
+		return "", auth_domain.ErrSetSession
+	}
+
+	return sessionId, nil
+}
+
+func (a *authService) Logout(sessionId string) error {
+	err := a.authAgent.DeleteSession(sessionId)
+
+	if err != nil {
+		return auth_domain.ErrDeleteSession
 	}
 
 	return nil
 }
 
-func (a *authUseCase) Logout(sessionId string) error {
-	return a.sessionRepo.MakeSessionUnauthorized(sessionId)
-}
-
-func (a *authUseCase) SignUp(user *domain.User, sessionId string) error {
-	_, err := a.userRepo.SelectByEmail(user.Email)
+func (a *authService) SignUp(user *user_microservice_domain.User) (string, error) {
+	_, err := a.userAgent.GetByEmail(user.Email)
 	if err == nil {
-		return domain.ErrUserAlreadyExist
+		return "", auth_domain.ErrUserAlreadyExist
 	}
 
-	_, err = a.userRepo.SelectByUsername(user.Username)
+	_, err = a.userAgent.GetByUsername(user.Username)
 	if err == nil {
-		return domain.ErrUserAlreadyExist
+		return "", auth_domain.ErrUserAlreadyExist
 	}
 
 	passwordHash, _ := utils.GetPasswordHash(user.Password)
 
 	user.Password = string(passwordHash)
 
-	err = a.userRepo.Insert(user)
+	err = a.userAgent.Create(user)
 	if err != nil {
-		return domain.ErrInsert
+		return "", auth_domain.ErrDatabaseUnexpected
 	}
 
-	userToId, err := a.userRepo.SelectByEmail(user.Email)
+	userToId, err := a.userAgent.GetByEmail(user.Email)
 	if err != nil {
-		return domain.ErrDatabaseUnexpected
+		return "", auth_domain.ErrDatabaseUnexpected
 	}
 
-	err = a.sessionRepo.MakeSessionAuthorized(sessionId, userToId.ID)
+	sessionId, err := a.authAgent.SetNewAuthorizedSession(userToId.ID, SessionExpires)
 
 	if err != nil {
-		return domain.ErrWhileChangeSession
+		return "", auth_domain.ErrSetSession
 	}
 
-	return nil
+	return sessionId, nil
 }
 
-func (a *authUseCase) GetUnauthorizedSession() (string, error) {
-	return a.sessionRepo.SetNewUnauthorizedSession(SessionExpire)
-}
-
-func (a *authUseCase) IsSession(sessionId string) bool {
-	_, err := a.sessionRepo.GetSession(sessionId)
-	return err == nil
-}
-
-func (a *authUseCase) IsAuthSession(sessionId string) bool {
-	session, err := a.sessionRepo.GetSession(sessionId)
-	if err != nil || session == nil {
-		return false
+func (a *authService) GetUnauthorizedSession() (string, error) {
+	sessionId, err := a.authAgent.SetNewUnauthorizedSession(SessionExpires)
+	if err != nil {
+		return "", auth_domain.ErrSetSession
 	}
 
-	return session.IsAuthorized
+	return sessionId, nil
+}
+
+func (a *authService) IsSession(sessionId string) bool {
+	return a.authAgent.IsSession(sessionId)
+}
+
+func (a *authService) IsAuthSession(sessionId string) bool {
+	return a.authAgent.IsAuthSession(sessionId)
 }
