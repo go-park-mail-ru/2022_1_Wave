@@ -9,6 +9,7 @@ import (
 
 type authService struct {
 	authRepo auth_microservice_domain.AuthRepo
+	proto.UnsafeAuthorizationServer
 }
 
 /*
