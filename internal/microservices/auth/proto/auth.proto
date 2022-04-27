@@ -1,0 +1,46 @@
+syntax = "proto3";
+
+package auth;
+
+option go_package = "microservices/auth/proto";
+
+message SessionId {
+  string session_id = 1;
+}
+
+message Session {
+  uint64 user_id = 1;
+  bool is_authorized = 2;
+}
+
+message UserSessionId {
+  string session_id = 1;
+  uint64 user_id = 2;
+}
+
+message Empty {};
+
+message BoolResult {
+  bool result = 1;
+}
+
+message SetUnauthSession {
+  string expires = 1;
+}
+
+message SetAuthSessionMsg {
+  uint64 user_id = 1;
+  string expires = 2;
+}
+
+service Authorization {
+  rpc GetSession(SessionId) returns(Session) {}
+  rpc SetNewUnauthorizedSession(SetUnauthSession) returns(SessionId) {}
+  rpc SetNewAuthorizedSession(SetAuthSessionMsg) returns(SessionId) {}
+  rpc MakeSessionAuthorized(UserSessionId) returns(SessionId) {}
+  rpc MakeSessionUnauthorized(SessionId) returns(SessionId) {}
+  rpc DeleteSession(SessionId) returns(Empty) {}
+  rpc IsSession(SessionId) returns(BoolResult) {}
+  rpc IsAuthSession(SessionId) returns(BoolResult) {}
+}
+

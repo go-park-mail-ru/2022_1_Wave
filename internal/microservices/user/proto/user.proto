@@ -1,0 +1,38 @@
+syntax = "proto3";
+
+package auth;
+
+option go_package = "microservices/user/proto";
+
+message User {
+  uint64 user_id = 1;
+  string username = 2;
+  string email = 3;
+  string password = 4;
+  string avatar = 5;
+  int64 count_following = 6;
+};
+
+message UserId {
+  uint64 user_id = 1;
+}
+
+message Username {
+  string username = 1;
+}
+
+message Email {
+  string email = 1;
+}
+
+message Empty {}
+
+
+service Profile {
+  rpc Create(User) returns(Empty) {}
+  rpc Update(User) returns(Empty) {}
+  rpc Delete(UserId) returns(Empty) {}
+  rpc GetById(UserId) returns(User) {}
+  rpc GetByUsername(Username) returns(User) {}
+  rpc GetByEmail(Email) returns(User) {}
+}
