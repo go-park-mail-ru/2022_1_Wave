@@ -25,6 +25,19 @@ func TestGetSession(t *testing.T) {
 	assert.Nil(t, session)
 }
 
+func TestSetAuthorizedSession(t *testing.T) {
+	miniRedis := miniredis.RunT(t)
+	redisAuthRepo := auth_redis.NewRedisAuthRepo(miniRedis.Addr())
+
+	sessionId, err := redisAuthRepo.SetNewAuthorizedSession(1, time.Hour*10)
+	assert.Nil(t, err)
+
+	session, err := redisAuthRepo.GetSession(sessionId)
+	assert.Nil(t, err)
+	assert.True(t, session.IsAuthorized)
+	assert.Equal(t, session.UserId, uint(1))
+}
+
 func TestSetNewUnauthorizedSession(t *testing.T) {
 	miniRedis := miniredis.RunT(t)
 	redisAuthRepo := auth_redis.NewRedisAuthRepo(miniRedis.Addr())

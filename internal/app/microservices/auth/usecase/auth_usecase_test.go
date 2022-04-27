@@ -3,7 +3,6 @@ package auth_usecase_test
 import (
 	"context"
 	"errors"
-	usecase2 "github.com/go-park-mail-ru/2022_1_Wave/internal/app/auth/usecase"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/domain"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/domain/mocks"
 	auth_domain "github.com/go-park-mail-ru/2022_1_Wave/internal/app/microservices/auth"
@@ -36,16 +35,16 @@ func TestUseCaseLogin(t *testing.T) {
 		mockUserRepo.On("SelectByUsername", mockUser.Email).Return(nil, errors.New("error"))
 		mockUserRepo.On("SelectByEmail", mockUser.Email).Return(mockUser, nil)
 		mockUserRepo.On("SelectByEmail", mockUser.Username).Return(nil, errors.New("error"))
-		mockSessionRepo.On("MakeSessionAuthorized", sessionId, mockUser.ID).Return(sessionId+"a", nil)
+		mockSessionRepo.On("SetNewAuthorizedSession", mockUser.ID, auth_usecase.SessionExpire).Return(sessionId, nil)
 
 		usecase := auth_usecase.NewAuthService(mockSessionRepo, mockUserRepo)
 
 		var loginData proto.LoginData
 		loginData.Login = mockUser.Username
 		loginData.Password = password
-		loginData.Session = &proto.Session{SessionId: sessionId}
-		_, err := usecase.Login(context.Background(), &loginData)
+		sessionResult, err := usecase.Login(context.Background(), &loginData)
 		assert.Nil(t, err)
+		assert.Equal(t, sessionResult.NewSession.SessionId, sessionId)
 
 		loginData.Login = mockUser.Email
 		_, err = usecase.Login(context.Background(), &loginData)
@@ -65,14 +64,13 @@ func TestUseCaseLogin(t *testing.T) {
 		mockUserRepo.On("SelectByEmail", mockUser2.Username+"a").Return(nil, errors.New("error"))
 		mockUserRepo.On("SelectByUsername", mockUser2.Username).Return(mockUser2, nil)
 
-		mockSessionRepo.On("MakeSessionAuthorized", sessionId+"a", mockUser2.ID).Return("", errors.New("error"))
+		mockSessionRepo.On("SetNewAuthorizedSession", mockUser2.ID, auth_usecase.SessionExpire).Return("", errors.New("error"))
 
 		usecase := auth_usecase.NewAuthService(mockSessionRepo, mockUserRepo)
 
 		var loginData proto.LoginData
 		loginData.Login = mockUser2.Username + "a"
 		loginData.Password = password
-		loginData.Session = &proto.Session{SessionId: sessionId}
 
 		_, err := usecase.Login(context.Background(), &loginData)
 		assert.NotNil(t, err)
@@ -85,7 +83,6 @@ func TestUseCaseLogin(t *testing.T) {
 
 		loginData.Login = mockUser2.Username
 		loginData.Password = password
-		loginData.Session.SessionId = sessionId + "a"
 		_, err = usecase.Login(context.Background(), &loginData)
 		assert.NotNil(t, err)
 	})
@@ -97,7 +94,7 @@ func TestUseCaseLogout(t *testing.T) {
 	sessionId := "some-session-id"
 
 	t.Run("success", func(t *testing.T) {
-		mockSessionRepo.On("MakeSessionUnauthorized", sessionId).Return(sessionId+"a", nil)
+		mockSessionRepo.On("DeleteSession", sessionId).Return(nil)
 
 		usecase := auth_usecase.NewAuthService(mockSessionRepo, mockUserRepo)
 
@@ -144,10 +141,25 @@ func TestUseCaseGetUnauthorizedSession(t *testing.T) {
 	sessionId := "some-session-id"
 
 	t.Run("success", func(t *testing.T) {
-		mockSessionRepo.On("SetNewUnauthorizedSession", usecase2.SessionExpire).Return(sessionId, nil)
+		mockSessionRepo.On("SetNewUnauthorizedSession", auth_usecase.SessionExpire).Return(sessionId, nil)
 
 		usecase := auth_usecase.NewAuthService(mockSessionRepo, mockUserRepo)
 		sessionIdRes, result := usecase.GetUnauthorizedSession(context.Background(), &proto.Empty{})
+		assert.Nil(t, result)
+		assert.Equal(t, sessionIdRes.Session.SessionId, sessionId)
+	})
+}
+
+func TestUseCaseGetAuthorizedSession(t *testing.T) {
+	mockSessionRepo := new(auth_mocks.AuthRepo)
+	mockUserRepo := new(mocks.UserRepo)
+	sessionId := "some-session-id"
+
+	t.Run("success", func(t *testing.T) {
+		mockSessionRepo.On("SetNewAuthorizedSession", uint(1), auth_usecase.SessionExpire).Return(sessionId, nil)
+
+		usecase := auth_usecase.NewAuthService(mockSessionRepo, mockUserRepo)
+		sessionIdRes, result := usecase.GetAuthorizedSession(context.Background(), &proto.UserId{UserId: 1})
 		assert.Nil(t, result)
 		assert.Equal(t, sessionIdRes.Session.SessionId, sessionId)
 	})

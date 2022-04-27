@@ -107,6 +107,21 @@ func (a *redisAuthRepo) GetSession(sessionId string) (*auth_domain.Session, erro
 	return &session, nil
 }
 
+func (a *redisAuthRepo) SetNewAuthorizedSession(userId uint, expires time.Duration) (string, error) {
+	client := a.pool.Get()
+	defer client.Close()
+
+	sessionId := generateSessionId(true, userId)
+
+	err := setSession(client, sessionId, true, userId, expires)
+
+	if err != nil {
+		return "", errors.New(auth_domain.ErrSetSession)
+	}
+
+	return sessionId, nil
+}
+
 func (a *redisAuthRepo) SetNewUnauthorizedSession(expires time.Duration) (string, error) {
 	client := a.pool.Get()
 	defer client.Close()

@@ -1,16 +1,18 @@
-package http_middleware
+package auth_middleware
 
 import (
+	"context"
 	"errors"
 	"github.com/go-park-mail-ru/2022_1_Wave/config"
-	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/domain"
+	auth_http "github.com/go-park-mail-ru/2022_1_Wave/internal/app/microservices/auth/delivery/http"
+	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/microservices/auth/proto"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/app/tools/utils"
 	"github.com/labstack/echo/v4"
 	"net/http"
 )
 
 type HttpMiddleware struct {
-	authUseCase domain.AuthUseCase
+	authUseCase proto.AuthorizationClient
 }
 
 type middlewareResponse struct {
@@ -29,7 +31,7 @@ var (
 	ErrAuth        = errors.New("available only to unauthorized users")
 )
 
-func InitMiddleware(authUseCase domain.AuthUseCase) *HttpMiddleware {
+func InitMiddleware(authUseCase proto.AuthorizationClient) *HttpMiddleware {
 	return &HttpMiddleware{authUseCase: authUseCase}
 }
 
@@ -43,7 +45,11 @@ func getErrorMiddlewareResponse(err error) *middlewareResponse {
 func (m *HttpMiddleware) IsSession(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		cookie, err := c.Cookie(config.C.SessionIDKey)
-		if err != nil || !m.authUseCase.IsSession(cookie.Value) {
+		if err != nil {
+			return c.JSON(http.StatusUnauthorized, getErrorMiddlewareResponse(ErrNoSession))
+		}
+		_, isSessionResult := m.authUseCase.IsSession(context.Background(), &proto.Session{SessionId: cookie.Value})
+		if isSessionResult != nil {
 			return c.JSON(http.StatusUnauthorized, getErrorMiddlewareResponse(ErrNoSession))
 		}
 
@@ -53,8 +59,8 @@ func (m *HttpMiddleware) IsSession(next echo.HandlerFunc) echo.HandlerFunc {
 
 func (m *HttpMiddleware) CSRF(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		cookie, err := c.Cookie(config.C.SessionIDKey)
-		if err != nil || !m.authUseCase.IsSession(cookie.Value) {
+		cookie, err := c.Cookie(auth_http.CsrfTokenKey)
+		if err != nil {
 			return c.JSON(http.StatusUnauthorized, getErrorMiddlewareResponse(ErrNoSession))
 		}
 
@@ -69,8 +75,12 @@ func (m *HttpMiddleware) CSRF(next echo.HandlerFunc) echo.HandlerFunc {
 
 func (m *HttpMiddleware) Auth(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		cookie, err := c.Cookie(config.C.SessionIDKey)
-		if err != nil || !m.authUseCase.IsAuthSession(cookie.Value) {
+		cookie, err := c.Cookie(auth_http.SessionIdKey)
+		if err != nil {
+			return c.JSON(http.StatusUnauthorized, getErrorMiddlewareResponse(ErrNotAuth))
+		}
+		_, isAuthResult := m.authUseCase.IsAuthSession(context.Background(), &proto.Session{SessionId: cookie.Value})
+		if isAuthResult != nil {
 			return c.JSON(http.StatusUnauthorized, getErrorMiddlewareResponse(ErrNotAuth))
 		}
 
@@ -80,8 +90,19 @@ func (m *HttpMiddleware) Auth(next echo.HandlerFunc) echo.HandlerFunc {
 
 func (m *HttpMiddleware) NotAuth(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		cookie, err := c.Cookie(config.C.SessionIDKey)
-		if err != nil || !m.authUseCase.IsSession(cookie.Value) || m.authUseCase.IsAuthSession(cookie.Value) {
+		cookie, err := c.Cookie(auth_http.SessionIdKey)
+		if err != nil {
+			return c.JSON(http.StatusUnauthorized, getErrorMiddlewareResponse(ErrAuth))
+		}
+
+		_, isSessionResult := m.authUseCase.IsSession(context.Background(), &proto.Session{SessionId: cookie.Value})
+		if isSessionResult != nil {
+			return c.JSON(http.StatusUnauthorized, getErrorMiddlewareResponse(ErrAuth))
+		}
+
+		_, isAuthResult := m.authUseCase.IsAuthSession(context.Background(), &proto.Session{SessionId: cookie.Value})
+
+		if isAuthResult == nil {
 			return c.JSON(http.StatusUnauthorized, getErrorMiddlewareResponse(ErrAuth))
 		}
 

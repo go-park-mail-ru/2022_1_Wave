@@ -97,7 +97,6 @@ var xxx_messageInfo_Empty proto.InternalMessageInfo
 type LoginData struct {
 	Login                string   `protobuf:"bytes,1,opt,name=login,proto3" json:"login,omitempty"`
 	Password             string   `protobuf:"bytes,2,opt,name=password,proto3" json:"password,omitempty"`
-	Session              *Session `protobuf:"bytes,3,opt,name=session,proto3" json:"session,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -142,15 +141,8 @@ func (m *LoginData) GetPassword() string {
 	return ""
 }
 
-func (m *LoginData) GetSession() *Session {
-	if m != nil {
-		return m.Session
-	}
-	return nil
-}
-
 type LoginResult struct {
-	NewSession           *Session `protobuf:"bytes,2,opt,name=new_session,json=newSession,proto3" json:"new_session,omitempty"`
+	NewSession           *Session `protobuf:"bytes,1,opt,name=new_session,json=newSession,proto3" json:"new_session,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -188,45 +180,6 @@ func (m *LoginResult) GetNewSession() *Session {
 	return nil
 }
 
-type LogoutResult struct {
-	NewSession           *Session `protobuf:"bytes,2,opt,name=new_session,json=newSession,proto3" json:"new_session,omitempty"`
-	XXX_NoUnkeyedLiteral struct{} `json:"-"`
-	XXX_unrecognized     []byte   `json:"-"`
-	XXX_sizecache        int32    `json:"-"`
-}
-
-func (m *LogoutResult) Reset()         { *m = LogoutResult{} }
-func (m *LogoutResult) String() string { return proto.CompactTextString(m) }
-func (*LogoutResult) ProtoMessage()    {}
-func (*LogoutResult) Descriptor() ([]byte, []int) {
-	return fileDescriptor_8bbd6f3875b0e874, []int{4}
-}
-
-func (m *LogoutResult) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_LogoutResult.Unmarshal(m, b)
-}
-func (m *LogoutResult) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_LogoutResult.Marshal(b, m, deterministic)
-}
-func (m *LogoutResult) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_LogoutResult.Merge(m, src)
-}
-func (m *LogoutResult) XXX_Size() int {
-	return xxx_messageInfo_LogoutResult.Size(m)
-}
-func (m *LogoutResult) XXX_DiscardUnknown() {
-	xxx_messageInfo_LogoutResult.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_LogoutResult proto.InternalMessageInfo
-
-func (m *LogoutResult) GetNewSession() *Session {
-	if m != nil {
-		return m.NewSession
-	}
-	return nil
-}
-
 type User struct {
 	Username             string   `protobuf:"bytes,1,opt,name=username,proto3" json:"username,omitempty"`
 	Email                string   `protobuf:"bytes,2,opt,name=email,proto3" json:"email,omitempty"`
@@ -240,7 +193,7 @@ func (m *User) Reset()         { *m = User{} }
 func (m *User) String() string { return proto.CompactTextString(m) }
 func (*User) ProtoMessage()    {}
 func (*User) Descriptor() ([]byte, []int) {
-	return fileDescriptor_8bbd6f3875b0e874, []int{5}
+	return fileDescriptor_8bbd6f3875b0e874, []int{4}
 }
 
 func (m *User) XXX_Unmarshal(b []byte) error {
@@ -284,7 +237,6 @@ func (m *User) GetPassword() string {
 
 type SignUpData struct {
 	User                 *User    `protobuf:"bytes,1,opt,name=user,proto3" json:"user,omitempty"`
-	Session              *Session `protobuf:"bytes,2,opt,name=session,proto3" json:"session,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -294,7 +246,7 @@ func (m *SignUpData) Reset()         { *m = SignUpData{} }
 func (m *SignUpData) String() string { return proto.CompactTextString(m) }
 func (*SignUpData) ProtoMessage()    {}
 func (*SignUpData) Descriptor() ([]byte, []int) {
-	return fileDescriptor_8bbd6f3875b0e874, []int{6}
+	return fileDescriptor_8bbd6f3875b0e874, []int{5}
 }
 
 func (m *SignUpData) XXX_Unmarshal(b []byte) error {
@@ -322,15 +274,8 @@ func (m *SignUpData) GetUser() *User {
 	return nil
 }
 
-func (m *SignUpData) GetSession() *Session {
-	if m != nil {
-		return m.Session
-	}
-	return nil
-}
-
 type SignUpResult struct {
-	NewSession           *Session `protobuf:"bytes,2,opt,name=new_session,json=newSession,proto3" json:"new_session,omitempty"`
+	NewSession           *Session `protobuf:"bytes,1,opt,name=new_session,json=newSession,proto3" json:"new_session,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -340,7 +285,7 @@ func (m *SignUpResult) Reset()         { *m = SignUpResult{} }
 func (m *SignUpResult) String() string { return proto.CompactTextString(m) }
 func (*SignUpResult) ProtoMessage()    {}
 func (*SignUpResult) Descriptor() ([]byte, []int) {
-	return fileDescriptor_8bbd6f3875b0e874, []int{7}
+	return fileDescriptor_8bbd6f3875b0e874, []int{6}
 }
 
 func (m *SignUpResult) XXX_Unmarshal(b []byte) error {
@@ -369,7 +314,7 @@ func (m *SignUpResult) GetNewSession() *Session {
 }
 
 type GetSessionResult struct {
-	Session              *Session `protobuf:"bytes,2,opt,name=session,proto3" json:"session,omitempty"`
+	Session              *Session `protobuf:"bytes,1,opt,name=session,proto3" json:"session,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -379,7 +324,7 @@ func (m *GetSessionResult) Reset()         { *m = GetSessionResult{} }
 func (m *GetSessionResult) String() string { return proto.CompactTextString(m) }
 func (*GetSessionResult) ProtoMessage()    {}
 func (*GetSessionResult) Descriptor() ([]byte, []int) {
-	return fileDescriptor_8bbd6f3875b0e874, []int{8}
+	return fileDescriptor_8bbd6f3875b0e874, []int{7}
 }
 
 func (m *GetSessionResult) XXX_Unmarshal(b []byte) error {
@@ -407,48 +352,87 @@ func (m *GetSessionResult) GetSession() *Session {
 	return nil
 }
 
+type UserId struct {
+	UserId               uint64   `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *UserId) Reset()         { *m = UserId{} }
+func (m *UserId) String() string { return proto.CompactTextString(m) }
+func (*UserId) ProtoMessage()    {}
+func (*UserId) Descriptor() ([]byte, []int) {
+	return fileDescriptor_8bbd6f3875b0e874, []int{8}
+}
+
+func (m *UserId) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_UserId.Unmarshal(m, b)
+}
+func (m *UserId) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_UserId.Marshal(b, m, deterministic)
+}
+func (m *UserId) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_UserId.Merge(m, src)
+}
+func (m *UserId) XXX_Size() int {
+	return xxx_messageInfo_UserId.Size(m)
+}
+func (m *UserId) XXX_DiscardUnknown() {
+	xxx_messageInfo_UserId.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_UserId proto.InternalMessageInfo
+
+func (m *UserId) GetUserId() uint64 {
+	if m != nil {
+		return m.UserId
+	}
+	return 0
+}
+
 func init() {
 	proto.RegisterType((*Session)(nil), "auth.Session")
 	proto.RegisterType((*Empty)(nil), "auth.Empty")
 	proto.RegisterType((*LoginData)(nil), "auth.LoginData")
 	proto.RegisterType((*LoginResult)(nil), "auth.LoginResult")
-	proto.RegisterType((*LogoutResult)(nil), "auth.LogoutResult")
 	proto.RegisterType((*User)(nil), "auth.User")
 	proto.RegisterType((*SignUpData)(nil), "auth.SignUpData")
 	proto.RegisterType((*SignUpResult)(nil), "auth.SignUpResult")
 	proto.RegisterType((*GetSessionResult)(nil), "auth.GetSessionResult")
+	proto.RegisterType((*UserId)(nil), "auth.UserId")
 }
 
 func init() { proto.RegisterFile("auth.proto", fileDescriptor_8bbd6f3875b0e874) }
 
 var fileDescriptor_8bbd6f3875b0e874 = []byte{
-	// 412 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x9c, 0x53, 0x4d, 0x0b, 0xd3, 0x40,
-	0x10, 0x4d, 0xd3, 0x2f, 0x33, 0x69, 0xb1, 0x2e, 0x52, 0x42, 0x40, 0x29, 0x7b, 0xb1, 0x1e, 0xda,
-	0x4a, 0x3d, 0x8a, 0x15, 0x45, 0x29, 0x85, 0x9e, 0x52, 0x73, 0xf1, 0x52, 0xd6, 0x66, 0x6d, 0x17,
-	0x9a, 0x6c, 0xc8, 0x6e, 0x2c, 0xfa, 0xd3, 0xfc, 0x75, 0xb2, 0x1f, 0x09, 0x69, 0x11, 0x29, 0x3d,
-	0x65, 0x67, 0x67, 0xde, 0x9b, 0x79, 0x6f, 0x27, 0x00, 0xa4, 0x94, 0xa7, 0x79, 0x5e, 0x70, 0xc9,
-	0x51, 0x47, 0x9d, 0xf1, 0x14, 0xfa, 0x3b, 0x2a, 0x04, 0xe3, 0x19, 0x7a, 0x01, 0x20, 0xcc, 0x71,
-	0xcf, 0x92, 0xa0, 0x35, 0x69, 0x4d, 0xbd, 0xc8, 0xb3, 0x37, 0x9b, 0x04, 0xf7, 0xa1, 0xfb, 0x25,
-	0xcd, 0xe5, 0x2f, 0xfc, 0x03, 0xbc, 0x2d, 0x3f, 0xb2, 0xec, 0x33, 0x91, 0x04, 0x3d, 0x87, 0xee,
-	0x59, 0x05, 0xb6, 0xde, 0x04, 0x28, 0x84, 0x27, 0x39, 0x11, 0xe2, 0xc2, 0x8b, 0x24, 0x70, 0x75,
-	0xa2, 0x8e, 0xd1, 0x2b, 0xe8, 0x5b, 0xd2, 0xa0, 0x3d, 0x69, 0x4d, 0xfd, 0xe5, 0x70, 0xae, 0xa7,
-	0xb2, 0x63, 0x44, 0x55, 0x16, 0xbf, 0x07, 0x5f, 0xf7, 0x89, 0xa8, 0x28, 0xcf, 0x12, 0xcd, 0xc1,
-	0xcf, 0xe8, 0x65, 0x5f, 0x61, 0xdd, 0x7f, 0x61, 0x21, 0xa3, 0x17, 0x7b, 0xc6, 0x2b, 0x18, 0x6c,
-	0xf9, 0x91, 0x97, 0xf2, 0x41, 0xfc, 0x57, 0xe8, 0xc4, 0x82, 0x16, 0x4a, 0x4b, 0x29, 0x68, 0x91,
-	0x91, 0x94, 0x5a, 0x91, 0x75, 0xac, 0xd4, 0xd3, 0x94, 0xb0, 0xb3, 0x15, 0x69, 0x82, 0x2b, 0xf5,
-	0xed, 0x6b, 0xf5, 0x38, 0x06, 0xd8, 0xb1, 0x63, 0x16, 0xe7, 0xda, 0xbd, 0x97, 0xd0, 0x51, 0x5c,
-	0x9a, 0xd7, 0x5f, 0x82, 0x19, 0x46, 0x75, 0x8d, 0xf4, 0x7d, 0xd3, 0x2b, 0xf7, 0xbf, 0x5e, 0xad,
-	0x60, 0x60, 0x68, 0x1f, 0x14, 0xfb, 0x0e, 0x46, 0x6b, 0x2a, 0xab, 0x8c, 0xe1, 0xb8, 0xb7, 0xf9,
-	0xf2, 0x8f, 0x0b, 0xc3, 0x8f, 0xa5, 0x3c, 0xf1, 0x82, 0xfd, 0x26, 0x52, 0xad, 0xd2, 0x0c, 0xba,
-	0xfa, 0xe9, 0xd0, 0x53, 0x03, 0xa9, 0xf7, 0x25, 0x7c, 0xd6, 0xb8, 0x30, 0x7d, 0xb0, 0x83, 0x66,
-	0xd0, 0x33, 0x4f, 0x85, 0xae, 0x5b, 0x84, 0xa8, 0xae, 0xae, 0xdf, 0x11, 0x3b, 0xe8, 0x0d, 0xf4,
-	0x8c, 0x58, 0x34, 0xb2, 0xe5, 0xb5, 0xa3, 0x15, 0xa2, 0x69, 0x06, 0x76, 0xd0, 0x07, 0x18, 0xaf,
-	0xa9, 0x8c, 0x33, 0x62, 0xa7, 0xa4, 0x49, 0xb5, 0xf4, 0xbe, 0xa9, 0xd7, 0x9b, 0x1d, 0x8e, 0x4d,
-	0x70, 0xeb, 0x04, 0x76, 0xd0, 0x6b, 0xf0, 0x36, 0xa2, 0xc2, 0xdc, 0x0c, 0xd9, 0xa4, 0xd0, 0x62,
-	0x86, 0x1b, 0xa1, 0xec, 0xb8, 0xab, 0xfc, 0x53, 0xf8, 0x2d, 0x48, 0xd9, 0xa1, 0xe0, 0x82, 0x16,
-	0x3f, 0xd9, 0x81, 0x8a, 0x85, 0xca, 0x2e, 0xf4, 0x2f, 0xfa, 0xbd, 0xa7, 0x3f, 0x6f, 0xff, 0x06,
-	0x00, 0x00, 0xff, 0xff, 0x12, 0x61, 0x31, 0x48, 0xb7, 0x03, 0x00, 0x00,
+	// 414 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x9c, 0x93, 0xef, 0x0b, 0xd2, 0x40,
+	0x18, 0xc7, 0xd5, 0xe6, 0xd6, 0x9e, 0x29, 0xd9, 0x21, 0x26, 0x83, 0xa2, 0xee, 0x45, 0x19, 0xa4,
+	0x86, 0xbd, 0x0c, 0x0d, 0xa3, 0x90, 0x81, 0xaf, 0x66, 0xbe, 0xe9, 0x8d, 0x5c, 0xee, 0xd0, 0x03,
+	0xb7, 0x1b, 0xbb, 0x5b, 0x52, 0xff, 0x76, 0xff, 0x40, 0xdc, 0x8f, 0x2d, 0x35, 0x90, 0xe8, 0xd5,
+	0xee, 0xfb, 0xfc, 0xfc, 0xdc, 0xf3, 0xdc, 0x00, 0x48, 0x29, 0x8f, 0x93, 0xbc, 0xe0, 0x92, 0x23,
+	0x47, 0x9d, 0xf1, 0x08, 0xbc, 0x0d, 0x15, 0x82, 0xf1, 0x0c, 0x3d, 0x05, 0x10, 0xe6, 0xb8, 0x63,
+	0xc9, 0xb0, 0xf9, 0xbc, 0x39, 0xf2, 0x63, 0xdf, 0x5a, 0xa2, 0x04, 0x7b, 0xd0, 0xfe, 0x9c, 0xe6,
+	0xf2, 0x07, 0x9e, 0x83, 0xbf, 0xe6, 0x07, 0x96, 0x7d, 0x22, 0x92, 0xa0, 0x3e, 0xb4, 0x4f, 0x4a,
+	0xd8, 0x78, 0x23, 0x50, 0x08, 0x0f, 0x73, 0x22, 0xc4, 0x99, 0x17, 0xc9, 0xb0, 0xa5, 0x1d, 0xb5,
+	0xc6, 0x73, 0x08, 0x74, 0x7a, 0x4c, 0x45, 0x79, 0x92, 0x68, 0x02, 0x41, 0x46, 0xcf, 0x3b, 0xdb,
+	0x47, 0x97, 0x09, 0x66, 0xdd, 0x89, 0x06, 0xb5, 0x64, 0x31, 0x64, 0xf4, 0x6c, 0xcf, 0xf8, 0x0b,
+	0x38, 0x5b, 0x41, 0x0b, 0xd5, 0xa2, 0x14, 0xb4, 0xc8, 0x48, 0x4a, 0x6d, 0xef, 0x5a, 0x2b, 0x28,
+	0x9a, 0x12, 0x76, 0xb2, 0xbd, 0x8d, 0xb8, 0x82, 0x7a, 0x70, 0x03, 0xf5, 0x06, 0x60, 0xc3, 0x0e,
+	0xd9, 0x36, 0xd7, 0x97, 0x7a, 0x06, 0x8e, 0xaa, 0x65, 0x61, 0xc0, 0xc0, 0xa8, 0xae, 0xb1, 0xb6,
+	0xe3, 0x05, 0x74, 0x4c, 0xf4, 0x7f, 0xde, 0xe1, 0x3d, 0xf4, 0x56, 0x54, 0x56, 0x1e, 0x53, 0xe3,
+	0x15, 0x78, 0x77, 0xf3, 0x2b, 0x2f, 0x7e, 0x01, 0xae, 0x42, 0x89, 0x12, 0xf4, 0x04, 0x3c, 0x85,
+	0x53, 0x6d, 0xcb, 0x89, 0xdd, 0x52, 0x3b, 0x66, 0xbf, 0x5a, 0xd0, 0x5d, 0x96, 0xf2, 0xc8, 0x0b,
+	0xf6, 0x93, 0x48, 0xb5, 0xdb, 0x31, 0xb4, 0xf5, 0xd0, 0xd1, 0x23, 0x53, 0xb5, 0x5e, 0x60, 0xf8,
+	0xf8, 0xc2, 0x60, 0x50, 0x70, 0x03, 0xbd, 0x04, 0x77, 0xcd, 0x0f, 0xbc, 0x94, 0xe8, 0x9a, 0x22,
+	0x0c, 0x8c, 0x34, 0x0f, 0xa1, 0x81, 0xde, 0x82, 0x6b, 0x06, 0x81, 0x7a, 0x36, 0xae, 0x1e, 0x62,
+	0x88, 0x2e, 0x2d, 0x75, 0xe5, 0x0f, 0x30, 0x58, 0x51, 0xb9, 0xcd, 0x88, 0xc5, 0xa3, 0x49, 0xf5,
+	0xfc, 0x2e, 0x4b, 0x87, 0x03, 0x23, 0x6e, 0xa7, 0x84, 0x1b, 0x68, 0x01, 0xfd, 0x15, 0x95, 0xcb,
+	0xbf, 0xd2, 0x3b, 0x7f, 0xb6, 0x14, 0x25, 0x77, 0xf2, 0x5f, 0x83, 0x1f, 0x89, 0x2a, 0xe9, 0xfe,
+	0xed, 0xc6, 0xd0, 0x8d, 0x84, 0xea, 0xf4, 0x4f, 0xe1, 0x1f, 0xc3, 0xaf, 0xc3, 0x94, 0xed, 0x0b,
+	0x2e, 0x68, 0xf1, 0x9d, 0xed, 0xa9, 0x98, 0x2a, 0xef, 0x54, 0xff, 0x6c, 0xdf, 0x5c, 0xfd, 0x79,
+	0xf7, 0x3b, 0x00, 0x00, 0xff, 0xff, 0xbf, 0xb6, 0x9b, 0x70, 0x81, 0x03, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -464,9 +448,10 @@ const _ = grpc.SupportPackageIsVersion4
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type AuthorizationClient interface {
 	Login(ctx context.Context, in *LoginData, opts ...grpc.CallOption) (*LoginResult, error)
-	Logout(ctx context.Context, in *Session, opts ...grpc.CallOption) (*LogoutResult, error)
+	Logout(ctx context.Context, in *Session, opts ...grpc.CallOption) (*Empty, error)
 	SignUp(ctx context.Context, in *SignUpData, opts ...grpc.CallOption) (*SignUpResult, error)
 	GetUnauthorizedSession(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*GetSessionResult, error)
+	GetAuthorizedSession(ctx context.Context, in *UserId, opts ...grpc.CallOption) (*GetSessionResult, error)
 	IsSession(ctx context.Context, in *Session, opts ...grpc.CallOption) (*Empty, error)
 	IsAuthSession(ctx context.Context, in *Session, opts ...grpc.CallOption) (*Empty, error)
 }
@@ -488,8 +473,8 @@ func (c *authorizationClient) Login(ctx context.Context, in *LoginData, opts ...
 	return out, nil
 }
 
-func (c *authorizationClient) Logout(ctx context.Context, in *Session, opts ...grpc.CallOption) (*LogoutResult, error) {
-	out := new(LogoutResult)
+func (c *authorizationClient) Logout(ctx context.Context, in *Session, opts ...grpc.CallOption) (*Empty, error) {
+	out := new(Empty)
 	err := c.cc.Invoke(ctx, "/auth.Authorization/Logout", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -509,6 +494,15 @@ func (c *authorizationClient) SignUp(ctx context.Context, in *SignUpData, opts .
 func (c *authorizationClient) GetUnauthorizedSession(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*GetSessionResult, error) {
 	out := new(GetSessionResult)
 	err := c.cc.Invoke(ctx, "/auth.Authorization/GetUnauthorizedSession", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *authorizationClient) GetAuthorizedSession(ctx context.Context, in *UserId, opts ...grpc.CallOption) (*GetSessionResult, error) {
+	out := new(GetSessionResult)
+	err := c.cc.Invoke(ctx, "/auth.Authorization/GetAuthorizedSession", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -536,9 +530,10 @@ func (c *authorizationClient) IsAuthSession(ctx context.Context, in *Session, op
 // AuthorizationServer is the server API for Authorization service.
 type AuthorizationServer interface {
 	Login(context.Context, *LoginData) (*LoginResult, error)
-	Logout(context.Context, *Session) (*LogoutResult, error)
+	Logout(context.Context, *Session) (*Empty, error)
 	SignUp(context.Context, *SignUpData) (*SignUpResult, error)
 	GetUnauthorizedSession(context.Context, *Empty) (*GetSessionResult, error)
+	GetAuthorizedSession(context.Context, *UserId) (*GetSessionResult, error)
 	IsSession(context.Context, *Session) (*Empty, error)
 	IsAuthSession(context.Context, *Session) (*Empty, error)
 }
@@ -550,7 +545,7 @@ type UnimplementedAuthorizationServer struct {
 func (*UnimplementedAuthorizationServer) Login(ctx context.Context, req *LoginData) (*LoginResult, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Login not implemented")
 }
-func (*UnimplementedAuthorizationServer) Logout(ctx context.Context, req *Session) (*LogoutResult, error) {
+func (*UnimplementedAuthorizationServer) Logout(ctx context.Context, req *Session) (*Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Logout not implemented")
 }
 func (*UnimplementedAuthorizationServer) SignUp(ctx context.Context, req *SignUpData) (*SignUpResult, error) {
@@ -558,6 +553,9 @@ func (*UnimplementedAuthorizationServer) SignUp(ctx context.Context, req *SignUp
 }
 func (*UnimplementedAuthorizationServer) GetUnauthorizedSession(ctx context.Context, req *Empty) (*GetSessionResult, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUnauthorizedSession not implemented")
+}
+func (*UnimplementedAuthorizationServer) GetAuthorizedSession(ctx context.Context, req *UserId) (*GetSessionResult, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAuthorizedSession not implemented")
 }
 func (*UnimplementedAuthorizationServer) IsSession(ctx context.Context, req *Session) (*Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method IsSession not implemented")
@@ -642,6 +640,24 @@ func _Authorization_GetUnauthorizedSession_Handler(srv interface{}, ctx context.
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Authorization_GetAuthorizedSession_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UserId)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthorizationServer).GetAuthorizedSession(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/auth.Authorization/GetAuthorizedSession",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthorizationServer).GetAuthorizedSession(ctx, req.(*UserId))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Authorization_IsSession_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(Session)
 	if err := dec(in); err != nil {
@@ -697,6 +713,10 @@ var _Authorization_serviceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetUnauthorizedSession",
 			Handler:    _Authorization_GetUnauthorizedSession_Handler,
+		},
+		{
+			MethodName: "GetAuthorizedSession",
+			Handler:    _Authorization_GetAuthorizedSession_Handler,
 		},
 		{
 			MethodName: "IsSession",

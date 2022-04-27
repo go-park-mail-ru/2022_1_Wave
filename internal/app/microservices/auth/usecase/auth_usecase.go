@@ -46,7 +46,7 @@ func (a *authService) Login(ctx context.Context, loginData *proto.LoginData) (*p
 		return nil, errors.New(auth_domain.ErrInvalidLoginOrPassword)
 	}
 
-	newSessionId, err := a.authRepo.MakeSessionAuthorized(loginData.Session.SessionId, user.ID)
+	sessionId, err := a.authRepo.SetNewAuthorizedSession(user.ID, SessionExpire)
 
 	if err != nil {
 		return nil, errors.New(auth_domain.ErrWhileChangeSession)
@@ -54,21 +54,19 @@ func (a *authService) Login(ctx context.Context, loginData *proto.LoginData) (*p
 
 	var response proto.LoginResult
 	response.NewSession = &proto.Session{}
-	response.NewSession.SessionId = newSessionId
+	response.NewSession.SessionId = sessionId
 
 	return &response, nil
 }
 
-func (a *authService) Logout(ctx context.Context, session *proto.Session) (*proto.LogoutResult, error) {
-	newSessionId, err := a.authRepo.MakeSessionUnauthorized(session.SessionId)
+func (a *authService) Logout(ctx context.Context, session *proto.Session) (*proto.Empty, error) {
+	err := a.authRepo.DeleteSession(session.SessionId)
+
 	if err != nil {
 		return nil, err
 	}
 
-	var response proto.LogoutResult
-	response.NewSession = &proto.Session{SessionId: newSessionId}
-
-	return &response, nil
+	return &proto.Empty{}, nil
 }
 
 func (a *authService) SignUp(ctx context.Context, data *proto.SignUpData) (*proto.SignUpResult, error) {
@@ -100,20 +98,31 @@ func (a *authService) SignUp(ctx context.Context, data *proto.SignUpData) (*prot
 		return nil, errors.New(auth_domain.ErrDatabaseUnexpected)
 	}
 
-	newSessionId, err := a.authRepo.MakeSessionAuthorized(data.Session.SessionId, userToId.ID)
+	sessionId, err := a.authRepo.SetNewAuthorizedSession(userToId.ID, SessionExpire)
 
 	if err != nil {
 		return nil, errors.New(auth_domain.ErrWhileChangeSession)
 	}
 
 	var response proto.SignUpResult
-	response.NewSession = &proto.Session{SessionId: newSessionId}
+	response.NewSession = &proto.Session{SessionId: sessionId}
 
 	return &response, nil
 }
 
 func (a *authService) GetUnauthorizedSession(ctx context.Context, empty *proto.Empty) (*proto.GetSessionResult, error) {
 	sessionId, err := a.authRepo.SetNewUnauthorizedSession(SessionExpire)
+	if err != nil {
+		return nil, err
+	}
+	var response proto.GetSessionResult
+	response.Session = &proto.Session{SessionId: sessionId}
+
+	return &response, nil
+}
+
+func (a *authService) GetAuthorizedSession(ctx context.Context, userId *proto.UserId) (*proto.GetSessionResult, error) {
+	sessionId, err := a.authRepo.SetNewAuthorizedSession(uint(userId.UserId), SessionExpire)
 	if err != nil {
 		return nil, err
 	}

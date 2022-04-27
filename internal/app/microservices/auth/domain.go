@@ -12,6 +12,7 @@ type Session struct {
 type AuthRepo interface {
 	GetSession(sessionId string) (*Session, error)
 	SetNewUnauthorizedSession(expires time.Duration) (sessionId string, err error)
+	SetNewAuthorizedSession(userId uint, expires time.Duration) (sessionId string, err error)
 	MakeSessionAuthorized(sessionId string, userId uint) (newSessionId string, err error)
 	MakeSessionUnauthorized(sessionId string) (newSessionId string, err error)
 	DeleteSession(sessionId string) error

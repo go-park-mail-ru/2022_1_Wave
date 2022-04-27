@@ -13,15 +13,10 @@ message Empty {};
 message LoginData {
   string login = 1;
   string password = 2;
-  Session session = 3;
 }
 
 message LoginResult {
-  Session new_session = 2;
-}
-
-message LogoutResult {
-  Session new_session = 2;
+  Session new_session = 1;
 }
 
 message User {
@@ -32,22 +27,27 @@ message User {
 
 message SignUpData {
   User user = 1;
-  Session session = 2;
 }
 
 message SignUpResult {
-  Session new_session = 2;
+  Session new_session = 1;
 }
 
 message GetSessionResult {
-  Session session = 2;
+  Session session = 1;
+}
+
+message UserId {
+  uint64 user_id = 1;
 }
 
 service Authorization {
   rpc Login(LoginData) returns(LoginResult) {}
-  rpc Logout(Session) returns(LogoutResult) {}
+  rpc Logout(Session) returns(Empty) {}
   rpc SignUp(SignUpData) returns(SignUpResult) {}
   rpc GetUnauthorizedSession(Empty) returns(GetSessionResult) {}
+  rpc GetAuthorizedSession(UserId) returns(GetSessionResult) {}
   rpc IsSession(Session) returns(Empty) {}
   rpc IsAuthSession(Session) returns(Empty) {}
 }
+
