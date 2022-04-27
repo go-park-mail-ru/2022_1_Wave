@@ -17,8 +17,11 @@ type AlbumRepo interface {
 	GetSize() (int64, error)
 	GetAlbumsFromArtist(artist int64) ([]*albumProto.Album, error)
 	SearchByTitle(title string) ([]*albumProto.Album, error)
-	Like(id int64) error
+	Like(id int64, userId int64) error
 	Listen(id int64) error
+	GetFavorites(userId int64) ([]*albumProto.Album, error)
+	AddToFavorites(id int64, userId int64) error
+	RemoveFromFavorites(albumId int64, userId int64) error
 }
 
 type AlbumCoverRepo interface {
@@ -41,8 +44,11 @@ type ArtistRepo interface {
 	GetLastId() (id int64, err error)
 	GetSize() (int64, error)
 	SearchByName(string) ([]*artistProto.Artist, error)
-	Like(id int64) error
+	Like(id int64, userId int64) error
 	Listen(id int64) error
+	GetFavorites(userId int64) ([]*artistProto.Artist, error)
+	AddToFavorites(id int64, userId int64) error
+	RemoveFromFavorites(artistId int64, userId int64) error
 }
 
 type TrackRepo interface {
@@ -56,7 +62,10 @@ type TrackRepo interface {
 	GetSize() (int64, error)
 	GetTracksFromAlbum(albumId int64) ([]*trackProto.Track, error)
 	GetPopularTracksFromArtist(artistId int64) ([]*trackProto.Track, error)
-	Like(id int64) error
+	Like(id int64, userId int64) error
 	Listen(id int64) error
 	SearchByTitle(title string) ([]*trackProto.Track, error)
+	GetFavorites(userId int64) ([]*trackProto.Track, error)
+	AddToFavorites(id int64, userId int64) error
+	RemoveFromFavorites(trackId int64, userId int64) error
 }

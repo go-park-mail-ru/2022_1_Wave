@@ -197,3 +197,50 @@ func (useCase ArtistGrpc) SearchByName(ctx context.Context, title *gatewayProto.
 func (agent GrpcAgent) SearchByName(title *gatewayProto.StringArg) (*artistProto.ArtistsResponse, error) {
 	return agent.ArtistGrpc.SearchByName(context.Background(), title)
 }
+
+func (useCase ArtistGrpc) GetFavorites(ctx context.Context, data *gatewayProto.IdArg) (*artistProto.ArtistsResponse, error) {
+	artists, err := (*useCase.ArtistRepo).GetFavorites(data.Id)
+	if err != nil {
+		return nil, err
+	}
+
+	dto := make([]*artistProto.ArtistDataTransfer, len(artists))
+
+	for i := 0; i < len(artists); i++ {
+		data, err := useCase.CastToDTO(artists[i])
+		if err != nil {
+			return nil, err
+		}
+		dto[i] = data
+	}
+
+	return &artistProto.ArtistsResponse{Artists: dto}, nil
+}
+
+func (agent GrpcAgent) GetFavorites(data *gatewayProto.IdArg) (*artistProto.ArtistsResponse, error) {
+	return agent.ArtistGrpc.GetFavorites(context.Background(), data)
+}
+
+func (useCase ArtistGrpc) AddToFavorites(ctx context.Context, data *gatewayProto.UserIdArtistIdArg) (*emptypb.Empty, error) {
+	if err := (*useCase.ArtistRepo).AddToFavorites(data.ArtistId, data.UserId); err != nil {
+		return nil, err
+	}
+
+	return &emptypb.Empty{}, nil
+}
+
+func (agent GrpcAgent) AddToFavorites(data *gatewayProto.UserIdArtistIdArg) (*emptypb.Empty, error) {
+	return agent.ArtistGrpc.AddToFavorites(context.Background(), data)
+}
+
+func (useCase ArtistGrpc) RemoveFromFavorites(ctx context.Context, data *gatewayProto.UserIdArtistIdArg) (*emptypb.Empty, error) {
+	if err := (*useCase.TrackRepo).RemoveFromFavorites(data.ArtistId, data.UserId); err != nil {
+		return nil, err
+	}
+
+	return &emptypb.Empty{}, nil
+}
+
+func (agent GrpcAgent) RemoveFromFavorites(data *gatewayProto.UserIdArtistIdArg) (*emptypb.Empty, error) {
+	return agent.ArtistGrpc.RemoveFromFavorites(context.Background(), data)
+}

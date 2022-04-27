@@ -39,4 +39,7 @@ service ArtistUseCase {
   rpc GetPopular(google.protobuf.Empty) returns (ArtistsResponse) {};
   rpc GetSize(google.protobuf.Empty) returns (gateway.IntResponse) {};
   rpc SearchByName(gateway.StringArg) returns (ArtistsResponse) {}
+  rpc GetFavorites(gateway.IdArg) returns (ArtistsResponse) {}
+  rpc AddToFavorites(gateway.UserIdArtistIdArg) returns (google.protobuf.Empty) {}
+  rpc RemoveFromFavorites(gateway.UserIdArtistIdArg) returns (google.protobuf.Empty) {}
 }

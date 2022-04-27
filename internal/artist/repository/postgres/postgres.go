@@ -2,7 +2,6 @@ package ArtistPostgres
 
 import (
 	"errors"
-	"fmt"
 	constants "github.com/go-park-mail-ru/2022_1_Wave/internal"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/domain"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/artist/artistProto"
@@ -135,22 +134,23 @@ func (table ArtistRepo) GetSize() (int64, error) {
 	return size, nil
 }
 
-func (table ArtistRepo) Like(artistId int64) error {
+func (table ArtistRepo) Like(artistId int64, userId int64) error {
 	artist, err := table.SelectByID(artistId)
 	if err != nil {
 		return err
 	}
 
-	fmt.Println("before like=", artist.CountLikes)
+	query := `
+		INSERT INTO userArtistsLike (user_id, artist_id)
+		VALUES ($1, $2)
+		RETURNING artist_id`
 
-	artist.CountLikes = artist.CountLikes + 1
-	if err := table.Update(artist); err != nil {
+	if _, err := table.Sqlx.Exec(query, userId, artist.Id); err != nil {
 		return err
 	}
 
-	fmt.Println("after like=", artist)
-
-	return nil
+	artist.CountLikes = artist.CountLikes + 1
+	return table.Update(artist)
 }
 
 func (table ArtistRepo) Listen(trackId int64) error {
@@ -180,4 +180,40 @@ func (table ArtistRepo) SearchByName(title string) ([]*artistProto.Artist, error
 	}
 
 	return artists, nil
+}
+
+func (table ArtistRepo) AddToFavorites(artistId int64, userId int64) error {
+	artist, err := table.SelectByID(artistId)
+	if err != nil {
+		return err
+	}
+
+	query := `
+		INSERT INTO userFavoriteArtists (user_id, artist_id)
+		VALUES ($1, $2)
+		RETURNING artist_id`
+
+	// do query
+	_, err = table.Sqlx.Exec(query, userId, artist.Id)
+
+	return err
+}
+
+func (table ArtistRepo) GetFavorites(userId int64) ([]*artistProto.Artist, error) {
+	query := `SELECT * FROM Artist
+			  JOIN userFavoriteArtists favorite ON favorite.artist_id = artist.id
+    	      WHERE user_id = $1 ORDER BY artist_id;`
+
+	// do query
+	var artists []*artistProto.Artist
+	err := table.Sqlx.Select(&artists, query, userId)
+
+	return artists, err
+}
+
+func (table ArtistRepo) RemoveFromFavorites(trackId int64, userId int64) error {
+	query := `DELETE FROM userFavoriteArtists WHERE user_id = $1 and artist_id = $2`
+
+	_, err := table.Sqlx.Exec(query, userId, trackId)
+	return err
 }

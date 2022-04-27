@@ -45,6 +45,7 @@ message AlbumsCoverResponse {
   repeated AlbumCoverDataTransfer albums = 1;
 }
 
+
 service AlbumUseCase {
   rpc GetAll(google.protobuf.Empty) returns (AlbumsResponse) {};
   rpc GetAllCovers(google.protobuf.Empty) returns (AlbumsCoverResponse) {};
@@ -62,4 +63,7 @@ service AlbumUseCase {
   rpc GetAlbumsFromArtist(gateway.IdArg) returns (AlbumsResponse) {};
   rpc GetSize(google.protobuf.Empty) returns (gateway.IntResponse) {};
   rpc SearchByTitle(gateway.StringArg) returns (AlbumsResponse) {}
+  rpc GetFavorites(gateway.IdArg) returns (AlbumsResponse) {}
+  rpc AddToFavorites(gateway.UserIdAlbumIdArg) returns (google.protobuf.Empty) {}
+  rpc RemoveFromFavorites(gateway.UserIdAlbumIdArg) returns (google.protobuf.Empty) {}
 }

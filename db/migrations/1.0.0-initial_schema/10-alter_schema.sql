@@ -24,6 +24,10 @@ SET
 
 
 DROP TABLE if exists UserAlbumsLike;
+DROP TABLE if exists UserFavoriteTracks;
+DROP TABLE if exists UserFavoriteArtists;
+DROP TABLE if exists UserFavoriteAlbums;
+DROP TABLE if exists UserArtistsLike;
 DROP TABLE if exists UserArtistsFollowing;
 DROP TABLE if exists UserTracksLike;
 DROP TABLE if exists UserListenedTrack;
@@ -74,7 +78,6 @@ CREATE TABLE Track
     );
 
 
-
 CREATE TABLE UserTracksLike
 (
     user_id  integer NOT NULL,
@@ -83,7 +86,28 @@ CREATE TABLE UserTracksLike
       OIDS = FALSE
     );
 
+CREATE TABLE UserFavoriteTracks
+(
+    user_id  integer NOT NULL,
+    track_id integer NOT NULL
+) WITH (
+      OIDS = FALSE
+    );
 
+CREATE TABLE UserFavoriteAlbums
+(
+    user_id  integer NOT NULL,
+    album_id integer NOT NULL
+) WITH (
+      OIDS = FALSE
+    );
+CREATE TABLE UserFavoriteArtists
+(
+    user_id   integer NOT NULL,
+    artist_id integer NOT NULL
+) WITH (
+      OIDS = FALSE
+    );
 
 CREATE TABLE UserArtistsFollowing
 (
@@ -205,6 +229,13 @@ CREATE TABLE Artist
       OIDS= FALSE
     );
 
+CREATE TABLE UserArtistsLike
+(
+    user_id   integer NOT NULL,
+    artist_id integer NOT NULL
+) WITH (
+      OIDS = FALSE
+    );
 
 
 CREATE TABLE AlbumCover
@@ -237,6 +268,21 @@ ALTER TABLE UserTracksLike
     ADD CONSTRAINT UserTracksLike_fk0 FOREIGN KEY (user_id) REFERENCES Users (id);
 ALTER TABLE UserTracksLike
     ADD CONSTRAINT UserTracksLike_fk1 FOREIGN KEY (track_id) REFERENCES Track (id);
+
+ALTER TABLE UserFavoriteTracks
+    ADD CONSTRAINT real_user_for_favorite FOREIGN KEY (user_id) REFERENCES Users (id) ON DELETE CASCADE;
+ALTER TABLE UserFavoriteTracks
+    ADD CONSTRAINT real_track_to_favorite FOREIGN KEY (track_id) REFERENCES Track (id) ON DELETE CASCADE;
+
+ALTER TABLE UserFavoriteArtists
+    ADD CONSTRAINT real_user_for_favorite FOREIGN KEY (user_id) REFERENCES Users (id) ON DELETE CASCADE;
+ALTER TABLE UserFavoriteArtists
+    ADD CONSTRAINT real_track_to_favorite FOREIGN KEY (artist_id) REFERENCES Artist (id) ON DELETE CASCADE;
+
+ALTER TABLE UserFavoriteAlbums
+    ADD CONSTRAINT real_user_for_favorite FOREIGN KEY (user_id) REFERENCES Users (id) ON DELETE CASCADE;
+ALTER TABLE UserFavoriteAlbums
+    ADD CONSTRAINT real_track_to_favorite FOREIGN KEY (album_id) REFERENCES Album (id) ON DELETE CASCADE;
 
 ALTER TABLE UserArtistsFollowing
     ADD CONSTRAINT UserArtistsFollowing_fk0 FOREIGN KEY (user_id) REFERENCES Users (id);
@@ -284,6 +330,11 @@ ALTER TABLE UserAlbumsLike
     ADD CONSTRAINT UserAlbumsLike_fk0 FOREIGN KEY (user_id) REFERENCES Users (id);
 ALTER TABLE UserAlbumsLike
     ADD CONSTRAINT UserAlbumsLike_fk1 FOREIGN KEY (album_id) REFERENCES Album (id);
+
+ALTER TABLE UserArtistsLike
+    ADD CONSTRAINT real_user_for_like_track FOREIGN KEY (user_id) REFERENCES Users (id);
+ALTER TABLE UserArtistsLike
+    ADD CONSTRAINT real_artist_to_be_liked FOREIGN KEY (artist_id) REFERENCES Album (id);
 
 SELECT table_name
 FROM information_schema.tables

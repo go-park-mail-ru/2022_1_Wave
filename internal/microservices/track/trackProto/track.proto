@@ -47,4 +47,8 @@ service TrackUseCase {
   rpc Like(gateway.IdArg) returns (google.protobuf.Empty) {};
   rpc Listen(gateway.IdArg) returns (google.protobuf.Empty) {};
   rpc SearchByTitle(gateway.StringArg) returns (TracksResponse) {}
+  rpc GetFavorites(gateway.IdArg) returns (TracksResponse) {}
+  rpc AddToFavorites(gateway.UserIdTrackIdArg) returns (google.protobuf.Empty) {}
+  rpc RemoveFromFavorites(gateway.UserIdTrackIdArg) returns (google.protobuf.Empty) {}
+
 }

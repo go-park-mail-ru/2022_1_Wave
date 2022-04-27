@@ -364,3 +364,91 @@ func (h Handler) GetPopular(ctx echo.Context) error {
 			Status: webUtils.OK,
 			Result: popular})
 }
+
+// GetFavorites godoc
+// @Summary      GetFavorites
+// @Description  getting favorites albums
+// @Tags         album
+// @Accept          application/json
+// @Produce      application/json
+// @Success      200  {object}  webUtils.Success
+// @Failure      400  {object}  webUtils.Error  "Data is invalid"
+// @Failure      405  {object}  webUtils.Error  "Method is not allowed"
+// @Router       /api/v1/albums/favorites [get]
+func (h Handler) GetFavorites(ctx echo.Context) error {
+	//todo userId is not 0!!!
+	userId := int64(0)
+	favorites, err := h.AlbumUseCase.GetFavorites(&gatewayProto.IdArg{Id: userId})
+	if err != nil {
+		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
+	}
+
+	return ctx.JSON(http.StatusOK,
+		webUtils.Success{
+			Status: webUtils.OK,
+			Result: favorites})
+}
+
+// AddToFavorites godoc
+// @Summary      AddToFavorites
+// @Description  add to favorite
+// @Tags         album
+// @Accept          application/json
+// @Produce      application/json
+// @Param        albumId  path      int  true  "albumId"
+// @Success      200    {object}  webUtils.Success
+// @Failure      400    {object}  webUtils.Error  "Data is invalid"
+// @Failure      405    {object}  webUtils.Error  "Method is not allowed"
+// @Router       /api/v1/albums/favorites/{id} [post]
+func (h Handler) AddToFavorites(ctx echo.Context) error {
+	trackId, err := strconv.Atoi(ctx.Param(constants.FieldId))
+	if err != nil {
+		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
+	}
+	//todo userId is not 0!!!
+	userId := int64(0)
+
+	if _, err := h.AlbumUseCase.AddToFavorites(&gatewayProto.UserIdAlbumIdArg{
+		UserId:  userId,
+		AlbumId: int64(trackId),
+	}); err != nil {
+		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
+	}
+
+	return ctx.JSON(http.StatusOK,
+		webUtils.Success{
+			Status: webUtils.OK,
+			Result: constants.SuccessAddedToFavorites + "(" + fmt.Sprint(trackId) + ")"})
+}
+
+// RemoveFromFavorites godoc
+// @Summary      RemoveFromFavorites
+// @Description  remove from favorites
+// @Tags         album
+// @Accept          application/json
+// @Produce      application/json
+// @Param        albumId  path      int  true  "albumId"
+// @Success      200    {object}  webUtils.Success
+// @Failure      400    {object}  webUtils.Error  "Data is invalid"
+// @Failure      405    {object}  webUtils.Error  "Method is not allowed"
+// @Router       /api/v1/albums/favorites/{id} [delete]
+func (h Handler) RemoveFromFavorites(ctx echo.Context) error {
+	albumId, err := strconv.Atoi(ctx.Param(constants.FieldId))
+	if err != nil {
+		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
+	}
+	//todo userId is not 0!!!
+	userId := int64(0)
+
+	if _, err := h.AlbumUseCase.RemoveFromFavorites(&gatewayProto.UserIdAlbumIdArg{
+		UserId:  userId,
+		AlbumId: int64(albumId),
+	}); err != nil {
+		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
+	}
+
+	return ctx.JSON(http.StatusOK,
+		webUtils.Success{
+			Status: webUtils.OK,
+			Result: constants.SuccessRemoveFromFavorites + "(" + fmt.Sprint(albumId) + ")"})
+}

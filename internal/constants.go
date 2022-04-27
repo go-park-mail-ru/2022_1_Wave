@@ -15,11 +15,13 @@ const (
 
 // success
 const (
-	SuccessCreated  = "success created"
-	SuccessUpdated  = "success updated"
-	SuccessDeleted  = "success deleted"
-	SuccessLiked    = "success liked"
-	SuccessListened = "success listened"
+	SuccessCreated             = "success created"
+	SuccessUpdated             = "success updated"
+	SuccessDeleted             = "success deleted"
+	SuccessLiked               = "success liked"
+	SuccessListened            = "success listened"
+	SuccessAddedToFavorites    = "success added to favorites"
+	SuccessRemoveFromFavorites = "success remove to favorites"
 )
 
 // success albums

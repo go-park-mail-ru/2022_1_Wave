@@ -115,6 +115,7 @@ CREATE INDEX track_search_fr
 -- SELECT * FROM Album WHERE to_tsvector(title)
 --                               @@ plainto_tsquery('Часы');
 
+
 EXPLAIN ANALYSE
 SELECT *
 FROM album

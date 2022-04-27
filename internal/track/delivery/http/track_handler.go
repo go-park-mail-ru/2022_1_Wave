@@ -263,3 +263,91 @@ func (h Handler) Listen(ctx echo.Context) error {
 			Status: webUtils.OK,
 			Result: constants.SuccessListened + "(" + fmt.Sprint(id) + ")"})
 }
+
+// GetFavorites godoc
+// @Summary      GetFavorites
+// @Description  getting favorites tracks
+// @Tags         track
+// @Accept          application/json
+// @Produce      application/json
+// @Success      200  {object}  webUtils.Success
+// @Failure      400  {object}  webUtils.Error  "Data is invalid"
+// @Failure      405  {object}  webUtils.Error  "Method is not allowed"
+// @Router       /api/v1/tracks/favorites [get]
+func (h Handler) GetFavorites(ctx echo.Context) error {
+	//todo userId is not 0!!!
+	userId := int64(0)
+	favorites, err := h.TrackUseCase.GetFavorites(&gatewayProto.IdArg{Id: userId})
+	if err != nil {
+		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
+	}
+
+	return ctx.JSON(http.StatusOK,
+		webUtils.Success{
+			Status: webUtils.OK,
+			Result: favorites})
+}
+
+// AddToFavorites godoc
+// @Summary      AddToFavorites
+// @Description  add to favorites
+// @Tags         track
+// @Accept          application/json
+// @Produce      application/json
+// @Param        trackId  path      int  true  "trackId"
+// @Success      200    {object}  webUtils.Success
+// @Failure      400    {object}  webUtils.Error  "Data is invalid"
+// @Failure      405    {object}  webUtils.Error  "Method is not allowed"
+// @Router       /api/v1/tracks/favorites/{id} [post]
+func (h Handler) AddToFavorites(ctx echo.Context) error {
+	trackId, err := strconv.Atoi(ctx.Param(constants.FieldId))
+	if err != nil {
+		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
+	}
+	//todo userId is not 0!!!
+	userId := int64(0)
+
+	if _, err := h.TrackUseCase.AddToFavorites(&gatewayProto.UserIdTrackIdArg{
+		UserId:  userId,
+		TrackId: int64(trackId),
+	}); err != nil {
+		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
+	}
+
+	return ctx.JSON(http.StatusOK,
+		webUtils.Success{
+			Status: webUtils.OK,
+			Result: constants.SuccessAddedToFavorites + "(" + fmt.Sprint(trackId) + ")"})
+}
+
+// RemoveFromFavorites godoc
+// @Summary      RemoveFromFavorites
+// @Description  remove from favorite
+// @Tags         track
+// @Accept          application/json
+// @Produce      application/json
+// @Param        trackId  path      int  true  "trackId"
+// @Success      200    {object}  webUtils.Success
+// @Failure      400    {object}  webUtils.Error  "Data is invalid"
+// @Failure      405    {object}  webUtils.Error  "Method is not allowed"
+// @Router       /api/v1/tracks/favorites/{id} [delete]
+func (h Handler) RemoveFromFavorites(ctx echo.Context) error {
+	trackId, err := strconv.Atoi(ctx.Param(constants.FieldId))
+	if err != nil {
+		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
+	}
+	//todo userId is not 0!!!
+	userId := int64(0)
+
+	if _, err := h.TrackUseCase.RemoveFromFavorites(&gatewayProto.UserIdTrackIdArg{
+		UserId:  userId,
+		TrackId: int64(trackId),
+	}); err != nil {
+		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
+	}
+
+	return ctx.JSON(http.StatusOK,
+		webUtils.Success{
+			Status: webUtils.OK,
+			Result: constants.SuccessRemoveFromFavorites + "(" + fmt.Sprint(trackId) + ")"})
+}

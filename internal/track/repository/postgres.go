@@ -127,16 +127,23 @@ func (table TrackRepo) GetPopularTracksFromArtist(artistId int64) ([]*trackProto
 	return tracks, nil
 }
 
-func (table TrackRepo) Like(trackId int64) error {
+func (table TrackRepo) Like(userId int64, trackId int64) error {
 	track, err := table.SelectByID(trackId)
 	if err != nil {
 		return err
 	}
-	track.CountLikes = track.CountLikes + 1
-	if err := table.Update(track); err != nil {
+
+	query := `
+		INSERT INTO userTracksLike (user_id, track_id)
+		VALUES ($1, $2)
+		RETURNING track_id`
+
+	if _, err := table.Sqlx.Exec(query, userId, track.Id); err != nil {
 		return err
 	}
-	return nil
+
+	track.CountLikes = track.CountLikes + 1
+	return table.Update(track)
 }
 
 func (table TrackRepo) Listen(trackId int64) error {
@@ -166,4 +173,39 @@ func (table TrackRepo) SearchByTitle(title string) ([]*trackProto.Track, error) 
 	}
 
 	return tracks, nil
+}
+
+func (table TrackRepo) AddToFavorites(trackId int64, userId int64) error {
+	track, err := table.SelectByID(trackId)
+	if err != nil {
+		return err
+	}
+
+	query := `
+		INSERT INTO userfavoritetracks (user_id, track_id)
+		VALUES ($1, $2)
+		RETURNING track_id`
+
+	// do query
+	_, err = table.Sqlx.Exec(query, userId, track.Id)
+
+	return err
+}
+
+func (table TrackRepo) GetFavorites(userId int64) ([]*trackProto.Track, error) {
+	query := `SELECT * FROM track
+			  JOIN userFavoriteTracks favorite ON favorite.track_id = track.id
+    	      WHERE user_id = $1 ORDER BY track_id;`
+	// do query
+	var tracks []*trackProto.Track
+	err := table.Sqlx.Select(&tracks, query, userId)
+
+	return tracks, err
+}
+
+func (table TrackRepo) RemoveFromFavorites(trackId int64, userId int64) error {
+	query := `DELETE FROM userFavoriteTracks WHERE user_id = $1 and track_id = $2`
+
+	_, err := table.Sqlx.Exec(query, userId, trackId)
+	return err
 }
