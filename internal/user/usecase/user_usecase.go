@@ -1,4 +1,4 @@
-package UserUsecase
+package user_usecase
 
 import (
 	auth_domain "github.com/go-park-mail-ru/2022_1_Wave/internal/auth"

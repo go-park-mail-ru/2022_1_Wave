@@ -28,6 +28,7 @@ func NewUserService(userRepo user_microservice_domain.UserRepo) proto.ProfileSer
 
 func GetUserForRepo(userProto *proto.User) *user_microservice_domain.User {
 	return &user_microservice_domain.User{
+		ID:             uint(userProto.GetUserId()),
 		Username:       userProto.GetUsername(),
 		Email:          userProto.GetEmail(),
 		Avatar:         userProto.GetAvatar(),

@@ -26,7 +26,7 @@ import (
 	TrackUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/track/useCase"
 	user_domain "github.com/go-park-mail-ru/2022_1_Wave/internal/user"
 	user_grpc_agent "github.com/go-park-mail-ru/2022_1_Wave/internal/user/client/grpc"
-	UserUsecase "github.com/go-park-mail-ru/2022_1_Wave/internal/user/userUseCase"
+	UserUsecase "github.com/go-park-mail-ru/2022_1_Wave/internal/user/usecase"
 	"github.com/labstack/echo/v4"
 )
 

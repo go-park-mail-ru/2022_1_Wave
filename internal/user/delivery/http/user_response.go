@@ -1,15 +1,14 @@
 package userHttp
 
 import (
-	"github.com/go-park-mail-ru/2022_1_Wave/internal/domain"
 	user_microservice_domain "github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/user"
 	"github.com/microcosm-cc/bluemonday"
 )
 
 type UserResponse struct {
-	Status string       `json:"status"`
-	Error  string       `json:"error,omitempty"`
-	Result *domain.User `json:"result,omitempty"`
+	Status string                         `json:"status"`
+	Error  string                         `json:"error,omitempty"`
+	Result *user_microservice_domain.User `json:"result,omitempty"`
 }
 
 type UserResponseProto struct {
@@ -46,7 +45,7 @@ func getErrorUserResponse(err error) *UserResponse {
 	}
 }
 
-func userSanitize(user *domain.User) {
+func userSanitize(user *user_microservice_domain.User) {
 	sanitizer := bluemonday.UGCPolicy()
 
 	user.Username = sanitizer.Sanitize(user.Username)
@@ -62,7 +61,7 @@ func userSanitizeProto(user *user_microservice_domain.User) {
 	user.Avatar = sanitizer.Sanitize(user.Avatar)
 }
 
-func getSuccessGetUserResponse(user *domain.User) *UserResponse {
+func getSuccessGetUserResponse(user *user_microservice_domain.User) *UserResponse {
 	userSanitize(user)
 
 	return &UserResponse{
