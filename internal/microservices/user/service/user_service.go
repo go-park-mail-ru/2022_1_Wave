@@ -23,7 +23,7 @@ type userService struct {
 }
 
 func NewUserService(userRepo user_microservice_domain.UserRepo) proto.ProfileServer {
-	return nil
+	return &userService{userRepo: userRepo}
 }
 
 func getUserForRepo(userProto *proto.User) *user_microservice_domain.User {

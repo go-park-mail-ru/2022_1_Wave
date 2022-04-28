@@ -9,14 +9,21 @@ import (
 	AlbumGrpcAgent "github.com/go-park-mail-ru/2022_1_Wave/internal/album/client/grpc"
 	AlbumUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/album/useCase"
 	ArtistUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/artist/useCase"
+	auth_domain2 "github.com/go-park-mail-ru/2022_1_Wave/internal/auth"
+	auth_grpc_agent "github.com/go-park-mail-ru/2022_1_Wave/internal/auth/client/grpc"
 	AuthUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/auth/usecase"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/domain"
 	AlbumGrpc "github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/album/gRPC"
 	ArtistGrpc "github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/artist/gRPC"
 	auth_domain "github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/auth"
+	auth_service "github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/auth/service"
 	TrackGrpc "github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/track/gRPC"
+	user_microservice_domain "github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/user"
+	user_service "github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/user/service"
 	structStoragePostgresql "github.com/go-park-mail-ru/2022_1_Wave/internal/structs/storage/postgresql"
 	TrackUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/track/useCase"
+	user_domain "github.com/go-park-mail-ru/2022_1_Wave/internal/user"
+	user_grpc_agent "github.com/go-park-mail-ru/2022_1_Wave/internal/user/client/grpc"
 	UserUsecase "github.com/go-park-mail-ru/2022_1_Wave/internal/user/userUseCase"
 	"github.com/labstack/echo/v4"
 )
@@ -29,7 +36,7 @@ type container struct {
 	Alc  domain.AlbumCoverRepo
 	Ar   domain.ArtistRepo
 	Sess auth_domain.AuthRepo
-	Us   domain.UserRepo
+	Us   user_microservice_domain.UserRepo
 	Tr   domain.TrackRepo
 }
 
@@ -90,11 +97,11 @@ func Init(e *echo.Echo, quantity int64, dataBaseType string) error {
 
 	printDbQuants(usersQuant, artistsQuant, albumsQuant, albumCoversQuant, tracksQuant)
 
-	auth := AuthUseCase.NewAuthService(repoContainer.Sess, repoContainer.Us)
+	albumClient, artistClient, trackClient, userAgent, authAgent := makeClients(internal.Grpc, repoContainer)
 
-	albumClient, artistClient, trackClient := makeClients(internal.Grpc, repoContainer)
+	auth := AuthUseCase.NewAuthService(authAgent, userAgent)
+	user := UserUsecase.NewUserUseCase(userAgent, authAgent)
 
-	user := UserUsecase.NewUserUseCase(repoContainer.Us, repoContainer.Sess)
 	return router.Router(e, auth, albumClient, artistClient, trackClient, user)
 }
 
@@ -106,31 +113,37 @@ func printDbQuants(usersQuant int, artistsQuant int64, albumsQuant int64, albumC
 	logger.GlobalLogger.Logrus.Info("Tracks:", tracksQuant)
 }
 
-func makeGrpcClients(repoContainer container) (AlbumGrpcAgent.GrpcAgent, ArtistUseCase.ArtistAgent, TrackUseCase.TrackAgent) {
+func makeGrpcClients(repoContainer container) (AlbumGrpcAgent.GrpcAgent, ArtistUseCase.ArtistAgent, TrackUseCase.TrackAgent, user_domain.UserAgent, auth_domain2.AuthAgent) {
 	grpcLauncher := gRPC.Launcher{
 		Network:      internal.Tcp,
 		AlbumServer:  AlbumGrpc.MakeAlbumGrpc(repoContainer.Tr, repoContainer.Ar, repoContainer.Al, repoContainer.Alc),
 		ArtistServer: ArtistGrpc.MakeArtistGrpc(repoContainer.Ar, repoContainer.Al, repoContainer.Tr),
 		TrackServer:  TrackGrpc.MakeTrackGrpc(repoContainer.Tr, repoContainer.Ar, repoContainer.Al),
+		UserServer:   user_service.NewUserService(repoContainer.Us),
+		AuthServer:   auth_service.NewAuthService(repoContainer.Sess),
 	}
 
 	albumClient := grpcLauncher.MakeAlbumGrpcClient(":8081")
 	artistClient := grpcLauncher.MakeArtistGrpcClient(":8082")
 	trackClient := grpcLauncher.MakeTrackGrpcClient(":8083")
+	authClient := grpcLauncher.MakeAuthGrpcClient(":8084")
+	userClient := grpcLauncher.MakeUserGrpcClient(":8085")
 
 	albumAgent := AlbumGrpcAgent.MakeAgent(albumClient)
 	artistAgent := ArtistGrpc.MakeAgent(artistClient)
 	trackAgent := TrackGrpc.MakeAgent(trackClient)
+	authAgent := auth_grpc_agent.NewAuthGRPCAgent(authClient)
+	userAgent := user_grpc_agent.NewUserGRPCAgent(userClient)
 
-	return albumAgent, artistAgent, trackAgent
+	return albumAgent, artistAgent, trackAgent, userAgent, authAgent
 }
 
-func makeClients(clientsType string, repoContainer container) (AlbumUseCase.AlbumAgent, ArtistUseCase.ArtistAgent, TrackUseCase.TrackAgent) {
+func makeClients(clientsType string, repoContainer container) (AlbumUseCase.AlbumAgent, ArtistUseCase.ArtistAgent, TrackUseCase.TrackAgent, user_domain.UserAgent, auth_domain2.AuthAgent) {
 	switch clientsType {
 	case internal.Grpc:
 		return makeGrpcClients(repoContainer)
 	default:
-		return nil, nil, nil
+		return nil, nil, nil, nil, nil
 	}
 
 }

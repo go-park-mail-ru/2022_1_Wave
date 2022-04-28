@@ -1,6 +1,9 @@
 package domain
 
-import auth_domain "github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/auth"
+import (
+	auth_domain "github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/auth"
+	user_microservice_domain "github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/user"
+)
 
 type GlobalStorageInterface interface {
 	Open() (GlobalStorageInterface, error)
@@ -12,5 +15,5 @@ type GlobalStorageInterface interface {
 	GetArtistRepo() ArtistRepo
 	GetTrackRepo() TrackRepo
 	GetSessionRepo() auth_domain.AuthRepo
-	GetUserRepo() UserRepo
+	GetUserRepo() user_microservice_domain.UserRepo
 }
