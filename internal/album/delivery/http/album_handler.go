@@ -63,8 +63,6 @@ func (h Handler) GetAll(ctx echo.Context) error {
 func (h Handler) GetAllCovers(ctx echo.Context) error {
 	domains, err := h.AlbumUseCase.GetAllCovers()
 
-	fmt.Println("domains=", domains)
-
 	if err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 	}

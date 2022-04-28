@@ -21,7 +21,7 @@ import (
 
 func Router(e *echo.Echo,
 	auth auth_domain.AuthUseCase,
-	album AlbumUseCase.AlbumAgent,
+	album AlbumUseCase.UseCase,
 	artist ArtistUseCase.ArtistAgent,
 	track TrackUseCase.TrackAgent,
 	user user_domain.UserUseCase) error {

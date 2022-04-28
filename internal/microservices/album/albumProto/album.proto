@@ -38,11 +38,11 @@ message AlbumUseCaseResponse {
 }
 
 message AlbumsResponse {
-  repeated AlbumDataTransfer albums = 1;
+  repeated Album albums = 1;
 }
 
 message AlbumsCoverResponse {
-  repeated AlbumCoverDataTransfer albums = 1;
+  repeated AlbumCover covers = 1;
 }
 
 
@@ -57,8 +57,8 @@ service AlbumUseCase {
   rpc UpdateCover(AlbumCover) returns (google.protobuf.Empty) {};
   rpc Delete(gateway.IdArg) returns (google.protobuf.Empty) {};
   rpc DeleteCover(gateway.IdArg) returns (google.protobuf.Empty) {};
-  rpc GetById(gateway.IdArg) returns (AlbumDataTransfer) {};
-  rpc GetCoverById(gateway.IdArg) returns (AlbumCoverDataTransfer) {};
+  rpc GetById(gateway.IdArg) returns (Album) {};
+  rpc GetCoverById(gateway.IdArg) returns (AlbumCover) {};
   rpc GetPopular(google.protobuf.Empty) returns (AlbumsResponse) {};
   rpc GetAlbumsFromArtist(gateway.IdArg) returns (AlbumsResponse) {};
   rpc GetSize(google.protobuf.Empty) returns (gateway.IntResponse) {};

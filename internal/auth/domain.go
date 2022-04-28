@@ -7,6 +7,7 @@ import (
 	"time"
 )
 
+//todo хуйня
 type AuthAgent interface {
 	GetSession(sessionId string) (*auth_microservice_domain.Session, error)
 	SetNewUnauthorizedSession(expires time.Duration) (sessionId string, err error)

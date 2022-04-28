@@ -6,6 +6,7 @@ import (
 	"github.com/go-park-mail-ru/2022_1_Wave/init/logger"
 	"github.com/go-park-mail-ru/2022_1_Wave/init/router"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal"
+	AlbumGrpcAgent "github.com/go-park-mail-ru/2022_1_Wave/internal/album/client/grpc"
 	AlbumUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/album/useCase"
 	ArtistUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/artist/useCase"
 	AuthUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/auth/usecase"
@@ -105,7 +106,7 @@ func printDbQuants(usersQuant int, artistsQuant int64, albumsQuant int64, albumC
 	logger.GlobalLogger.Logrus.Info("Tracks:", tracksQuant)
 }
 
-func makeGrpcClients(repoContainer container) (AlbumUseCase.AlbumAgent, ArtistUseCase.ArtistAgent, TrackUseCase.TrackAgent) {
+func makeGrpcClients(repoContainer container) (AlbumGrpcAgent.GrpcAgent, ArtistUseCase.ArtistAgent, TrackUseCase.TrackAgent) {
 	grpcLauncher := gRPC.Launcher{
 		Network:      internal.Tcp,
 		AlbumServer:  AlbumGrpc.MakeAlbumGrpc(repoContainer.Tr, repoContainer.Ar, repoContainer.Al, repoContainer.Alc),
@@ -117,7 +118,7 @@ func makeGrpcClients(repoContainer container) (AlbumUseCase.AlbumAgent, ArtistUs
 	artistClient := grpcLauncher.MakeArtistGrpcClient(":8082")
 	trackClient := grpcLauncher.MakeTrackGrpcClient(":8083")
 
-	albumAgent := AlbumGrpc.MakeAgent(albumClient)
+	albumAgent := AlbumGrpcAgent.MakeAgent(albumClient)
 	artistAgent := ArtistGrpc.MakeAgent(artistClient)
 	trackAgent := TrackGrpc.MakeAgent(trackClient)
 

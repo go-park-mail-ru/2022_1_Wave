@@ -94,8 +94,8 @@ func CastTracksByArtistToDto(tracks []*trackProto.Track, artist *artistProto.Art
 }
 
 // --------------------------------------
-func GetFullAlbumByArtist(trackRepo domain.TrackRepo, album *albumProto.Album, artist *artistProto.Artist) (*albumProto.AlbumDataTransfer, error) {
-	tracks, err := trackRepo.GetTracksFromAlbum(album.Id)
+func GetFullAlbumByArtist(trackAgent domain.TrackAgent, album *albumProto.Album, artist *artistProto.Artist) (*albumProto.AlbumDataTransfer, error) {
+	tracks, err := trackAgent.GetTracksFromAlbum(album.Id)
 	if err != nil {
 		return nil, err
 	}

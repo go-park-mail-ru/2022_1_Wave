@@ -29,8 +29,6 @@ const (
 	PathToAvatars = "assets"
 )
 
-//var Handler UserHandler
-
 func MakeHandler(userUseCase user_domain.UserUseCase) UserHandler {
 	return UserHandler{
 		UserUseCase: userUseCase,
