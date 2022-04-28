@@ -19,6 +19,7 @@ type ProfileServer interface {
 
 type userService struct {
 	userRepo user_microservice_domain.UserRepo
+	proto.UnimplementedProfileServer
 }
 
 func NewUserService(userRepo user_microservice_domain.UserRepo) proto.ProfileServer {

@@ -3,10 +3,9 @@ package main
 import (
 	"database/sql"
 	"github.com/go-park-mail-ru/2022_1_Wave/init/logger"
-	auth_usecase "github.com/go-park-mail-ru/2022_1_Wave/internal/auth/usecase"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/auth/proto"
 	auth_redis "github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/auth/repository/redis"
-	"github.com/go-park-mail-ru/2022_1_Wave/internal/user/repository/postgresql"
+	auth_service "github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/auth/service"
 	"github.com/jmoiron/sqlx"
 	"google.golang.org/grpc"
 	"net"
@@ -36,15 +35,15 @@ func InitDatabase() *sqlx.DB {
 }
 
 func main() {
-	sqlxDb := InitDatabase()
+	//sqlxDb := InitDatabase()
 	authRepo := auth_redis.NewRedisAuthRepo("")
-	userRepo := postgresql.NewUserPostgresRepo(sqlxDb)
+	//userRepo := postgresql.NewUserPostgresRepo(sqlxDb)
 
-	defer func() {
+	/*defer func() {
 		if sqlxDb != nil {
 			_ = sqlxDb.Close()
 		}
-	}()
+	}()*/
 
 	port := os.Getenv("AUTH_PORT")
 	listen, err := net.Listen("tcp", port)
@@ -53,7 +52,7 @@ func main() {
 	}
 
 	server := grpc.NewServer()
-	proto.RegisterAuthorizationServer(server, auth_usecase.NewAuthService(authRepo, userRepo))
+	proto.RegisterAuthorizationServer(server, auth_service.NewAuthService(authRepo))
 	logger.GlobalLogger.Logrus.Printf("started authorization microservice on %s", port)
 	err = server.Serve(listen)
 	if err != nil {
