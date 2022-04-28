@@ -30,7 +30,7 @@ message TrackUseCaseResponse {
 }
 
 message TracksResponse {
-  repeated TrackDataTransfer tracks = 1;
+  repeated Track tracks = 1;
 }
 
 service TrackUseCase {
@@ -39,12 +39,12 @@ service TrackUseCase {
   rpc Create(Track) returns (google.protobuf.Empty) {};
   rpc Update(Track) returns (google.protobuf.Empty) {};
   rpc Delete(gateway.IdArg) returns (google.protobuf.Empty) {};
-  rpc GetById(gateway.IdArg) returns (TrackDataTransfer) {};
+  rpc GetById(gateway.IdArg) returns (Track) {};
   rpc GetPopular(google.protobuf.Empty) returns (TracksResponse) {};
   rpc GetTracksFromAlbum(gateway.IdArg) returns (TracksResponse) {};
   rpc GetPopularTracksFromArtist(gateway.IdArg) returns (TracksResponse) {};
   rpc GetSize(google.protobuf.Empty) returns (gateway.IntResponse) {};
-  rpc Like(gateway.IdArg) returns (google.protobuf.Empty) {};
+  rpc Like(gateway.UserIdTrackIdArg) returns (google.protobuf.Empty) {};
   rpc Listen(gateway.IdArg) returns (google.protobuf.Empty) {};
   rpc SearchByTitle(gateway.StringArg) returns (TracksResponse) {}
   rpc GetFavorites(gateway.IdArg) returns (TracksResponse) {}

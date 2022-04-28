@@ -82,7 +82,7 @@ func (launcher *Launcher) MakeUserGrpcClient(address string) proto_user.ProfileC
 
 func (launcher *Launcher) MakeAuthGrpcClient(address string) proto.AuthorizationClient {
 	server := grpc.NewServer()
-	proto_user.RegisterProfileServer(server, launcher.UserServer)
+	proto.RegisterAuthorizationServer(server, launcher.AuthServer)
 
 	conn := launcher.createConnection(address, server)
 

@@ -54,7 +54,7 @@ type TrackAgent interface {
 	GetTracksFromAlbum(int64) ([]*trackProto.Track, error)
 	GetPopularTracksFromArtist(int64) ([]*trackProto.Track, error)
 	GetSize() (int64, error)
-	Like(int64) error
+	Like(userId int64, trackId int64) error
 	Listen(int64) error
 	SearchByTitle(title string) ([]*trackProto.Track, error)
 	GetFavorites(int64) ([]*trackProto.Track, error)

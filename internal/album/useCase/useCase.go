@@ -19,7 +19,7 @@ type UseCase interface {
 	DeleteCover(int64) error
 	GetById(int64) (*albumProto.AlbumDataTransfer, error)
 	GetCoverById(int64) (*albumProto.AlbumCoverDataTransfer, error)
-	GetPopular() ([]*albumProto.Album, error)
+	GetPopular() ([]*albumProto.AlbumDataTransfer, error)
 	GetAlbumsFromArtist(int64) ([]*albumProto.AlbumDataTransfer, error)
 	GetSize() (int64, error)
 	SearchByTitle(title string) ([]*albumProto.AlbumDataTransfer, error)

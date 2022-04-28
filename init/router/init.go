@@ -22,15 +22,15 @@ import (
 func Router(e *echo.Echo,
 	auth auth_domain.AuthUseCase,
 	album AlbumUseCase.UseCase,
-	artist ArtistUseCase.ArtistAgent,
-	track TrackUseCase.TrackAgent,
+	artist ArtistUseCase.UseCase,
+	track TrackUseCase.UseCase,
 	user user_domain.UserUseCase) error {
 
 	api := e.Group(apiPrefix)
 	v1 := api.Group(v1Prefix)
-	albumHandler := albumDeliveryHttp.MakeHandler(album)
-	artistHandler := artistDeliveryHttp.MakeHandler(artist, track)
-	trackHandler := trackDeliveryHttp.MakeHandler(track)
+	albumHandler := albumDeliveryHttp.MakeHandler(album, user)
+	artistHandler := artistDeliveryHttp.MakeHandler(artist, track, user)
+	trackHandler := trackDeliveryHttp.MakeHandler(track, user)
 	authHandler := authHttp.MakeHandler(auth)
 	userHandler := userHttp.MakeHandler(user)
 	gatewayHandler := gatewayDeliveryHttp.MakeHandler(album, artist, track)
@@ -74,6 +74,9 @@ func SetAlbumsRoutes(apiVersion *echo.Group, handler albumDeliveryHttp.Handler) 
 	albumRoutes.POST(locate, handler.Create)
 	albumRoutes.PUT(locate, handler.Update)
 	albumRoutes.GET(popularPrefix, handler.GetPopular)
+	albumRoutes.GET(favoritesPrefix, handler.GetFavorites)
+	albumRoutes.POST(favoritesPrefix+idEchoPattern, handler.AddToFavorites)
+	albumRoutes.DELETE(favoritesPrefix+idEchoPattern, handler.RemoveFromFavorites)
 	albumRoutes.DELETE(idEchoPattern, handler.Delete)
 
 	coverRoutes := apiVersion.Group(albumCoversPrefix)
@@ -94,6 +97,9 @@ func SetArtistsRoutes(apiVersion *echo.Group, handler artistDeliveryHttp.Handler
 	artistRoutes.PUT(locate, handler.Update)
 	artistRoutes.GET(popularPrefix, handler.GetPopular)
 	artistRoutes.GET(idEchoPattern+popularPrefix, handler.GetPopularTracks)
+	artistRoutes.GET(favoritesPrefix, handler.GetFavorites)
+	artistRoutes.POST(favoritesPrefix+idEchoPattern, handler.AddToFavorites)
+	artistRoutes.DELETE(favoritesPrefix+idEchoPattern, handler.RemoveFromFavorites)
 	artistRoutes.DELETE(idEchoPattern, handler.Delete)
 }
 
@@ -106,6 +112,9 @@ func SetTracksRoutes(apiVersion *echo.Group, handler trackDeliveryHttp.Handler) 
 	trackRoutes.POST(locate, handler.Create)
 	trackRoutes.PUT(locate, handler.Update)
 	trackRoutes.GET(popularPrefix, handler.GetPopular)
+	trackRoutes.GET(favoritesPrefix, handler.GetFavorites)
+	trackRoutes.POST(favoritesPrefix+idEchoPattern, handler.AddToFavorites)
+	trackRoutes.DELETE(favoritesPrefix+idEchoPattern, handler.RemoveFromFavorites)
 	trackRoutes.DELETE(idEchoPattern, handler.Delete)
 	trackRoutes.PUT(likePrefix+idEchoPattern, handler.Like)
 	trackRoutes.PUT(listenPrefix+idEchoPattern, handler.Listen)
@@ -129,9 +138,9 @@ func SetUserRoutes(apiVersion *echo.Group, handler userHttp.UserHandler, m *auth
 
 // InitAuthModule auth
 func SetAuthRoutes(apiVersion *echo.Group, handler authHttp.AuthHandler, m *auth_middleware.HttpMiddleware) {
-	apiVersion.POST(loginPrefix, handler.Login, m.IsSession, m.CSRF)
-	apiVersion.POST(logoutPrefix, handler.Logout, m.IsSession, m.CSRF)
-	apiVersion.POST(signUpPrefix, handler.SignUp, m.IsSession, m.CSRF)
+	apiVersion.POST(loginPrefix, handler.Login, m.CSRF)
+	apiVersion.POST(logoutPrefix, handler.Logout, m.CSRF)
+	apiVersion.POST(signUpPrefix, handler.SignUp, m.CSRF)
 	apiVersion.GET(getCSRFPrefix, handler.GetCSRF)
 }
 
@@ -172,6 +181,7 @@ const (
 	searchPrefix      = "/search"
 	docsPrefix        = "/docs"
 	popularPrefix     = "/popular"
+	favoritesPrefix   = "/favorites"
 	likePrefix        = "/like"
 	listenPrefix      = "/listen"
 	loginPrefix       = "/login"

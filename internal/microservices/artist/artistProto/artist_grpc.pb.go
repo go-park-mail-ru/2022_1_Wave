@@ -29,7 +29,7 @@ type ArtistUseCaseClient interface {
 	Create(ctx context.Context, in *Artist, opts ...grpc.CallOption) (*empty.Empty, error)
 	Update(ctx context.Context, in *Artist, opts ...grpc.CallOption) (*empty.Empty, error)
 	Delete(ctx context.Context, in *gatewayProto.IdArg, opts ...grpc.CallOption) (*empty.Empty, error)
-	GetById(ctx context.Context, in *gatewayProto.IdArg, opts ...grpc.CallOption) (*ArtistDataTransfer, error)
+	GetById(ctx context.Context, in *gatewayProto.IdArg, opts ...grpc.CallOption) (*Artist, error)
 	GetPopular(ctx context.Context, in *empty.Empty, opts ...grpc.CallOption) (*ArtistsResponse, error)
 	GetSize(ctx context.Context, in *empty.Empty, opts ...grpc.CallOption) (*gatewayProto.IntResponse, error)
 	SearchByName(ctx context.Context, in *gatewayProto.StringArg, opts ...grpc.CallOption) (*ArtistsResponse, error)
@@ -91,8 +91,8 @@ func (c *artistUseCaseClient) Delete(ctx context.Context, in *gatewayProto.IdArg
 	return out, nil
 }
 
-func (c *artistUseCaseClient) GetById(ctx context.Context, in *gatewayProto.IdArg, opts ...grpc.CallOption) (*ArtistDataTransfer, error) {
-	out := new(ArtistDataTransfer)
+func (c *artistUseCaseClient) GetById(ctx context.Context, in *gatewayProto.IdArg, opts ...grpc.CallOption) (*Artist, error) {
+	out := new(Artist)
 	err := c.cc.Invoke(ctx, "/track.ArtistUseCase/GetById", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -163,7 +163,7 @@ type ArtistUseCaseServer interface {
 	Create(context.Context, *Artist) (*empty.Empty, error)
 	Update(context.Context, *Artist) (*empty.Empty, error)
 	Delete(context.Context, *gatewayProto.IdArg) (*empty.Empty, error)
-	GetById(context.Context, *gatewayProto.IdArg) (*ArtistDataTransfer, error)
+	GetById(context.Context, *gatewayProto.IdArg) (*Artist, error)
 	GetPopular(context.Context, *empty.Empty) (*ArtistsResponse, error)
 	GetSize(context.Context, *empty.Empty) (*gatewayProto.IntResponse, error)
 	SearchByName(context.Context, *gatewayProto.StringArg) (*ArtistsResponse, error)
@@ -192,7 +192,7 @@ func (UnimplementedArtistUseCaseServer) Update(context.Context, *Artist) (*empty
 func (UnimplementedArtistUseCaseServer) Delete(context.Context, *gatewayProto.IdArg) (*empty.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Delete not implemented")
 }
-func (UnimplementedArtistUseCaseServer) GetById(context.Context, *gatewayProto.IdArg) (*ArtistDataTransfer, error) {
+func (UnimplementedArtistUseCaseServer) GetById(context.Context, *gatewayProto.IdArg) (*Artist, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetById not implemented")
 }
 func (UnimplementedArtistUseCaseServer) GetPopular(context.Context, *empty.Empty) (*ArtistsResponse, error) {

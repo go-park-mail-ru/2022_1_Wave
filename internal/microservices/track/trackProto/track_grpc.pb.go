@@ -29,12 +29,12 @@ type TrackUseCaseClient interface {
 	Create(ctx context.Context, in *Track, opts ...grpc.CallOption) (*empty.Empty, error)
 	Update(ctx context.Context, in *Track, opts ...grpc.CallOption) (*empty.Empty, error)
 	Delete(ctx context.Context, in *gatewayProto.IdArg, opts ...grpc.CallOption) (*empty.Empty, error)
-	GetById(ctx context.Context, in *gatewayProto.IdArg, opts ...grpc.CallOption) (*TrackDataTransfer, error)
+	GetById(ctx context.Context, in *gatewayProto.IdArg, opts ...grpc.CallOption) (*Track, error)
 	GetPopular(ctx context.Context, in *empty.Empty, opts ...grpc.CallOption) (*TracksResponse, error)
 	GetTracksFromAlbum(ctx context.Context, in *gatewayProto.IdArg, opts ...grpc.CallOption) (*TracksResponse, error)
 	GetPopularTracksFromArtist(ctx context.Context, in *gatewayProto.IdArg, opts ...grpc.CallOption) (*TracksResponse, error)
 	GetSize(ctx context.Context, in *empty.Empty, opts ...grpc.CallOption) (*gatewayProto.IntResponse, error)
-	Like(ctx context.Context, in *gatewayProto.IdArg, opts ...grpc.CallOption) (*empty.Empty, error)
+	Like(ctx context.Context, in *gatewayProto.UserIdTrackIdArg, opts ...grpc.CallOption) (*empty.Empty, error)
 	Listen(ctx context.Context, in *gatewayProto.IdArg, opts ...grpc.CallOption) (*empty.Empty, error)
 	SearchByTitle(ctx context.Context, in *gatewayProto.StringArg, opts ...grpc.CallOption) (*TracksResponse, error)
 	GetFavorites(ctx context.Context, in *gatewayProto.IdArg, opts ...grpc.CallOption) (*TracksResponse, error)
@@ -95,8 +95,8 @@ func (c *trackUseCaseClient) Delete(ctx context.Context, in *gatewayProto.IdArg,
 	return out, nil
 }
 
-func (c *trackUseCaseClient) GetById(ctx context.Context, in *gatewayProto.IdArg, opts ...grpc.CallOption) (*TrackDataTransfer, error) {
-	out := new(TrackDataTransfer)
+func (c *trackUseCaseClient) GetById(ctx context.Context, in *gatewayProto.IdArg, opts ...grpc.CallOption) (*Track, error) {
+	out := new(Track)
 	err := c.cc.Invoke(ctx, "/track.TrackUseCase/GetById", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -140,7 +140,7 @@ func (c *trackUseCaseClient) GetSize(ctx context.Context, in *empty.Empty, opts 
 	return out, nil
 }
 
-func (c *trackUseCaseClient) Like(ctx context.Context, in *gatewayProto.IdArg, opts ...grpc.CallOption) (*empty.Empty, error) {
+func (c *trackUseCaseClient) Like(ctx context.Context, in *gatewayProto.UserIdTrackIdArg, opts ...grpc.CallOption) (*empty.Empty, error) {
 	out := new(empty.Empty)
 	err := c.cc.Invoke(ctx, "/track.TrackUseCase/Like", in, out, opts...)
 	if err != nil {
@@ -203,12 +203,12 @@ type TrackUseCaseServer interface {
 	Create(context.Context, *Track) (*empty.Empty, error)
 	Update(context.Context, *Track) (*empty.Empty, error)
 	Delete(context.Context, *gatewayProto.IdArg) (*empty.Empty, error)
-	GetById(context.Context, *gatewayProto.IdArg) (*TrackDataTransfer, error)
+	GetById(context.Context, *gatewayProto.IdArg) (*Track, error)
 	GetPopular(context.Context, *empty.Empty) (*TracksResponse, error)
 	GetTracksFromAlbum(context.Context, *gatewayProto.IdArg) (*TracksResponse, error)
 	GetPopularTracksFromArtist(context.Context, *gatewayProto.IdArg) (*TracksResponse, error)
 	GetSize(context.Context, *empty.Empty) (*gatewayProto.IntResponse, error)
-	Like(context.Context, *gatewayProto.IdArg) (*empty.Empty, error)
+	Like(context.Context, *gatewayProto.UserIdTrackIdArg) (*empty.Empty, error)
 	Listen(context.Context, *gatewayProto.IdArg) (*empty.Empty, error)
 	SearchByTitle(context.Context, *gatewayProto.StringArg) (*TracksResponse, error)
 	GetFavorites(context.Context, *gatewayProto.IdArg) (*TracksResponse, error)
@@ -236,7 +236,7 @@ func (UnimplementedTrackUseCaseServer) Update(context.Context, *Track) (*empty.E
 func (UnimplementedTrackUseCaseServer) Delete(context.Context, *gatewayProto.IdArg) (*empty.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Delete not implemented")
 }
-func (UnimplementedTrackUseCaseServer) GetById(context.Context, *gatewayProto.IdArg) (*TrackDataTransfer, error) {
+func (UnimplementedTrackUseCaseServer) GetById(context.Context, *gatewayProto.IdArg) (*Track, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetById not implemented")
 }
 func (UnimplementedTrackUseCaseServer) GetPopular(context.Context, *empty.Empty) (*TracksResponse, error) {
@@ -251,7 +251,7 @@ func (UnimplementedTrackUseCaseServer) GetPopularTracksFromArtist(context.Contex
 func (UnimplementedTrackUseCaseServer) GetSize(context.Context, *empty.Empty) (*gatewayProto.IntResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetSize not implemented")
 }
-func (UnimplementedTrackUseCaseServer) Like(context.Context, *gatewayProto.IdArg) (*empty.Empty, error) {
+func (UnimplementedTrackUseCaseServer) Like(context.Context, *gatewayProto.UserIdTrackIdArg) (*empty.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Like not implemented")
 }
 func (UnimplementedTrackUseCaseServer) Listen(context.Context, *gatewayProto.IdArg) (*empty.Empty, error) {
@@ -463,7 +463,7 @@ func _TrackUseCase_GetSize_Handler(srv interface{}, ctx context.Context, dec fun
 }
 
 func _TrackUseCase_Like_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(gatewayProto.IdArg)
+	in := new(gatewayProto.UserIdTrackIdArg)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -475,7 +475,7 @@ func _TrackUseCase_Like_Handler(srv interface{}, ctx context.Context, dec func(i
 		FullMethod: "/track.TrackUseCase/Like",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TrackUseCaseServer).Like(ctx, req.(*gatewayProto.IdArg))
+		return srv.(TrackUseCaseServer).Like(ctx, req.(*gatewayProto.UserIdTrackIdArg))
 	}
 	return interceptor(ctx, in, info, handler)
 }

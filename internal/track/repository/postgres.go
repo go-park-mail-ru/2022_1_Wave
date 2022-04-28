@@ -129,6 +129,7 @@ func (table TrackRepo) GetPopularTracksFromArtist(artistId int64) ([]*trackProto
 
 func (table TrackRepo) Like(userId int64, trackId int64) error {
 	track, err := table.SelectByID(trackId)
+
 	if err != nil {
 		return err
 	}
@@ -137,7 +138,6 @@ func (table TrackRepo) Like(userId int64, trackId int64) error {
 		INSERT INTO userTracksLike (user_id, track_id)
 		VALUES ($1, $2)
 		RETURNING track_id`
-
 	if _, err := table.Sqlx.Exec(query, userId, track.Id); err != nil {
 		return err
 	}
