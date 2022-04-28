@@ -7,7 +7,7 @@ import (
 	AlbumUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/album/useCase"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/album/albumProto"
 	Gateway "github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/gateway"
-	"github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/gateway/gatewayProto"
+	user_domain "github.com/go-park-mail-ru/2022_1_Wave/internal/user"
 	"github.com/go-park-mail-ru/2022_1_Wave/pkg/webUtils"
 	"github.com/labstack/echo/v4"
 	"net/http"
@@ -15,11 +15,13 @@ import (
 )
 
 type Handler struct {
-	AlbumUseCase AlbumUseCase.AlbumAgent
+	UserUseCase  user_domain.UserUseCase
+	AlbumUseCase AlbumUseCase.UseCase
 }
 
-func MakeHandler(album AlbumUseCase.AlbumAgent) Handler {
+func MakeHandler(album AlbumUseCase.UseCase, user user_domain.UserUseCase) Handler {
 	return Handler{
+		UserUseCase:  user,
 		AlbumUseCase: album,
 	}
 }
@@ -41,7 +43,7 @@ func (h Handler) GetAll(ctx echo.Context) error {
 	}
 
 	if domains == nil {
-		domains = &albumProto.AlbumsResponse{}
+		domains = []*albumProto.AlbumDataTransfer{}
 	}
 
 	return ctx.JSON(http.StatusOK,
@@ -68,7 +70,7 @@ func (h Handler) GetAllCovers(ctx echo.Context) error {
 	}
 
 	if domains == nil {
-		domains = &albumProto.AlbumsCoverResponse{}
+		domains = []*albumProto.AlbumCoverDataTransfer{}
 	}
 
 	return ctx.JSON(http.StatusOK,
@@ -229,7 +231,7 @@ func (h Handler) UpdateCover(ctx echo.Context) error {
 // @Failure      405  {object}  webUtils.Error  "Method is not allowed"
 // @Router       /api/v1/albums/{id} [get]
 func (h Handler) Get(ctx echo.Context) error {
-	id, err := strconv.Atoi(ctx.Param(constants.FieldId))
+	id, err := strconv.ParseInt(ctx.Param(constants.FieldId), 10, 64)
 	if err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 	}
@@ -237,7 +239,7 @@ func (h Handler) Get(ctx echo.Context) error {
 		return webUtils.WriteErrorEchoServer(ctx, errors.New(constants.IndexOutOfRange), http.StatusBadRequest)
 	}
 
-	album, err := h.AlbumUseCase.GetById(&gatewayProto.IdArg{Id: int64(id)})
+	album, err := h.AlbumUseCase.GetById(id)
 
 	if err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
@@ -261,7 +263,7 @@ func (h Handler) Get(ctx echo.Context) error {
 // @Failure      405  {object}  webUtils.Error  "Method is not allowed"
 // @Router       /api/v1/albumCovers/{id} [get]
 func (h Handler) GetCover(ctx echo.Context) error {
-	id, err := strconv.Atoi(ctx.Param(constants.FieldId))
+	id, err := strconv.ParseInt(ctx.Param(constants.FieldId), 10, 64)
 	if err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 	}
@@ -269,7 +271,7 @@ func (h Handler) GetCover(ctx echo.Context) error {
 		return webUtils.WriteErrorEchoServer(ctx, errors.New(constants.IndexOutOfRange), http.StatusBadRequest)
 	}
 
-	album, err := h.AlbumUseCase.GetCoverById(&gatewayProto.IdArg{Id: int64(id)})
+	album, err := h.AlbumUseCase.GetCoverById(id)
 
 	if err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
@@ -293,7 +295,7 @@ func (h Handler) GetCover(ctx echo.Context) error {
 // @Failure      405  {object}  webUtils.Error  "Method is not allowed"
 // @Router       /api/v1/albums/{id} [delete]
 func (h Handler) Delete(ctx echo.Context) error {
-	id, err := strconv.Atoi(ctx.Param(constants.FieldId))
+	id, err := strconv.ParseInt(ctx.Param(constants.FieldId), 10, 64)
 	if err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 	}
@@ -301,7 +303,7 @@ func (h Handler) Delete(ctx echo.Context) error {
 		return webUtils.WriteErrorEchoServer(ctx, errors.New(constants.IndexOutOfRange), http.StatusBadRequest)
 	}
 
-	if err := h.AlbumUseCase.Delete(&gatewayProto.IdArg{Id: int64(id)}); err != nil {
+	if err := h.AlbumUseCase.Delete(id); err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 	}
 
@@ -323,7 +325,7 @@ func (h Handler) Delete(ctx echo.Context) error {
 // @Failure      405  {object}  webUtils.Error  "Method is not allowed"
 // @Router       /api/v1/albumCovers/{id} [delete]
 func (h Handler) DeleteCover(ctx echo.Context) error {
-	id, err := strconv.Atoi(ctx.Param(constants.FieldId))
+	id, err := strconv.ParseInt(ctx.Param(constants.FieldId), 10, 64)
 	if err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 	}
@@ -331,7 +333,7 @@ func (h Handler) DeleteCover(ctx echo.Context) error {
 		return webUtils.WriteErrorEchoServer(ctx, errors.New(constants.IndexOutOfRange), http.StatusBadRequest)
 	}
 
-	if err := h.AlbumUseCase.Delete(&gatewayProto.IdArg{Id: int64(id)}); err != nil {
+	if err := h.AlbumUseCase.DeleteCover(id); err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 	}
 
@@ -374,9 +376,18 @@ func (h Handler) GetPopular(ctx echo.Context) error {
 // @Failure      405  {object}  webUtils.Error  "Method is not allowed"
 // @Router       /api/v1/albums/favorites [get]
 func (h Handler) GetFavorites(ctx echo.Context) error {
-	//todo userId is not 0!!!
-	userId := int64(0)
-	favorites, err := h.AlbumUseCase.GetFavorites(&gatewayProto.IdArg{Id: userId})
+	cookie, err := ctx.Cookie(constants.SessionIdKey)
+	if err != nil {
+		return ctx.JSON(http.StatusUnauthorized, err)
+	}
+
+	user, err := h.UserUseCase.GetBySessionId(cookie.Value)
+	if err != nil {
+		return ctx.JSON(http.StatusUnauthorized, err)
+	}
+
+	userId := int64(user.ID)
+	favorites, err := h.AlbumUseCase.GetFavorites(userId)
 	if err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 	}
@@ -399,24 +410,30 @@ func (h Handler) GetFavorites(ctx echo.Context) error {
 // @Failure      405    {object}  webUtils.Error  "Method is not allowed"
 // @Router       /api/v1/albums/favorites/{id} [post]
 func (h Handler) AddToFavorites(ctx echo.Context) error {
-	trackId, err := strconv.Atoi(ctx.Param(constants.FieldId))
+	cookie, err := ctx.Cookie(constants.SessionIdKey)
+	if err != nil {
+		return ctx.JSON(http.StatusUnauthorized, err)
+	}
+
+	user, err := h.UserUseCase.GetBySessionId(cookie.Value)
+	if err != nil {
+		return ctx.JSON(http.StatusUnauthorized, err)
+	}
+	userId := int64(user.ID)
+
+	albumId, err := strconv.ParseInt(ctx.Param(constants.FieldId), 10, 64)
 	if err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 	}
-	//todo userId is not 0!!!
-	userId := int64(0)
 
-	if _, err := h.AlbumUseCase.AddToFavorites(&gatewayProto.UserIdAlbumIdArg{
-		UserId:  userId,
-		AlbumId: int64(trackId),
-	}); err != nil {
+	if err := h.AlbumUseCase.AddToFavorites(userId, albumId); err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 	}
 
 	return ctx.JSON(http.StatusOK,
 		webUtils.Success{
 			Status: webUtils.OK,
-			Result: constants.SuccessAddedToFavorites + "(" + fmt.Sprint(trackId) + ")"})
+			Result: constants.SuccessAddedToFavorites + "(" + fmt.Sprint(albumId) + ")"})
 }
 
 // RemoveFromFavorites godoc
@@ -431,17 +448,23 @@ func (h Handler) AddToFavorites(ctx echo.Context) error {
 // @Failure      405    {object}  webUtils.Error  "Method is not allowed"
 // @Router       /api/v1/albums/favorites/{id} [delete]
 func (h Handler) RemoveFromFavorites(ctx echo.Context) error {
-	albumId, err := strconv.Atoi(ctx.Param(constants.FieldId))
+	cookie, err := ctx.Cookie(constants.SessionIdKey)
+	if err != nil {
+		return ctx.JSON(http.StatusUnauthorized, err)
+	}
+
+	user, err := h.UserUseCase.GetBySessionId(cookie.Value)
+	if err != nil {
+		return ctx.JSON(http.StatusUnauthorized, err)
+	}
+	userId := int64(user.ID)
+
+	albumId, err := strconv.ParseInt(ctx.Param(constants.FieldId), 10, 64)
 	if err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 	}
-	//todo userId is not 0!!!
-	userId := int64(0)
 
-	if _, err := h.AlbumUseCase.RemoveFromFavorites(&gatewayProto.UserIdAlbumIdArg{
-		UserId:  userId,
-		AlbumId: int64(albumId),
-	}); err != nil {
+	if err := h.AlbumUseCase.RemoveFromFavorites(userId, albumId); err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 	}
 

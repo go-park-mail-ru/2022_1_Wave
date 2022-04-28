@@ -6,7 +6,6 @@ import (
 	ArtistUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/artist/useCase"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/album/albumProto"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/artist/artistProto"
-	"github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/gateway/gatewayProto"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/track/trackProto"
 	TrackUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/track/useCase"
 	"github.com/go-park-mail-ru/2022_1_Wave/pkg/webUtils"
@@ -16,12 +15,12 @@ import (
 )
 
 type Handler struct {
-	ArtistUseCase ArtistUseCase.ArtistAgent
-	AlbumUseCase  AlbumUseCase.AlbumAgent
-	TrackUseCase  TrackUseCase.TrackAgent
+	ArtistUseCase ArtistUseCase.UseCase
+	AlbumUseCase  AlbumUseCase.UseCase
+	TrackUseCase  TrackUseCase.UseCase
 }
 
-func MakeHandler(album AlbumUseCase.AlbumAgent, artist ArtistUseCase.ArtistAgent, track TrackUseCase.TrackAgent) Handler {
+func MakeHandler(album AlbumUseCase.UseCase, artist ArtistUseCase.UseCase, track TrackUseCase.UseCase) Handler {
 	return Handler{
 		ArtistUseCase: artist,
 		AlbumUseCase:  album,
@@ -49,9 +48,9 @@ type SearchResult struct {
 func (h Handler) Search(ctx echo.Context) error {
 	searchString := ctx.Param(constants.FieldToFind)
 
-	albumsChan := make(chan *albumProto.AlbumsResponse, 1)
-	artistsChan := make(chan *artistProto.ArtistsResponse, 1)
-	tracksChan := make(chan *trackProto.TracksResponse, 1)
+	albumsChan := make(chan []*albumProto.AlbumDataTransfer, 1)
+	artistsChan := make(chan []*artistProto.ArtistDataTransfer, 1)
+	tracksChan := make(chan []*trackProto.TrackDataTransfer, 1)
 	albumsErrorChan := make(chan error, 1)
 	artistsErrorChan := make(chan error, 1)
 	tracksErrorChan := make(chan error, 1)
@@ -59,9 +58,9 @@ func (h Handler) Search(ctx echo.Context) error {
 	wg := &sync.WaitGroup{}
 
 	wg.Add(1)
-	go func(albumsChan chan *albumProto.AlbumsResponse, errorChan chan error, wg *sync.WaitGroup) {
+	go func(albumsChan chan []*albumProto.AlbumDataTransfer, errorChan chan error, wg *sync.WaitGroup) {
 		defer wg.Done()
-		albums, err := h.AlbumUseCase.SearchByTitle(&gatewayProto.StringArg{Str: searchString})
+		albums, err := h.AlbumUseCase.SearchByTitle(searchString)
 		if err != nil {
 			errorChan <- err
 		} else {
@@ -72,9 +71,9 @@ func (h Handler) Search(ctx echo.Context) error {
 	}(albumsChan, albumsErrorChan, wg)
 
 	wg.Add(1)
-	go func(artistsChan chan *artistProto.ArtistsResponse, errorChan chan error, wg *sync.WaitGroup) {
+	go func(artistsChan chan []*artistProto.ArtistDataTransfer, errorChan chan error, wg *sync.WaitGroup) {
 		wg.Done()
-		artists, err := h.ArtistUseCase.SearchByName(&gatewayProto.StringArg{Str: searchString})
+		artists, err := h.ArtistUseCase.SearchByName(searchString)
 		if err != nil {
 			errorChan <- err
 		} else {
@@ -85,9 +84,9 @@ func (h Handler) Search(ctx echo.Context) error {
 	}(artistsChan, artistsErrorChan, wg)
 
 	wg.Add(1)
-	go func(tracksChan chan *trackProto.TracksResponse, errorChan chan error, wg *sync.WaitGroup) {
+	go func(tracksChan chan []*trackProto.TrackDataTransfer, errorChan chan error, wg *sync.WaitGroup) {
 		wg.Done()
-		tracks, err := h.TrackUseCase.SearchByTitle(&gatewayProto.StringArg{Str: searchString})
+		tracks, err := h.TrackUseCase.SearchByTitle(searchString)
 		if err != nil {
 			errorChan <- err
 		} else {
@@ -122,9 +121,9 @@ func (h Handler) Search(ctx echo.Context) error {
 	tracks := <-tracksChan
 
 	result := SearchResult{
-		Albums:  albums.Albums,
-		Artists: artists.Artists,
-		Tracks:  tracks.Tracks,
+		Albums:  albums,
+		Artists: artists,
+		Tracks:  tracks,
 	}
 
 	return ctx.JSON(http.StatusOK,

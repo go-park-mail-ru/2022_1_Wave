@@ -2,11 +2,8 @@ package ArtistGrpc
 
 import (
 	"context"
-	"github.com/go-park-mail-ru/2022_1_Wave/internal"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/domain"
-	"github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/album/albumProto"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/artist/artistProto"
-	Gateway "github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/gateway"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/gateway/gatewayProto"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
@@ -25,53 +22,13 @@ func MakeArtistGrpc(artistRepo domain.ArtistRepo, albumRepo domain.AlbumRepo, tr
 		TrackRepo:  &trackRepo}
 }
 
-func (useCase ArtistGrpc) CastToDTO(artist *artistProto.Artist) (*artistProto.ArtistDataTransfer, error) {
-	coverPath, err := Gateway.PathToArtistCover(artist, internal.PngFormat)
-	if err != nil {
-		return nil, err
-	}
-
-	albums, err := (*useCase.AlbumRepo).GetAlbumsFromArtist(artist.Id)
-	if err != nil {
-		return nil, err
-	}
-
-	albumsDto := make([]*albumProto.AlbumDataTransfer, len(albums))
-
-	for idx, album := range albums {
-		albumDto, err := Gateway.GetFullAlbumByArtist(*useCase.TrackRepo, album, artist)
-		if err != nil {
-			return nil, err
-		}
-		albumsDto[idx] = albumDto
-	}
-
-	return &artistProto.ArtistDataTransfer{
-		Id:     artist.Id,
-		Name:   artist.Name,
-		Cover:  coverPath,
-		Likes:  artist.CountLikes,
-		Albums: albumsDto,
-	}, nil
-}
-
 func (useCase ArtistGrpc) GetAll(context.Context, *emptypb.Empty) (*artistProto.ArtistsResponse, error) {
 	artists, err := (*useCase.ArtistRepo).GetAll()
 	if err != nil {
 		return nil, err
 	}
 
-	dto := make([]*artistProto.ArtistDataTransfer, len(artists))
-
-	for i := 0; i < len(artists); i++ {
-		data, err := useCase.CastToDTO(artists[i])
-		if err != nil {
-			return nil, err
-		}
-		dto[i] = data
-	}
-
-	return &artistProto.ArtistsResponse{Artists: dto}, nil
+	return &artistProto.ArtistsResponse{Artists: artists}, nil
 }
 
 func (useCase ArtistGrpc) GetLastId(context.Context, *emptypb.Empty) (*gatewayProto.IntResponse, error) {
@@ -98,17 +55,12 @@ func (useCase ArtistGrpc) Delete(ctx context.Context, data *gatewayProto.IdArg) 
 	return &emptypb.Empty{}, err
 }
 
-func (useCase ArtistGrpc) GetById(ctx context.Context, data *gatewayProto.IdArg) (*artistProto.ArtistDataTransfer, error) {
+func (useCase ArtistGrpc) GetById(ctx context.Context, data *gatewayProto.IdArg) (*artistProto.Artist, error) {
 	artist, err := (*useCase.ArtistRepo).SelectByID(data.Id)
 	if err != nil {
 		return nil, err
 	}
-	dto, err := useCase.CastToDTO(artist)
-	if err != nil {
-		return nil, err
-	}
-
-	return dto, nil
+	return artist, nil
 }
 
 func (useCase ArtistGrpc) GetPopular(context.Context, *emptypb.Empty) (*artistProto.ArtistsResponse, error) {
@@ -117,17 +69,7 @@ func (useCase ArtistGrpc) GetPopular(context.Context, *emptypb.Empty) (*artistPr
 		return nil, err
 	}
 
-	dto := make([]*artistProto.ArtistDataTransfer, len(artists))
-
-	for i := 0; i < len(artists); i++ {
-		data, err := useCase.CastToDTO(artists[i])
-		if err != nil {
-			return nil, err
-		}
-		dto[i] = data
-	}
-
-	return &artistProto.ArtistsResponse{Artists: dto}, nil
+	return &artistProto.ArtistsResponse{Artists: artists}, nil
 }
 
 func (useCase ArtistGrpc) GetSize(context.Context, *emptypb.Empty) (*gatewayProto.IntResponse, error) {
@@ -138,17 +80,7 @@ func (useCase ArtistGrpc) GetSize(context.Context, *emptypb.Empty) (*gatewayProt
 func (useCase ArtistGrpc) SearchByName(ctx context.Context, title *gatewayProto.StringArg) (*artistProto.ArtistsResponse, error) {
 	artists, err := (*useCase.ArtistRepo).SearchByName(title.Str)
 
-	dto := make([]*artistProto.ArtistDataTransfer, len(artists))
-
-	for idx, artist := range artists {
-		data, err := useCase.CastToDTO(artist)
-		if err != nil {
-			return nil, err
-		}
-		dto[idx] = data
-	}
-
-	return &artistProto.ArtistsResponse{Artists: dto}, err
+	return &artistProto.ArtistsResponse{Artists: artists}, err
 }
 
 func (useCase ArtistGrpc) GetFavorites(ctx context.Context, data *gatewayProto.IdArg) (*artistProto.ArtistsResponse, error) {
@@ -157,17 +89,7 @@ func (useCase ArtistGrpc) GetFavorites(ctx context.Context, data *gatewayProto.I
 		return nil, err
 	}
 
-	dto := make([]*artistProto.ArtistDataTransfer, len(artists))
-
-	for i := 0; i < len(artists); i++ {
-		data, err := useCase.CastToDTO(artists[i])
-		if err != nil {
-			return nil, err
-		}
-		dto[i] = data
-	}
-
-	return &artistProto.ArtistsResponse{Artists: dto}, nil
+	return &artistProto.ArtistsResponse{Artists: artists}, nil
 }
 
 func (useCase ArtistGrpc) AddToFavorites(ctx context.Context, data *gatewayProto.UserIdArtistIdArg) (*emptypb.Empty, error) {

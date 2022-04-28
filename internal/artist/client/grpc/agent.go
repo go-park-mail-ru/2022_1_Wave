@@ -15,8 +15,9 @@ func MakeAgent(gRPC artistProto.ArtistUseCaseClient) GrpcAgent {
 	return GrpcAgent{ArtistGrpc: gRPC}
 }
 
-func (agent GrpcAgent) GetAll() (*artistProto.ArtistsResponse, error) {
-	return agent.ArtistGrpc.GetAll(context.Background(), &emptypb.Empty{})
+func (agent GrpcAgent) GetAll() ([]*artistProto.Artist, error) {
+	data, err := agent.ArtistGrpc.GetAll(context.Background(), &emptypb.Empty{})
+	return data.Artists, err
 }
 
 func (agent GrpcAgent) GetLastId() (int64, error) {
@@ -42,30 +43,43 @@ func (agent GrpcAgent) Delete(id int64) error {
 	return err
 }
 
-func (agent GrpcAgent) GetById(id int64) (*artistProto.ArtistDataTransfer, error) {
-	return agent.ArtistGrpc.GetById(context.Background(), &gatewayProto.IdArg{Id: id})
+func (agent GrpcAgent) GetById(id int64) (*artistProto.Artist, error) {
+	data, err := agent.ArtistGrpc.GetById(context.Background(), &gatewayProto.IdArg{Id: id})
+	return data, err
 }
 
-func (agent GrpcAgent) GetPopular() (*artistProto.ArtistsResponse, error) {
-	return agent.ArtistGrpc.GetPopular(context.Background(), &emptypb.Empty{})
+func (agent GrpcAgent) GetPopular() ([]*artistProto.Artist, error) {
+	data, err := agent.ArtistGrpc.GetPopular(context.Background(), &emptypb.Empty{})
+	return data.Artists, err
 }
 
-func (agent GrpcAgent) GetSize() (*gatewayProto.IntResponse, error) {
-	return agent.ArtistGrpc.GetSize(context.Background(), &emptypb.Empty{})
+func (agent GrpcAgent) GetSize() (int64, error) {
+	size, err := agent.ArtistGrpc.GetSize(context.Background(), &emptypb.Empty{})
+	return size.Data, err
 }
 
-func (agent GrpcAgent) SearchByName(title *gatewayProto.StringArg) (*artistProto.ArtistsResponse, error) {
-	return agent.ArtistGrpc.SearchByName(context.Background(), title)
+func (agent GrpcAgent) SearchByName(name string) ([]*artistProto.Artist, error) {
+	data, err := agent.ArtistGrpc.SearchByName(context.Background(), &gatewayProto.StringArg{Str: name})
+	return data.Artists, err
 }
 
-func (agent GrpcAgent) GetFavorites(data *gatewayProto.IdArg) (*artistProto.ArtistsResponse, error) {
-	return agent.ArtistGrpc.GetFavorites(context.Background(), data)
+func (agent GrpcAgent) GetFavorites(userId int64) ([]*artistProto.Artist, error) {
+	data, err := agent.ArtistGrpc.GetFavorites(context.Background(), &gatewayProto.IdArg{Id: userId})
+	return data.Artists, err
 }
 
-func (agent GrpcAgent) AddToFavorites(data *gatewayProto.UserIdArtistIdArg) (*emptypb.Empty, error) {
-	return agent.ArtistGrpc.AddToFavorites(context.Background(), data)
+func (agent GrpcAgent) AddToFavorites(userId int64, albumId int64) error {
+	_, err := agent.ArtistGrpc.AddToFavorites(context.Background(), &gatewayProto.UserIdArtistIdArg{
+		UserId:   userId,
+		ArtistId: albumId,
+	})
+	return err
 }
 
-func (agent GrpcAgent) RemoveFromFavorites(data *gatewayProto.UserIdArtistIdArg) (*emptypb.Empty, error) {
-	return agent.ArtistGrpc.RemoveFromFavorites(context.Background(), data)
+func (agent GrpcAgent) RemoveFromFavorites(userId int64, albumId int64) error {
+	_, err := agent.ArtistGrpc.RemoveFromFavorites(context.Background(), &gatewayProto.UserIdArtistIdArg{
+		UserId:   userId,
+		ArtistId: albumId,
+	})
+	return err
 }

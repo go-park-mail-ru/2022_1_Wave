@@ -14,9 +14,10 @@ import (
 	auth_domain "github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/auth"
 	auth_redis "github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/auth/repository/redis"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/track/trackProto"
+	user_microservice_domain "github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/user"
+	"github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/user/repository/postgresql"
 	domainCreator "github.com/go-park-mail-ru/2022_1_Wave/internal/tools/domain"
 	TrackPostgres "github.com/go-park-mail-ru/2022_1_Wave/internal/track/repository"
-	"github.com/go-park-mail-ru/2022_1_Wave/internal/user/repository/postgresql"
 	_ "github.com/jackc/pgx/stdlib"
 	"github.com/jmoiron/sqlx"
 	"os"
@@ -26,7 +27,7 @@ import (
 type Postgres struct {
 	Sqlx           *sqlx.DB
 	SessionRepo    auth_domain.AuthRepo
-	UserRepo       domain.UserRepo
+	UserRepo       user_microservice_domain.UserRepo
 	AlbumRepo      domain.AlbumRepo
 	AlbumCoverRepo domain.AlbumCoverRepo
 	ArtistRepo     domain.ArtistRepo
@@ -207,6 +208,6 @@ func (storage Postgres) GetSessionRepo() auth_domain.AuthRepo {
 	return storage.SessionRepo
 }
 
-func (storage Postgres) GetUserRepo() domain.UserRepo {
+func (storage Postgres) GetUserRepo() user_microservice_domain.UserRepo {
 	return storage.UserRepo
 }

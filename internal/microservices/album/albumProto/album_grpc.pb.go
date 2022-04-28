@@ -34,8 +34,8 @@ type AlbumUseCaseClient interface {
 	UpdateCover(ctx context.Context, in *AlbumCover, opts ...grpc.CallOption) (*empty.Empty, error)
 	Delete(ctx context.Context, in *gatewayProto.IdArg, opts ...grpc.CallOption) (*empty.Empty, error)
 	DeleteCover(ctx context.Context, in *gatewayProto.IdArg, opts ...grpc.CallOption) (*empty.Empty, error)
-	GetById(ctx context.Context, in *gatewayProto.IdArg, opts ...grpc.CallOption) (*AlbumDataTransfer, error)
-	GetCoverById(ctx context.Context, in *gatewayProto.IdArg, opts ...grpc.CallOption) (*AlbumCoverDataTransfer, error)
+	GetById(ctx context.Context, in *gatewayProto.IdArg, opts ...grpc.CallOption) (*Album, error)
+	GetCoverById(ctx context.Context, in *gatewayProto.IdArg, opts ...grpc.CallOption) (*AlbumCover, error)
 	GetPopular(ctx context.Context, in *empty.Empty, opts ...grpc.CallOption) (*AlbumsResponse, error)
 	GetAlbumsFromArtist(ctx context.Context, in *gatewayProto.IdArg, opts ...grpc.CallOption) (*AlbumsResponse, error)
 	GetSize(ctx context.Context, in *empty.Empty, opts ...grpc.CallOption) (*gatewayProto.IntResponse, error)
@@ -143,8 +143,8 @@ func (c *albumUseCaseClient) DeleteCover(ctx context.Context, in *gatewayProto.I
 	return out, nil
 }
 
-func (c *albumUseCaseClient) GetById(ctx context.Context, in *gatewayProto.IdArg, opts ...grpc.CallOption) (*AlbumDataTransfer, error) {
-	out := new(AlbumDataTransfer)
+func (c *albumUseCaseClient) GetById(ctx context.Context, in *gatewayProto.IdArg, opts ...grpc.CallOption) (*Album, error) {
+	out := new(Album)
 	err := c.cc.Invoke(ctx, "/album.AlbumUseCase/GetById", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -152,8 +152,8 @@ func (c *albumUseCaseClient) GetById(ctx context.Context, in *gatewayProto.IdArg
 	return out, nil
 }
 
-func (c *albumUseCaseClient) GetCoverById(ctx context.Context, in *gatewayProto.IdArg, opts ...grpc.CallOption) (*AlbumCoverDataTransfer, error) {
-	out := new(AlbumCoverDataTransfer)
+func (c *albumUseCaseClient) GetCoverById(ctx context.Context, in *gatewayProto.IdArg, opts ...grpc.CallOption) (*AlbumCover, error) {
+	out := new(AlbumCover)
 	err := c.cc.Invoke(ctx, "/album.AlbumUseCase/GetCoverById", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -238,8 +238,8 @@ type AlbumUseCaseServer interface {
 	UpdateCover(context.Context, *AlbumCover) (*empty.Empty, error)
 	Delete(context.Context, *gatewayProto.IdArg) (*empty.Empty, error)
 	DeleteCover(context.Context, *gatewayProto.IdArg) (*empty.Empty, error)
-	GetById(context.Context, *gatewayProto.IdArg) (*AlbumDataTransfer, error)
-	GetCoverById(context.Context, *gatewayProto.IdArg) (*AlbumCoverDataTransfer, error)
+	GetById(context.Context, *gatewayProto.IdArg) (*Album, error)
+	GetCoverById(context.Context, *gatewayProto.IdArg) (*AlbumCover, error)
 	GetPopular(context.Context, *empty.Empty) (*AlbumsResponse, error)
 	GetAlbumsFromArtist(context.Context, *gatewayProto.IdArg) (*AlbumsResponse, error)
 	GetSize(context.Context, *empty.Empty) (*gatewayProto.IntResponse, error)
@@ -284,10 +284,10 @@ func (UnimplementedAlbumUseCaseServer) Delete(context.Context, *gatewayProto.IdA
 func (UnimplementedAlbumUseCaseServer) DeleteCover(context.Context, *gatewayProto.IdArg) (*empty.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteCover not implemented")
 }
-func (UnimplementedAlbumUseCaseServer) GetById(context.Context, *gatewayProto.IdArg) (*AlbumDataTransfer, error) {
+func (UnimplementedAlbumUseCaseServer) GetById(context.Context, *gatewayProto.IdArg) (*Album, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetById not implemented")
 }
-func (UnimplementedAlbumUseCaseServer) GetCoverById(context.Context, *gatewayProto.IdArg) (*AlbumCoverDataTransfer, error) {
+func (UnimplementedAlbumUseCaseServer) GetCoverById(context.Context, *gatewayProto.IdArg) (*AlbumCover, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetCoverById not implemented")
 }
 func (UnimplementedAlbumUseCaseServer) GetPopular(context.Context, *empty.Empty) (*AlbumsResponse, error) {

@@ -26,7 +26,7 @@ message ArtistUseCaseResponse {
 }
 
 message ArtistsResponse {
-  repeated ArtistDataTransfer artists = 1;
+  repeated Artist artists = 1;
 }
 
 service ArtistUseCase {
@@ -35,7 +35,7 @@ service ArtistUseCase {
   rpc Create(Artist) returns (google.protobuf.Empty) {};
   rpc Update(Artist) returns (google.protobuf.Empty) {};
   rpc Delete(gateway.IdArg) returns (google.protobuf.Empty) {};
-  rpc GetById(gateway.IdArg) returns (ArtistDataTransfer) {};
+  rpc GetById(gateway.IdArg) returns (Artist) {};
   rpc GetPopular(google.protobuf.Empty) returns (ArtistsResponse) {};
   rpc GetSize(google.protobuf.Empty) returns (gateway.IntResponse) {};
   rpc SearchByName(gateway.StringArg) returns (ArtistsResponse) {}
