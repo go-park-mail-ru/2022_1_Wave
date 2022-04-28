@@ -28,9 +28,9 @@ type Playlist struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Id       int64   `protobuf:"varint,1,opt,name=id,proto3" json:"id" example:"4" db:"id" validate:"min=0"`                     // @gotags: json:"id" example:"4" db:"id" validate:"min=0"
-	Title    string  `protobuf:"bytes,2,opt,name=title,proto3" json:"title" example:"Rain" db:"title" validate:"max=256,nonnil"` // @gotags: json:"title" example:"Rain" db:"title" validate:"max=256,nonnil"
-	TracksId []int64 `protobuf:"varint,3,rep,packed,name=tracks_id,json=tracksId,proto3" json:"tracks_id" db:"tracks_id"`        // @gotags: json:"tracks_id" db:"tracks_id"
+	Id       int64   `protobuf:"varint,1,opt,name=id,proto3" json:"id" example:"4" db:"id" validate:"min=0"`                                    // @gotags: json:"id" example:"4" db:"id" validate:"min=0"
+	Title    string  `protobuf:"bytes,2,opt,name=title,proto3" json:"title" example:"Rain" db:"title" validate:"max=256,nonnil"`                               // @gotags: json:"title" example:"Rain" db:"title" validate:"max=256,nonnil"
+	TracksId []int64 `protobuf:"varint,3,rep,packed,name=tracks_id,json=tracksId,proto3" json:"tracks_id" db:"tracks_id"` // @gotags: json:"tracks_id" db:"tracks_id"
 }
 
 func (x *Playlist) Reset() {
@@ -91,7 +91,7 @@ type PlaylistDataTransfer struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Id     int64                           `protobuf:"varint,1,opt,name=id,proto3" json:"id" example:"4"`         // @gotags: json:"id" example:"4"
+	Id     int64                           `protobuf:"varint,1,opt,name=id,proto3" json:"id" example:"4"`      // @gotags: json:"id" example:"4"
 	Title  string                          `protobuf:"bytes,2,opt,name=title,proto3" json:"title" example:"Rain"` // @gotags: json:"title" example:"Rain"
 	Tracks []*trackProto.TrackDataTransfer `protobuf:"bytes,3,rep,name=tracks,proto3" json:"tracks,omitempty"`
 }

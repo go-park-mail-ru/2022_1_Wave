@@ -9,6 +9,7 @@ import (
 
 func getUserForRepo(userProto *proto.User) *user_microservice_domain.User {
 	return &user_microservice_domain.User{
+		ID:             uint(userProto.GetUserId()),
 		Username:       userProto.GetUsername(),
 		Email:          userProto.GetEmail(),
 		Avatar:         userProto.GetAvatar(),
@@ -33,7 +34,7 @@ type userGRPCAgent struct {
 }
 
 func NewUserGRPCAgent(client proto.ProfileClient) user_domain.UserAgent {
-	return nil
+	return &userGRPCAgent{userClient: client}
 }
 
 func (a *userGRPCAgent) Create(user *user_microservice_domain.User) error {
