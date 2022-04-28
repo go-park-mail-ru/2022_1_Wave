@@ -11,14 +11,6 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
-type GrpcAgent struct {
-	ArtistGrpc artistProto.ArtistUseCaseClient
-}
-
-func MakeAgent(gRPC artistProto.ArtistUseCaseClient) GrpcAgent {
-	return GrpcAgent{ArtistGrpc: gRPC}
-}
-
 type ArtistGrpc struct {
 	ArtistRepo *domain.ArtistRepo
 	AlbumRepo  *domain.AlbumRepo
@@ -82,10 +74,6 @@ func (useCase ArtistGrpc) GetAll(context.Context, *emptypb.Empty) (*artistProto.
 	return &artistProto.ArtistsResponse{Artists: dto}, nil
 }
 
-func (agent GrpcAgent) GetAll() (*artistProto.ArtistsResponse, error) {
-	return agent.ArtistGrpc.GetAll(context.Background(), &emptypb.Empty{})
-}
-
 func (useCase ArtistGrpc) GetLastId(context.Context, *emptypb.Empty) (*gatewayProto.IntResponse, error) {
 	id, err := (*useCase.ArtistRepo).GetLastId()
 	if err != nil {
@@ -95,18 +83,9 @@ func (useCase ArtistGrpc) GetLastId(context.Context, *emptypb.Empty) (*gatewayPr
 	return &gatewayProto.IntResponse{Data: id}, nil
 }
 
-func (agent GrpcAgent) GetLastId() (*gatewayProto.IntResponse, error) {
-	return agent.ArtistGrpc.GetLastId(context.Background(), &emptypb.Empty{})
-}
-
 func (useCase ArtistGrpc) Create(ctx context.Context, artist *artistProto.Artist) (*emptypb.Empty, error) {
 	err := (*useCase.ArtistRepo).Create(artist)
 	return &emptypb.Empty{}, err
-}
-
-func (agent GrpcAgent) Create(artist *artistProto.Artist) error {
-	_, err := agent.ArtistGrpc.Create(context.Background(), artist)
-	return err
 }
 
 func (useCase ArtistGrpc) Update(ctx context.Context, artist *artistProto.Artist) (*emptypb.Empty, error) {
@@ -114,19 +93,9 @@ func (useCase ArtistGrpc) Update(ctx context.Context, artist *artistProto.Artist
 	return &emptypb.Empty{}, err
 }
 
-func (agent GrpcAgent) Update(artist *artistProto.Artist) error {
-	_, err := agent.ArtistGrpc.Update(context.Background(), artist)
-	return err
-}
-
 func (useCase ArtistGrpc) Delete(ctx context.Context, data *gatewayProto.IdArg) (*emptypb.Empty, error) {
 	err := (*useCase.ArtistRepo).Delete(data.Id)
 	return &emptypb.Empty{}, err
-}
-
-func (agent GrpcAgent) Delete(data *gatewayProto.IdArg) error {
-	_, err := agent.ArtistGrpc.Delete(context.Background(), data)
-	return err
 }
 
 func (useCase ArtistGrpc) GetById(ctx context.Context, data *gatewayProto.IdArg) (*artistProto.ArtistDataTransfer, error) {
@@ -140,10 +109,6 @@ func (useCase ArtistGrpc) GetById(ctx context.Context, data *gatewayProto.IdArg)
 	}
 
 	return dto, nil
-}
-
-func (agent GrpcAgent) GetById(data *gatewayProto.IdArg) (*artistProto.ArtistDataTransfer, error) {
-	return agent.ArtistGrpc.GetById(context.Background(), data)
 }
 
 func (useCase ArtistGrpc) GetPopular(context.Context, *emptypb.Empty) (*artistProto.ArtistsResponse, error) {
@@ -165,17 +130,9 @@ func (useCase ArtistGrpc) GetPopular(context.Context, *emptypb.Empty) (*artistPr
 	return &artistProto.ArtistsResponse{Artists: dto}, nil
 }
 
-func (agent GrpcAgent) GetPopular() (*artistProto.ArtistsResponse, error) {
-	return agent.ArtistGrpc.GetPopular(context.Background(), &emptypb.Empty{})
-}
-
 func (useCase ArtistGrpc) GetSize(context.Context, *emptypb.Empty) (*gatewayProto.IntResponse, error) {
 	size, err := (*useCase.ArtistRepo).GetSize()
 	return &gatewayProto.IntResponse{Data: size}, err
-}
-
-func (agent GrpcAgent) GetSize() (*gatewayProto.IntResponse, error) {
-	return agent.ArtistGrpc.GetSize(context.Background(), &emptypb.Empty{})
 }
 
 func (useCase ArtistGrpc) SearchByName(ctx context.Context, title *gatewayProto.StringArg) (*artistProto.ArtistsResponse, error) {
@@ -192,10 +149,6 @@ func (useCase ArtistGrpc) SearchByName(ctx context.Context, title *gatewayProto.
 	}
 
 	return &artistProto.ArtistsResponse{Artists: dto}, err
-}
-
-func (agent GrpcAgent) SearchByName(title *gatewayProto.StringArg) (*artistProto.ArtistsResponse, error) {
-	return agent.ArtistGrpc.SearchByName(context.Background(), title)
 }
 
 func (useCase ArtistGrpc) GetFavorites(ctx context.Context, data *gatewayProto.IdArg) (*artistProto.ArtistsResponse, error) {
@@ -217,10 +170,6 @@ func (useCase ArtistGrpc) GetFavorites(ctx context.Context, data *gatewayProto.I
 	return &artistProto.ArtistsResponse{Artists: dto}, nil
 }
 
-func (agent GrpcAgent) GetFavorites(data *gatewayProto.IdArg) (*artistProto.ArtistsResponse, error) {
-	return agent.ArtistGrpc.GetFavorites(context.Background(), data)
-}
-
 func (useCase ArtistGrpc) AddToFavorites(ctx context.Context, data *gatewayProto.UserIdArtistIdArg) (*emptypb.Empty, error) {
 	if err := (*useCase.ArtistRepo).AddToFavorites(data.ArtistId, data.UserId); err != nil {
 		return nil, err
@@ -229,18 +178,10 @@ func (useCase ArtistGrpc) AddToFavorites(ctx context.Context, data *gatewayProto
 	return &emptypb.Empty{}, nil
 }
 
-func (agent GrpcAgent) AddToFavorites(data *gatewayProto.UserIdArtistIdArg) (*emptypb.Empty, error) {
-	return agent.ArtistGrpc.AddToFavorites(context.Background(), data)
-}
-
 func (useCase ArtistGrpc) RemoveFromFavorites(ctx context.Context, data *gatewayProto.UserIdArtistIdArg) (*emptypb.Empty, error) {
 	if err := (*useCase.TrackRepo).RemoveFromFavorites(data.ArtistId, data.UserId); err != nil {
 		return nil, err
 	}
 
 	return &emptypb.Empty{}, nil
-}
-
-func (agent GrpcAgent) RemoveFromFavorites(data *gatewayProto.UserIdArtistIdArg) (*emptypb.Empty, error) {
-	return agent.ArtistGrpc.RemoveFromFavorites(context.Background(), data)
 }

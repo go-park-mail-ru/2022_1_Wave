@@ -69,11 +69,15 @@ func (agent GrpcAgent) DeleteCover(id int64) error {
 	return err
 }
 
-func (agent GrpcAgent) GetById(id int64) (*albumProto.AlbumDataTransfer, error) {
-	return agent.AlbumGrpc.GetById(context.Background(), &gatewayProto.IdArg{Id: id})
+func (agent GrpcAgent) GetById(id int64) (*albumProto.Album, error) {
+	album, err := agent.AlbumGrpc.GetById(context.Background(), &gatewayProto.IdArg{Id: id})
+	if err != nil {
+		return nil, err
+	}
+	return &albumProto.Album{}
 }
 
-func (agent GrpcAgent) GetCoverById(id int64) (*albumProto.AlbumCoverDataTransfer, error) {
+func (agent GrpcAgent) GetCoverById(id int64) (*albumProto.AlbumCover, error) {
 	return agent.AlbumGrpc.GetCoverById(context.Background(), &gatewayProto.IdArg{Id: id})
 }
 
