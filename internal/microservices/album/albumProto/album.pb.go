@@ -28,12 +28,12 @@ type Album struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Id              int64  `protobuf:"varint,1,opt,name=id,proto3" json:"id" example:"8" db:"id" validate:"min=0,nonnil"`                                                                 // @gotags: json:"id" example:"8" db:"id" validate:"min=0,nonnil"
-	Title           string `protobuf:"bytes,2,opt,name=title,proto3" json:"title" example:"Mercury" db:"title" validate:"max=256,nonnil"`                                                 // @gotags: json:"title" example:"Mercury" db:"title" validate:"max=256,nonnil"
-	ArtistId        int64  `protobuf:"varint,3,opt,name=artist_id,json=artistId,proto3" json:"artistId" example:"4" db:"artist_id" validate:"min=0,nonnil"`                               // @gotags: json:"artistId" example:"4" db:"artist_id" validate:"min=0,nonnil"
-	CountLikes      int64  `protobuf:"varint,4,opt,name=count_likes,json=countLikes,proto3" json:"countLikes" example:"54" db:"count_likes" validate:"min=0,nonnil"`                      // @gotags: json:"countLikes" example:"54" db:"count_likes" validate:"min=0,nonnil"
+	Id              int64  `protobuf:"varint,1,opt,name=id,proto3" json:"id" example:"8" db:"id" validate:"min=0,nonnil"`                                                  // @gotags: json:"id" example:"8" db:"id" validate:"min=0,nonnil"
+	Title           string `protobuf:"bytes,2,opt,name=title,proto3" json:"title" example:"Mercury" db:"title" validate:"max=256,nonnil"`                                             // @gotags: json:"title" example:"Mercury" db:"title" validate:"max=256,nonnil"
+	ArtistId        int64  `protobuf:"varint,3,opt,name=artist_id,json=artistId,proto3" json:"artistId" example:"4" db:"artist_id" validate:"min=0,nonnil"`                      // @gotags: json:"artistId" example:"4" db:"artist_id" validate:"min=0,nonnil"
+	CountLikes      int64  `protobuf:"varint,4,opt,name=count_likes,json=countLikes,proto3" json:"countLikes" example:"54" db:"count_likes" validate:"min=0,nonnil"`                // @gotags: json:"countLikes" example:"54" db:"count_likes" validate:"min=0,nonnil"
 	CountListenings int64  `protobuf:"varint,5,opt,name=count_listenings,json=countListenings,proto3" json:"countListening" example:"15632" db:"count_listening" validate:"min=0,nonnil"` // @gotags: json:"countListening" example:"15632" db:"count_listening" validate:"min=0,nonnil"
-	Date            int64  `protobuf:"varint,6,opt,name=date,proto3" json:"date" example:"0" db:"date,nonnil"`                                                                            // @gotags: json:"date" example:"0" db:"date,nonnil"
+	Date            int64  `protobuf:"varint,6,opt,name=date,proto3" json:"date" example:"0" db:"date,nonnil"`                                              // @gotags: json:"date" example:"0" db:"date,nonnil"
 }
 
 func (x *Album) Reset() {
@@ -115,11 +115,11 @@ type AlbumDataTransfer struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Id     int64                           `protobuf:"varint,1,opt,name=id,proto3" json:"id" example:"1"`                       // @gotags: json:"id" example:"1"
-	Title  string                          `protobuf:"bytes,2,opt,name=title,proto3" json:"title" example:"Mercury"`            // @gotags: json:"title" example:"Mercury"
-	Artist string                          `protobuf:"bytes,3,opt,name=artist,proto3" json:"artist" example:"Hexed"`            // @gotags: json:"artist" example:"Hexed"
-	Cover  string                          `protobuf:"bytes,4,opt,name=cover,proto3" json:"cover" example:"assets/album_1.png"` // @gotags: json:"cover" example:"assets/album_1.png"
-	Tracks []*trackProto.TrackDataTransfer `protobuf:"bytes,5,rep,name=Tracks,proto3" json:"tracks"`                            // @gotags: json:"tracks"
+	Id     int64                           `protobuf:"varint,1,opt,name=id,proto3" json:"id" example:"1"`        // @gotags: json:"id" example:"1"
+	Title  string                          `protobuf:"bytes,2,opt,name=title,proto3" json:"title" example:"Mercury"`   // @gotags: json:"title" example:"Mercury"
+	Artist string                          `protobuf:"bytes,3,opt,name=artist,proto3" json:"artist" example:"Hexed"` // @gotags: json:"artist" example:"Hexed"
+	Cover  string                          `protobuf:"bytes,4,opt,name=cover,proto3" json:"cover" example:"assets/album_1.png"`   // @gotags: json:"cover" example:"assets/album_1.png"
+	Tracks []*trackProto.TrackDataTransfer `protobuf:"bytes,5,rep,name=Tracks,proto3" json:"tracks"` // @gotags: json:"tracks"
 }
 
 func (x *AlbumDataTransfer) Reset() {
@@ -194,8 +194,8 @@ type AlbumCover struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Id     int64  `protobuf:"varint,1,opt,name=id,proto3" json:"id" example:"1" db:"id" validate:"min=0,nonnil"`                        // @gotags: json:"id" example:"1" db:"id" validate:"min=0,nonnil"
-	Quote  string `protobuf:"bytes,2,opt,name=quote,proto3" json:"quote" example:"some phrases" db:"quote" validate:"max=512,nonnil"`   // @gotags: json:"quote" example:"some phrases" db:"quote" validate:"max=512,nonnil"
+	Id     int64  `protobuf:"varint,1,opt,name=id,proto3" json:"id" example:"1" db:"id" validate:"min=0,nonnil"`                       // @gotags: json:"id" example:"1" db:"id" validate:"min=0,nonnil"
+	Quote  string `protobuf:"bytes,2,opt,name=quote,proto3" json:"quote" example:"some phrases" db:"quote" validate:"max=512,nonnil"`                  // @gotags: json:"quote" example:"some phrases" db:"quote" validate:"max=512,nonnil"
 	IsDark bool   `protobuf:"varint,3,opt,name=is_dark,json=isDark,proto3" json:"isDark" example:"true" db:"is_dark" validate:"nonnil"` // @gotags: json:"isDark" example:"true" db:"is_dark" validate:"nonnil"
 }
 
@@ -257,7 +257,7 @@ type AlbumCoverDataTransfer struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Quote  string `protobuf:"bytes,1,opt,name=quote,proto3" json:"quote" example:"some phrases"`         // @gotags: json:"quote" example:"some phrases"
+	Quote  string `protobuf:"bytes,1,opt,name=quote,proto3" json:"quote" example:"some phrases"`                  // @gotags: json:"quote" example:"some phrases"
 	IsDark bool   `protobuf:"varint,2,opt,name=is_dark,json=isDark,proto3" json:"isDark" example:"true"` // @gotags: json:"isDark" example:"true"
 }
 

@@ -27,12 +27,12 @@ type Track struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Id              int64  `protobuf:"varint,1,opt,name=id,proto3" json:"id" example:"4" db:"id" validate:"min=0"`                                                                        // @gotags: json:"id" example:"4" db:"id" validate:"min=0"
-	AlbumId         int64  `protobuf:"varint,2,opt,name=album_id,json=albumId,proto3" json:"albumId" example:"8" db:"album_id" validate:"min=0"`                                          // @gotags: json:"albumId" example:"8" db:"album_id" validate:"min=0"
-	ArtistId        int64  `protobuf:"varint,3,opt,name=artist_id,json=artistId,proto3" json:"artistId" example:"8" db:"artist_id" validate:"min=0,nonnil"`                               // @gotags: json:"artistId" example:"8" db:"artist_id" validate:"min=0,nonnil"
-	Title           string `protobuf:"bytes,4,opt,name=title,proto3" json:"title" example:"Rain" db:"title" validate:"max=256,nonnil"`                                                    // @gotags: json:"title" example:"Rain" db:"title" validate:"max=256,nonnil"
-	Duration        int64  `protobuf:"varint,5,opt,name=duration,proto3" json:"duration" example:"180" db:"duration" validate:"min=0,nonnil"`                                             // @gotags: json:"duration" example:"180" db:"duration" validate:"min=0,nonnil"
-	CountLikes      int64  `protobuf:"varint,6,opt,name=count_likes,json=countLikes,proto3" json:"countLikes" example:"54" db:"count_likes" validate:"min=0,nonnil"`                      // @gotags: json:"countLikes" example:"54" db:"count_likes" validate:"min=0,nonnil"
+	Id              int64  `protobuf:"varint,1,opt,name=id,proto3" json:"id" example:"4" db:"id" validate:"min=0"`                                                  // @gotags: json:"id" example:"4" db:"id" validate:"min=0"
+	AlbumId         int64  `protobuf:"varint,2,opt,name=album_id,json=albumId,proto3" json:"albumId" example:"8" db:"album_id" validate:"min=0"`                         // @gotags: json:"albumId" example:"8" db:"album_id" validate:"min=0"
+	ArtistId        int64  `protobuf:"varint,3,opt,name=artist_id,json=artistId,proto3" json:"artistId" example:"8" db:"artist_id" validate:"min=0,nonnil"`                      // @gotags: json:"artistId" example:"8" db:"artist_id" validate:"min=0,nonnil"
+	Title           string `protobuf:"bytes,4,opt,name=title,proto3" json:"title" example:"Rain" db:"title" validate:"max=256,nonnil"`                                             // @gotags: json:"title" example:"Rain" db:"title" validate:"max=256,nonnil"
+	Duration        int64  `protobuf:"varint,5,opt,name=duration,proto3" json:"duration" example:"180" db:"duration" validate:"min=0,nonnil"`                                      // @gotags: json:"duration" example:"180" db:"duration" validate:"min=0,nonnil"
+	CountLikes      int64  `protobuf:"varint,6,opt,name=count_likes,json=countLikes,proto3" json:"countLikes" example:"54" db:"count_likes" validate:"min=0,nonnil"`                // @gotags: json:"countLikes" example:"54" db:"count_likes" validate:"min=0,nonnil"
 	CountListenings int64  `protobuf:"varint,7,opt,name=count_listenings,json=countListenings,proto3" json:"countListening" example:"15632" db:"count_listening" validate:"min=0,nonnil"` // @gotags: json:"countListening" example:"15632" db:"count_listening" validate:"min=0,nonnil"
 }
 
@@ -122,14 +122,14 @@ type TrackDataTransfer struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Id         int64  `protobuf:"varint,1,opt,name=id,proto3" json:"id" example:"1"`                       // @gotags: json:"id" example:"1"
+	Id         int64  `protobuf:"varint,1,opt,name=id,proto3" json:"id" example:"1"`                 // @gotags: json:"id" example:"1"
 	Title      string `protobuf:"bytes,2,opt,name=title,proto3" json:"title" example:"Mercury"`            // @gotags: json:"title" example:"Mercury"
-	Artist     string `protobuf:"bytes,3,opt,name=artist,proto3" json:"artist" example:"Hexed"`            // @gotags: json:"artist" example:"Hexed"
-	Cover      string `protobuf:"bytes,4,opt,name=cover,proto3" json:"cover" example:"assets/track_1.png"` // @gotags: json:"cover" example:"assets/track_1.png"
-	Src        string `protobuf:"bytes,5,opt,name=src,proto3" json:"src" example:"assets/track_1.mp4"`     // @gotags: json:"src" example:"assets/track_1.mp4"
-	Likes      int64  `protobuf:"varint,6,opt,name=likes,proto3" json:"likes" example:"5"`                 // @gotags: json:"likes" example:"5"
-	Listenings int64  `protobuf:"varint,7,opt,name=listenings,proto3" json:"listenings" example:"500"`     // @gotags: json:"listenings" example:"500"
-	Duration   int64  `protobuf:"varint,8,opt,name=duration,proto3" json:"duration" example:"531"`         // @gotags: json:"duration" example:"531"
+	Artist     string `protobuf:"bytes,3,opt,name=artist,proto3" json:"artist" example:"Hexed"`          // @gotags: json:"artist" example:"Hexed"
+	Cover      string `protobuf:"bytes,4,opt,name=cover,proto3" json:"cover" example:"assets/track_1.png"`            // @gotags: json:"cover" example:"assets/track_1.png"
+	Src        string `protobuf:"bytes,5,opt,name=src,proto3" json:"src" example:"assets/track_1.mp4"`                // @gotags: json:"src" example:"assets/track_1.mp4"
+	Likes      int64  `protobuf:"varint,6,opt,name=likes,proto3" json:"likes" example:"5"`           // @gotags: json:"likes" example:"5"
+	Listenings int64  `protobuf:"varint,7,opt,name=listenings,proto3" json:"listenings" example:"500"` // @gotags: json:"listenings" example:"500"
+	Duration   int64  `protobuf:"varint,8,opt,name=duration,proto3" json:"duration" example:"531"`     // @gotags: json:"duration" example:"531"
 }
 
 func (x *TrackDataTransfer) Reset() {

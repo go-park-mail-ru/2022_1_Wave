@@ -138,9 +138,9 @@ func SetUserRoutes(apiVersion *echo.Group, handler userHttp.UserHandler, m *auth
 
 // InitAuthModule auth
 func SetAuthRoutes(apiVersion *echo.Group, handler authHttp.AuthHandler, m *auth_middleware.HttpMiddleware) {
-	apiVersion.POST(loginPrefix, handler.Login, m.IsSession, m.CSRF)
-	apiVersion.POST(logoutPrefix, handler.Logout, m.IsSession, m.CSRF)
-	apiVersion.POST(signUpPrefix, handler.SignUp, m.IsSession, m.CSRF)
+	apiVersion.POST(loginPrefix, handler.Login, m.CSRF)
+	apiVersion.POST(logoutPrefix, handler.Logout, m.CSRF)
+	apiVersion.POST(signUpPrefix, handler.SignUp, m.CSRF)
 	apiVersion.GET(getCSRFPrefix, handler.GetCSRF)
 }
 
