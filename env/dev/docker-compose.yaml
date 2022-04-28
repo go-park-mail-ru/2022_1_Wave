@@ -8,7 +8,7 @@ services:
     volumes:
       - ../../../2022_1_Wave:/var/www/wave/
 #      - ../../../2022_1_Wave/public/build:/var/www/wave
-      - ../../../2022_1_Wave/assets/:/var/www/wave/assets
+      - ../../assets:/var/www/wave/assets
       - ../../config/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
     depends_on:
       - wave_music
