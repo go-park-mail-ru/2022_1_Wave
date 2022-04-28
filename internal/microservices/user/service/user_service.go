@@ -26,7 +26,7 @@ func NewUserService(userRepo user_microservice_domain.UserRepo) proto.ProfileSer
 	return &userService{userRepo: userRepo}
 }
 
-func getUserForRepo(userProto *proto.User) *user_microservice_domain.User {
+func GetUserForRepo(userProto *proto.User) *user_microservice_domain.User {
 	return &user_microservice_domain.User{
 		Username:       userProto.GetUsername(),
 		Email:          userProto.GetEmail(),
@@ -36,7 +36,7 @@ func getUserForRepo(userProto *proto.User) *user_microservice_domain.User {
 	}
 }
 
-func getProtoUser(user *user_microservice_domain.User) *proto.User {
+func GetProtoUser(user *user_microservice_domain.User) *proto.User {
 	return &proto.User{
 		UserId:         uint64(user.ID),
 		Username:       user.Username,
@@ -48,7 +48,7 @@ func getProtoUser(user *user_microservice_domain.User) *proto.User {
 }
 
 func (a *userService) Create(ctx context.Context, user *proto.User) (*proto.Empty, error) {
-	userForRepo := getUserForRepo(user)
+	userForRepo := GetUserForRepo(user)
 
 	err := a.userRepo.Insert(userForRepo)
 
@@ -56,7 +56,7 @@ func (a *userService) Create(ctx context.Context, user *proto.User) (*proto.Empt
 }
 
 func (a *userService) Update(ctx context.Context, user *proto.User) (*proto.Empty, error) {
-	userForRepo := getUserForRepo(user)
+	userForRepo := GetUserForRepo(user)
 
 	err := a.userRepo.Update(uint(user.UserId), userForRepo)
 
@@ -75,7 +75,7 @@ func (a *userService) GetById(ctx context.Context, userId *proto.UserId) (*proto
 		return nil, err
 	}
 
-	userProto := getProtoUser(user)
+	userProto := GetProtoUser(user)
 
 	return userProto, nil
 }
@@ -86,7 +86,7 @@ func (a *userService) GetByUsername(ctx context.Context, username *proto.Usernam
 		return nil, err
 	}
 
-	userProto := getProtoUser(user)
+	userProto := GetProtoUser(user)
 
 	return userProto, nil
 }
@@ -97,7 +97,7 @@ func (a *userService) GetByEmail(ctx context.Context, email *proto.Email) (*prot
 		return nil, err
 	}
 
-	userProto := getProtoUser(user)
+	userProto := GetProtoUser(user)
 
 	return userProto, nil
 }

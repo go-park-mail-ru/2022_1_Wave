@@ -1,7 +1,8 @@
 package auth_redis_test
 
 import (
-	"github.com/go-park-mail-ru/2022_1_Wave/internal/domain"
+	"github.com/alicebob/miniredis/v2"
+	auth_microservice_domain "github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/auth"
 	auth_redis "github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/auth/repository/redis"
 	"github.com/stretchr/testify/assert"
 	"testing"
@@ -20,7 +21,7 @@ func TestGetSession(t *testing.T) {
 	assert.False(t, session.IsAuthorized)
 
 	session, err = redisAuthRepo.GetSession(sessionId + "a")
-	assert.Equal(t, domain.ErrGetSession, err)
+	assert.Equal(t, auth_microservice_domain.ErrGetSession, err)
 	assert.Nil(t, session)
 }
 

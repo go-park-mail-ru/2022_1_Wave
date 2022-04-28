@@ -2,7 +2,6 @@ package auth_redis
 
 import (
 	"encoding/json"
-	"errors"
 	auth_domain "github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/auth"
 	"github.com/gomodule/redigo/redis"
 	"github.com/google/uuid"
@@ -62,12 +61,12 @@ func setSession(client redis.Conn, sessionId string, isAuthorized bool, userId u
 
 	_, err := client.Do("HSET", sessionHashTableName, sessionId, tableValue)
 	if err != nil {
-		return errors.New(auth_domain.ErrSetSession)
+		return auth_domain.ErrSetSession
 	}
 
 	_, err = client.Do("EXPIRE", sessionHashTableName, expires.Seconds())
 	if err != nil {
-		return errors.New(auth_domain.ErrSetSession)
+		return auth_domain.ErrSetSession
 	}
 
 	return nil
@@ -97,7 +96,7 @@ func (a *redisAuthRepo) GetSession(sessionId string) (*auth_domain.Session, erro
 
 	sessionJson, err := client.Do("HGET", sessionHashTableName, sessionId)
 	if err != nil || sessionJson == nil {
-		return nil, errors.New(auth_domain.ErrGetSession)
+		return nil, auth_domain.ErrGetSession
 	}
 
 	var session auth_domain.Session
@@ -116,7 +115,7 @@ func (a *redisAuthRepo) SetNewAuthorizedSession(userId uint, expires time.Durati
 	err := setSession(client, sessionId, true, userId, expires)
 
 	if err != nil {
-		return "", errors.New(auth_domain.ErrSetSession)
+		return "", auth_domain.ErrSetSession
 	}
 
 	return sessionId, nil
@@ -131,7 +130,7 @@ func (a *redisAuthRepo) SetNewUnauthorizedSession(expires time.Duration) (string
 	err := setSession(client, sessionId, false, 0, expires)
 
 	if err != nil {
-		return "", errors.New(auth_domain.ErrSetSession)
+		return "", auth_domain.ErrSetSession
 	}
 
 	return sessionId, nil
@@ -140,7 +139,7 @@ func (a *redisAuthRepo) SetNewUnauthorizedSession(expires time.Duration) (string
 func (a *redisAuthRepo) changeSession(sessionId string, isAuthorized bool, userId uint) (string, error) {
 	session, err := a.GetSession(sessionId)
 	if err != nil {
-		return "", errors.New(auth_domain.ErrGetSession)
+		return "", auth_domain.ErrGetSession
 	}
 	session.IsAuthorized = isAuthorized
 	session.UserId = userId
@@ -160,7 +159,7 @@ func (a *redisAuthRepo) changeSession(sessionId string, isAuthorized bool, userI
 
 	_, err = client.Do("HSET", sessionHashTableName, newSessionId, tableValue)
 	if err != nil {
-		return "", errors.New(auth_domain.ErrSetSession)
+		return "", auth_domain.ErrSetSession
 	}
 
 	_ = a.DeleteSession(sessionId) // удаляем старую версию сессии
@@ -186,13 +185,13 @@ func (a *redisAuthRepo) DeleteSession(sessionId string) error {
 
 	_, err := client.Do("HDEL", sessionHashTableName, sessionId)
 	if err != nil {
-		return errors.New(auth_domain.ErrDeleteSession)
+		return auth_domain.ErrDeleteSession
 	}
 
 	// удалим таблицу сессий пользователя, если у него не осталось сессий
 	result, err := client.Do("HLEN", sessionHashTableName)
 	if err != nil || result == nil {
-		return errors.New(auth_domain.ErrDeleteSession)
+		return auth_domain.ErrDeleteSession
 	}
 
 	if result == 0 {

@@ -1,6 +1,7 @@
 package auth_microservice_domain
 
 import (
+	"errors"
 	"time"
 )
 
@@ -19,21 +20,8 @@ type AuthRepo interface {
 	GetSize() (int, error)
 }
 
-const (
-	ErrGetSession     = "error while get session"
-	ErrSetSession     = "error while set session"
-	ErrDeleteSession  = "error while delete session"
-	ErrNotAuthSession = "session is not authorized"
-
-	ErrInvalidLoginOrPassword = "invalid login or password"
-	ErrUserAlreadyExist       = "user already exist"
-	ErrUserDoesNotExist       = "user does not exist"
-
-	ErrWhileSetNewSession       = "error while set new session"
-	ErrWhileChangeSession       = "error while change session"
-	ErrSessionStorageUnexpected = "session storage unexpected error"
-	ErrSessionDoesNotExist      = "session does not exist"
-
-	ErrInsert             = "insertion error"
-	ErrDatabaseUnexpected = "database unexpected error"
+var (
+	ErrGetSession    = errors.New("error while get session")
+	ErrSetSession    = errors.New("error while set session")
+	ErrDeleteSession = errors.New("error while delete session")
 )

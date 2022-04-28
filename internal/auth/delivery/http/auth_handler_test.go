@@ -1,14 +1,12 @@
 package auth_http_test
 
 import (
-	"context"
 	"encoding/json"
+	"errors"
 	"github.com/bxcodec/faker"
-	"github.com/go-park-mail-ru/2022_1_Wave/internal/domain"
-	auth_http "github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/auth/delivery/http"
-	"github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/auth/mocks"
-	"github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/auth/proto"
-
+	auth_http "github.com/go-park-mail-ru/2022_1_Wave/internal/auth/delivery/http"
+	mocks2 "github.com/go-park-mail-ru/2022_1_Wave/internal/auth/mocks"
+	user_microservice_domain "github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/user"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 	"net/http"
@@ -18,8 +16,8 @@ import (
 )
 
 func TestLogin(t *testing.T) {
-	var mockUser1 domain.User
-	var mockUser2 domain.User
+	var mockUser1 user_microservice_domain.User
+	var mockUser2 user_microservice_domain.User
 	err := faker.FakeData(&mockUser1)
 	assert.NoError(t, err)
 	mockUser1.Email = ""
@@ -30,19 +28,13 @@ func TestLogin(t *testing.T) {
 
 	sessionId := "some-session-id"
 
-	mockUseCase := new(mocks.AuthorizationClient)
-	var loginData proto.LoginData
-	loginData.Login = mockUser1.Username
-	loginData.Password = mockUser1.Password
+	mockUseCase := new(mocks2.AuthUseCase)
 
-	mockUseCase.On("Login", context.Background(), &loginData).Return(&proto.LoginResult{NewSession: &proto.Session{SessionId: sessionId}}, nil)
-	loginData.Login += "a"
+	mockUseCase.On("Login", mockUser1.Username, mockUser1.Password).Return(sessionId, nil)
 
-	mockUseCase.On("Login", context.Background(), &loginData).Return(&proto.LoginResult{NewSession: &proto.Session{SessionId: sessionId}}, nil)
+	mockUseCase.On("Login", mockUser1.Username+"a", mockUser1.Password).Return("", errors.New("error"))
 
-	loginData.Login = mockUser2.Email
-	loginData.Password = mockUser2.Password
-	mockUseCase.On("Login", context.Background(), &loginData).Return(&proto.LoginResult{NewSession: &proto.Session{SessionId: sessionId}}, nil)
+	mockUseCase.On("Login", mockUser2.Email, mockUser2.Password).Return(sessionId, nil)
 
 	e := echo.New()
 	jsonUser, _ := json.Marshal(&mockUser1)
@@ -50,12 +42,6 @@ func TestLogin(t *testing.T) {
 	assert.NoError(t, err)
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 
-	cookie := &http.Cookie{
-		Name:     "session_id",
-		Value:    sessionId,
-		HttpOnly: true,
-	}
-	req.AddCookie(cookie)
 	rec := httptest.NewRecorder()
 
 	c := e.NewContext(req, rec)
@@ -73,7 +59,7 @@ func TestLogin(t *testing.T) {
 	assert.NoError(t, err)
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 
-	req.AddCookie(cookie)
+	//req.AddCookie(cookie)
 	rec = httptest.NewRecorder()
 
 	c = e.NewContext(req, rec)
@@ -82,6 +68,7 @@ func TestLogin(t *testing.T) {
 	err = handler.Login(c)
 	assert.NoError(t, err)
 	assert.Equal(t, http.StatusOK, rec.Code)
+	assert.NotEqual(t, rec.Header().Get("Set-Cookie"), "")
 
 	mockUser1.Username += "a"
 	jsonUser, _ = json.Marshal(&mockUser1)
@@ -89,7 +76,7 @@ func TestLogin(t *testing.T) {
 	assert.NoError(t, err)
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 
-	req.AddCookie(cookie)
+	//req.AddCookie(cookie)
 	rec = httptest.NewRecorder()
 
 	c = e.NewContext(req, rec)
@@ -103,7 +90,7 @@ func TestLogin(t *testing.T) {
 	assert.NoError(t, err)
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 
-	req.AddCookie(cookie)
+	//req.AddCookie(cookie)
 	rec = httptest.NewRecorder()
 
 	c = e.NewContext(req, rec)
@@ -114,11 +101,10 @@ func TestLogin(t *testing.T) {
 	assert.Equal(t, http.StatusUnprocessableEntity, rec.Code)
 }
 
-/*
 func TestLogout(t *testing.T) {
 	sessionId := "some-session-id"
 
-	mockUseCase := new(mocks.AuthUseCase)
+	mockUseCase := new(mocks2.AuthUseCase)
 	mockUseCase.On("Logout", sessionId).Return(nil)
 
 	e := echo.New()
@@ -136,7 +122,7 @@ func TestLogout(t *testing.T) {
 
 	c := e.NewContext(req, rec)
 	c.SetPath("/logout")
-	handler := authHttp.AuthHandler{
+	handler := auth_http.AuthHandler{
 		AuthUseCase: mockUseCase,
 	}
 
@@ -146,8 +132,8 @@ func TestLogout(t *testing.T) {
 }
 
 func TestSignUp(t *testing.T) {
-	var mockUser1 domain.User
-	var mockUser2 domain.User
+	var mockUser1 user_microservice_domain.User
+	var mockUser2 user_microservice_domain.User
 	err := faker.FakeData(&mockUser1)
 	assert.NoError(t, err)
 	mockUser1.Email = ""
@@ -157,10 +143,9 @@ func TestSignUp(t *testing.T) {
 	mockUser2.Username = ""
 
 	sessionId := "some-session-id"
-
-	mockUseCase := new(mocks.AuthUseCase)
-	mockUseCase.On("SignUp", &mockUser1, sessionId).Return(nil)
-	mockUseCase.On("SignUp", &mockUser2, sessionId).Return(errors.New("error"))
+	mockUseCase := new(mocks2.AuthUseCase)
+	mockUseCase.On("SignUp", &mockUser1).Return(sessionId, nil)
+	mockUseCase.On("SignUp", &mockUser2).Return("", errors.New("error"))
 
 	e := echo.New()
 	jsonUser, _ := json.Marshal(&mockUser1)
@@ -168,30 +153,24 @@ func TestSignUp(t *testing.T) {
 	assert.NoError(t, err)
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 
-	cookie := &http.Cookie{
-		Name:     "session_id",
-		Value:    sessionId,
-		HttpOnly: true,
-	}
-	req.AddCookie(cookie)
 	rec := httptest.NewRecorder()
 
 	c := e.NewContext(req, rec)
 	c.SetPath("/signup")
-	handler := authHttp.AuthHandler{
+	handler := auth_http.AuthHandler{
 		AuthUseCase: mockUseCase,
 	}
 
 	err = handler.SignUp(c)
 	assert.NoError(t, err)
 	assert.Equal(t, http.StatusOK, rec.Code)
+	assert.NotEqual(t, rec.Header().Get("Set-Cookie"), "")
 
 	jsonUser, _ = json.Marshal(&mockUser2)
 	req, err = http.NewRequest(echo.POST, "/signup", strings.NewReader(string(jsonUser)))
 	assert.NoError(t, err)
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 
-	req.AddCookie(cookie)
 	rec = httptest.NewRecorder()
 
 	c = e.NewContext(req, rec)
@@ -200,12 +179,12 @@ func TestSignUp(t *testing.T) {
 	err = handler.SignUp(c)
 	assert.NoError(t, err)
 	assert.Equal(t, http.StatusBadRequest, rec.Code)
+	assert.Equal(t, rec.Header().Get("Set-Cookie"), "")
 
 	req, err = http.NewRequest(echo.POST, "/signup", strings.NewReader("aboba"))
 	assert.NoError(t, err)
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 
-	req.AddCookie(cookie)
 	rec = httptest.NewRecorder()
 
 	c = e.NewContext(req, rec)
@@ -214,16 +193,11 @@ func TestSignUp(t *testing.T) {
 	err = handler.SignUp(c)
 	assert.NoError(t, err)
 	assert.Equal(t, http.StatusUnprocessableEntity, rec.Code)
+	assert.Equal(t, rec.Header().Get("Set-Cookie"), "")
 }
 
 func TestGetCSRF(t *testing.T) {
-	sessionId1 := "some-session-id"
-	sessionId2 := "some-session-id2"
-
-	mockUseCase := new(mocks.AuthUseCase)
-	mockUseCase.On("IsSession", sessionId1).Return(true)
-	mockUseCase.On("IsSession", sessionId2).Return(false)
-	mockUseCase.On("GetUnauthorizedSession").Return(sessionId2, nil)
+	mockUseCase := new(mocks2.AuthUseCase)
 
 	e := echo.New()
 
@@ -231,18 +205,12 @@ func TestGetCSRF(t *testing.T) {
 	assert.NoError(t, err)
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 
-	cookie := &http.Cookie{
-		Name:     "session_id",
-		Value:    sessionId1,
-		HttpOnly: true,
-	}
-	req.AddCookie(cookie)
 	rec := httptest.NewRecorder()
 
 	c := e.NewContext(req, rec)
 	c.SetPath("/get_csrf")
 
-	handler := authHttp.AuthHandler{
+	handler := auth_http.AuthHandler{
 		AuthUseCase: mockUseCase,
 	}
 
@@ -250,5 +218,5 @@ func TestGetCSRF(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, http.StatusOK, rec.Code)
 	assert.NotEqual(t, rec.Header().Get(echo.HeaderXCSRFToken), "")
+	assert.Equal(t, rec.Header().Get(echo.HeaderXCSRFToken), rec.Result().Cookies()[0].Value)
 }
-*/

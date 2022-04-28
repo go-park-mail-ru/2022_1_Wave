@@ -11,9 +11,8 @@ const (
 )
 
 var (
-	ErrorGetPasswordHash = errors.New("error getting the password hash")
-	ErrorInsertUser      = errors.New("error inserting user")
-	ErrorUpdateUser      = errors.New("error updating user")
-	ErrorDeleteUser      = errors.New("error deleting user")
-	ErrorSelectUser      = errors.New("error selecting user")
+	ErrorInsertUser = errors.New("error inserting user")
+	ErrorUpdateUser = errors.New("error updating user")
+	ErrorDeleteUser = errors.New("error deleting user")
+	ErrorSelectUser = errors.New("error selecting user")
 )
