@@ -181,6 +181,19 @@ func (table AlbumRepo) SearchByTitle(title string) ([]*albumProto.Album, error) 
 		return nil, err
 	}
 
+	if len(albums) == 0 {
+		arg := title + "%"
+		query := `
+			SELECT *
+			FROM album
+			WHERE lower(title) LIKE lower($1)
+			`
+		err := table.Sqlx.Select(&albums, query, arg)
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	return albums, nil
 }
 

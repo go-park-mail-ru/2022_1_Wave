@@ -172,6 +172,19 @@ func (table TrackRepo) SearchByTitle(title string) ([]*trackProto.Track, error) 
 		return nil, err
 	}
 
+	if len(tracks) == 0 {
+		arg := title + "%"
+		query := `
+			SELECT *
+			FROM track
+			WHERE lower(title) LIKE lower($1)
+			`
+		err := table.Sqlx.Select(&tracks, query, arg)
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	return tracks, nil
 }
 

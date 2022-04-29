@@ -179,6 +179,19 @@ func (table ArtistRepo) SearchByName(title string) ([]*artistProto.Artist, error
 		return nil, err
 	}
 
+	if len(artists) == 0 {
+		arg := title + "%"
+		query := `
+			SELECT *
+			FROM artist
+			WHERE lower(name) LIKE lower($1)
+			`
+		err := table.Sqlx.Select(&artists, query, arg)
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	return artists, nil
 }
 

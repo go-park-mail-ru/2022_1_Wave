@@ -263,6 +263,8 @@ ALTER TABLE UserTracksLike
     ADD CONSTRAINT UserTracksLike_fk0 FOREIGN KEY (user_id) REFERENCES Users (id);
 ALTER TABLE UserTracksLike
     ADD CONSTRAINT UserTracksLike_fk1 FOREIGN KEY (track_id) REFERENCES Track (id);
+ALTER TABLE UserTracksLike
+    ADD CONSTRAINT uniq_user_track_like UNIQUE (user_id, track_id);
 
 ALTER TABLE UserFavoriteTracks
     ADD CONSTRAINT real_user_for_favorite FOREIGN KEY (user_id) REFERENCES Users (id) ON DELETE CASCADE;
@@ -328,11 +330,15 @@ ALTER TABLE UserAlbumsLike
     ADD CONSTRAINT UserAlbumsLike_fk0 FOREIGN KEY (user_id) REFERENCES Users (id);
 ALTER TABLE UserAlbumsLike
     ADD CONSTRAINT UserAlbumsLike_fk1 FOREIGN KEY (album_id) REFERENCES Album (id);
+ALTER TABLE UserAlbumsLike
+    ADD CONSTRAINT uniq_user_album_like UNIQUE (user_id, album_id);
 
 ALTER TABLE UserArtistsLike
     ADD CONSTRAINT real_user_for_like_track FOREIGN KEY (user_id) REFERENCES Users (id);
 ALTER TABLE UserArtistsLike
     ADD CONSTRAINT real_artist_to_be_liked FOREIGN KEY (artist_id) REFERENCES Album (id);
+ALTER TABLE UserArtistsLike
+    ADD CONSTRAINT uniq_user_artist_like UNIQUE (user_id, artist_id);
 
 SELECT table_name
 FROM information_schema.tables
