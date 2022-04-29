@@ -11,6 +11,19 @@ VALUES ('Queen', 0, 0, 0),
        ('Shortparis', 0, 0, 0),
        ('R.E.M', 0, 0, 0);
 
+-- -- albums
+INSERT INTO Album (title, artist_id, count_likes, count_listening, date)
+VALUES ('A Night At The Opera', 1, 0, 0, 1975),
+       ('Человеко-часы', 2, 0, 0, 2020),
+       ('The Dark Side of the Moon', 3, 0, 0, 1973),
+       ('Вопреки', 4, 0, 0, 2008),
+       ('Часть чего-то большего', 5, 0, 0, 2013),
+       ('Blurryface', 6, 0, 0, 2015),
+       ('ZUDWA-DWA', 7, 0, 0, 2003),
+       ('Младшая сестра', 8, 0, 0, 2019),
+       ('Так закалялась сталь', 9, 0, 0, 2019),
+       ('Out Of Time', 9, 0, 0, 2019);
+
 -- -- album covers
 INSERT
 INTO AlbumCover (quote, is_dark)
@@ -32,19 +45,7 @@ VALUES ('Deluxe Edition 2011 Remaster', false),
         true),
        ('That me in the corner. That me in the spotlight', false);
 --
---
--- -- albums
-INSERT INTO Album (title, artist_id, count_likes, count_listening, date)
-VALUES ('A Night At The Opera', 1, 0, 0, 1975),
-       ('Человеко-часы', 2, 0, 0, 2020),
-       ('The Dark Side of the Moon', 3, 0, 0, 1973),
-       ('Вопреки', 4, 0, 0, 2008),
-       ('Часть чего-то большего', 5, 0, 0, 2013),
-       ('Blurryface', 6, 0, 0, 2015),
-       ('ZUDWA-DWA', 7, 0, 0, 2003),
-       ('Младшая сестра', 8, 0, 0, 2019),
-       ('Так закалялась сталь', 9, 0, 0, 2019),
-       ('Out Of Time', 9, 0, 0, 2019);
+
 
 -- tracks
 INSERT INTO Track (album_id, artist_id, title, duration, count_likes, count_listening)

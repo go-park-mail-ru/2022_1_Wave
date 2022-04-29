@@ -38,9 +38,9 @@ DROP TABLE if exists PlaylistTrack;
 DROP TABLE if exists Playlist;
 DROP TABLE if exists Users;
 DROP TABLE if exists Track;
+DROP TABLE if exists AlbumCover;
 DROP TABLE if exists Album;
 DROP TABLE if exists Single;
-DROP TABLE if exists AlbumCover;
 DROP TABLE if exists Artist;
 DROP TABLE if exists place;
 
@@ -148,7 +148,6 @@ CREATE TABLE Playlist
 (
     id        serial       NOT NULL,
     title     varchar(255) NOT NULL,
-    tracks_id int[],
     CONSTRAINT Playlist_pk PRIMARY KEY (id)
 ) WITH (
       OIDS= FALSE
@@ -162,8 +161,6 @@ CREATE TABLE PlaylistTrack
 ) WITH (
       OIDS = FALSE
     );
-
-
 
 CREATE TABLE UserPlaylist
 (
@@ -254,15 +251,13 @@ CREATE TABLE UserAlbumsLike
 
 
 
--- ALTER TABLE Track
---     ADD CONSTRAINT Tracks_fk0 FOREIGN KEY (album_id) REFERENCES Album (id);
 ALTER TABLE Track
     ADD CONSTRAINT Tracks_fk1 FOREIGN KEY (artist_id) REFERENCES Artist (id) ON DELETE CASCADE;
 
 ALTER TABLE UserTracksLike
-    ADD CONSTRAINT UserTracksLike_fk0 FOREIGN KEY (user_id) REFERENCES Users (id);
+    ADD CONSTRAINT UserTracksLike_fk0 FOREIGN KEY (user_id) REFERENCES Users (id) ON DELETE CASCADE;
 ALTER TABLE UserTracksLike
-    ADD CONSTRAINT UserTracksLike_fk1 FOREIGN KEY (track_id) REFERENCES Track (id);
+    ADD CONSTRAINT UserTracksLike_fk1 FOREIGN KEY (track_id) REFERENCES Track (id) ON DELETE CASCADE;
 ALTER TABLE UserTracksLike
     ADD CONSTRAINT uniq_user_track_like UNIQUE (user_id, track_id);
 
@@ -282,17 +277,17 @@ ALTER TABLE UserFavoriteAlbums
     ADD CONSTRAINT real_track_to_favorite FOREIGN KEY (album_id) REFERENCES Album (id) ON DELETE CASCADE;
 
 ALTER TABLE UserArtistsFollowing
-    ADD CONSTRAINT UserArtistsFollowing_fk0 FOREIGN KEY (user_id) REFERENCES Users (id);
+    ADD CONSTRAINT UserArtistsFollowing_fk0 FOREIGN KEY (user_id) REFERENCES Users (id) ON DELETE CASCADE;
 ALTER TABLE UserArtistsFollowing
-    ADD CONSTRAINT UserArtistsFollowing_fk1 FOREIGN KEY (artist_id) REFERENCES Artist (id);
+    ADD CONSTRAINT UserArtistsFollowing_fk1 FOREIGN KEY (artist_id) REFERENCES Artist (id) ON DELETE CASCADE;
 
 ALTER TABLE UserListenedTrack
-    ADD CONSTRAINT UserListenedTrack_fk0 FOREIGN KEY (user_id) REFERENCES Users (id);
+    ADD CONSTRAINT UserListenedTrack_fk0 FOREIGN KEY (user_id) REFERENCES Users (id) ON DELETE CASCADE;
 ALTER TABLE UserListenedTrack
-    ADD CONSTRAINT UserListenedTrack_fk1 FOREIGN KEY (track_id) REFERENCES Track (id);
+    ADD CONSTRAINT UserListenedTrack_fk1 FOREIGN KEY (track_id) REFERENCES Track (id) ON DELETE CASCADE;
 
 ALTER TABLE UserPlayer
-    ADD CONSTRAINT UserPlayer_fk0 FOREIGN KEY (user_id) REFERENCES Users (id);
+    ADD CONSTRAINT UserPlayer_fk0 FOREIGN KEY (user_id) REFERENCES Users (id) ON DELETE CASCADE;
 ALTER TABLE UserPlayer
     ADD CONSTRAINT UserPlayer_fk1 FOREIGN KEY (track_id) REFERENCES Track (id);
 ALTER TABLE UserPlayer
@@ -300,51 +295,39 @@ ALTER TABLE UserPlayer
 ALTER TABLE UserPlayer
     ADD CONSTRAINT UserPlayer_fk3 FOREIGN KEY (album_id) REFERENCES Track (id);
 
--- ALTER TABLE Playlist
---     ADD CONSTRAINT Playlist_fk0 FOREIGN KEY (track_id) REFERENCES Track (id);
-
--- ALTER TABLE Playlist
---     ADD CONSTRAINT Playlist_fk0 CHECK (unnest(tracks_id) = Track.id );
-
 ALTER TABLE PlaylistTrack
-    ADD CONSTRAINT PlaylistTrack_fk0 FOREIGN KEY (playlist_id) REFERENCES Playlist (id);
+    ADD CONSTRAINT PlaylistTrack_fk0 FOREIGN KEY (playlist_id) REFERENCES Playlist (id) ON DELETE CASCADE;
 ALTER TABLE PlaylistTrack
-    ADD CONSTRAINT PlaylistTrack_fk1 FOREIGN KEY (track_id) REFERENCES Track (id);
+    ADD CONSTRAINT PlaylistTrack_fk1 FOREIGN KEY (track_id) REFERENCES Track (id) ON DELETE CASCADE;
+ALTER TABLE PlaylistTrack
+    ADD CONSTRAINT uniq_playlist_track UNIQUE (playlist_id, track_id);
+
 
 ALTER TABLE UserPlaylist
-    ADD CONSTRAINT UserPlaylist_fk0 FOREIGN KEY (user_id) REFERENCES Users (id);
+    ADD CONSTRAINT UserPlaylist_fk0 FOREIGN KEY (user_id) REFERENCES Users (id) ON DELETE CASCADE;
 ALTER TABLE UserPlaylist
-    ADD CONSTRAINT UserPlaylist_fk1 FOREIGN KEY (playlist_id) REFERENCES Playlist (id);
+    ADD CONSTRAINT UserPlaylist_fk1 FOREIGN KEY (playlist_id) REFERENCES Playlist (id) ON DELETE CASCADE;
 
 ALTER TABLE UserListenedPlaylist
-    ADD CONSTRAINT UserListenedPlaylist_fk0 FOREIGN KEY (user_id) REFERENCES Users (id);
+    ADD CONSTRAINT UserListenedPlaylist_fk0 FOREIGN KEY (user_id) REFERENCES Users (id) ON DELETE CASCADE;
 ALTER TABLE UserListenedPlaylist
-    ADD CONSTRAINT UserListenedPlaylist_fk1 FOREIGN KEY (playlist_id) REFERENCES Playlist (id);
+    ADD CONSTRAINT UserListenedPlaylist_fk1 FOREIGN KEY (playlist_id) REFERENCES Playlist (id) ON DELETE CASCADE;
 
 ALTER TABLE Album
     ADD CONSTRAINT Album_fk0 FOREIGN KEY (artist_id) REFERENCES Artist (id) ON DELETE CASCADE;
-ALTER TABLE Album
-    ADD CONSTRAINT Album_fk1 FOREIGN KEY (id) REFERENCES AlbumCover (id);
+ALTER TABLE AlbumCover
+    ADD CONSTRAINT AlbumCover_fk0 FOREIGN KEY (id) REFERENCES Album (id) ON DELETE CASCADE;
 
 ALTER TABLE UserAlbumsLike
-    ADD CONSTRAINT UserAlbumsLike_fk0 FOREIGN KEY (user_id) REFERENCES Users (id);
+    ADD CONSTRAINT UserAlbumsLike_fk0 FOREIGN KEY (user_id) REFERENCES Users (id) ON DELETE CASCADE;
 ALTER TABLE UserAlbumsLike
-    ADD CONSTRAINT UserAlbumsLike_fk1 FOREIGN KEY (album_id) REFERENCES Album (id);
+    ADD CONSTRAINT UserAlbumsLike_fk1 FOREIGN KEY (album_id) REFERENCES Album (id) ON DELETE CASCADE;
 ALTER TABLE UserAlbumsLike
     ADD CONSTRAINT uniq_user_album_like UNIQUE (user_id, album_id);
 
 ALTER TABLE UserArtistsLike
-    ADD CONSTRAINT real_user_for_like_track FOREIGN KEY (user_id) REFERENCES Users (id);
+    ADD CONSTRAINT real_user_for_like_track FOREIGN KEY (user_id) REFERENCES Users (id) ON DELETE CASCADE;
 ALTER TABLE UserArtistsLike
-    ADD CONSTRAINT real_artist_to_be_liked FOREIGN KEY (artist_id) REFERENCES Album (id);
+    ADD CONSTRAINT real_artist_to_be_liked FOREIGN KEY (artist_id) REFERENCES Album (id) ON DELETE CASCADE;
 ALTER TABLE UserArtistsLike
     ADD CONSTRAINT uniq_user_artist_like UNIQUE (user_id, artist_id);
-
-SELECT table_name
-FROM information_schema.tables
-WHERE table_schema = 'public'
-ORDER BY table_name;
-
--- select id
--- from track
--- order by id;
