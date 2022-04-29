@@ -40,7 +40,6 @@ func formCSRFCookie(csrfToken string) *http.Cookie {
 	return &http.Cookie{
 		Name:     CsrfTokenKey,
 		Value:    csrfToken,
-		Expires:  time.Now().Add(csrfTokenExpire),
 		HttpOnly: true,
 	}
 }
