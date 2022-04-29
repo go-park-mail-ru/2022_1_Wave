@@ -22,7 +22,7 @@ message PlaylistUseCaseResponse {
 }
 
 message PlaylistsResponse {
-  repeated PlaylistDataTransfer playlists = 1;
+  repeated Playlist playlists = 1;
 }
 
 message UserIdPlaylistArg {
@@ -41,6 +41,6 @@ service PlaylistUseCase {
   rpc Create(UserIdPlaylistArg) returns (google.protobuf.Empty) {};
   rpc Update(UserIdPlaylistArg) returns (google.protobuf.Empty) {};
   rpc Delete(UserIdPlaylistIdArg) returns (google.protobuf.Empty) {};
-  rpc GetById(UserIdPlaylistIdArg) returns (PlaylistDataTransfer) {};
+  rpc GetById(UserIdPlaylistIdArg) returns (Playlist) {};
   rpc GetSize(gateway.IdArg) returns (gateway.IntResponse) {};
 }

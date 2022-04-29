@@ -191,6 +191,7 @@ const (
 	BadId         = -1
 	BadType       = "bad type"
 	Top           = 20
+	SearchTop     = 5
 )
 
 // network

@@ -6,12 +6,13 @@ import (
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/domain"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/album/albumProto"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/artist/artistProto"
+	"github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/playlist/playlistProto"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/track/trackProto"
 	"gopkg.in/validator.v2"
 )
 
 type CheckConstraint interface {
-	*albumProto.Album | *albumProto.AlbumCover | *artistProto.Artist | *trackProto.Track
+	*albumProto.Album | *albumProto.AlbumCover | *artistProto.Artist | *trackProto.Track | *playlistProto.Playlist
 }
 
 // --------------------------------------

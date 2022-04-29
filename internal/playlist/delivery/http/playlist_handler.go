@@ -3,24 +3,22 @@ package trackDeliveryHttp
 import (
 	"errors"
 	"fmt"
-	constants "github.com/go-park-mail-ru/2022_1_Wave/internal"
+	internal "github.com/go-park-mail-ru/2022_1_Wave/internal"
 	Gateway "github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/gateway"
-	"github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/gateway/gatewayProto"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/playlist/playlistProto"
 	PlaylistUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/playlist/useCase"
 	user_domain "github.com/go-park-mail-ru/2022_1_Wave/internal/user"
 	"github.com/go-park-mail-ru/2022_1_Wave/pkg/webUtils"
 	"github.com/labstack/echo/v4"
 	"net/http"
-	"strconv"
 )
 
 type Handler struct {
-	PlaylistUseCase PlaylistUseCase.PlaylistAgent
+	PlaylistUseCase PlaylistUseCase.UseCase
 	UserUseCase     user_domain.UserUseCase
 }
 
-func MakeHandler(playlist PlaylistUseCase.PlaylistAgent, user user_domain.UserUseCase) Handler {
+func MakeHandler(playlist PlaylistUseCase.UseCase, user user_domain.UserUseCase) Handler {
 	return Handler{
 		PlaylistUseCase: playlist,
 		UserUseCase:     user,
@@ -38,22 +36,18 @@ func MakeHandler(playlist PlaylistUseCase.PlaylistAgent, user user_domain.UserUs
 // @Failure      405  {object}  webUtils.Error  "Method is not allowed"
 // @Router       /api/v1/playlists/ [get]
 func (h Handler) GetAll(ctx echo.Context) error {
-	cookie, err := ctx.Cookie(constants.SessionIdKey)
+	userId, err := internal.GetUserId(ctx, h.UserUseCase)
 	if err != nil {
-		return ctx.JSON(http.StatusUnauthorized, err)
-	}
-	user, err := h.UserUseCase.GetBySessionId(cookie.Value)
-	if err != nil {
-		return ctx.JSON(http.StatusUnauthorized, err)
+		return internal.UnauthorizedError(ctx)
 	}
 
-	playlists, err := h.PlaylistUseCase.GetAll(&gatewayProto.IdArg{Id: int64(user.ID)})
+	playlists, err := h.PlaylistUseCase.GetAll(userId)
 	if err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 	}
 
 	if playlists == nil {
-		playlists = &playlistProto.PlaylistsResponse{}
+		playlists = []*playlistProto.PlaylistDataTransfer{}
 	}
 
 	return ctx.JSON(http.StatusOK,
@@ -73,13 +67,9 @@ func (h Handler) GetAll(ctx echo.Context) error {
 // @Failure      405    {object}  webUtils.Error  "Method is not allowed"
 // @Router       /api/v1/playlists/ [post]
 func (h Handler) Create(ctx echo.Context) error {
-	cookie, err := ctx.Cookie(constants.SessionIdKey)
+	userId, err := internal.GetUserId(ctx, h.UserUseCase)
 	if err != nil {
-		return ctx.JSON(http.StatusUnauthorized, err)
-	}
-	user, err := h.UserUseCase.GetBySessionId(cookie.Value)
-	if err != nil {
-		return ctx.JSON(http.StatusUnauthorized, err)
+		return internal.UnauthorizedError(ctx)
 	}
 
 	toCreate := playlistProto.Playlist{}
@@ -92,14 +82,11 @@ func (h Handler) Create(ctx echo.Context) error {
 		return err
 	}
 
-	if err := h.PlaylistUseCase.Create(&playlistProto.UserIdPlaylistArg{
-		UserId:   int64(user.ID),
-		Playlist: &toCreate,
-	}); err != nil {
+	if err := h.PlaylistUseCase.Create(userId, &toCreate); err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 	}
 
-	lastId, err := h.PlaylistUseCase.GetLastId(&gatewayProto.IdArg{Id: int64(user.ID)})
+	lastId, err := h.PlaylistUseCase.GetLastId(userId)
 	if err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 	}
@@ -107,7 +94,7 @@ func (h Handler) Create(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK,
 		webUtils.Success{
 			Status: webUtils.OK,
-			Result: constants.SuccessCreated + "(" + fmt.Sprint(lastId) + ")"})
+			Result: internal.SuccessCreated + "(" + fmt.Sprint(lastId) + ")"})
 }
 
 // Update godoc
@@ -122,13 +109,9 @@ func (h Handler) Create(ctx echo.Context) error {
 // @Failure      405    {object}  webUtils.Error  "Method is not allowed"
 // @Router       /api/v1/playlists/ [put]
 func (h Handler) Update(ctx echo.Context) error {
-	cookie, err := ctx.Cookie(constants.SessionIdKey)
+	userId, err := internal.GetUserId(ctx, h.UserUseCase)
 	if err != nil {
-		return ctx.JSON(http.StatusUnauthorized, err)
-	}
-	user, err := h.UserUseCase.GetBySessionId(cookie.Value)
-	if err != nil {
-		return ctx.JSON(http.StatusUnauthorized, err)
+		return internal.UnauthorizedError(ctx)
 	}
 
 	toUpdate := playlistProto.Playlist{}
@@ -141,10 +124,7 @@ func (h Handler) Update(ctx echo.Context) error {
 		return err
 	}
 
-	if err := h.PlaylistUseCase.Update(&playlistProto.UserIdPlaylistArg{
-		UserId:   int64(user.ID),
-		Playlist: &toUpdate,
-	}); err != nil {
+	if err := h.PlaylistUseCase.Update(userId, &toUpdate); err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 	}
 
@@ -152,7 +132,7 @@ func (h Handler) Update(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK,
 		webUtils.Success{
 			Status: webUtils.OK,
-			Result: constants.SuccessUpdated + "(" + fmt.Sprint(id) + ")"})
+			Result: internal.SuccessUpdated + "(" + fmt.Sprint(id) + ")"})
 }
 
 // Get godoc
@@ -167,26 +147,20 @@ func (h Handler) Update(ctx echo.Context) error {
 // @Failure      405  {object}  webUtils.Error  "Method is not allowed"
 // @Router       /api/v1/playlists/{id} [get]
 func (h Handler) Get(ctx echo.Context) error {
-	cookie, err := ctx.Cookie(constants.SessionIdKey)
+	userId, err := internal.GetUserId(ctx, h.UserUseCase)
 	if err != nil {
-		return ctx.JSON(http.StatusUnauthorized, err)
-	}
-	user, err := h.UserUseCase.GetBySessionId(cookie.Value)
-	if err != nil {
-		return ctx.JSON(http.StatusUnauthorized, err)
+		return internal.UnauthorizedError(ctx)
 	}
 
-	id, err := strconv.Atoi(ctx.Param(constants.FieldId))
+	id, err := internal.GetIdInt64ByFieldId(ctx)
 	if err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 	}
+
 	if id < 0 {
-		return webUtils.WriteErrorEchoServer(ctx, errors.New(constants.IndexOutOfRange), http.StatusBadRequest)
+		return webUtils.WriteErrorEchoServer(ctx, errors.New(internal.IndexOutOfRange), http.StatusBadRequest)
 	}
-	playlist, err := h.PlaylistUseCase.GetById(&playlistProto.UserIdPlaylistIdArg{
-		UserId:     int64(user.ID),
-		PlaylistId: int64(id),
-	})
+	playlist, err := h.PlaylistUseCase.GetById(userId, id)
 
 	if err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
@@ -201,7 +175,7 @@ func (h Handler) Get(ctx echo.Context) error {
 // Delete godoc
 // @Summary      Delete
 // @Description  deleting playlists by id
-// @Tags         playlists
+// @Tags         playlist
 // @Accept       application/json
 // @Produce      application/json
 // @Param        id   path      integer  true  "id of playlists which need to be deleted"
@@ -210,32 +184,26 @@ func (h Handler) Get(ctx echo.Context) error {
 // @Failure      405  {object}  webUtils.Error  "Method is not allowed"
 // @Router       /api/v1/playlists/{id} [delete]
 func (h Handler) Delete(ctx echo.Context) error {
-	cookie, err := ctx.Cookie(constants.SessionIdKey)
+	userId, err := internal.GetUserId(ctx, h.UserUseCase)
 	if err != nil {
-		return ctx.JSON(http.StatusUnauthorized, err)
-	}
-	user, err := h.UserUseCase.GetBySessionId(cookie.Value)
-	if err != nil {
-		return ctx.JSON(http.StatusUnauthorized, err)
+		return internal.UnauthorizedError(ctx)
 	}
 
-	id, err := strconv.Atoi(ctx.Param(constants.FieldId))
+	id, err := internal.GetIdInt64ByFieldId(ctx)
 	if err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 	}
+
 	if id < 0 {
-		return webUtils.WriteErrorEchoServer(ctx, errors.New(constants.IndexOutOfRange), http.StatusBadRequest)
+		return webUtils.WriteErrorEchoServer(ctx, errors.New(internal.IndexOutOfRange), http.StatusBadRequest)
 	}
 
-	if err := h.PlaylistUseCase.Delete(&playlistProto.UserIdPlaylistIdArg{
-		UserId:     int64(user.ID),
-		PlaylistId: int64(id),
-	}); err != nil {
+	if err := h.PlaylistUseCase.Delete(userId, id); err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 	}
 
 	return ctx.JSON(http.StatusOK,
 		webUtils.Success{
 			Status: webUtils.OK,
-			Result: constants.SuccessDeleted + "(" + fmt.Sprint(id) + ")"})
+			Result: internal.SuccessDeleted + "(" + fmt.Sprint(id) + ")"})
 }

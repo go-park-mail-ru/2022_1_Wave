@@ -29,7 +29,7 @@ type PlaylistUseCaseClient interface {
 	Create(ctx context.Context, in *UserIdPlaylistArg, opts ...grpc.CallOption) (*empty.Empty, error)
 	Update(ctx context.Context, in *UserIdPlaylistArg, opts ...grpc.CallOption) (*empty.Empty, error)
 	Delete(ctx context.Context, in *UserIdPlaylistIdArg, opts ...grpc.CallOption) (*empty.Empty, error)
-	GetById(ctx context.Context, in *UserIdPlaylistIdArg, opts ...grpc.CallOption) (*PlaylistDataTransfer, error)
+	GetById(ctx context.Context, in *UserIdPlaylistIdArg, opts ...grpc.CallOption) (*Playlist, error)
 	GetSize(ctx context.Context, in *gatewayProto.IdArg, opts ...grpc.CallOption) (*gatewayProto.IntResponse, error)
 }
 
@@ -86,8 +86,8 @@ func (c *playlistUseCaseClient) Delete(ctx context.Context, in *UserIdPlaylistId
 	return out, nil
 }
 
-func (c *playlistUseCaseClient) GetById(ctx context.Context, in *UserIdPlaylistIdArg, opts ...grpc.CallOption) (*PlaylistDataTransfer, error) {
-	out := new(PlaylistDataTransfer)
+func (c *playlistUseCaseClient) GetById(ctx context.Context, in *UserIdPlaylistIdArg, opts ...grpc.CallOption) (*Playlist, error) {
+	out := new(Playlist)
 	err := c.cc.Invoke(ctx, "/playlist.PlaylistUseCase/GetById", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -113,7 +113,7 @@ type PlaylistUseCaseServer interface {
 	Create(context.Context, *UserIdPlaylistArg) (*empty.Empty, error)
 	Update(context.Context, *UserIdPlaylistArg) (*empty.Empty, error)
 	Delete(context.Context, *UserIdPlaylistIdArg) (*empty.Empty, error)
-	GetById(context.Context, *UserIdPlaylistIdArg) (*PlaylistDataTransfer, error)
+	GetById(context.Context, *UserIdPlaylistIdArg) (*Playlist, error)
 	GetSize(context.Context, *gatewayProto.IdArg) (*gatewayProto.IntResponse, error)
 	mustEmbedUnimplementedPlaylistUseCaseServer()
 }
@@ -137,7 +137,7 @@ func (UnimplementedPlaylistUseCaseServer) Update(context.Context, *UserIdPlaylis
 func (UnimplementedPlaylistUseCaseServer) Delete(context.Context, *UserIdPlaylistIdArg) (*empty.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Delete not implemented")
 }
-func (UnimplementedPlaylistUseCaseServer) GetById(context.Context, *UserIdPlaylistIdArg) (*PlaylistDataTransfer, error) {
+func (UnimplementedPlaylistUseCaseServer) GetById(context.Context, *UserIdPlaylistIdArg) (*Playlist, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetById not implemented")
 }
 func (UnimplementedPlaylistUseCaseServer) GetSize(context.Context, *gatewayProto.IdArg) (*gatewayProto.IntResponse, error) {

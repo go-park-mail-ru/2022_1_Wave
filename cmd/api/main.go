@@ -15,7 +15,7 @@ const ConfigFilename = "config.toml"
 // todo вынести в конфиг
 const port = ":5000"
 
-const dbSize = 0
+const dbSize = 1000
 
 func main() {
 	dbType := internal.Postgres
