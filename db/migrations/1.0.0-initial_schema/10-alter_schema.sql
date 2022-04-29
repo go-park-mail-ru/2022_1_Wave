@@ -69,7 +69,7 @@ CREATE TABLE Track
 --     cover_id        serial       NOT NULL,
     title           varchar(255) NOT NULL,
     duration        integer      NOT NULL,
---     mp4_id          serial       NOT NULL,
+--     mp4_id          cserial       NOT NULL,
     count_likes     integer      NOT NULL,
     count_listening integer      NOT NULL,
     CONSTRAINT Track_pk PRIMARY KEY (id)
@@ -331,3 +331,7 @@ ALTER TABLE UserArtistsLike
     ADD CONSTRAINT real_artist_to_be_liked FOREIGN KEY (artist_id) REFERENCES Album (id) ON DELETE CASCADE;
 ALTER TABLE UserArtistsLike
     ADD CONSTRAINT uniq_user_artist_like UNIQUE (user_id, artist_id);
+
+SELECT id, album_id, artist_id, title, duration, count_likes, count_listening FROM Track
+JOIN playlisttrack ON playlisttrack.track_id = track.id and playlisttrack.playlist_id = 2
+ORDER BY track.id;

@@ -208,7 +208,7 @@ func (table TrackRepo) AddToFavorites(trackId int64, userId int64) error {
 }
 
 func (table TrackRepo) GetFavorites(userId int64) ([]*trackProto.Track, error) {
-	query := `SELECT * FROM track
+	query := `SELECT id, album_id, artist_id, title, duration, count_likes, count_listening FROM track
 			  JOIN userFavoriteTracks favorite ON favorite.track_id = track.id
     	      WHERE user_id = $1 ORDER BY track_id;`
 	// do query
@@ -223,4 +223,14 @@ func (table TrackRepo) RemoveFromFavorites(trackId int64, userId int64) error {
 
 	_, err := table.Sqlx.Exec(query, userId, trackId)
 	return err
+}
+
+func (table TrackRepo) GetTracksFromPlaylist(playlistId int64) ([]*trackProto.Track, error) {
+	query := `SELECT id, album_id, artist_id, title, duration, count_likes, count_listening FROM track
+			  JOIN playlisttrack ON playlisttrack.track_id = track.id and playlisttrack.playlist_id = $1
+    	      ORDER BY track.id;`
+	// do query
+	var tracks []*trackProto.Track
+	err := table.Sqlx.Select(&tracks, query, playlistId)
+	return tracks, err
 }

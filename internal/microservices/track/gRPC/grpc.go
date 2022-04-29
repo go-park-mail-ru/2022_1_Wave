@@ -169,3 +169,12 @@ func (useCase TrackGrpc) RemoveFromFavorites(ctx context.Context, data *gatewayP
 
 	return &emptypb.Empty{}, nil
 }
+
+func (useCase TrackGrpc) GetTracksFromPlaylist(ctx context.Context, data *gatewayProto.IdArg) (*trackProto.TracksResponse, error) {
+	tracks, err := (*useCase.TrackRepo).GetTracksFromPlaylist(data.Id)
+	if err != nil {
+		return nil, err
+	}
+
+	return &trackProto.TracksResponse{Tracks: tracks}, nil
+}

@@ -359,3 +359,30 @@ func (h Handler) RemoveFromFavorites(ctx echo.Context) error {
 			Status: webUtils.OK,
 			Result: internal.SuccessRemoveFromFavorites + "(" + fmt.Sprint(trackId) + ")"})
 }
+
+// GetTracksFromPlaylist godoc
+// @Summary      GetTracksFromPlaylist
+// @Description  get tracks from playlist by id
+// @Tags         track
+// @Accept          application/json
+// @Produce      application/json
+// @Param        id  path      int  true  "playlistId"
+// @Success      200    {object}  webUtils.Success
+// @Failure      400    {object}  webUtils.Error  "Data is invalid"
+// @Failure      405    {object}  webUtils.Error  "Method is not allowed"
+// @Router       /api/v1/tracks/playlist/{id} [get]
+func (h Handler) GetTracksFromPlaylist(ctx echo.Context) error {
+	playlistId, err := internal.GetIdInt64ByFieldId(ctx)
+	if err != nil {
+		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
+	}
+	tracks, err := h.TrackUseCase.GetTracksFromPlaylist(playlistId)
+	if err != nil {
+		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
+	}
+
+	return ctx.JSON(http.StatusOK,
+		webUtils.Success{
+			Status: webUtils.OK,
+			Result: tracks})
+}

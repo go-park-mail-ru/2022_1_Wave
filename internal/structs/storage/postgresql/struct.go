@@ -16,6 +16,7 @@ import (
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/track/trackProto"
 	user_microservice_domain "github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/user"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/user/repository/postgresql"
+	PlaylistPostgres "github.com/go-park-mail-ru/2022_1_Wave/internal/playlist/repository"
 	domainCreator "github.com/go-park-mail-ru/2022_1_Wave/internal/tools/domain"
 	TrackPostgres "github.com/go-park-mail-ru/2022_1_Wave/internal/track/repository"
 	_ "github.com/jackc/pgx/stdlib"
@@ -32,6 +33,7 @@ type Postgres struct {
 	AlbumCoverRepo domain.AlbumCoverRepo
 	ArtistRepo     domain.ArtistRepo
 	TrackRepo      domain.TrackRepo
+	PlaylistRepo   domain.PlaylistRepo
 }
 
 func (storage Postgres) getPostgres() (*sql.DB, error) {
@@ -90,6 +92,7 @@ func (storage Postgres) Init(quantity int64) (domain.GlobalStorageInterface, err
 	storage.TrackRepo = &TrackPostgres.TrackRepo{Sqlx: storage.Sqlx}
 	storage.UserRepo = postgresql.NewUserPostgresRepo(storage.Sqlx)
 	storage.SessionRepo = auth_redis.NewRedisAuthRepo("redis:6379")
+	storage.PlaylistRepo = PlaylistPostgres.PlaylistRepo{Sqlx: storage.Sqlx}
 
 	albums := make([]*albumProto.Album, quantity)
 	albumsCover := make([]*albumProto.AlbumCover, quantity)
@@ -210,4 +213,8 @@ func (storage Postgres) GetSessionRepo() auth_domain.AuthRepo {
 
 func (storage Postgres) GetUserRepo() user_microservice_domain.UserRepo {
 	return storage.UserRepo
+}
+
+func (storage Postgres) GetPlaylistRepo() domain.PlaylistRepo {
+	return storage.PlaylistRepo
 }

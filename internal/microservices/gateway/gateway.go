@@ -81,15 +81,24 @@ func CastTrackToDtoWithoutArtistName(track *trackProto.Track) (*trackProto.Track
 }
 
 // --------------------------------------
+func CastTrackToDto(track *trackProto.Track, artist *artistProto.Artist) (*trackProto.TrackDataTransfer, error) {
+	trackDto, err := CastTrackToDtoWithoutArtistName(track)
+	if err != nil {
+		return nil, err
+	}
+	trackDto.Artist = artist.Name
+	return trackDto, nil
+}
+
+// --------------------------------------
 func CastTracksByArtistToDto(tracks []*trackProto.Track, artist *artistProto.Artist) ([]*trackProto.TrackDataTransfer, error) {
+	var err error
 	tracksDto := make([]*trackProto.TrackDataTransfer, len(tracks))
 	for idx, track := range tracks {
-		trackDto, err := CastTrackToDtoWithoutArtistName(track)
+		tracksDto[idx], err = CastTrackToDto(track, artist)
 		if err != nil {
 			return nil, err
 		}
-		trackDto.Artist = artist.Name
-		tracksDto[idx] = trackDto
 	}
 	return tracksDto, nil
 }

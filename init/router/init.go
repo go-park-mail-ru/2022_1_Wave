@@ -11,6 +11,8 @@ import (
 	authHttp "github.com/go-park-mail-ru/2022_1_Wave/internal/auth/delivery/http"
 	auth_middleware "github.com/go-park-mail-ru/2022_1_Wave/internal/auth/delivery/http/middleware"
 	gatewayDeliveryHttp "github.com/go-park-mail-ru/2022_1_Wave/internal/gateway/delivery/http"
+	playlistDeliveryHttp "github.com/go-park-mail-ru/2022_1_Wave/internal/playlist/delivery/http"
+	PlaylistUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/playlist/useCase"
 	trackDeliveryHttp "github.com/go-park-mail-ru/2022_1_Wave/internal/track/delivery/http"
 	TrackUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/track/useCase"
 	user_domain "github.com/go-park-mail-ru/2022_1_Wave/internal/user"
@@ -24,6 +26,7 @@ func Router(e *echo.Echo,
 	album AlbumUseCase.UseCase,
 	artist ArtistUseCase.UseCase,
 	track TrackUseCase.UseCase,
+	playlist PlaylistUseCase.UseCase,
 	user user_domain.UserUseCase) error {
 
 	api := e.Group(apiPrefix)
@@ -31,6 +34,7 @@ func Router(e *echo.Echo,
 	albumHandler := albumDeliveryHttp.MakeHandler(album, user)
 	artistHandler := artistDeliveryHttp.MakeHandler(artist, track, user)
 	trackHandler := trackDeliveryHttp.MakeHandler(track, user)
+	playlistHandler := playlistDeliveryHttp.MakeHandler(playlist, user)
 	authHandler := authHttp.MakeHandler(auth)
 	userHandler := userHttp.MakeHandler(user)
 	gatewayHandler := gatewayDeliveryHttp.MakeHandler(album, artist, track)
@@ -47,6 +51,9 @@ func Router(e *echo.Echo,
 
 	SetTracksRoutes(v1, trackHandler)
 	logger.GlobalLogger.Logrus.Warnln("setting tracks routes")
+
+	SetPlaylistsRoutes(v1, playlistHandler)
+	logger.GlobalLogger.Logrus.Warnln("setting playlists routes")
 
 	SetGatewayRoutes(v1, gatewayHandler)
 	logger.GlobalLogger.Logrus.Warnln("setting gateway routes")
@@ -118,6 +125,22 @@ func SetTracksRoutes(apiVersion *echo.Group, handler trackDeliveryHttp.Handler) 
 	trackRoutes.DELETE(idEchoPattern, handler.Delete)
 	trackRoutes.PUT(likePrefix+idEchoPattern, handler.Like)
 	trackRoutes.PUT(listenPrefix+idEchoPattern, handler.Listen)
+	trackRoutes.GET(playlistPrefix+idEchoPattern, handler.GetTracksFromPlaylist)
+}
+
+// SetPlaylistsRoutes tracks
+func SetPlaylistsRoutes(apiVersion *echo.Group, handler playlistDeliveryHttp.Handler) {
+	playlistRoutes := apiVersion.Group(playlistPrefix)
+
+	playlistRoutes.GET(locate, handler.GetAll)
+	playlistRoutes.GET(ofUser, handler.GetAllOfCurrentUser)
+	playlistRoutes.POST(locate, handler.Create)
+	playlistRoutes.PUT(locate, handler.Update)
+	playlistRoutes.GET(idEchoPattern, handler.Get)
+	playlistRoutes.GET(ofUser+idEchoPattern, handler.GetOfCurrentUser)
+	playlistRoutes.DELETE(idEchoPattern, handler.Delete)
+	playlistRoutes.POST(ofUser, handler.AddToPlaylist)
+	playlistRoutes.DELETE(ofUser, handler.RemoveFromPlaylist)
 }
 
 // SetGatewayRoutes songs
@@ -181,6 +204,7 @@ const (
 	searchPrefix      = "/search"
 	docsPrefix        = "/docs"
 	popularPrefix     = "/popular"
+	playlistPrefix    = "/playlists"
 	favoritesPrefix   = "/favorites"
 	likePrefix        = "/like"
 	listenPrefix      = "/listen"
@@ -188,6 +212,7 @@ const (
 	logoutPrefix      = "/logout"
 	signUpPrefix      = "/signup"
 	getCSRFPrefix     = "/get_csrf"
+	ofUser            = "/ofUser"
 )
 
 const (

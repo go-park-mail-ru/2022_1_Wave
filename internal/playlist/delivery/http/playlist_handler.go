@@ -1,4 +1,4 @@
-package trackDeliveryHttp
+package playlistDeliveryHttp
 
 import (
 	"errors"
@@ -11,6 +11,7 @@ import (
 	"github.com/go-park-mail-ru/2022_1_Wave/pkg/webUtils"
 	"github.com/labstack/echo/v4"
 	"net/http"
+	"strconv"
 )
 
 type Handler struct {
@@ -36,12 +37,38 @@ func MakeHandler(playlist PlaylistUseCase.UseCase, user user_domain.UserUseCase)
 // @Failure      405  {object}  webUtils.Error  "Method is not allowed"
 // @Router       /api/v1/playlists/ [get]
 func (h Handler) GetAll(ctx echo.Context) error {
+	playlists, err := h.PlaylistUseCase.GetAll()
+	if err != nil {
+		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
+	}
+
+	if playlists == nil {
+		playlists = []*playlistProto.PlaylistDataTransfer{}
+	}
+
+	return ctx.JSON(http.StatusOK,
+		webUtils.Success{
+			Status: webUtils.OK,
+			Result: playlists})
+}
+
+// GetAllOfCurrentUser godoc
+// @Summary      GetAllOfCurrentUser
+// @Description  getting all playlists of user
+// @Tags         playlist
+// @Accept          application/json
+// @Produce      application/json
+// @Success      200  {object}  webUtils.Success
+// @Failure      400  {object}  webUtils.Error  "Data is invalid"
+// @Failure      405  {object}  webUtils.Error  "Method is not allowed"
+// @Router       /api/v1/playlists/ofUser [get]
+func (h Handler) GetAllOfCurrentUser(ctx echo.Context) error {
 	userId, err := internal.GetUserId(ctx, h.UserUseCase)
 	if err != nil {
 		return internal.UnauthorizedError(ctx)
 	}
 
-	playlists, err := h.PlaylistUseCase.GetAll(userId)
+	playlists, err := h.PlaylistUseCase.GetAllOfCurrentUser(userId)
 	if err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 	}
@@ -86,7 +113,7 @@ func (h Handler) Create(ctx echo.Context) error {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 	}
 
-	lastId, err := h.PlaylistUseCase.GetLastId(userId)
+	lastId, err := h.PlaylistUseCase.GetLastIdOfCurrentUser(userId)
 	if err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 	}
@@ -147,6 +174,38 @@ func (h Handler) Update(ctx echo.Context) error {
 // @Failure      405  {object}  webUtils.Error  "Method is not allowed"
 // @Router       /api/v1/playlists/{id} [get]
 func (h Handler) Get(ctx echo.Context) error {
+	id, err := internal.GetIdInt64ByFieldId(ctx)
+	if err != nil {
+		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
+	}
+
+	if id < 0 {
+		return webUtils.WriteErrorEchoServer(ctx, errors.New(internal.IndexOutOfRange), http.StatusBadRequest)
+	}
+	playlist, err := h.PlaylistUseCase.GetById(id)
+
+	if err != nil {
+		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
+	}
+
+	return ctx.JSON(http.StatusOK,
+		webUtils.Success{
+			Status: webUtils.OK,
+			Result: playlist})
+}
+
+// GetOfCurrentUser godoc
+// @Summary      GetOfCurrentUser
+// @Description  getting playlist by id of current user
+// @Tags         playlist
+// @Accept          application/json
+// @Produce      application/json
+// @Param        id   path      integer  true  "id of playlist which need to be getted"
+// @Success      200  {object}  webUtils.Success
+// @Failure      400  {object}  webUtils.Error  "Data is invalid"
+// @Failure      405  {object}  webUtils.Error  "Method is not allowed"
+// @Router       /api/v1/playlists/ofUser/{id} [get]
+func (h Handler) GetOfCurrentUser(ctx echo.Context) error {
 	userId, err := internal.GetUserId(ctx, h.UserUseCase)
 	if err != nil {
 		return internal.UnauthorizedError(ctx)
@@ -160,7 +219,7 @@ func (h Handler) Get(ctx echo.Context) error {
 	if id < 0 {
 		return webUtils.WriteErrorEchoServer(ctx, errors.New(internal.IndexOutOfRange), http.StatusBadRequest)
 	}
-	playlist, err := h.PlaylistUseCase.GetById(userId, id)
+	playlist, err := h.PlaylistUseCase.GetByIdOfCurrentUser(userId, id)
 
 	if err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
@@ -206,4 +265,80 @@ func (h Handler) Delete(ctx echo.Context) error {
 		webUtils.Success{
 			Status: webUtils.OK,
 			Result: internal.SuccessDeleted + "(" + fmt.Sprint(id) + ")"})
+}
+
+// AddToPlaylist godoc
+// @Summary      AddToPlaylist
+// @Description  adding track_id to playlist
+// @Tags         playlist
+// @Accept       application/json
+// @Produce      application/json
+// @Param        playlistId   query      integer  true  "id of playlists"
+// @Param        trackId   query      integer  true  "id of track"
+// @Success      200  {object}  webUtils.Success
+// @Failure      400  {object}  webUtils.Error  "Data is invalid"
+// @Failure      405  {object}  webUtils.Error  "Method is not allowed"
+// @Router       /api/v1/playlists/ofUser [post]
+func (h Handler) AddToPlaylist(ctx echo.Context) error {
+	userId, err := internal.GetUserId(ctx, h.UserUseCase)
+	if err != nil {
+		return internal.UnauthorizedError(ctx)
+	}
+
+	playlistId, err := strconv.ParseInt(ctx.QueryParam(internal.PlaylistId), 10, 64)
+	if err != nil {
+		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
+	}
+
+	trackId, err := strconv.ParseInt(ctx.QueryParam(internal.TrackId), 10, 64)
+	if err != nil {
+		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
+	}
+
+	if err := h.PlaylistUseCase.AddToPlaylist(userId, playlistId, trackId); err != nil {
+		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
+	}
+
+	return ctx.JSON(http.StatusOK,
+		webUtils.Success{
+			Status: webUtils.OK,
+			Result: internal.SuccessAdded + "(" + fmt.Sprint(trackId) + ")" + internal.ToPlaylist + "(" + fmt.Sprint(playlistId) + ")"})
+}
+
+// RemoveFromPlaylist godoc
+// @Summary      RemoveFromPlaylist
+// @Description  remove track_id from playlist
+// @Tags         playlist
+// @Accept       application/json
+// @Produce      application/json
+// @Param        playlistId   query      integer  true  "id of playlists"
+// @Param        trackId   query      integer  true  "id of track"
+// @Success      200  {object}  webUtils.Success
+// @Failure      400  {object}  webUtils.Error  "Data is invalid"
+// @Failure      405  {object}  webUtils.Error  "Method is not allowed"
+// @Router       /api/v1/playlists/ofUser [delete]
+func (h Handler) RemoveFromPlaylist(ctx echo.Context) error {
+	userId, err := internal.GetUserId(ctx, h.UserUseCase)
+	if err != nil {
+		return internal.UnauthorizedError(ctx)
+	}
+
+	playlistId, err := strconv.ParseInt(ctx.QueryParam(internal.PlaylistId), 10, 64)
+	if err != nil {
+		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
+	}
+
+	trackId, err := strconv.ParseInt(ctx.QueryParam(internal.TrackId), 10, 64)
+	if err != nil {
+		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
+	}
+
+	if err := h.PlaylistUseCase.RemoveFromPlaylist(userId, playlistId, trackId); err != nil {
+		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
+	}
+
+	return ctx.JSON(http.StatusOK,
+		webUtils.Success{
+			Status: webUtils.OK,
+			Result: internal.SuccessRemoved + "(" + fmt.Sprint(trackId) + ")" + internal.FromPlaylist + "(" + fmt.Sprint(playlistId) + ")"})
 }

@@ -23,12 +23,14 @@ type UseCase interface {
 	GetFavorites(int64) ([]*trackProto.TrackDataTransfer, error)
 	AddToFavorites(userId int64, trackId int64) error
 	RemoveFromFavorites(userId int64, trackId int64) error
+	GetTracksFromPlaylist(playlistId int64) ([]*trackProto.TrackDataTransfer, error)
 }
 
 type trackUseCase struct {
-	albumAgent  domain.AlbumAgent
-	artistAgent domain.ArtistAgent
-	trackAgent  domain.TrackAgent
+	albumAgent    domain.AlbumAgent
+	artistAgent   domain.ArtistAgent
+	trackAgent    domain.TrackAgent
+	playlistAgent domain.PlaylistAgent
 }
 
 func NewTrackUseCase(albumAgent domain.AlbumAgent, artistAgent domain.ArtistAgent, trackAgent domain.TrackAgent) *trackUseCase {
@@ -224,4 +226,23 @@ func (useCase trackUseCase) AddToFavorites(userId int64, albumId int64) error {
 
 func (useCase trackUseCase) RemoveFromFavorites(userId int64, albumId int64) error {
 	return useCase.trackAgent.RemoveFromFavorites(userId, albumId)
+}
+
+func (useCase trackUseCase) GetTracksFromPlaylist(playlistId int64) ([]*trackProto.TrackDataTransfer, error) {
+	tracks, err := useCase.trackAgent.GetTracksFromPlaylist(playlistId)
+	if err != nil {
+		return nil, err
+	}
+
+	dto := make([]*trackProto.TrackDataTransfer, len(tracks))
+
+	for idx, obj := range tracks {
+		result, err := useCase.CastToDTO(obj)
+		if err != nil {
+			return nil, err
+		}
+		dto[idx] = result
+	}
+
+	return dto, nil
 }

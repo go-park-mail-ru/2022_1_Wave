@@ -8,6 +8,8 @@ import (
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/artist/artistProto"
 	ArtistGrpc "github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/artist/gRPC"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/auth/proto"
+	PlaylistGrpc "github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/playlist/gRPC"
+	"github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/playlist/playlistProto"
 	TrackGrpc "github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/track/gRPC"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/track/trackProto"
 	proto_user "github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/user/proto"
@@ -17,12 +19,13 @@ import (
 )
 
 type Launcher struct {
-	Network      string
-	AlbumServer  AlbumGrpc.AlbumGrpc
-	ArtistServer ArtistGrpc.ArtistGrpc
-	TrackServer  TrackGrpc.TrackGrpc
-	AuthServer   proto.AuthorizationServer
-	UserServer   proto_user.ProfileServer
+	Network        string
+	AlbumServer    AlbumGrpc.AlbumGrpc
+	ArtistServer   ArtistGrpc.ArtistGrpc
+	TrackServer    TrackGrpc.TrackGrpc
+	PlaylistServer PlaylistGrpc.PlaylistGrpc
+	AuthServer     proto.AuthorizationServer
+	UserServer     proto_user.ProfileServer
 }
 
 func (launcher *Launcher) MakeAlbumGrpcClient(address string) albumProto.AlbumUseCaseClient {
@@ -53,6 +56,16 @@ func (launcher *Launcher) MakeTrackGrpcClient(address string) trackProto.TrackUs
 
 	trackManager := trackProto.NewTrackUseCaseClient(conn)
 	return trackManager
+}
+
+func (launcher *Launcher) MakePlaylistGrpcClient(address string) playlistProto.PlaylistUseCaseClient {
+	server := grpc.NewServer()
+	playlistProto.RegisterPlaylistUseCaseServer(server, launcher.PlaylistServer)
+
+	conn := launcher.createConnection(address, server)
+
+	playlistManager := playlistProto.NewPlaylistUseCaseClient(conn)
+	return playlistManager
 }
 
 func (launcher *Launcher) createConnection(address string, server *grpc.Server) *grpc.ClientConn {
