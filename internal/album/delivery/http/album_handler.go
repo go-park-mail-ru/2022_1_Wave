@@ -3,7 +3,7 @@ package albumDeliveryHttp
 import (
 	"errors"
 	"fmt"
-	constants "github.com/go-park-mail-ru/2022_1_Wave/internal"
+	internal "github.com/go-park-mail-ru/2022_1_Wave/internal"
 	AlbumUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/album/useCase"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/album/albumProto"
 	Gateway "github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/gateway"
@@ -113,7 +113,7 @@ func (h Handler) Create(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK,
 		webUtils.Success{
 			Status: webUtils.OK,
-			Result: constants.SuccessCreated + "(" + fmt.Sprint(lastId) + ")"})
+			Result: internal.SuccessCreated + "(" + fmt.Sprint(lastId) + ")"})
 }
 
 // CreateCover godoc
@@ -150,7 +150,7 @@ func (h Handler) CreateCover(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK,
 		webUtils.Success{
 			Status: webUtils.OK,
-			Result: constants.SuccessCreated + "(" + fmt.Sprint(lastId) + ")"})
+			Result: internal.SuccessCreated + "(" + fmt.Sprint(lastId) + ")"})
 }
 
 // Update godoc
@@ -183,7 +183,7 @@ func (h Handler) Update(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK,
 		webUtils.Success{
 			Status: webUtils.OK,
-			Result: constants.SuccessUpdated + "(" + fmt.Sprint(id) + ")"})
+			Result: internal.SuccessUpdated + "(" + fmt.Sprint(id) + ")"})
 }
 
 // UpdateCover godoc
@@ -216,7 +216,7 @@ func (h Handler) UpdateCover(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK,
 		webUtils.Success{
 			Status: webUtils.OK,
-			Result: constants.SuccessUpdated + "(" + fmt.Sprint(id) + ")"})
+			Result: internal.SuccessUpdated + "(" + fmt.Sprint(id) + ")"})
 }
 
 // Get godoc
@@ -231,12 +231,12 @@ func (h Handler) UpdateCover(ctx echo.Context) error {
 // @Failure      405  {object}  webUtils.Error  "Method is not allowed"
 // @Router       /api/v1/albums/{id} [get]
 func (h Handler) Get(ctx echo.Context) error {
-	id, err := strconv.ParseInt(ctx.Param(constants.FieldId), 10, 64)
+	id, err := strconv.ParseInt(ctx.Param(internal.FieldId), 10, 64)
 	if err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 	}
 	if id < 0 {
-		return webUtils.WriteErrorEchoServer(ctx, errors.New(constants.IndexOutOfRange), http.StatusBadRequest)
+		return webUtils.WriteErrorEchoServer(ctx, errors.New(internal.IndexOutOfRange), http.StatusBadRequest)
 	}
 
 	album, err := h.AlbumUseCase.GetById(id)
@@ -263,12 +263,12 @@ func (h Handler) Get(ctx echo.Context) error {
 // @Failure      405  {object}  webUtils.Error  "Method is not allowed"
 // @Router       /api/v1/albumCovers/{id} [get]
 func (h Handler) GetCover(ctx echo.Context) error {
-	id, err := strconv.ParseInt(ctx.Param(constants.FieldId), 10, 64)
+	id, err := strconv.ParseInt(ctx.Param(internal.FieldId), 10, 64)
 	if err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 	}
 	if id < 0 {
-		return webUtils.WriteErrorEchoServer(ctx, errors.New(constants.IndexOutOfRange), http.StatusBadRequest)
+		return webUtils.WriteErrorEchoServer(ctx, errors.New(internal.IndexOutOfRange), http.StatusBadRequest)
 	}
 
 	album, err := h.AlbumUseCase.GetCoverById(id)
@@ -295,12 +295,12 @@ func (h Handler) GetCover(ctx echo.Context) error {
 // @Failure      405  {object}  webUtils.Error  "Method is not allowed"
 // @Router       /api/v1/albums/{id} [delete]
 func (h Handler) Delete(ctx echo.Context) error {
-	id, err := strconv.ParseInt(ctx.Param(constants.FieldId), 10, 64)
+	id, err := strconv.ParseInt(ctx.Param(internal.FieldId), 10, 64)
 	if err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 	}
 	if id < 0 {
-		return webUtils.WriteErrorEchoServer(ctx, errors.New(constants.IndexOutOfRange), http.StatusBadRequest)
+		return webUtils.WriteErrorEchoServer(ctx, errors.New(internal.IndexOutOfRange), http.StatusBadRequest)
 	}
 
 	if err := h.AlbumUseCase.Delete(id); err != nil {
@@ -310,7 +310,7 @@ func (h Handler) Delete(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK,
 		webUtils.Success{
 			Status: webUtils.OK,
-			Result: constants.SuccessDeleted + "(" + fmt.Sprint(id) + ")"})
+			Result: internal.SuccessDeleted + "(" + fmt.Sprint(id) + ")"})
 }
 
 // DeleteCover godoc
@@ -325,12 +325,12 @@ func (h Handler) Delete(ctx echo.Context) error {
 // @Failure      405  {object}  webUtils.Error  "Method is not allowed"
 // @Router       /api/v1/albumCovers/{id} [delete]
 func (h Handler) DeleteCover(ctx echo.Context) error {
-	id, err := strconv.ParseInt(ctx.Param(constants.FieldId), 10, 64)
+	id, err := strconv.ParseInt(ctx.Param(internal.FieldId), 10, 64)
 	if err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 	}
 	if id < 0 {
-		return webUtils.WriteErrorEchoServer(ctx, errors.New(constants.IndexOutOfRange), http.StatusBadRequest)
+		return webUtils.WriteErrorEchoServer(ctx, errors.New(internal.IndexOutOfRange), http.StatusBadRequest)
 	}
 
 	if err := h.AlbumUseCase.DeleteCover(id); err != nil {
@@ -340,7 +340,7 @@ func (h Handler) DeleteCover(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK,
 		webUtils.Success{
 			Status: webUtils.OK,
-			Result: constants.SuccessDeleted + "(" + fmt.Sprint(id) + ")"})
+			Result: internal.SuccessDeleted + "(" + fmt.Sprint(id) + ")"})
 }
 
 // GetPopular godoc
@@ -376,17 +376,10 @@ func (h Handler) GetPopular(ctx echo.Context) error {
 // @Failure      405  {object}  webUtils.Error  "Method is not allowed"
 // @Router       /api/v1/albums/favorites [get]
 func (h Handler) GetFavorites(ctx echo.Context) error {
-	cookie, err := ctx.Cookie(constants.SessionIdKey)
+	userId, err := internal.GetUserId(ctx, h.UserUseCase)
 	if err != nil {
-		return ctx.JSON(http.StatusUnauthorized, err)
+		return internal.UnauthorizedError(ctx)
 	}
-
-	user, err := h.UserUseCase.GetBySessionId(cookie.Value)
-	if err != nil {
-		return ctx.JSON(http.StatusUnauthorized, err)
-	}
-
-	userId := int64(user.ID)
 	favorites, err := h.AlbumUseCase.GetFavorites(userId)
 	if err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
@@ -410,18 +403,12 @@ func (h Handler) GetFavorites(ctx echo.Context) error {
 // @Failure      405    {object}  webUtils.Error  "Method is not allowed"
 // @Router       /api/v1/albums/favorites/{id} [post]
 func (h Handler) AddToFavorites(ctx echo.Context) error {
-	cookie, err := ctx.Cookie(constants.SessionIdKey)
+	userId, err := internal.GetUserId(ctx, h.UserUseCase)
 	if err != nil {
-		return ctx.JSON(http.StatusUnauthorized, err)
+		return internal.UnauthorizedError(ctx)
 	}
 
-	user, err := h.UserUseCase.GetBySessionId(cookie.Value)
-	if err != nil {
-		return ctx.JSON(http.StatusUnauthorized, err)
-	}
-	userId := int64(user.ID)
-
-	albumId, err := strconv.ParseInt(ctx.Param(constants.FieldId), 10, 64)
+	albumId, err := strconv.ParseInt(ctx.Param(internal.FieldId), 10, 64)
 	if err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 	}
@@ -433,7 +420,7 @@ func (h Handler) AddToFavorites(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK,
 		webUtils.Success{
 			Status: webUtils.OK,
-			Result: constants.SuccessAddedToFavorites + "(" + fmt.Sprint(albumId) + ")"})
+			Result: internal.SuccessAddedToFavorites + "(" + fmt.Sprint(albumId) + ")"})
 }
 
 // RemoveFromFavorites godoc
@@ -448,18 +435,12 @@ func (h Handler) AddToFavorites(ctx echo.Context) error {
 // @Failure      405    {object}  webUtils.Error  "Method is not allowed"
 // @Router       /api/v1/albums/favorites/{id} [delete]
 func (h Handler) RemoveFromFavorites(ctx echo.Context) error {
-	cookie, err := ctx.Cookie(constants.SessionIdKey)
+	userId, err := internal.GetUserId(ctx, h.UserUseCase)
 	if err != nil {
-		return ctx.JSON(http.StatusUnauthorized, err)
+		return internal.UnauthorizedError(ctx)
 	}
 
-	user, err := h.UserUseCase.GetBySessionId(cookie.Value)
-	if err != nil {
-		return ctx.JSON(http.StatusUnauthorized, err)
-	}
-	userId := int64(user.ID)
-
-	albumId, err := strconv.ParseInt(ctx.Param(constants.FieldId), 10, 64)
+	albumId, err := strconv.ParseInt(ctx.Param(internal.FieldId), 10, 64)
 	if err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 	}
@@ -471,5 +452,5 @@ func (h Handler) RemoveFromFavorites(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK,
 		webUtils.Success{
 			Status: webUtils.OK,
-			Result: constants.SuccessRemoveFromFavorites + "(" + fmt.Sprint(albumId) + ")"})
+			Result: internal.SuccessRemoveFromFavorites + "(" + fmt.Sprint(albumId) + ")"})
 }

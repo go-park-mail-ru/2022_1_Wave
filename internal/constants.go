@@ -2,10 +2,10 @@ package internal
 
 // errors
 const (
-	InvalidBody     = "invalid body format"
-	InvalidJson     = "error to unpacking json"
-	IndexOutOfRange = "index out of range"
-
+	InvalidBody      = "invalid body format"
+	InvalidJson      = "error to unpacking json"
+	IndexOutOfRange  = "index out of range"
+	Unauthorized     = "unauthorized"
 	AlbumIsNotExist  = "album is not exist"
 	TrackIsNotExist  = "track is not exist"
 	ArtistIsNotExist = "artist is not exist"
