@@ -172,11 +172,12 @@ func (table AlbumRepo) SearchByTitle(title string) ([]*albumProto.Album, error) 
 			SELECT *
 			FROM album
 			WHERE to_tsvector("title") @@ plainto_tsquery($1)
-			ORDER BY ts_rank(to_tsvector("title"), plainto_tsquery($1)) DESC;
+			ORDER BY ts_rank(to_tsvector("title"), plainto_tsquery($1)) DESC
+			LIMIT $2;
 			`
 
 	var albums []*albumProto.Album
-	err := table.Sqlx.Select(&albums, query, title)
+	err := table.Sqlx.Select(&albums, query, title, constants.SearchTop)
 	if err != nil {
 		return nil, err
 	}
@@ -187,8 +188,9 @@ func (table AlbumRepo) SearchByTitle(title string) ([]*albumProto.Album, error) 
 			SELECT *
 			FROM album
 			WHERE lower(title) LIKE lower($1)
+			LIMIT $2
 			`
-		err := table.Sqlx.Select(&albums, query, arg)
+		err := table.Sqlx.Select(&albums, query, arg, constants.SearchTop)
 		if err != nil {
 			return nil, err
 		}

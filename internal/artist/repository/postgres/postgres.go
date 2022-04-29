@@ -170,11 +170,12 @@ func (table ArtistRepo) SearchByName(title string) ([]*artistProto.Artist, error
 			SELECT *
 			FROM artist
 			WHERE to_tsvector("name") @@ plainto_tsquery($1)
-			ORDER BY ts_rank(to_tsvector("name"), plainto_tsquery($1)) DESC;
+			ORDER BY ts_rank(to_tsvector("name"), plainto_tsquery($1)) DESC
+			LIMIT $2;
 			`
 
 	var artists []*artistProto.Artist
-	err := table.Sqlx.Select(&artists, query, title)
+	err := table.Sqlx.Select(&artists, query, title, constants.SearchTop)
 	if err != nil {
 		return nil, err
 	}
@@ -185,8 +186,9 @@ func (table ArtistRepo) SearchByName(title string) ([]*artistProto.Artist, error
 			SELECT *
 			FROM artist
 			WHERE lower(name) LIKE lower($1)
+			LIMIT $2;
 			`
-		err := table.Sqlx.Select(&artists, query, arg)
+		err := table.Sqlx.Select(&artists, query, arg, constants.SearchTop)
 		if err != nil {
 			return nil, err
 		}

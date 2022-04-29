@@ -163,11 +163,12 @@ func (table TrackRepo) SearchByTitle(title string) ([]*trackProto.Track, error) 
 			SELECT *
 			FROM track
 			WHERE to_tsvector("title") @@ plainto_tsquery($1)
-			ORDER BY ts_rank(to_tsvector("title"), plainto_tsquery($1)) DESC;
+			ORDER BY ts_rank(to_tsvector("title"), plainto_tsquery($1)) DESC
+			LIMIT $2;
 			`
 
 	var tracks []*trackProto.Track
-	err := table.Sqlx.Select(&tracks, query, title)
+	err := table.Sqlx.Select(&tracks, query, title, constants.SearchTop)
 	if err != nil {
 		return nil, err
 	}
@@ -178,8 +179,9 @@ func (table TrackRepo) SearchByTitle(title string) ([]*trackProto.Track, error) 
 			SELECT *
 			FROM track
 			WHERE lower(title) LIKE lower($1)
+			LIMIT $2;
 			`
-		err := table.Sqlx.Select(&tracks, query, arg)
+		err := table.Sqlx.Select(&tracks, query, arg, constants.SearchTop)
 		if err != nil {
 			return nil, err
 		}
