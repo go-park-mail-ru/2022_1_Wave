@@ -11,7 +11,6 @@ import (
 	"github.com/go-park-mail-ru/2022_1_Wave/pkg/webUtils"
 	"github.com/labstack/echo/v4"
 	"net/http"
-	"strconv"
 )
 
 type Handler struct {
@@ -135,7 +134,7 @@ func (h Handler) Update(ctx echo.Context) error {
 // @Failure      405  {object}  webUtils.Error  "Method is not allowed"
 // @Router       /api/v1/tracks/{id} [get]
 func (h Handler) Get(ctx echo.Context) error {
-	id, err := strconv.ParseInt(ctx.Param(internal.FieldId), 10, 64)
+	id, err := internal.GetIdInt64ByFieldId(ctx)
 	if err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 	}
@@ -166,7 +165,7 @@ func (h Handler) Get(ctx echo.Context) error {
 // @Failure      405  {object}  webUtils.Error  "Method is not allowed"
 // @Router       /api/v1/tracks/{id} [delete]
 func (h Handler) Delete(ctx echo.Context) error {
-	id, err := strconv.ParseInt(ctx.Param(internal.FieldId), 10, 64)
+	id, err := internal.GetIdInt64ByFieldId(ctx)
 	if err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 	}
@@ -222,8 +221,8 @@ func (h Handler) Like(ctx echo.Context) error {
 	if err != nil {
 		return internal.UnauthorizedError(ctx)
 	}
-
-	id, err := strconv.ParseInt(ctx.Param(internal.FieldId), 10, 64)
+	internal.GetIdInt64ByFieldId(ctx)
+	id, err := internal.GetIdInt64ByFieldId(ctx)
 	if err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 	}
@@ -253,7 +252,7 @@ func (h Handler) Like(ctx echo.Context) error {
 // @Failure      405  {object}  webUtils.Error  "Method is not allowed"
 // @Router       /api/v1/tracks/listen/{id} [put]
 func (h Handler) Listen(ctx echo.Context) error {
-	id, err := strconv.ParseInt(ctx.Param(internal.FieldId), 10, 64)
+	id, err := internal.GetIdInt64ByFieldId(ctx)
 	if err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 	}
@@ -314,7 +313,7 @@ func (h Handler) AddToFavorites(ctx echo.Context) error {
 		return internal.UnauthorizedError(ctx)
 	}
 
-	trackId, err := strconv.ParseInt(ctx.Param(internal.FieldId), 10, 64)
+	trackId, err := internal.GetIdInt64ByFieldId(ctx)
 	if err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 	}
@@ -346,7 +345,7 @@ func (h Handler) RemoveFromFavorites(ctx echo.Context) error {
 		return internal.UnauthorizedError(ctx)
 	}
 
-	trackId, err := strconv.ParseInt(ctx.Param(internal.FieldId), 10, 64)
+	trackId, err := internal.GetIdInt64ByFieldId(ctx)
 	if err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 	}

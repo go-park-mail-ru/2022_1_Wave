@@ -138,7 +138,7 @@ func (h Handler) Update(ctx echo.Context) error {
 // @Failure      405  {object}  webUtils.Error  "Method is not allowed"
 // @Router       /api/v1/artists/{id} [get]
 func (h Handler) Get(ctx echo.Context) error {
-	id, err := strconv.ParseInt(ctx.Param(internal.FieldId), 10, 64)
+	id, err := internal.GetIdInt64ByFieldId(ctx)
 	if err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 	}
@@ -171,7 +171,7 @@ func (h Handler) Get(ctx echo.Context) error {
 // @Failure      405  {object}  webUtils.Error  "Method is not allowed"
 // @Router       /api/v1/artists/{id} [delete]
 func (h Handler) Delete(ctx echo.Context) error {
-	id, err := strconv.ParseInt(ctx.Param(internal.FieldId), 10, 64)
+	id, err := internal.GetIdInt64ByFieldId(ctx)
 	if err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 	}
@@ -223,7 +223,7 @@ func (h Handler) GetPopular(ctx echo.Context) error {
 // @Failure      405  {object}  webUtils.Error  "Method is not allowed"
 // @Router       /api/v1/artists/{id}/popular [get]
 func (h Handler) GetPopularTracks(ctx echo.Context) error {
-	id, err := strconv.ParseInt(ctx.Param(internal.FieldId), 10, 64)
+	id, err := internal.GetIdInt64ByFieldId(ctx)
 	if err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 	}

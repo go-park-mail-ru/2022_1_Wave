@@ -6,6 +6,7 @@ import (
 	"github.com/go-park-mail-ru/2022_1_Wave/pkg/webUtils"
 	"github.com/labstack/echo/v4"
 	"net/http"
+	"strconv"
 )
 
 func GetUserId(ctx echo.Context, userUseCase user_domain.UserUseCase) (int64, error) {
@@ -26,4 +27,8 @@ func GetUserId(ctx echo.Context, userUseCase user_domain.UserUseCase) (int64, er
 
 func UnauthorizedError(ctx echo.Context) error {
 	return webUtils.WriteErrorEchoServer(ctx, errors.New(Unauthorized), http.StatusUnauthorized)
+}
+
+func GetIdInt64ByFieldId(ctx echo.Context) (int64, error) {
+	return strconv.ParseInt(ctx.Param(FieldId), 10, 64)
 }
