@@ -1,6 +1,7 @@
 package main
 
 import (
+	echoprometheus "github.com/globocom/echo-prometheus"
 	"github.com/go-park-mail-ru/2022_1_Wave/config"
 	_ "github.com/go-park-mail-ru/2022_1_Wave/docs"
 	"github.com/go-park-mail-ru/2022_1_Wave/init/logger"
@@ -19,9 +20,8 @@ const randomGeneratedDbSize = 0
 
 func main() {
 	dbType := internal.Postgres
-
 	e := echo.New()
-
+	e.Use(echoprometheus.MetricsMiddleware())
 	logs, err := logger.InitLogrus(port, dbType)
 	if err != nil {
 		e.Logger.Fatalf("error to init logrus:", err)

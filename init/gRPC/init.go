@@ -48,6 +48,38 @@ func (launcher *Launcher) MakeArtistGrpcClient(address string) artistProto.Artis
 	return artistManager
 }
 
+//http://localhost:9090 {
+//reverse_proxy / http://prometheus:9090
+//}
+//
+//http://localhost::9093 {
+//reverse_proxy / http://alertmanager:9093
+//}
+//
+//http://localhost::9091 {
+//reverse_proxy / http://pushgateway:9091
+//}
+//
+//http://localhost::3000 {
+//reverse_proxy / http://grafana:3000
+//}
+//
+//http://localhost:9090 {
+//
+//}
+//
+//http://localhost::9093 {
+//reverse_proxy / http://alertmanager:9093
+//}
+//
+//http://localhost::9091 {
+//reverse_proxy / http://pushgateway:9091
+//}
+//
+//http://localhost::3000 {
+//reverse_proxy / http://grafana:3000
+//}
+
 func (launcher *Launcher) MakeTrackGrpcClient(address string) trackProto.TrackUseCaseClient {
 	server := grpc.NewServer()
 	trackProto.RegisterTrackUseCaseServer(server, launcher.TrackServer)

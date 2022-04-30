@@ -18,6 +18,7 @@ import (
 	user_domain "github.com/go-park-mail-ru/2022_1_Wave/internal/user"
 	userHttp "github.com/go-park-mail-ru/2022_1_Wave/internal/user/delivery/http"
 	"github.com/labstack/echo/v4"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/swaggo/echo-swagger"
 )
 
@@ -60,6 +61,9 @@ func Router(e *echo.Echo,
 
 	SetDocsPath(v1)
 	logger.GlobalLogger.Logrus.Warnln("setting docs routes")
+
+	SetPrometheusPath(v1)
+	logger.GlobalLogger.Logrus.Warnln("setting prometheus routes")
 
 	SetStaticHandle(v1)
 	logger.GlobalLogger.Logrus.Warnln("setting static routes")
@@ -173,6 +177,11 @@ func SetDocsPath(apiVersion *echo.Group) {
 	docRoutes.GET(locate+"*", echoSwagger.WrapHandler)
 }
 
+func SetPrometheusPath(apiVersion *echo.Group) {
+	prometheusRoutes := apiVersion.Group(metricsPrefix)
+	prometheusRoutes.GET(locate, echo.WrapHandler(promhttp.Handler()))
+}
+
 // SetStaticHandle static
 func SetStaticHandle(apiVersion *echo.Group) {
 	// /net/v1/static/img/album/123.jpg -> ./static/img/album/123.jpg
@@ -203,6 +212,7 @@ const (
 	usersPrefix       = "/users"
 	searchPrefix      = "/search"
 	docsPrefix        = "/docs"
+	metricsPrefix     = "/metrics"
 	popularPrefix     = "/popular"
 	playlistPrefix    = "/playlists"
 	favoritesPrefix   = "/favorites"
