@@ -20,7 +20,7 @@ services:
     expose:
       - 5000
     working_dir: /var/www/service
-    entrypoint: ./dev.sh
+    entrypoint: ./prod.sh
     volumes:
       - ../..:/var/www/service
       - ../../config/config.toml:/var/www/service/config.toml:ro
