@@ -2,10 +2,10 @@ package internal
 
 // errors
 const (
-	InvalidBody     = "invalid body format"
-	InvalidJson     = "error to unpacking json"
-	IndexOutOfRange = "index out of range"
-
+	InvalidBody      = "invalid body format"
+	InvalidJson      = "error to unpacking json"
+	IndexOutOfRange  = "index out of range"
+	Unauthorized     = "unauthorized"
 	AlbumIsNotExist  = "album is not exist"
 	TrackIsNotExist  = "track is not exist"
 	ArtistIsNotExist = "artist is not exist"
@@ -18,10 +18,20 @@ const (
 	SuccessCreated             = "success created"
 	SuccessUpdated             = "success updated"
 	SuccessDeleted             = "success deleted"
+	SuccessAdded               = "success added"
+	ToPlaylist                 = "to playlist"
+	SuccessRemoved             = "success removed"
+	FromPlaylist               = "from playlist"
 	SuccessLiked               = "success liked"
 	SuccessListened            = "success listened"
 	SuccessAddedToFavorites    = "success added to favorites"
 	SuccessRemoveFromFavorites = "success remove to favorites"
+)
+
+// query
+const (
+	PlaylistId = "playlistId"
+	TrackId    = "trackId"
 )
 
 // success albums
@@ -191,6 +201,7 @@ const (
 	BadId         = -1
 	BadType       = "bad type"
 	Top           = 20
+	SearchTop     = 5
 )
 
 // network

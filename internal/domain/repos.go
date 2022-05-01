@@ -62,6 +62,7 @@ type TrackRepo interface {
 	GetLastId() (id int64, err error)
 	GetSize() (int64, error)
 	GetTracksFromAlbum(albumId int64) ([]*trackProto.Track, error)
+	GetTracksFromPlaylist(playlistId int64) ([]*trackProto.Track, error)
 	GetPopularTracksFromArtist(artistId int64) ([]*trackProto.Track, error)
 	Like(id int64, userId int64) error
 	Listen(id int64) error
@@ -75,8 +76,13 @@ type PlaylistRepo interface {
 	Create(userId int64, playlist *playlistProto.Playlist) error
 	Update(userId int64, playlist *playlistProto.Playlist) error
 	Delete(userId int64, playlistId int64) error
-	SelectByID(userId int64, playlistId int64) (*playlistProto.Playlist, error)
-	GetAll(userId int64) ([]*playlistProto.Playlist, error)
-	GetLastId(userId int64) (id int64, err error)
-	GetSize(userId int64) (int64, error)
+	SelectByIDOfCurrentUser(userId int64, playlistId int64) (*playlistProto.Playlist, error)
+	SelectById(playlistId int64) (*playlistProto.Playlist, error)
+	GetAllOfCurrentUser(userId int64) ([]*playlistProto.Playlist, error)
+	GetAll() ([]*playlistProto.Playlist, error)
+	GetLastIdOfCurrentUser(userId int64) (id int64, err error)
+	GetLastId() (id int64, err error)
+	GetSizeOfCurrentUser(userId int64) (int64, error)
+	GetSize() (int64, error)
+	AddToPlaylist(userId int64, playlistId int64, trackId int64) error
 }

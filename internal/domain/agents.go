@@ -3,6 +3,7 @@ package domain
 import (
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/album/albumProto"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/artist/artistProto"
+	"github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/playlist/playlistProto"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/track/trackProto"
 )
 
@@ -60,4 +61,21 @@ type TrackAgent interface {
 	GetFavorites(int64) ([]*trackProto.Track, error)
 	AddToFavorites(userId int64, trackId int64) error
 	RemoveFromFavorites(userId int64, artistId int64) error
+	GetTracksFromPlaylist(playlistId int64) ([]*trackProto.Track, error)
+}
+
+type PlaylistAgent interface {
+	GetAll() ([]*playlistProto.Playlist, error)
+	GetAllOfCurrentUser(userId int64) ([]*playlistProto.Playlist, error)
+	GetLastId() (int64, error)
+	GetLastIdOfCurrentUser(userId int64) (int64, error)
+	Create(userId int64, playlist *playlistProto.Playlist) error
+	Update(userId int64, playlist *playlistProto.Playlist) error
+	Delete(userId int64, playlistId int64) error
+	GetById(playlistId int64) (*playlistProto.Playlist, error)
+	GetByIdOfCurrentUser(userId int64, playlistId int64) (*playlistProto.Playlist, error)
+	GetSizeOfCurrentUser(userId int64) (int64, error)
+	GetSize() (int64, error)
+	AddToPlaylist(userId int64, playlistId int64, trackId int64) error
+	RemoveFromPlaylist(userId int64, playlistId int64, trackId int64) error
 }

@@ -42,6 +42,7 @@ service TrackUseCase {
   rpc GetById(gateway.IdArg) returns (Track) {};
   rpc GetPopular(google.protobuf.Empty) returns (TracksResponse) {};
   rpc GetTracksFromAlbum(gateway.IdArg) returns (TracksResponse) {};
+  rpc GetTracksFromPlaylist(gateway.IdArg) returns (TracksResponse) {};
   rpc GetPopularTracksFromArtist(gateway.IdArg) returns (TracksResponse) {};
   rpc GetSize(google.protobuf.Empty) returns (gateway.IntResponse) {};
   rpc Like(gateway.UserIdTrackIdArg) returns (google.protobuf.Empty) {};

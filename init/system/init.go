@@ -18,9 +18,12 @@ import (
 	ArtistGrpc "github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/artist/gRPC"
 	auth_domain "github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/auth"
 	auth_service "github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/auth/service"
+	PlaylistGrpc "github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/playlist/gRPC"
 	TrackGrpc "github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/track/gRPC"
 	user_microservice_domain "github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/user"
 	user_service "github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/user/service"
+	PlaylistGrpcAgent "github.com/go-park-mail-ru/2022_1_Wave/internal/playlist/client/grpc"
+	PlaylistUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/playlist/useCase"
 	structStoragePostgresql "github.com/go-park-mail-ru/2022_1_Wave/internal/structs/storage/postgresql"
 	TrackGrpcAgent "github.com/go-park-mail-ru/2022_1_Wave/internal/track/client/grpc"
 	TrackUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/track/useCase"
@@ -40,6 +43,7 @@ type repoContainer struct {
 	Sess auth_domain.AuthRepo
 	Us   user_microservice_domain.UserRepo
 	Tr   domain.TrackRepo
+	Play domain.PlaylistRepo
 }
 
 func Init(e *echo.Echo, quantity int64, dataBaseType string) error {
@@ -47,7 +51,7 @@ func Init(e *echo.Echo, quantity int64, dataBaseType string) error {
 	var err error
 	switch dataBaseType {
 	case internal.Postgres:
-		initedStorage, err = structStoragePostgresql.Postgres{
+		initedStorage = structStoragePostgresql.Postgres{
 			Sqlx:           nil,
 			SessionRepo:    nil,
 			UserRepo:       nil,
@@ -55,12 +59,16 @@ func Init(e *echo.Echo, quantity int64, dataBaseType string) error {
 			AlbumCoverRepo: nil,
 			ArtistRepo:     nil,
 			TrackRepo:      nil,
-		}.Init(quantity)
-		if err != nil {
-			return err
+			PlaylistRepo:   nil,
 		}
+
 	default:
 		return errors.New(internal.BadType)
+	}
+
+	initedStorage, err = initedStorage.Init(quantity)
+	if err != nil {
+		return err
 	}
 
 	repoContainer := repoContainer{
@@ -70,6 +78,7 @@ func Init(e *echo.Echo, quantity int64, dataBaseType string) error {
 		Sess: initedStorage.GetSessionRepo(),
 		Us:   initedStorage.GetUserRepo(),
 		Tr:   initedStorage.GetTrackRepo(),
+		Play: initedStorage.GetPlaylistRepo(),
 	}
 
 	albumsQuant, err := repoContainer.Al.GetSize()
@@ -97,9 +106,14 @@ func Init(e *echo.Echo, quantity int64, dataBaseType string) error {
 		logger.GlobalLogger.Logrus.Fatal("Error:", err)
 	}
 
-	printDbQuants(usersQuant, artistsQuant, albumsQuant, albumCoversQuant, tracksQuant)
+	playlistsQuant, err := repoContainer.Play.GetSize()
+	if err != nil {
+		logger.GlobalLogger.Logrus.Fatal("Error:", err)
+	}
 
-	albumAgent, artistAgent, trackAgent, userAgent, authAgent := makeAgents(internal.Grpc, repoContainer)
+	printDbQuants(usersQuant, artistsQuant, albumsQuant, albumCoversQuant, tracksQuant, playlistsQuant)
+
+	albumAgent, artistAgent, trackAgent, userAgent, authAgent, playlistAgent := makeAgents(internal.Grpc, repoContainer)
 
 	auth := AuthUseCase.NewAuthService(authAgent, userAgent)
 	user := UserUsecase.NewUserUseCase(userAgent, authAgent)
@@ -107,49 +121,54 @@ func Init(e *echo.Echo, quantity int64, dataBaseType string) error {
 	album := AlbumUseCase.NewAlbumUseCase(albumAgent, artistAgent, trackAgent)
 	artist := ArtistUseCase.NewArtistUseCase(albumAgent, artistAgent, trackAgent)
 	track := TrackUseCase.NewTrackUseCase(albumAgent, artistAgent, trackAgent)
+	playlist := PlaylistUseCase.NewPlaylistUseCase(playlistAgent, artistAgent, trackAgent)
 
-	return router.Router(e, auth, album, artist, track, user)
+	return router.Router(e, auth, album, artist, track, playlist, user)
 }
 
-func printDbQuants(usersQuant int, artistsQuant int64, albumsQuant int64, albumCoversQuant int64, tracksQuant int64) {
+func printDbQuants(usersQuant int, artistsQuant int64, albumsQuant int64, albumCoversQuant int64, tracksQuant int64, playlistsQuant int64) {
 	logger.GlobalLogger.Logrus.Info("Users:", usersQuant)
 	logger.GlobalLogger.Logrus.Info("Artists:", artistsQuant)
 	logger.GlobalLogger.Logrus.Info("Albums:", albumsQuant)
 	logger.GlobalLogger.Logrus.Info("AlbumCovers:", albumCoversQuant)
 	logger.GlobalLogger.Logrus.Info("Tracks:", tracksQuant)
+	logger.GlobalLogger.Logrus.Info("Playlists:", playlistsQuant)
 }
 
-func makeGrpcClients(repoContainer repoContainer) (AlbumGrpcAgent.GrpcAgent, ArtistGrpcAgent.GrpcAgent, TrackGrpcAgent.GrpcAgent, user_domain.UserAgent, auth_domain2.AuthAgent) {
+func makeGrpcClients(repoContainer repoContainer) (AlbumGrpcAgent.GrpcAgent, ArtistGrpcAgent.GrpcAgent, TrackGrpcAgent.GrpcAgent, user_domain.UserAgent, auth_domain2.AuthAgent, domain.PlaylistAgent) {
 	grpcLauncher := gRPC.Launcher{
-		Network:      internal.Tcp,
-		AlbumServer:  AlbumGrpc.MakeAlbumGrpc(repoContainer.Tr, repoContainer.Ar, repoContainer.Al, repoContainer.Alc),
-		ArtistServer: ArtistGrpc.MakeArtistGrpc(repoContainer.Ar, repoContainer.Al, repoContainer.Tr),
-		TrackServer:  TrackGrpc.MakeTrackGrpc(repoContainer.Tr, repoContainer.Ar, repoContainer.Al),
-		UserServer:   user_service.NewUserService(repoContainer.Us),
-		AuthServer:   auth_service.NewAuthService(repoContainer.Sess),
+		Network:        internal.Tcp,
+		AlbumServer:    AlbumGrpc.MakeAlbumGrpc(repoContainer.Tr, repoContainer.Ar, repoContainer.Al, repoContainer.Alc),
+		ArtistServer:   ArtistGrpc.MakeArtistGrpc(repoContainer.Ar, repoContainer.Al, repoContainer.Tr),
+		TrackServer:    TrackGrpc.MakeTrackGrpc(repoContainer.Tr, repoContainer.Ar, repoContainer.Al),
+		UserServer:     user_service.NewUserService(repoContainer.Us),
+		AuthServer:     auth_service.NewAuthService(repoContainer.Sess),
+		PlaylistServer: PlaylistGrpc.MakePlaylistGrpc(repoContainer.Tr, repoContainer.Ar, repoContainer.Al, repoContainer.Play),
 	}
 
 	albumClient := grpcLauncher.MakeAlbumGrpcClient(":8081")
 	artistClient := grpcLauncher.MakeArtistGrpcClient(":8082")
 	trackClient := grpcLauncher.MakeTrackGrpcClient(":8083")
-	authClient := grpcLauncher.MakeAuthGrpcClient(":8084")
-	userClient := grpcLauncher.MakeUserGrpcClient(":8085")
+	playlistClient := grpcLauncher.MakePlaylistGrpcClient(":8084")
+	authClient := grpcLauncher.MakeAuthGrpcClient(":8085")
+	userClient := grpcLauncher.MakeUserGrpcClient(":8086")
 
 	albumAgent := AlbumGrpcAgent.MakeAgent(albumClient)
 	artistAgent := ArtistGrpcAgent.MakeAgent(artistClient)
 	trackAgent := TrackGrpcAgent.MakeAgent(trackClient)
+	playlistAgent := PlaylistGrpcAgent.MakeAgent(playlistClient)
 	authAgent := auth_grpc_agent.NewAuthGRPCAgent(authClient)
 	userAgent := user_grpc_agent.NewUserGRPCAgent(userClient)
 
-	return albumAgent, artistAgent, trackAgent, userAgent, authAgent
+	return albumAgent, artistAgent, trackAgent, userAgent, authAgent, playlistAgent
 }
 
-func makeAgents(clientsType string, repoContainer repoContainer) (domain.AlbumAgent, domain.ArtistAgent, domain.TrackAgent, user_domain.UserAgent, auth_domain2.AuthAgent) {
+func makeAgents(clientsType string, repoContainer repoContainer) (domain.AlbumAgent, domain.ArtistAgent, domain.TrackAgent, user_domain.UserAgent, auth_domain2.AuthAgent, domain.PlaylistAgent) {
 	switch clientsType {
 	case internal.Grpc:
 		return makeGrpcClients(repoContainer)
 	default:
-		return nil, nil, nil, nil, nil
+		return nil, nil, nil, nil, nil, nil
 	}
 
 }

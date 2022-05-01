@@ -16,4 +16,5 @@ type GlobalStorageInterface interface {
 	GetTrackRepo() TrackRepo
 	GetSessionRepo() auth_domain.AuthRepo
 	GetUserRepo() user_microservice_domain.UserRepo
+	GetPlaylistRepo() PlaylistRepo
 }

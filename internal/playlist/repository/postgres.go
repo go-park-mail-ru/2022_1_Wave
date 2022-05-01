@@ -1,9 +1,8 @@
-package TrackPostgres
+package PlaylistPostgres
 
 import (
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/domain"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/playlist/playlistProto"
-	"github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/track/trackProto"
 	"github.com/jmoiron/sqlx"
 	"os"
 )
@@ -18,15 +17,38 @@ func NewPlaylistPostgresRepo(db *sqlx.DB) domain.PlaylistRepo {
 	}
 }
 
+func (table PlaylistRepo) SelectByIDOfCurrentUser(userId int64, playlistId int64) (*playlistProto.Playlist, error) {
+	query := `SELECT (playlist_id, title) FROM playlist
+			JOIN userPlaylist ON userPlaylist.user_id = $1 and userPlaylist.playlist_id = $2 and userplaylist.playlist_id = playlist.id;`
+
+	holder := playlistProto.Playlist{}
+	if err := table.Sqlx.Get(&holder, query, userId, playlistId); err != nil {
+		return nil, err
+	}
+
+	return &holder, nil
+}
+
+func (table PlaylistRepo) SelectById(playlistId int64) (*playlistProto.Playlist, error) {
+	query := `SELECT * FROM playlist WHERE id = $1 ORDER BY id;`
+
+	holder := playlistProto.Playlist{}
+	if err := table.Sqlx.Get(&holder, query, playlistId); err != nil {
+		return nil, err
+	}
+
+	return &holder, nil
+}
+
 func (table PlaylistRepo) Create(userId int64, playlist *playlistProto.Playlist) error {
 	query := `
-		INSERT INTO Playlist (title, tracks_id)
-		VALUES ($1, $2)
+		INSERT INTO Playlist (title)
+		VALUES ($1)
 		RETURNING id`
 
 	// do query
 
-	if _, err := table.Sqlx.Exec(query, playlist.Title, playlist.TracksId); err != nil {
+	if _, err := table.Sqlx.Exec(query, playlist.Title); err != nil {
 		return err
 	}
 
@@ -40,47 +62,64 @@ func (table PlaylistRepo) Create(userId int64, playlist *playlistProto.Playlist)
 }
 
 func (table PlaylistRepo) Update(userId int64, playlist *playlistProto.Playlist) error {
-	query := `SELECT * FROM userPlaylist WHERE user_id = $1`
+	selected, err := table.SelectByIDOfCurrentUser(userId, playlist.Id)
+	if err != nil {
+		return err
+	}
 
-	query = `
+	query := `
 		UPDATE playlist
-		SET title = $1, tracks_id = $2
-		WHERE id = $3`
+		SET title = $1
+		WHERE id = $2`
 
-	_, err := table.Sqlx.Exec(query, playlist.Title, playlist.TracksId, playlist.Id)
+	_, err = table.Sqlx.Exec(query, selected.Title, selected.Id)
 	return err
 }
 
 func (table PlaylistRepo) Delete(userId int64, playlistId int64) error {
-	query := `DELETE FROM track WHERE id = $1`
+	selected, err := table.SelectByIDOfCurrentUser(userId, playlistId)
+	if err != nil {
+		return err
+	}
 
-	_, err := table.Sqlx.Exec(query, id)
+	query := `
+		DELETE FROM playlist
+		WHERE id = $1
+		`
+
+	_, err = table.Sqlx.Exec(query, selected.Id)
 	return err
 }
 
-func (table PlaylistRepo) SelectByID(userId int64, playlistId int64) (*playlistProto.Playlist, error) {
-	query := `SELECT * FROM track WHERE id = $1 ORDER BY id;`
-	holder := trackProto.Track{}
-	if err := table.Sqlx.Get(&holder, query, id); err != nil {
-		return nil, err
-	}
-	return &holder, nil
-}
+func (table PlaylistRepo) GetAll() ([]*playlistProto.Playlist, error) {
+	query := `SELECT * FROM playlist ORDER BY id;`
 
-func (table PlaylistRepo) GetAll(userId int64) ([]*playlistProto.Playlist, error) {
-	query := `SELECT * FROM track ORDER BY id;`
-
-	var tracks []*trackProto.Track
-	err := table.Sqlx.Select(&tracks, query)
+	var playlists []*playlistProto.Playlist
+	err := table.Sqlx.Select(&playlists, query)
 	if err != nil {
 		return nil, err
 	}
 
-	return tracks, nil
+	return playlists, nil
 }
 
-func (table PlaylistRepo) GetLastId(userId int64) (int64, error) {
-	query := `SELECT max(id) from track;`
+func (table PlaylistRepo) GetAllOfCurrentUser(userId int64) ([]*playlistProto.Playlist, error) {
+	query := `SELECT playlist_id, title
+			  FROM playlist 
+			  JOIN userPlaylist ON userPlaylist.user_id = $1 and playlist.id = userPlaylist.playlist_id
+			  ORDER BY id;`
+
+	var playlists []*playlistProto.Playlist
+	err := table.Sqlx.Select(&playlists, query, userId)
+	if err != nil {
+		return nil, err
+	}
+
+	return playlists, nil
+}
+
+func (table PlaylistRepo) GetLastId() (int64, error) {
+	query := `SELECT max(id) from playlist`
 
 	lastId := int64(0)
 	err := table.Sqlx.Get(&lastId, query)
@@ -92,11 +131,62 @@ func (table PlaylistRepo) GetLastId(userId int64) (int64, error) {
 	return lastId, nil
 }
 
-func (table PlaylistRepo) GetSize(userId int64) (int64, error) {
-	query := `SELECT count(*) From track;`
+func (table PlaylistRepo) GetLastIdOfCurrentUser(userId int64) (int64, error) {
+	query := `SELECT max(playlist_id) from userPlaylist
+			  where userPlaylist.user_id = $1;`
+
+	lastId := int64(0)
+	err := table.Sqlx.Get(&lastId, query, userId)
+
+	if err != nil {
+		return 0, err
+	}
+
+	return lastId, nil
+}
+
+func (table PlaylistRepo) GetSize() (int64, error) {
+	query := `SELECT count(*) From playlist;`
 	size := int64(0)
 	if err := table.Sqlx.Get(&size, query); err != nil {
 		os.Exit(1)
 	}
 	return size, nil
+}
+
+func (table PlaylistRepo) GetSizeOfCurrentUser(userId int64) (int64, error) {
+	query := `SELECT count(*) From userPlaylist WHERE user_id = user_id;`
+	size := int64(0)
+	if err := table.Sqlx.Get(&size, query, userId); err != nil {
+		os.Exit(1)
+	}
+	return size, nil
+}
+
+func (table PlaylistRepo) AddToPlaylist(userId int64, playlistId int64, trackId int64) error {
+	selected, err := table.SelectByIDOfCurrentUser(userId, playlistId)
+
+	query := `INSERT INTO playlistTrack(playlist_id, track_id) 
+			  VALUES ($1, $2)
+			  `
+
+	if _, err := table.Sqlx.Exec(query, selected.Id, trackId); err != nil {
+		return err
+	}
+
+	return err
+}
+
+func (table PlaylistRepo) RemoveFromPlaylist(userId int64, playlistId int64, trackId int64) error {
+	selected, err := table.SelectByIDOfCurrentUser(userId, playlistId)
+
+	query := `DELETE FROM playlistTrack
+			  WHERE playlistTrack.playlist_id = $1 and playlistTrack.track_id = $2 
+			  `
+
+	if _, err := table.Sqlx.Exec(query, selected.Id, trackId); err != nil {
+		return err
+	}
+
+	return err
 }

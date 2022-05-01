@@ -131,3 +131,12 @@ func (agent GrpcAgent) RemoveFromFavorites(userId int64, trackId int64) error {
 	return err
 
 }
+
+func (agent GrpcAgent) GetTracksFromPlaylist(playlistId int64) ([]*trackProto.Track, error) {
+	data, err := agent.TrackGrpc.GetTracksFromPlaylist(context.Background(), &gatewayProto.IdArg{Id: playlistId})
+	if err != nil {
+		return nil, err
+	}
+	return data.Tracks, nil
+
+}

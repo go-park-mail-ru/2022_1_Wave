@@ -15,12 +15,12 @@ services:
       - wave_music
 
   wave_music:
-    image: golang:latest
+    image: mausved/wave_music_api_v1
     tty: true
     expose:
       - 5000
     working_dir: /var/www/service
-    command: bash -c "mkdir -p tmp && go build -o ./tmp/wave.music cmd/api/main.go && ./tmp/wave.music"
+    entrypoint: ./prod.sh
     volumes:
       - ../..:/var/www/service
       - ../../config/config.toml:/var/www/service/config.toml:ro
@@ -46,9 +46,3 @@ services:
       - 5432
     volumes:
       - ../../db/:/var/run/postgresql/
-  pgadmin:
-    hostname: pgadmin
-    image: dpage/pgadmin4:6
-    environment:
-      PGADMIN_DEFAULT_EMAIL: admin@admin.com
-      PGADMIN_DEFAULT_PASSWORD: root
