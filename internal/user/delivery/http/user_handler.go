@@ -168,7 +168,7 @@ func (a *UserHandler) UpdateSelfUser(c echo.Context) error {
 // @Param		 avatar formData file true "avatar file"
 // @Success      200    {object}  webUtils.Success
 // @Failure      400    {object}  webUtils.Error  "invalid field values"
-// @Router       /api/v1/users/upload_avatar/ [patch]
+// @Router       /api/v1/users/upload_avatar [patch]
 func (a *UserHandler) UploadAvatar(c echo.Context) error {
 	form, err := c.MultipartForm()
 	if err != nil {
