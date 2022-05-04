@@ -82,8 +82,8 @@ func (a *UserHandler) GetUser(c echo.Context) error {
 // @Tags         user
 // @Accept       application/json
 // @Produce      application/json
-// @Param		 X-CSRF-Token header string true "csrf-token"
-// @Param		 Cookie header string true "cookie"
+// @Param        X-CSRF-TOKEN header string true "csrf-token"
+// @Param        Cookie header string true "the same csrf-token by key X-CSRF-TOKEN and auth-token by key session_id"
 // @Success      200  {object}  domain.User
 // @Failure      401  {object}  webUtils.Error  "User unauthorized"
 // @Router       /api/v1/users/self [get]
@@ -125,8 +125,8 @@ func (a *UserHandler) GetSelfUser(c echo.Context) error {
 // @Accept       application/json
 // @Produce      application/json
 // @Param        User  body      domain.User  true  "a non-zero field means that it needs to be changed"
-// @Param		 X-CSRF-Token header string true "csrf-token"
-// @Param		 Cookie header string true "cookie"
+// @Param        X-CSRF-TOKEN header string true "csrf-token"
+// @Param        Cookie header string true "the same csrf-token by key X-CSRF-TOKEN and auth-token by key session_id"
 // @Success      200    {object}  webUtils.Success
 // @Failure      400    {object}  webUtils.Error  "invalid field values"
 // @Failure      401    {object}  webUtils.Error  "user unauthorized"
