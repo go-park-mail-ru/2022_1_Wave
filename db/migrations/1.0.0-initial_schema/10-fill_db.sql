@@ -1,15 +1,28 @@
 -- artists
-INSERT INTO Artist (name, count_followers, count_listening)
-VALUES ('Queen', 0, 0),
-       ('Дайте танк (!)', 0, 0),
-       ('Pink Floyd', 0, 0),
-       ('Валерий Меладзе', 0, 0),
-       ('Валентин Стрыкало', 0, 0),
-       ('Twenty One Pilots', 0, 0),
-       ('Химера', 0, 0),
-       ('Дора', 0, 0),
-       ('Shortparis', 0, 0),
-       ('R.E.M', 0, 0);
+INSERT INTO Artist (name, count_likes, count_followers, count_listening)
+VALUES ('Queen', 0, 0, 0),
+       ('Дайте танк (!)', 0, 0, 0),
+       ('Pink Floyd', 0, 0, 0),
+       ('Валерий Меладзе', 0, 0, 0),
+       ('Валентин Стрыкало', 0, 0, 0),
+       ('Twenty One Pilots', 0, 0, 0),
+       ('Химера', 0, 0, 0),
+       ('Дора', 0, 0, 0),
+       ('Shortparis', 0, 0, 0),
+       ('R.E.M', 0, 0, 0);
+
+-- -- albums
+INSERT INTO Album (title, artist_id, count_likes, count_listening, date)
+VALUES ('A Night At The Opera', 1, 0, 0, 1975),
+       ('Человеко-часы', 2, 0, 0, 2020),
+       ('The Dark Side of the Moon', 3, 0, 0, 1973),
+       ('Вопреки', 4, 0, 0, 2008),
+       ('Часть чего-то большего', 5, 0, 0, 2013),
+       ('Blurryface', 6, 0, 0, 2015),
+       ('ZUDWA-DWA', 7, 0, 0, 2003),
+       ('Младшая сестра', 8, 0, 0, 2019),
+       ('Так закалялась сталь', 9, 0, 0, 2019),
+       ('Out Of Time', 9, 0, 0, 2019);
 
 -- -- album covers
 INSERT
@@ -32,19 +45,7 @@ VALUES ('Deluxe Edition 2011 Remaster', false),
         true),
        ('That me in the corner. That me in the spotlight', false);
 --
---
--- -- albums
-INSERT INTO Album (title, artist_id, count_likes, count_listening, date)
-VALUES ('A Night At The Opera', 1, 0, 0, 1975),
-       ('Человеко-часы', 2, 0, 0, 2020),
-       ('The Dark Side of the Moon', 3, 0, 0, 1973),
-       ('Вопреки', 4, 0, 0, 2008),
-       ('Часть чего-то большего', 5, 0, 0, 2013),
-       ('Blurryface', 6, 0, 0, 2015),
-       ('ZUDWA-DWA', 7, 0, 0, 2003),
-       ('Младшая сестра', 8, 0, 0, 2019),
-       ('Так закалялась сталь', 9, 0, 0, 2019),
-       ('Out Of Time', 9, 0, 0, 2019);
+
 
 -- tracks
 INSERT INTO Track (album_id, artist_id, title, duration, count_likes, count_listening)
@@ -89,5 +90,40 @@ VALUES (1, 1, 'Youre My Best Friend', 172, 0, 0),     -- 1
        (10, 10, 'Low', 295, 0, 0); -- 39
 
 
+CREATE INDEX album_search_ru
+    ON album
+        USING gin (to_tsvector('russian', "title"));
+CREATE INDEX album_search_en
+    ON album
+        USING gin (to_tsvector('english', "title"));
+CREATE INDEX album_search_fr
+    ON album
+        USING gin (to_tsvector('french', "title"));
+
+CREATE INDEX track_search_ru
+    ON track
+        USING gin (to_tsvector('russian', "title"));
+CREATE INDEX track_search_en
+    ON track
+        USING gin (to_tsvector('english', "title"));
+CREATE INDEX track_search_fr
+    ON track
+        USING gin (to_tsvector('french', "title"));
 
 
+-- SELECT * from album;
+--
+-- SELECT * FROM Album WHERE to_tsvector(title)
+--                               @@ plainto_tsquery('Часы');
+
+
+EXPLAIN ANALYSE
+SELECT *
+FROM album
+WHERE to_tsvector("title") @@ plainto_tsquery('rkpnysiugz')
+ORDER BY ts_rank(to_tsvector("title"), plainto_tsquery('rkpnysiugz')) DESC;
+
+-- EXPLAIN ANALYSE SELECT *
+--                 FROM album
+--                 WHERE title = 'rkpnysiugz'
+--                 ORDER BY title DESC;

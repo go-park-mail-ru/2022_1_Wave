@@ -7,18 +7,20 @@ tmp_dir = "tmp"
 
 [build]
 # Just plain old shell command. You could use `make` as well.
-cmd = "swag init -g cmd/api/main.go && go build -o ./tmp/wave.music ./cmd/api/main.go"
+cmd = "bash ./reload.sh"
 # Binary file yields from `cmd`.
 bin = "tmp/wave.music"
 # Customize binary, can setup environment variables when run your app.
 full_bin = "APP_ENV=dev APP_USER=air ./tmp/wave.music"
 # Watch these filename extensions.
-include_ext = ["go", "yaml","json","js",".sql",".toml"]
+include_ext = ["go", "yaml", "json", "js", ".sql", ".toml", "proto"]
 # Ignore these filename extensions or directories.
-exclude_dir = ["assets", "tmp", "vendor", "frontend/node_modules", "database"]
+exclude_dir = ["assets", "tmp", "vendor", "frontend/node_modules", "database", "protobuf"]
 # Watch these directories if you specified.
 # Exclude files.
 exclude_file = ["docs/docs.go"]
+# Exclude specific regular expressions.
+exclude_regex = [".pb.go"]
 # Exclude unchanged files.
 exclude_unchanged = true
 # Follow symlink for directories
