@@ -6,6 +6,7 @@ import (
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/auth/proto"
 	auth_redis "github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/auth/repository/redis"
 	auth_service "github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/auth/service"
+	_ "github.com/jackc/pgx/stdlib"
 	"github.com/jmoiron/sqlx"
 	"google.golang.org/grpc"
 	"net"
@@ -36,7 +37,7 @@ func InitDatabase() *sqlx.DB {
 
 func main() {
 	//sqlxDb := InitDatabase()
-	authRepo := auth_redis.NewRedisAuthRepo("")
+	authRepo := auth_redis.NewRedisAuthRepo("redis:6379")
 	//userRepo := postgresql.NewUserPostgresRepo(sqlxDb)
 
 	/*defer func() {
@@ -45,7 +46,7 @@ func main() {
 		}
 	}()*/
 
-	port := os.Getenv("AUTH_PORT")
+	port := ":8085"
 	listen, err := net.Listen("tcp", port)
 	if err != nil {
 		logger.GlobalLogger.Logrus.Errorf("error listen on %s port: %s", port, err.Error())
@@ -53,7 +54,7 @@ func main() {
 
 	server := grpc.NewServer()
 	proto.RegisterAuthorizationServer(server, auth_service.NewAuthService(authRepo))
-	logger.GlobalLogger.Logrus.Printf("started authorization microservice on %s", port)
+	//logger.GlobalLogger.Logrus.Printf("started authorization microservice on %s", port)
 	err = server.Serve(listen)
 	if err != nil {
 		logger.GlobalLogger.Logrus.Errorf("cannot listen port %s: %s", port, err.Error())

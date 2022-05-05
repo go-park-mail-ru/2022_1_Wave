@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	InitDb "github.com/go-park-mail-ru/2022_1_Wave/init/db"
 	AlbumPostgres "github.com/go-park-mail-ru/2022_1_Wave/internal/album/repository/postgres"
 	AlbumCoverPostgres "github.com/go-park-mail-ru/2022_1_Wave/internal/albumCover/repository"
@@ -42,8 +41,4 @@ func main() {
 	albumProto.RegisterAlbumUseCaseServer(server, AlbumGrpc.MakeAlbumGrpc(trackRepo, artistRepo, albumRepo, albumCoverRepo))
 
 	err = server.Serve(listen)
-
-	if err != nil {
-		fmt.Println("here")
-	}
 }
