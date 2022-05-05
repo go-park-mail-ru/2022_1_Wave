@@ -16,7 +16,7 @@ require (
 	github.com/stretchr/testify v1.7.0
 	github.com/swaggo/echo-swagger v1.3.0
 	github.com/swaggo/swag v1.8.1
-	golang.org/x/crypto v0.0.0-20220331220935-ae2d96664a29
+	golang.org/x/crypto v0.0.0-20220427172511-eb4f295cb31f
 	google.golang.org/grpc v1.46.0
 	google.golang.org/protobuf v1.28.0
 	gopkg.in/DATA-DOG/go-sqlmock.v1 v1.3.0
@@ -38,9 +38,11 @@ require (
 	github.com/go-openapi/spec v0.20.4 // indirect
 	github.com/go-openapi/swag v0.21.1 // indirect
 	github.com/gofrs/uuid v4.2.0+incompatible // indirect
+	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
 	github.com/gorilla/css v1.0.0 // indirect
 	github.com/jackc/fake v0.0.0-20150926172116-812a484cc733 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
+	github.com/labstack/echo-contrib v0.12.0 // indirect
 	github.com/labstack/gommon v0.3.1 // indirect
 	github.com/lib/pq v1.10.4 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
@@ -52,7 +54,7 @@ require (
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/prometheus/client_golang v1.12.1 // indirect
 	github.com/prometheus/client_model v0.2.0 // indirect
-	github.com/prometheus/common v0.32.1 // indirect
+	github.com/prometheus/common v0.34.0 // indirect
 	github.com/prometheus/procfs v0.7.3 // indirect
 	github.com/shopspring/decimal v1.3.1 // indirect
 	github.com/stretchr/objx v0.1.1 // indirect
@@ -60,10 +62,11 @@ require (
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasttemplate v1.2.1 // indirect
 	golang.org/x/net v0.0.0-20220425223048-2871e0cb64e4 // indirect
-	golang.org/x/sys v0.0.0-20220429233432-b5fbb4746d32 // indirect
+	golang.org/x/sys v0.0.0-20220503163025-988cb79eb6c6 // indirect
 	golang.org/x/text v0.3.7 // indirect
+	golang.org/x/time v0.0.0-20220411224347-583f2d630306 // indirect
 	golang.org/x/tools v0.1.10 // indirect
-	google.golang.org/genproto v0.0.0-20220429170224-98d788798c3e // indirect
+	google.golang.org/genproto v0.0.0-20220504150022-98cd25cafc72 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
 )
