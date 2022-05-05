@@ -273,7 +273,7 @@ func (h Handler) LikeCheckByUser(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK,
 		webUtils.Success{
 			Status: webUtils.OK,
-			Result: internal.Liked + "(" + fmt.Sprint(id) + ")=" + fmt.Sprint(liked)})
+			Result: liked})
 }
 
 // Listen godoc
