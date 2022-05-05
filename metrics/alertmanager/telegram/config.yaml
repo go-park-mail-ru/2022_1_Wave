@@ -1,7 +1,0 @@
-telegram_token: "5341229543:AAFkV8kzd_i4jMHU781LrJ0qCF-iHPFCTqY"
-template_path: "/etc/telegrambot/default.tmpl"
-# ONLY IF YOU USING DATA FORMATTING FUNCTION, NOTE for developer: important or test fail
-time_outdata: "02/01/2006 15:04:05"
-time_zone: "Europe/Moscow" # ONLY IF YOU USING TEMPLATE
-split_msg_byte: 4000
-send_only: true # use bot only to send messages.
