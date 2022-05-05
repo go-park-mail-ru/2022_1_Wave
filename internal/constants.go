@@ -25,7 +25,7 @@ const (
 	SuccessLiked               = "success liked"
 	SuccessListened            = "success listened"
 	SuccessAddedToFavorites    = "success added to favorites"
-	SuccessRemoveFromFavorites = "success remove to favorites"
+	SuccessRemoveFromFavorites = "success remove from favorites"
 )
 
 // query

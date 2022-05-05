@@ -217,7 +217,7 @@ func (table AlbumRepo) AddToFavorites(albumId int64, userId int64) error {
 }
 
 func (table AlbumRepo) GetFavorites(userId int64) ([]*albumProto.Album, error) {
-	query := `SELECT * FROM album
+	query := `SELECT id, title, artist_id, count_likes, count_listening, date FROM album
 			  JOIN userFavoriteAlbums favorite ON favorite.album_id = album.id
     	      WHERE user_id = $1 ORDER BY album_id;`
 

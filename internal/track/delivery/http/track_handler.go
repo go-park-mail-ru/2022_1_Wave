@@ -302,7 +302,7 @@ func (h Handler) GetFavorites(ctx echo.Context) error {
 // @Tags         track
 // @Accept          application/json
 // @Produce      application/json
-// @Param        trackId  path      int  true  "trackId"
+// @Param        id  path      integer  true  "trackId"
 // @Success      200    {object}  webUtils.Success
 // @Failure      400    {object}  webUtils.Error  "Data is invalid"
 // @Failure      405    {object}  webUtils.Error  "Method is not allowed"
@@ -334,7 +334,7 @@ func (h Handler) AddToFavorites(ctx echo.Context) error {
 // @Tags         track
 // @Accept          application/json
 // @Produce      application/json
-// @Param        trackId  path      int  true  "trackId"
+// @Param        id  path      integer  true  "trackId"
 // @Success      200    {object}  webUtils.Success
 // @Failure      400    {object}  webUtils.Error  "Data is invalid"
 // @Failure      405    {object}  webUtils.Error  "Method is not allowed"
