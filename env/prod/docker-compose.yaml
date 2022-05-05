@@ -1,7 +1,13 @@
 version: "3.5"
+
+volumes:
+  prometheus_data: {}
+  grafana_data: {}
+
 services:
   web:
     image: nginx
+    container_name: nginx
     ports:
       - "80:80"
       - "443:443"
@@ -16,6 +22,7 @@ services:
 
   wave_music:
     image: mausved/wave_music_api_v1
+    container_name: api
     tty: true
     expose:
       - 5000
@@ -28,16 +35,96 @@ services:
       - DATABASE_CONNECTION=user=postgres password=music dbname=wave host=db port=5432 sslmode=disable
       - DATABASE_MIGRATIONS=./db/migrations
     depends_on:
+      - track
+      - album
+      - artist
+      - playlist
+      - auth
+      - user
       - db
       - redis
 
+  album:
+    container_name: album
+    image: mausved/wave_music_api_v1
+    working_dir: /var/www/service
+    environment:
+      - DATABASE_CONNECTION=user=postgres password=music dbname=wave host=db port=5432 sslmode=disable
+    expose:
+      - 8081
+    entrypoint: ./cmd/album/run.sh
+    volumes:
+      - ../..:/var/www/service
+
+  artist:
+    container_name: artist
+    image: mausved/wave_music_api_v1
+    working_dir: /var/www/service
+    environment:
+      - DATABASE_CONNECTION=user=postgres password=music dbname=wave host=db port=5432 sslmode=disable
+    expose:
+      - 8082
+    entrypoint: ./cmd/artist/run.sh
+    volumes:
+      - ../..:/var/www/service
+
+  track:
+    container_name: track
+    image: mausved/wave_music_api_v1
+    working_dir: /var/www/service
+    environment:
+      - DATABASE_CONNECTION=user=postgres password=music dbname=wave host=db port=5432 sslmode=disable
+    expose:
+      - 8083
+    entrypoint: ./cmd/track/run.sh
+    volumes:
+      - ../..:/var/www/service
+
+  playlist:
+    container_name: playlist
+    image: mausved/wave_music_api_v1
+    working_dir: /var/www/service
+    environment:
+      - DATABASE_CONNECTION=user=postgres password=music dbname=wave host=db port=5432 sslmode=disable
+    expose:
+      - 8084
+    entrypoint: ./cmd/playlist/run.sh
+    volumes:
+      - ../..:/var/www/service
+
+  auth:
+    container_name: auth
+    image: mausved/wave_music_api_v1
+    working_dir: /var/www/service
+    environment:
+      - DATABASE_CONNECTION=user=postgres password=music dbname=wave host=db port=5432 sslmode=disable
+    expose:
+      - 8085
+    entrypoint: ./cmd/auth/run.sh
+    volumes:
+      - ../..:/var/www/service
+
+  user:
+    container_name: user
+    image: mausved/wave_music_api_v1
+    working_dir: /var/www/service
+    environment:
+      - DATABASE_CONNECTION=user=postgres password=music dbname=wave host=db port=5432 sslmode=disable
+    expose:
+      - 8086
+    entrypoint: ./cmd/user/run.sh
+    volumes:
+      - ../..:/var/www/service
+
   redis:
     image: redis
-    ports:
-      - '6379:6379'
+    container_name: redis
+    expose:
+      - 6379
 
   db:
-    image: postgres:14
+    image: postgres:13
+    container_name: postgres
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=music
@@ -46,3 +133,136 @@ services:
       - 5432
     volumes:
       - ../../db/:/var/run/postgresql/
+
+  redis-exporter:
+    image: oliver006/redis_exporter:alpine
+    container_name: redis-exporter
+    restart: unless-stopped
+    command: [ "--redis.addr", "redis://redis:6379" ]
+    environment:
+      - ADMIN_USER=${ADMIN_USER}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD}
+    expose:
+      - 9121
+    depends_on:
+      - redis
+
+  postgres-exporter:
+    image: wrouesnel/postgres_exporter
+    container_name: postgres-exporter
+    environment:
+      - DATA_SOURCE_NAME=postgresql://postgres:music@db:5432/wave?sslmode=disable
+      - USER
+      - ADMIN_USER=${ADMIN_USER}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD}
+    expose:
+      - 9187
+    depends_on:
+      - db
+
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    volumes:
+      - ../../metrics/prometheus:/etc/prometheus
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+    restart: unless-stopped
+    depends_on:
+      - pushgateway
+      - nodeexporter
+      - redis-exporter
+      - postgres-exporter
+      - alertmanager
+      - cadvisor
+      - wave_music
+    expose:
+      - 9090
+
+  alertmanager:
+    image: prom/alertmanager
+    container_name: alertmanager
+    volumes:
+      - ../../metrics/alertmanager:/etc/alertmanager
+    command:
+      - '--config.file=/etc/alertmanager/config.yml'
+      - '--storage.path=/alertmanager'
+    restart: unless-stopped
+    expose:
+      - 9093
+
+  nodeexporter:
+    image: prom/node-exporter
+    container_name: nodeexporter
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.rootfs=/rootfs'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.ignored-mount-points=^/(sys|proc|dev|host|etc)($$|/)'
+    restart: unless-stopped
+    expose:
+      - 9100
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor
+    container_name: cadvisor
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:rw
+      - /sys:/sys:ro
+      - /var/lib/docker:/var/lib/docker:ro
+      #- /cgroup:/cgroup:ro #doesn't work on MacOS only for Linux
+    restart: unless-stopped
+    expose:
+      - 8080
+
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ../../metrics/grafana/provisioning:/etc/grafana/provisioning
+    environment:
+      - GF_SECURITY_ADMIN_USER=${ADMIN_USER}
+      - GF_SECURITY_ADMIN_PASSWORD=${ADMIN_PASSWORD}
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - ADMIN_USER=${ADMIN_USER}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD}
+    restart: unless-stopped
+    expose:
+      - 3000
+
+  pushgateway:
+    image: prom/pushgateway
+    container_name: pushgateway
+    restart: unless-stopped
+    expose:
+      - 9091
+
+  caddy:
+    image: caddy
+    container_name: caddy
+    ports:
+      - "3000:3000"
+      - "9090:9090"
+      - "9093:9093"
+      - "9091:9091"
+      - "9121:9121"
+    volumes:
+      - ../../metrics/caddy:/etc/caddy
+    environment:
+      - ADMIN_USER=${ADMIN_USER}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD}
+    restart: unless-stopped
+    depends_on:
+      - prometheus

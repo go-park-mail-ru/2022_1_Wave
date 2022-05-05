@@ -28,7 +28,7 @@ services:
     expose:
       - 5000
     working_dir: /var/www/service/
-    entrypoint: ./entrypoint.sh
+    entrypoint: ./cmd/api/run.sh
     volumes:
       - ../..:/var/www/service
       - ./.air.toml:/var/www/service/.air.toml:ro
@@ -43,78 +43,80 @@ services:
       - playlist
       - auth
       - user
-
-  track:
-    container_name: track
-    image: golang
-    working_dir: /var/www/track
-    environment:
-      - DATABASE_CONNECTION=user=postgres password=music dbname=wave host=db port=5432 sslmode=disable
-    expose:
-      - 8083
-    command: bash -c "go run cmd/track/track.go"
-    volumes:
-      - ../..:/var/www/track
+      - db
+      - redis
 
   album:
     container_name: album
-    image: golang
-    working_dir: /var/www/album
+    image: mausved/wave_music_api_v1
+    working_dir: /var/www/service
     environment:
       - DATABASE_CONNECTION=user=postgres password=music dbname=wave host=db port=5432 sslmode=disable
     expose:
       - 8081
-    command: bash -c "go run cmd/album/album.go"
+    entrypoint: ./cmd/album/run.sh
     volumes:
-      - ../..:/var/www/album
+      - ../..:/var/www/service
 
   artist:
     container_name: artist
-    image: golang
-    working_dir: /var/www/artist
+    image: mausved/wave_music_api_v1
+    working_dir: /var/www/service
     environment:
       - DATABASE_CONNECTION=user=postgres password=music dbname=wave host=db port=5432 sslmode=disable
     expose:
       - 8082
-    command: bash -c "go run cmd/artist/artist.go"
+    entrypoint: ./cmd/artist/run.sh
     volumes:
-      - ../..:/var/www/artist
+      - ../..:/var/www/service
+
+  track:
+    container_name: track
+    image: mausved/wave_music_api_v1
+    working_dir: /var/www/service
+    environment:
+      - DATABASE_CONNECTION=user=postgres password=music dbname=wave host=db port=5432 sslmode=disable
+    expose:
+      - 8083
+    entrypoint: ./cmd/track/run.sh
+    volumes:
+      - ../..:/var/www/service
 
   playlist:
     container_name: playlist
-    image: golang
-    working_dir: /var/www/playlist
+    image: mausved/wave_music_api_v1
+    working_dir: /var/www/service
     environment:
       - DATABASE_CONNECTION=user=postgres password=music dbname=wave host=db port=5432 sslmode=disable
     expose:
       - 8084
-    command: bash -c "go run cmd/playlist/playlist.go"
+    entrypoint: ./cmd/playlist/run.sh
     volumes:
-      - ../..:/var/www/playlist
+      - ../..:/var/www/service
 
   auth:
     container_name: auth
-    image: golang
-    working_dir: /var/www/auth
+    image: mausved/wave_music_api_v1
+    working_dir: /var/www/service
     environment:
       - DATABASE_CONNECTION=user=postgres password=music dbname=wave host=db port=5432 sslmode=disable
     expose:
       - 8085
-    command: bash -c "go run cmd/auth/auth.go"
+    entrypoint: ./cmd/auth/run.sh
     volumes:
-      - ../..:/var/www/auth
+      - ../..:/var/www/service
 
   user:
     container_name: user
-    image: golang
-    working_dir: /var/www/user
+    image: mausved/wave_music_api_v1
+    working_dir: /var/www/service
     environment:
       - DATABASE_CONNECTION=user=postgres password=music dbname=wave host=db port=5432 sslmode=disable
     expose:
       - 8086
-    command: bash -c "go run cmd/user/user.go"
+    entrypoint: ./cmd/user/run.sh
     volumes:
-      - ../..:/var/www/user
+      - ../..:/var/www/service
 
   redis:
     image: redis
@@ -182,6 +184,12 @@ services:
       - alertmanager
       - cadvisor
       - wave_music
+      - track
+      - artist
+      - playlist
+      - album
+      - user
+      - auth
     expose:
       - 9090
 

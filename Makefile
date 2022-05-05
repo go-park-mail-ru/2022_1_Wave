@@ -2,10 +2,10 @@
 
 # Actions with environment
 dev:
-	docker-compose --env-file ./env/envfile -f env/dev/docker-compose.yaml up
+	docker-compose --env-file env/envfile -f env/dev/docker-compose.yaml up
 
 prod:
-	docker-compose --env-file ./env/envfile -f env/prod/docker-compose.yaml up -d
+	docker-compose --env-file /env/envfile -f env/prod/docker-compose.yaml up -d
 
 stop:
 	docker-compose -f env/dev/docker-compose.yaml stop
