@@ -14,14 +14,8 @@ import (
 	auth_grpc_agent "github.com/go-park-mail-ru/2022_1_Wave/internal/auth/client/grpc"
 	AuthUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/auth/usecase"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/domain"
-	AlbumGrpc "github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/album/gRPC"
-	ArtistGrpc "github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/artist/gRPC"
 	auth_domain "github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/auth"
-	auth_service "github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/auth/service"
-	PlaylistGrpc "github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/playlist/gRPC"
-	TrackGrpc "github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/track/gRPC"
 	user_microservice_domain "github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/user"
-	user_service "github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/user/service"
 	PlaylistGrpcAgent "github.com/go-park-mail-ru/2022_1_Wave/internal/playlist/client/grpc"
 	PlaylistUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/playlist/useCase"
 	structStoragePostgresql "github.com/go-park-mail-ru/2022_1_Wave/internal/structs/storage/postgresql"
@@ -71,49 +65,49 @@ func Init(e *echo.Echo, quantity int64, dataBaseType string) error {
 		return err
 	}
 
-	repoContainer := repoContainer{
-		Al:   initedStorage.GetAlbumRepo(),
-		Alc:  initedStorage.GetAlbumCoverRepo(),
-		Ar:   initedStorage.GetArtistRepo(),
-		Sess: initedStorage.GetSessionRepo(),
-		Us:   initedStorage.GetUserRepo(),
-		Tr:   initedStorage.GetTrackRepo(),
-		Play: initedStorage.GetPlaylistRepo(),
-	}
+	//repoContainer := repoContainer{
+	//	Al:   initedStorage.GetAlbumRepo(),
+	//	Alc:  initedStorage.GetAlbumCoverRepo(),
+	//	Ar:   initedStorage.GetArtistRepo(),
+	//	Sess: initedStorage.GetSessionRepo(),
+	//	Us:   initedStorage.GetUserRepo(),
+	//	Tr:   initedStorage.GetTrackRepo(),
+	//	Play: initedStorage.GetPlaylistRepo(),
+	//}
+	//
+	//albumsQuant, err := repoContainer.Al.GetSize()
+	//if err != nil {
+	//	logger.GlobalLogger.Logrus.Fatal("Error:", err)
+	//}
+	//
+	//artistsQuant, err := repoContainer.Ar.GetSize()
+	//if err != nil {
+	//	logger.GlobalLogger.Logrus.Fatal("Error:", err)
+	//}
+	//
+	//albumCoversQuant, err := repoContainer.Alc.GetSize()
+	//if err != nil {
+	//	logger.GlobalLogger.Logrus.Fatal("Error:", err)
+	//}
+	//
+	//usersQuant, err := repoContainer.Us.GetSize()
+	//if err != nil {
+	//	logger.GlobalLogger.Logrus.Fatal("Error:", err)
+	//}
+	//
+	//tracksQuant, err := repoContainer.Tr.GetSize()
+	//if err != nil {
+	//	logger.GlobalLogger.Logrus.Fatal("Error:", err)
+	//}
+	//
+	//playlistsQuant, err := repoContainer.Play.GetSize()
+	//if err != nil {
+	//	logger.GlobalLogger.Logrus.Fatal("Error:", err)
+	//}
 
-	albumsQuant, err := repoContainer.Al.GetSize()
-	if err != nil {
-		logger.GlobalLogger.Logrus.Fatal("Error:", err)
-	}
+	//printDbQuants(usersQuant, artistsQuant, albumsQuant, albumCoversQuant, tracksQuant, playlistsQuant)
 
-	artistsQuant, err := repoContainer.Ar.GetSize()
-	if err != nil {
-		logger.GlobalLogger.Logrus.Fatal("Error:", err)
-	}
-
-	albumCoversQuant, err := repoContainer.Alc.GetSize()
-	if err != nil {
-		logger.GlobalLogger.Logrus.Fatal("Error:", err)
-	}
-
-	usersQuant, err := repoContainer.Us.GetSize()
-	if err != nil {
-		logger.GlobalLogger.Logrus.Fatal("Error:", err)
-	}
-
-	tracksQuant, err := repoContainer.Tr.GetSize()
-	if err != nil {
-		logger.GlobalLogger.Logrus.Fatal("Error:", err)
-	}
-
-	playlistsQuant, err := repoContainer.Play.GetSize()
-	if err != nil {
-		logger.GlobalLogger.Logrus.Fatal("Error:", err)
-	}
-
-	printDbQuants(usersQuant, artistsQuant, albumsQuant, albumCoversQuant, tracksQuant, playlistsQuant)
-
-	albumAgent, artistAgent, trackAgent, userAgent, authAgent, playlistAgent := makeAgents(internal.Grpc, repoContainer)
+	albumAgent, artistAgent, trackAgent, userAgent, authAgent, playlistAgent := makeAgents(internal.Grpc)
 
 	auth := AuthUseCase.NewAuthService(authAgent, userAgent)
 	user := UserUsecase.NewUserUseCase(userAgent, authAgent)
@@ -135,16 +129,8 @@ func printDbQuants(usersQuant int, artistsQuant int64, albumsQuant int64, albumC
 	logger.GlobalLogger.Logrus.Info("Playlists:", playlistsQuant)
 }
 
-func makeGrpcClients(repoContainer repoContainer) (AlbumGrpcAgent.GrpcAgent, ArtistGrpcAgent.GrpcAgent, TrackGrpcAgent.GrpcAgent, user_domain.UserAgent, auth_domain2.AuthAgent, domain.PlaylistAgent) {
-	grpcLauncher := gRPC.Launcher{
-		Network:        internal.Tcp,
-		AlbumServer:    AlbumGrpc.MakeAlbumGrpc(repoContainer.Tr, repoContainer.Ar, repoContainer.Al, repoContainer.Alc),
-		ArtistServer:   ArtistGrpc.MakeArtistGrpc(repoContainer.Ar, repoContainer.Al, repoContainer.Tr),
-		TrackServer:    TrackGrpc.MakeTrackGrpc(repoContainer.Tr, repoContainer.Ar, repoContainer.Al),
-		UserServer:     user_service.NewUserService(repoContainer.Us),
-		AuthServer:     auth_service.NewAuthService(repoContainer.Sess),
-		PlaylistServer: PlaylistGrpc.MakePlaylistGrpc(repoContainer.Tr, repoContainer.Ar, repoContainer.Al, repoContainer.Play),
-	}
+func makeGrpcClients() (AlbumGrpcAgent.GrpcAgent, ArtistGrpcAgent.GrpcAgent, TrackGrpcAgent.GrpcAgent, user_domain.UserAgent, auth_domain2.AuthAgent, domain.PlaylistAgent) {
+	grpcLauncher := gRPC.Launcher{}
 
 	albumClient := grpcLauncher.MakeAlbumGrpcClient(":8081")
 	artistClient := grpcLauncher.MakeArtistGrpcClient(":8082")
@@ -163,10 +149,10 @@ func makeGrpcClients(repoContainer repoContainer) (AlbumGrpcAgent.GrpcAgent, Art
 	return albumAgent, artistAgent, trackAgent, userAgent, authAgent, playlistAgent
 }
 
-func makeAgents(clientsType string, repoContainer repoContainer) (domain.AlbumAgent, domain.ArtistAgent, domain.TrackAgent, user_domain.UserAgent, auth_domain2.AuthAgent, domain.PlaylistAgent) {
+func makeAgents(clientsType string) (domain.AlbumAgent, domain.ArtistAgent, domain.TrackAgent, user_domain.UserAgent, auth_domain2.AuthAgent, domain.PlaylistAgent) {
 	switch clientsType {
 	case internal.Grpc:
-		return makeGrpcClients(repoContainer)
+		return makeGrpcClients()
 	default:
 		return nil, nil, nil, nil, nil, nil
 	}

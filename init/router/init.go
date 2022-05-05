@@ -18,7 +18,6 @@ import (
 	user_domain "github.com/go-park-mail-ru/2022_1_Wave/internal/user"
 	userHttp "github.com/go-park-mail-ru/2022_1_Wave/internal/user/delivery/http"
 	"github.com/labstack/echo/v4"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/swaggo/echo-swagger"
 )
 
@@ -29,6 +28,9 @@ func Router(e *echo.Echo,
 	track TrackUseCase.UseCase,
 	playlist PlaylistUseCase.UseCase,
 	user user_domain.UserUseCase) error {
+
+	//p := prometheus.NewPrometheus("echo", nil)
+	//p.Use(e)
 
 	api := e.Group(apiPrefix)
 	v1 := api.Group(v1Prefix)
@@ -61,9 +63,6 @@ func Router(e *echo.Echo,
 
 	SetDocsPath(v1)
 	logger.GlobalLogger.Logrus.Warnln("setting docs routes")
-
-	SetPrometheusPath(v1)
-	logger.GlobalLogger.Logrus.Warnln("setting prometheus routes")
 
 	SetStaticHandle(v1)
 	logger.GlobalLogger.Logrus.Warnln("setting static routes")
@@ -175,11 +174,6 @@ func SetAuthRoutes(apiVersion *echo.Group, handler authHttp.AuthHandler, m *auth
 func SetDocsPath(apiVersion *echo.Group) {
 	docRoutes := apiVersion.Group(docsPrefix)
 	docRoutes.GET(locate+"*", echoSwagger.WrapHandler)
-}
-
-func SetPrometheusPath(apiVersion *echo.Group) {
-	prometheusRoutes := apiVersion.Group(metricsPrefix)
-	prometheusRoutes.GET(locate, echo.WrapHandler(promhttp.Handler()))
 }
 
 // SetStaticHandle static
