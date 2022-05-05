@@ -124,6 +124,7 @@ func SetTracksRoutes(apiVersion *echo.Group, handler trackDeliveryHttp.Handler) 
 	trackRoutes.DELETE(favoritesPrefix+idEchoPattern, handler.RemoveFromFavorites)
 	trackRoutes.DELETE(idEchoPattern, handler.Delete)
 	trackRoutes.PUT(likePrefix+idEchoPattern, handler.Like)
+	trackRoutes.GET(likePrefix+idEchoPattern, handler.LikeCheckByUser)
 	trackRoutes.PUT(listenPrefix+idEchoPattern, handler.Listen)
 	trackRoutes.GET(playlistPrefix+idEchoPattern, handler.GetTracksFromPlaylist)
 }

@@ -18,6 +18,7 @@ type UseCase interface {
 	GetPopularTracksFromArtist(int64) ([]*trackProto.TrackDataTransfer, error)
 	GetSize() (int64, error)
 	Like(arg int64, userId int64) error
+	LikeCheckByUser(arg int64, userId int64) (bool, error)
 	Listen(arg int64) error
 	SearchByTitle(arg string) ([]*trackProto.TrackDataTransfer, error)
 	GetFavorites(int64) ([]*trackProto.TrackDataTransfer, error)
@@ -53,6 +54,7 @@ func (useCase trackUseCase) CastToDTO(track *trackProto.Track) (*trackProto.Trac
 	}
 
 	trackDto.Artist = artist.Name
+
 	return trackDto, nil
 }
 
@@ -194,6 +196,10 @@ func (useCase trackUseCase) GetTracksFromAlbum(id int64) ([]*trackProto.TrackDat
 func (useCase trackUseCase) Like(trackId int64, userId int64) error {
 	err := useCase.trackAgent.Like(trackId, userId)
 	return err
+}
+
+func (useCase trackUseCase) LikeCheckByUser(trackId int64, userId int64) (bool, error) {
+	return useCase.trackAgent.LikeCheckByUser(userId, trackId)
 }
 
 func (useCase trackUseCase) Listen(trackId int64) error {

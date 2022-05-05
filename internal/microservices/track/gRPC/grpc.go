@@ -118,6 +118,14 @@ func (useCase TrackGrpc) Like(ctx context.Context, data *gatewayProto.UserIdTrac
 	return &emptypb.Empty{}, nil
 }
 
+func (useCase TrackGrpc) LikeCheckByUser(ctx context.Context, data *gatewayProto.UserIdTrackIdArg) (*trackProto.LikeCheckResponse, error) {
+	liked, err := (*useCase.TrackRepo).LikeCheckByUser(data.TrackId, data.UserId)
+	if err != nil {
+		return nil, err
+	}
+	return &trackProto.LikeCheckResponse{Ok: liked}, nil
+}
+
 func (useCase TrackGrpc) Listen(ctx context.Context, data *gatewayProto.IdArg) (*emptypb.Empty, error) {
 	track, err := (*useCase.TrackRepo).SelectByID(data.Id)
 	if err != nil {

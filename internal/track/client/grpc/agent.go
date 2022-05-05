@@ -93,6 +93,17 @@ func (agent GrpcAgent) Like(userId int64, id int64) error {
 	return err
 }
 
+func (agent GrpcAgent) LikeCheckByUser(userId int64, id int64) (bool, error) {
+	liked, err := agent.TrackGrpc.LikeCheckByUser(context.Background(), &gatewayProto.UserIdTrackIdArg{
+		UserId:  userId,
+		TrackId: id,
+	})
+	if err != nil {
+		return false, err
+	}
+	return liked.Ok, nil
+}
+
 func (agent GrpcAgent) Listen(id int64) error {
 	_, err := agent.TrackGrpc.Listen(context.Background(), &gatewayProto.IdArg{Id: id})
 	return err

@@ -23,6 +23,7 @@ const (
 	SuccessRemoved             = "success removed"
 	FromPlaylist               = "from playlist"
 	SuccessLiked               = "success liked"
+	Liked                      = "liked"
 	SuccessListened            = "success listened"
 	SuccessAddedToFavorites    = "success added to favorites"
 	SuccessRemoveFromFavorites = "success remove from favorites"

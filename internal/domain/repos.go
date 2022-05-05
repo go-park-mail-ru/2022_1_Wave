@@ -65,6 +65,7 @@ type TrackRepo interface {
 	GetTracksFromPlaylist(playlistId int64) ([]*trackProto.Track, error)
 	GetPopularTracksFromArtist(artistId int64) ([]*trackProto.Track, error)
 	Like(id int64, userId int64) error
+	LikeCheckByUser(id int64, userId int64) (bool, error)
 	Listen(id int64) error
 	SearchByTitle(title string) ([]*trackProto.Track, error)
 	GetFavorites(userId int64) ([]*trackProto.Track, error)
