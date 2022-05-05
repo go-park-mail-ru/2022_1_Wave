@@ -1,0 +1,21 @@
+global:
+  resolve_timeout: 5m
+  http_config:
+    follow_redirects: true
+  telegram_api_url: https://api.telegram.org
+route:
+    receiver: 'telegram'
+    continue: false
+receivers:
+    - name: 'telegram'
+      telegram_configs:
+      - send_resolved: true
+        http_config:
+          follow_redirects: true
+        api_url: "https://api.telegram.org"
+        bot_token: '5309539797:AAFqPEK2eRYB98r0DzpXXGC7Hmi0LsTv4Rc'
+        chat_id: -1001654392246
+        message: '{{ template "telegram.default" . }}'
+        parse_mode: "HTML"
+templates:
+  - '/etc/alertmanager/telegram.tmpl'

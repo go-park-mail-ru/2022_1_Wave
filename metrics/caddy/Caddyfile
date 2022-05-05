@@ -1,0 +1,45 @@
+:5432 {
+    basicauth /* {
+        {$ADMIN_USER} {$ADMIN_PASSWORD}
+    }
+    reverse_proxy db:5432
+}
+
+:9090 {
+    basicauth /* {
+        {$ADMIN_USER} {$ADMIN_PASSWORD}
+    }
+    reverse_proxy prometheus:9090
+}
+
+:9093 {
+    basicauth /* {
+        {$ADMIN_USER} {$ADMIN_PASSWORD}
+    }
+    reverse_proxy alertmanager:9093
+}
+
+:9091 {
+    basicauth /* {
+        {$ADMIN_USER} {$ADMIN_PASSWORD}
+    }
+    reverse_proxy pushgateway:9091
+}
+
+:9121 {
+    basicauth /* {
+        {$ADMIN_USER} {$ADMIN_PASSWORD}
+    }
+    reverse_proxy redis-exporter:9121
+}
+
+:9187 {
+    basicauth /* {
+        {$ADMIN_USER} {$ADMIN_PASSWORD}
+    }
+    reverse_proxy postgres-exporter:9187
+}
+
+:3000 {
+    reverse_proxy grafana:3000
+}
