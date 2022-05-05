@@ -2,7 +2,6 @@ package AlbumPostgres
 
 import (
 	"errors"
-	"fmt"
 	constants "github.com/go-park-mail-ru/2022_1_Wave/internal"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/domain"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/album/albumProto"
@@ -78,8 +77,6 @@ func (table AlbumRepo) GetAll() ([]*albumProto.Album, error) {
 	var albums []*albumProto.Album
 
 	err := table.Sqlx.Select(&albums, query)
-
-	fmt.Println(err)
 
 	if err != nil {
 		return nil, err
