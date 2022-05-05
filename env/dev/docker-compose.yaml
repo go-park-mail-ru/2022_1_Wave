@@ -54,6 +54,7 @@ services:
       - DATABASE_CONNECTION=user=postgres password=music dbname=wave host=db port=5432 sslmode=disable
     expose:
       - 8081
+      - 9081
     entrypoint: ./cmd/album/run.sh
     volumes:
       - ../..:/var/www/service
@@ -66,6 +67,7 @@ services:
       - DATABASE_CONNECTION=user=postgres password=music dbname=wave host=db port=5432 sslmode=disable
     expose:
       - 8082
+      - 9082
     entrypoint: ./cmd/artist/run.sh
     volumes:
       - ../..:/var/www/service
@@ -78,6 +80,7 @@ services:
       - DATABASE_CONNECTION=user=postgres password=music dbname=wave host=db port=5432 sslmode=disable
     expose:
       - 8083
+      - 9083
     entrypoint: ./cmd/track/run.sh
     volumes:
       - ../..:/var/www/service
@@ -90,6 +93,7 @@ services:
       - DATABASE_CONNECTION=user=postgres password=music dbname=wave host=db port=5432 sslmode=disable
     expose:
       - 8084
+      - 9084
     entrypoint: ./cmd/playlist/run.sh
     volumes:
       - ../..:/var/www/service
@@ -102,6 +106,7 @@ services:
       - DATABASE_CONNECTION=user=postgres password=music dbname=wave host=db port=5432 sslmode=disable
     expose:
       - 8085
+      - 9085
     entrypoint: ./cmd/auth/run.sh
     volumes:
       - ../..:/var/www/service
@@ -114,6 +119,7 @@ services:
       - DATABASE_CONNECTION=user=postgres password=music dbname=wave host=db port=5432 sslmode=disable
     expose:
       - 8086
+      - 9086
     entrypoint: ./cmd/user/run.sh
     volumes:
       - ../..:/var/www/service
