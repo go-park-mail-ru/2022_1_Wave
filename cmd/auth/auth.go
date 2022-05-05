@@ -1,39 +1,14 @@
 package main
 
 import (
-	"database/sql"
 	"github.com/go-park-mail-ru/2022_1_Wave/init/logger"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/auth/proto"
 	auth_redis "github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/auth/repository/redis"
 	auth_service "github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/auth/service"
 	_ "github.com/jackc/pgx/stdlib"
-	"github.com/jmoiron/sqlx"
 	"google.golang.org/grpc"
 	"net"
-	"os"
 )
-
-func InitDatabase() *sqlx.DB {
-	dsn := os.Getenv("DATABASE_CONNECTION")
-	if dsn == "" {
-		dsn = "user=test dbname=test password=test host=localhost port=5500 sslmode=disable"
-	}
-	db, err := sql.Open("pgx", dsn)
-	if err != nil {
-		return nil
-	}
-	err = db.Ping() // вот тут будет первое подключение к базе
-	if err != nil {
-		return nil
-	}
-
-	db.SetMaxOpenConns(10)
-
-	sqlxDb := sqlx.NewDb(db, "pgx")
-	_ = sqlxDb.Ping()
-
-	return sqlxDb
-}
 
 func main() {
 	//sqlxDb := InitDatabase()

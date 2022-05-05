@@ -13,28 +13,6 @@ import (
 	"os"
 )
 
-//func InitDatabase() *sqlx.DB {
-//	dsn := os.Getenv("DATABASE_CONNECTION")
-//	if dsn == "" {
-//		dsn = "user=test dbname=test password=test host=localhost port=5500 sslmode=disable"
-//	}
-//	db, err := sql.Open("pgx", dsn)
-//	if err != nil {
-//		return nil
-//	}
-//	err = db.Ping() // вот тут будет первое подключение к базе
-//	if err != nil {
-//		return nil
-//	}
-//
-//	db.SetMaxOpenConns(10)
-//
-//	sqlxDb := sqlx.NewDb(db, "pgx")
-//	_ = sqlxDb.Ping()
-//
-//	return sqlxDb
-//}
-
 func main() {
 	sqlxDb, err := InitDb.InitDatabase("DATABASE_CONNECTION")
 	if err != nil {
