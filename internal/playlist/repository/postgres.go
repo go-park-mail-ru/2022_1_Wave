@@ -104,7 +104,7 @@ func (table PlaylistRepo) GetAll() ([]*playlistProto.Playlist, error) {
 }
 
 func (table PlaylistRepo) GetAllOfCurrentUser(userId int64) ([]*playlistProto.Playlist, error) {
-	query := `SELECT playlist_id, title
+	query := `SELECT id, title
 			  FROM playlist 
 			  JOIN userPlaylist ON userPlaylist.user_id = $1 and playlist.id = userPlaylist.playlist_id
 			  ORDER BY id;`
