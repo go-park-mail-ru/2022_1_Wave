@@ -191,6 +191,9 @@ func (table PlaylistRepo) AddToPlaylist(userId int64, playlistId int64, trackId 
 
 func (table PlaylistRepo) RemoveFromPlaylist(userId int64, playlistId int64, trackId int64) error {
 	selected, err := table.SelectByIDOfCurrentUser(userId, playlistId)
+	if err != nil {
+		return err
+	}
 
 	query := `DELETE FROM playlistTrack
 			  WHERE playlistTrack.playlist_id = $1 and playlistTrack.track_id = $2 
@@ -200,5 +203,5 @@ func (table PlaylistRepo) RemoveFromPlaylist(userId int64, playlistId int64, tra
 		return err
 	}
 
-	return err
+	return nil
 }

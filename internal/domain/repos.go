@@ -85,4 +85,5 @@ type PlaylistRepo interface {
 	GetSizeOfCurrentUser(userId int64) (int64, error)
 	GetSize() (int64, error)
 	AddToPlaylist(userId int64, playlistId int64, trackId int64) error
+	RemoveFromPlaylist(userId int64, playlistId int64, trackId int64) error
 }
