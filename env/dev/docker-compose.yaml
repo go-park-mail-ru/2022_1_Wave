@@ -1,7 +1,4 @@
 version: "3.5"
-networks:
-  monitor-net:
-    driver: bridge
 
 volumes:
   prometheus_data: {}
@@ -11,6 +8,7 @@ volumes:
 services:
   web:
     image: nginx
+    container_name: nginx
     ports:
       - "80:80"
     working_dir: /var/www/wave/
@@ -21,10 +19,11 @@ services:
       - ../../config/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
     depends_on:
       - wave_music
-      - pgadmin
+#      - pgadmin
 
   wave_music:
     tty: true
+    container_name: api
     image: mausved/wave_music_api_v1
     expose:
       - 5000
@@ -38,27 +37,128 @@ services:
       - DATABASE_CONNECTION=user=postgres password=music dbname=wave host=db port=5432 sslmode=disable
       - DATABASE_MIGRATIONS=./db/migrations
     depends_on:
-      - db
-      - redis
-      - prometheus
+      - track
+      - album
+      - artist
+      - playlist
+      - auth
+      - user
+
+  track:
+    container_name: track
+    image: golang
+    working_dir: /var/www/track
+    environment:
+      - DATABASE_CONNECTION=user=postgres password=music dbname=wave host=db port=5432 sslmode=disable
+    expose:
+      - 8083
+    command: bash -c "go run cmd/track/track.go"
+    volumes:
+      - ../..:/var/www/track
+
+  album:
+    container_name: album
+    image: golang
+    working_dir: /var/www/album
+    environment:
+      - DATABASE_CONNECTION=user=postgres password=music dbname=wave host=db port=5432 sslmode=disable
+    expose:
+      - 8081
+    command: bash -c "go run cmd/album/album.go"
+    volumes:
+      - ../..:/var/www/album
+
+  artist:
+    container_name: artist
+    image: golang
+    working_dir: /var/www/artist
+    environment:
+      - DATABASE_CONNECTION=user=postgres password=music dbname=wave host=db port=5432 sslmode=disable
+    expose:
+      - 8082
+    command: bash -c "go run cmd/artist/artist.go"
+    volumes:
+      - ../..:/var/www/artist
+
+  playlist:
+    container_name: playlist
+    image: golang
+    working_dir: /var/www/playlist
+    environment:
+      - DATABASE_CONNECTION=user=postgres password=music dbname=wave host=db port=5432 sslmode=disable
+    expose:
+      - 8084
+    command: bash -c "go run cmd/playlist/playlist.go"
+    volumes:
+      - ../..:/var/www/playlist
+
+  auth:
+    container_name: auth
+    image: golang
+    working_dir: /var/www/auth
+    environment:
+      - DATABASE_CONNECTION=user=postgres password=music dbname=wave host=db port=5432 sslmode=disable
+    expose:
+      - 8085
+    command: bash -c "go run cmd/auth/auth.go"
+    volumes:
+      - ../..:/var/www/auth
+
+  user:
+    container_name: user
+    image: golang
+    working_dir: /var/www/user
+    environment:
+      - DATABASE_CONNECTION=user=postgres password=music dbname=wave host=db port=5432 sslmode=disable
+    expose:
+      - 8086
+    command: bash -c "go run cmd/user/user.go"
+    volumes:
+      - ../..:/var/www/user
 
   redis:
     image: redis
-    ports:
-      - '6379:6379'
+    container_name: redis
+    expose:
+      - 6379
 
   db:
-    image: postgres:14
+    image: postgres:13
+    container_name: postgres
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=music
       - POSTGRES_DB=wave
-    ports:
-      - "5432:5432"
     expose:
       - 5432
     volumes:
       - ../../db/:/var/run/postgresql/
+
+  redis-exporter:
+    image: oliver006/redis_exporter:alpine
+    container_name: redis-exporter
+    restart: unless-stopped
+    command: [ "--redis.addr", "redis://redis:6379" ]
+    environment:
+      - ADMIN_USER=${ADMIN_USER}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD}
+    expose:
+      - 9121
+    depends_on:
+      - redis
+
+  postgres-exporter:
+    image: wrouesnel/postgres_exporter
+    container_name: postgres-exporter
+    environment:
+      - DATA_SOURCE_NAME=postgresql://postgres:music@db:5432/wave?sslmode=disable
+      - USER
+      - ADMIN_USER=${ADMIN_USER}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD}
+    expose:
+      - 9187
+    depends_on:
+      - db
 
   prometheus:
     image: prom/prometheus
@@ -74,12 +174,16 @@ services:
       - '--storage.tsdb.retention.time=200h'
       - '--web.enable-lifecycle'
     restart: unless-stopped
+    depends_on:
+      - pushgateway
+      - nodeexporter
+      - redis-exporter
+      - postgres-exporter
+      - alertmanager
+      - cadvisor
+      - wave_music
     expose:
       - 9090
-    networks:
-      - monitor-net
-    labels:
-      org.label-schema.group: "monitoring"
 
   alertmanager:
     image: prom/alertmanager
@@ -92,43 +196,7 @@ services:
     restart: unless-stopped
     expose:
       - 9093
-    networks:
-      - monitor-net
-    labels:
-      org.label-schema.group: "monitoring"
 
-  prometheus-bot:
-    container_name: telegrambot
-    image: tienbm90/prometheus-bot:0.0.1
-    volumes:
-      - ../../metrics/alertmanager/templates:/etc/telegrambot/
-      - ../../metrics/alertmanager/telegram/config.yaml:/config.yaml
-#    expose:
-#      - 9087
-    ports:
-      - "9087:9087"
-    restart: unless-stopped
-    networks:
-      - monitor-net
-    labels:
-      org.label-schema.group: "monitoring"
-
-#  alertmanager-bot:
-#    image: metalmatze/alertmanager-bot
-#    command:
-#      - "--listen.addr=0.0.0.0:8080"
-#    environment:
-#      ALERTMANAGER_URL: http://alertmanager:9093
-#      BOLT_PATH: /data/bot.db
-#      STORE: bolt
-#      TEMPLATE_PATHS: /templates/default.tmpl
-#      TELEGRAM_ADMIN: 741126351
-#      TELEGRAM_TOKEN: 5341229543:AAFkV8kzd_i4jMHU781LrJ0qCF-iHPFCTqY
-#      ADMIN_USER: ${ADMIN_USER}
-#      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
-#    volumes:
-#      - "../../metrics/alertmanager/templates:/templates"
-#
   nodeexporter:
     image: prom/node-exporter
     container_name: nodeexporter
@@ -144,10 +212,6 @@ services:
     restart: unless-stopped
     expose:
       - 9100
-    networks:
-      - monitor-net
-    labels:
-      org.label-schema.group: "monitoring"
 
   cadvisor:
     image: gcr.io/cadvisor/cadvisor
@@ -161,10 +225,6 @@ services:
     restart: unless-stopped
     expose:
       - 8080
-    networks:
-      - monitor-net
-    labels:
-      org.label-schema.group: "monitoring"
 
   grafana:
     image: grafana/grafana
@@ -176,13 +236,11 @@ services:
       - GF_SECURITY_ADMIN_USER=${ADMIN_USER}
       - GF_SECURITY_ADMIN_PASSWORD=${ADMIN_PASSWORD}
       - GF_USERS_ALLOW_SIGN_UP=false
+      - ADMIN_USER=${ADMIN_USER}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD}
     restart: unless-stopped
     expose:
       - 3000
-    networks:
-      - monitor-net
-    labels:
-      org.label-schema.group: "monitoring"
 
   pushgateway:
     image: prom/pushgateway
@@ -190,10 +248,6 @@ services:
     restart: unless-stopped
     expose:
       - 9091
-    networks:
-      - monitor-net
-    labels:
-      org.label-schema.group: "monitoring"
 
   caddy:
     image: caddy
@@ -203,31 +257,30 @@ services:
       - "9090:9090"
       - "9093:9093"
       - "9091:9091"
+      - "9121:9121"
     volumes:
       - ../../metrics/caddy:/etc/caddy
     environment:
       - ADMIN_USER=${ADMIN_USER}
       - ADMIN_PASSWORD=${ADMIN_PASSWORD}
     restart: unless-stopped
-    networks:
-      - monitor-net
-    labels:
-      org.label-schema.group: "monitoring"
+    depends_on:
+      - prometheus
 
-  test_db:
-    image: postgres:14
-    environment:
-      - POSTGRES_USER=test
-      - POSTGRES_PASSWORD=test
-      - POSTGRES_DB=test
-    ports:
-      - "5500:5432"
-
-  pgadmin:
-    hostname: pgadmin
-    image: dpage/pgadmin4:6
-    environment:
-      PGADMIN_DEFAULT_EMAIL: admin@admin.com
-      PGADMIN_DEFAULT_PASSWORD: root
+#  test_db:
+#    image: postgres:14
+#    environment:
+#      - POSTGRES_USER=test
+#      - POSTGRES_PASSWORD=test
+#      - POSTGRES_DB=test
+#    ports:
+#      - "5500:5432"
+#
+#  pgadmin:
+#    hostname: pgadmin
+#    image: dpage/pgadmin4:6
+#    environment:
+#      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+#      PGADMIN_DEFAULT_PASSWORD: root
 
 
