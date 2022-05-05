@@ -89,6 +89,7 @@ func (h Handler) GetAllOfCurrentUser(ctx echo.Context) error {
 // @Tags         playlist
 // @Accept          application/json
 // @Produce      application/json
+// @Param        Playlist  body      playlistProto.Playlist  true  "params of new playlist. Id will be set automatically."
 // @Success      200    {object}  webUtils.Success
 // @Failure      400    {object}  webUtils.Error  "Data is invalid"
 // @Failure      405    {object}  webUtils.Error  "Method is not allowed"

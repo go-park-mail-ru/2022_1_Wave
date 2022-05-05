@@ -234,3 +234,27 @@ func (table TrackRepo) GetTracksFromPlaylist(playlistId int64) ([]*trackProto.Tr
 	err := table.Sqlx.Select(&tracks, query, playlistId)
 	return tracks, err
 }
+
+func (table TrackRepo) LikeCheckByUser(trackId int64, userId int64) (bool, error) {
+	track, err := table.SelectByID(trackId)
+
+	if err != nil {
+		return false, err
+	}
+
+	query := `
+		SELECT track_id FROM userTracksLike
+		WHERE track_id = $1 and user_id = $2`
+
+	likedTrackId := -1
+	err = table.Sqlx.Get(&likedTrackId, query, track.Id, userId)
+	if err != nil {
+		return false, nil
+	}
+	return true, nil
+	//if likedTrackId <= 0 {
+	//	return false, nil
+	//} else {
+	//	return true, nil
+	//}
+}

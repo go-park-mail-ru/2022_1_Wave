@@ -156,7 +156,7 @@ func (useCase AlbumGrpc) AddToFavorites(ctx context.Context, data *gatewayProto.
 }
 
 func (useCase AlbumGrpc) RemoveFromFavorites(ctx context.Context, data *gatewayProto.UserIdAlbumIdArg) (*emptypb.Empty, error) {
-	if err := (*useCase.TrackRepo).RemoveFromFavorites(data.AlbumId, data.UserId); err != nil {
+	if err := (*useCase.AlbumRepo).RemoveFromFavorites(data.AlbumId, data.UserId); err != nil {
 		return nil, err
 	}
 

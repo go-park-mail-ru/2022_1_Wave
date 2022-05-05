@@ -18,8 +18,9 @@ func NewPlaylistPostgresRepo(db *sqlx.DB) domain.PlaylistRepo {
 }
 
 func (table PlaylistRepo) SelectByIDOfCurrentUser(userId int64, playlistId int64) (*playlistProto.Playlist, error) {
-	query := `SELECT (playlist_id, title) FROM playlist
-			JOIN userPlaylist ON userPlaylist.user_id = $1 and userPlaylist.playlist_id = $2 and userplaylist.playlist_id = playlist.id;`
+	query := `SELECT id, title FROM playlist
+			JOIN userPlaylist ON userPlaylist.user_id = $1 and userPlaylist.playlist_id = $2 
+			WHERE userplaylist.playlist_id = playlist.id;`
 
 	holder := playlistProto.Playlist{}
 	if err := table.Sqlx.Get(&holder, query, userId, playlistId); err != nil {
@@ -49,15 +50,24 @@ func (table PlaylistRepo) Create(userId int64, playlist *playlistProto.Playlist)
 	// do query
 
 	if _, err := table.Sqlx.Exec(query, playlist.Title); err != nil {
+		if err != nil {
+			return err
+		}
+	}
+
+	id, err := table.GetLastId()
+	if err != nil {
 		return err
 	}
+
+	playlist.Id = id
 
 	query = `
 			INSERT INTO userPlaylist(user_id, playlist_id) 
 			VALUES ($1, $2)
 			RETURNING playlist_id`
 
-	_, err := table.Sqlx.Exec(query, userId, playlist.Id)
+	_, err = table.Sqlx.Exec(query, userId, playlist.Id)
 	return err
 }
 
@@ -104,7 +114,7 @@ func (table PlaylistRepo) GetAll() ([]*playlistProto.Playlist, error) {
 }
 
 func (table PlaylistRepo) GetAllOfCurrentUser(userId int64) ([]*playlistProto.Playlist, error) {
-	query := `SELECT playlist_id, title
+	query := `SELECT id, title
 			  FROM playlist 
 			  JOIN userPlaylist ON userPlaylist.user_id = $1 and playlist.id = userPlaylist.playlist_id
 			  ORDER BY id;`
@@ -165,7 +175,9 @@ func (table PlaylistRepo) GetSizeOfCurrentUser(userId int64) (int64, error) {
 
 func (table PlaylistRepo) AddToPlaylist(userId int64, playlistId int64, trackId int64) error {
 	selected, err := table.SelectByIDOfCurrentUser(userId, playlistId)
-
+	if err != nil {
+		return err
+	}
 	query := `INSERT INTO playlistTrack(playlist_id, track_id) 
 			  VALUES ($1, $2)
 			  `
@@ -174,11 +186,14 @@ func (table PlaylistRepo) AddToPlaylist(userId int64, playlistId int64, trackId 
 		return err
 	}
 
-	return err
+	return nil
 }
 
 func (table PlaylistRepo) RemoveFromPlaylist(userId int64, playlistId int64, trackId int64) error {
 	selected, err := table.SelectByIDOfCurrentUser(userId, playlistId)
+	if err != nil {
+		return err
+	}
 
 	query := `DELETE FROM playlistTrack
 			  WHERE playlistTrack.playlist_id = $1 and playlistTrack.track_id = $2 
@@ -188,5 +203,5 @@ func (table PlaylistRepo) RemoveFromPlaylist(userId int64, playlistId int64, tra
 		return err
 	}
 
-	return err
+	return nil
 }

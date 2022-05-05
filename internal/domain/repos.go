@@ -65,6 +65,7 @@ type TrackRepo interface {
 	GetTracksFromPlaylist(playlistId int64) ([]*trackProto.Track, error)
 	GetPopularTracksFromArtist(artistId int64) ([]*trackProto.Track, error)
 	Like(id int64, userId int64) error
+	LikeCheckByUser(id int64, userId int64) (bool, error)
 	Listen(id int64) error
 	SearchByTitle(title string) ([]*trackProto.Track, error)
 	GetFavorites(userId int64) ([]*trackProto.Track, error)
@@ -85,4 +86,5 @@ type PlaylistRepo interface {
 	GetSizeOfCurrentUser(userId int64) (int64, error)
 	GetSize() (int64, error)
 	AddToPlaylist(userId int64, playlistId int64, trackId int64) error
+	RemoveFromPlaylist(userId int64, playlistId int64, trackId int64) error
 }

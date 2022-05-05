@@ -240,6 +240,42 @@ func (h Handler) Like(ctx echo.Context) error {
 			Result: internal.SuccessLiked + "(" + fmt.Sprint(id) + ")"})
 }
 
+// LikeCheckByUser godoc
+// @Summary      LikeCheckByUser
+// @Description  LikeCheckByUser
+// @Tags         track
+// @Accept          application/json
+// @Produce      application/json
+// @Param        id   path      integer  true  "id of track which need to check for like"
+// @Success      200  {object}  webUtils.Success
+// @Failure      400  {object}  webUtils.Error  "Data is invalid"
+// @Failure      405  {object}  webUtils.Error  "Method is not allowed"
+// @Router       /api/v1/tracks/like/{id} [get]
+func (h Handler) LikeCheckByUser(ctx echo.Context) error {
+	userId, err := internal.GetUserId(ctx, h.UserUseCase)
+	if err != nil {
+		return internal.UnauthorizedError(ctx)
+	}
+	internal.GetIdInt64ByFieldId(ctx)
+	id, err := internal.GetIdInt64ByFieldId(ctx)
+	if err != nil {
+		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
+	}
+	if id < 0 {
+		return webUtils.WriteErrorEchoServer(ctx, errors.New(internal.IndexOutOfRange), http.StatusBadRequest)
+	}
+
+	liked, err := h.TrackUseCase.LikeCheckByUser(id, userId)
+	if err != nil {
+		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
+	}
+
+	return ctx.JSON(http.StatusOK,
+		webUtils.Success{
+			Status: webUtils.OK,
+			Result: liked})
+}
+
 // Listen godoc
 // @Summary      Listen
 // @Description  listen track by id
@@ -302,7 +338,7 @@ func (h Handler) GetFavorites(ctx echo.Context) error {
 // @Tags         track
 // @Accept          application/json
 // @Produce      application/json
-// @Param        trackId  path      int  true  "trackId"
+// @Param        id  path      integer  true  "trackId"
 // @Success      200    {object}  webUtils.Success
 // @Failure      400    {object}  webUtils.Error  "Data is invalid"
 // @Failure      405    {object}  webUtils.Error  "Method is not allowed"
@@ -334,7 +370,7 @@ func (h Handler) AddToFavorites(ctx echo.Context) error {
 // @Tags         track
 // @Accept          application/json
 // @Produce      application/json
-// @Param        trackId  path      int  true  "trackId"
+// @Param        id  path      integer  true  "trackId"
 // @Success      200    {object}  webUtils.Success
 // @Failure      400    {object}  webUtils.Error  "Data is invalid"
 // @Failure      405    {object}  webUtils.Error  "Method is not allowed"

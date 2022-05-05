@@ -73,6 +73,11 @@ func (useCase PlaylistGrpc) AddToPlaylist(ctx context.Context, input *playlistPr
 	return &emptypb.Empty{}, err
 }
 
+func (useCase PlaylistGrpc) RemoveFromPlaylist(ctx context.Context, input *playlistProto.UserIdPlaylistIdTracksArg) (*emptypb.Empty, error) {
+	err := (*useCase.PlaylistRepo).RemoveFromPlaylist(input.UserId, input.PlaylistId, input.TrackId)
+	return &emptypb.Empty{}, err
+}
+
 func (useCase PlaylistGrpc) Update(ctx context.Context, input *playlistProto.UserIdPlaylistArg) (*emptypb.Empty, error) {
 	err := (*useCase.PlaylistRepo).Update(input.UserId, input.Playlist)
 	return &emptypb.Empty{}, err

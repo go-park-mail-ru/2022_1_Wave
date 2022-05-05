@@ -101,7 +101,7 @@ func (useCase ArtistGrpc) AddToFavorites(ctx context.Context, data *gatewayProto
 }
 
 func (useCase ArtistGrpc) RemoveFromFavorites(ctx context.Context, data *gatewayProto.UserIdArtistIdArg) (*emptypb.Empty, error) {
-	if err := (*useCase.TrackRepo).RemoveFromFavorites(data.ArtistId, data.UserId); err != nil {
+	if err := (*useCase.ArtistRepo).RemoveFromFavorites(data.ArtistId, data.UserId); err != nil {
 		return nil, err
 	}
 
