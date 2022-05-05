@@ -246,7 +246,7 @@ func (h Handler) Like(ctx echo.Context) error {
 // @Tags         track
 // @Accept          application/json
 // @Produce      application/json
-// @Param        id   path      integer  true  "id of track which need to be liked"
+// @Param        id   path      integer  true  "id of track which need to check for like"
 // @Success      200  {object}  webUtils.Success
 // @Failure      400  {object}  webUtils.Error  "Data is invalid"
 // @Failure      405  {object}  webUtils.Error  "Method is not allowed"
