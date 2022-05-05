@@ -8,6 +8,7 @@ import (
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/playlist/playlistProto"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/track/trackProto"
 	proto_user "github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/user/proto"
+	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
@@ -39,7 +40,9 @@ func (launcher *Launcher) MakePlaylistGrpcClient(address string) playlistProto.P
 }
 
 func (launcher *Launcher) createConnection(host string, address string) *grpc.ClientConn {
-	grpcConn, err := grpc.Dial(host+address, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	grpcConn, err := grpc.Dial(host+address, grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithUnaryInterceptor(grpc_prometheus.UnaryClientInterceptor),
+		grpc.WithStreamInterceptor(grpc_prometheus.StreamClientInterceptor))
 	if err != nil {
 		logger.GlobalLogger.Logrus.Fatalln("Error to launch grpc:", err)
 	}
