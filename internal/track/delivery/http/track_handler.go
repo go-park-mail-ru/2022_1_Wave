@@ -54,7 +54,7 @@ func (h Handler) GetAll(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK,
 		webUtils.Success{
 			Status: webUtils.OK,
-			Result: utils.TracksToMap(tracks)})
+			Result: tracks})
 }
 
 // Create godoc
@@ -217,7 +217,7 @@ func (h Handler) GetPopular(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK,
 		webUtils.Success{
 			Status: webUtils.OK,
-			Result: utils.TracksToMap(popular)})
+			Result: popular})
 }
 
 // GetPopularTracks godoc
@@ -253,7 +253,7 @@ func (h Handler) GetPopularTracks(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK,
 		webUtils.Success{
 			Status: webUtils.OK,
-			Result: utils.TracksToMap(popular)})
+			Result: popular})
 }
 
 // Like godoc
@@ -378,7 +378,7 @@ func (h Handler) GetFavorites(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK,
 		webUtils.Success{
 			Status: webUtils.OK,
-			Result: utils.TracksToMap(favorites)})
+			Result: favorites})
 }
 
 type trackIdWrapper struct {
