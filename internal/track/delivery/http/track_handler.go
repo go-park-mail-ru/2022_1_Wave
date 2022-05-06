@@ -6,6 +6,7 @@ import (
 	internal "github.com/go-park-mail-ru/2022_1_Wave/internal"
 	Gateway "github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/gateway"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/track/trackProto"
+	"github.com/go-park-mail-ru/2022_1_Wave/internal/tools/utils"
 	TrackUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/track/useCase"
 	user_domain "github.com/go-park-mail-ru/2022_1_Wave/internal/user"
 	"github.com/go-park-mail-ru/2022_1_Wave/pkg/webUtils"
@@ -23,14 +24,6 @@ func MakeHandler(track TrackUseCase.UseCase, user user_domain.UserUseCase) Handl
 		UserUseCase:  user,
 		TrackUseCase: track,
 	}
-}
-
-func toMap(tracks []*trackProto.TrackDataTransfer) map[int64]*trackProto.TrackDataTransfer {
-	trackMap := map[int64]*trackProto.TrackDataTransfer{}
-	for _, obj := range tracks {
-		trackMap[obj.Id] = obj
-	}
-	return trackMap
 }
 
 // GetAll godoc
@@ -61,7 +54,7 @@ func (h Handler) GetAll(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK,
 		webUtils.Success{
 			Status: webUtils.OK,
-			Result: toMap(tracks)})
+			Result: utils.TracksToMap(tracks)})
 }
 
 // Create godoc
@@ -224,7 +217,7 @@ func (h Handler) GetPopular(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK,
 		webUtils.Success{
 			Status: webUtils.OK,
-			Result: toMap(popular)})
+			Result: utils.TracksToMap(popular)})
 }
 
 // GetPopularTracks godoc
@@ -260,7 +253,7 @@ func (h Handler) GetPopularTracks(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK,
 		webUtils.Success{
 			Status: webUtils.OK,
-			Result: toMap(popular)})
+			Result: utils.TracksToMap(popular)})
 }
 
 // Like godoc
@@ -385,7 +378,7 @@ func (h Handler) GetFavorites(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK,
 		webUtils.Success{
 			Status: webUtils.OK,
-			Result: toMap(favorites)})
+			Result: utils.TracksToMap(favorites)})
 }
 
 type trackIdWrapper struct {
@@ -486,5 +479,5 @@ func (h Handler) GetTracksFromPlaylist(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK,
 		webUtils.Success{
 			Status: webUtils.OK,
-			Result: toMap(tracks)})
+			Result: utils.TracksToMap(tracks)})
 }

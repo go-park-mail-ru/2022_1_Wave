@@ -7,6 +7,7 @@ import (
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/album/albumProto"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/artist/artistProto"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/track/trackProto"
+	"github.com/go-park-mail-ru/2022_1_Wave/internal/tools/utils"
 	TrackUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/track/useCase"
 	user_domain "github.com/go-park-mail-ru/2022_1_Wave/internal/user"
 	"github.com/go-park-mail-ru/2022_1_Wave/pkg/webUtils"
@@ -32,9 +33,9 @@ func MakeHandler(album AlbumUseCase.UseCase, artist ArtistUseCase.UseCase, track
 }
 
 type SearchResult struct {
-	Albums  []*albumProto.AlbumDataTransfer   `json:"MatchedAlbums"`
-	Artists []*artistProto.ArtistDataTransfer `json:"MatchedArtists"`
-	Tracks  []*trackProto.TrackDataTransfer   `json:"MatchedTracks"`
+	Albums  map[int64]*albumProto.AlbumDataTransfer   `json:"MatchedAlbums"`
+	Artists map[int64]*artistProto.ArtistDataTransfer `json:"MatchedArtists"`
+	Tracks  map[int64]*trackProto.TrackDataTransfer   `json:"MatchedTracks"`
 }
 
 // Search godoc
@@ -126,9 +127,9 @@ func (h Handler) Search(ctx echo.Context) error {
 	tracks := <-tracksChan
 
 	result := SearchResult{
-		Albums:  albums,
-		Artists: artists,
-		Tracks:  tracks,
+		Albums:  utils.AlbumsToMap(albums),
+		Artists: utils.ArtistsToMap(artists),
+		Tracks:  utils.TracksToMap(tracks),
 	}
 
 	return ctx.JSON(http.StatusOK,

@@ -7,6 +7,7 @@ import (
 	AlbumUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/album/useCase"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/album/albumProto"
 	Gateway "github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/gateway"
+	"github.com/go-park-mail-ru/2022_1_Wave/internal/tools/utils"
 	user_domain "github.com/go-park-mail-ru/2022_1_Wave/internal/user"
 	"github.com/go-park-mail-ru/2022_1_Wave/pkg/webUtils"
 	"github.com/labstack/echo/v4"
@@ -24,14 +25,6 @@ func MakeHandler(album AlbumUseCase.UseCase, user user_domain.UserUseCase) Handl
 		UserUseCase:  user,
 		AlbumUseCase: album,
 	}
-}
-
-func albumsToMap(albums []*albumProto.AlbumDataTransfer) map[int64]*albumProto.AlbumDataTransfer {
-	albumMap := map[int64]*albumProto.AlbumDataTransfer{}
-	for _, obj := range albums {
-		albumMap[obj.Id] = obj
-	}
-	return albumMap
 }
 
 //func albumCoversToMap(albums []*albumProto.AlbumCoverDataTransfer) map[int64]*albumProto.AlbumCoverDataTransfer {
@@ -67,7 +60,7 @@ func (h Handler) GetAll(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK,
 		webUtils.Success{
 			Status: webUtils.OK,
-			Result: albumsToMap(albums)})
+			Result: utils.AlbumsToMap(albums)})
 }
 
 // GetAllCovers godoc
@@ -383,7 +376,7 @@ func (h Handler) GetPopular(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK,
 		webUtils.Success{
 			Status: webUtils.OK,
-			Result: albumsToMap(popular)})
+			Result: utils.AlbumsToMap(popular)})
 }
 
 // GetFavorites godoc
@@ -409,7 +402,7 @@ func (h Handler) GetFavorites(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK,
 		webUtils.Success{
 			Status: webUtils.OK,
-			Result: albumsToMap(favorites)})
+			Result: utils.AlbumsToMap(favorites)})
 }
 
 type albumIdWrapper struct {

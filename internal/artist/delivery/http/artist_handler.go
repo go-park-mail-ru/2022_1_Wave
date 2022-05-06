@@ -7,6 +7,7 @@ import (
 	ArtistUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/artist/useCase"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/artist/artistProto"
 	Gateway "github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/gateway"
+	"github.com/go-park-mail-ru/2022_1_Wave/internal/tools/utils"
 	TrackUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/track/useCase"
 	user_domain "github.com/go-park-mail-ru/2022_1_Wave/internal/user"
 	"github.com/go-park-mail-ru/2022_1_Wave/pkg/webUtils"
@@ -27,14 +28,6 @@ func MakeHandler(artist ArtistUseCase.UseCase, track TrackUseCase.UseCase, user 
 		ArtistUseCase: artist,
 		TrackUseCase:  track,
 	}
-}
-
-func toMap(artists []*artistProto.ArtistDataTransfer) map[int64]*artistProto.ArtistDataTransfer {
-	artistMap := map[int64]*artistProto.ArtistDataTransfer{}
-	for _, obj := range artists {
-		artistMap[obj.Id] = obj
-	}
-	return artistMap
 }
 
 // GetAll godoc
@@ -62,7 +55,7 @@ func (h Handler) GetAll(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK,
 		webUtils.Success{
 			Status: webUtils.OK,
-			Result: toMap(artists)})
+			Result: utils.ArtistsToMap(artists)})
 }
 
 // Create godoc
@@ -220,7 +213,7 @@ func (h Handler) GetPopular(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK,
 		webUtils.Success{
 			Status: webUtils.OK,
-			Result: toMap(popular)})
+			Result: utils.ArtistsToMap(popular)})
 }
 
 // GetFavorites godoc
@@ -247,7 +240,7 @@ func (h Handler) GetFavorites(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK,
 		webUtils.Success{
 			Status: webUtils.OK,
-			Result: toMap(favorites)})
+			Result: utils.ArtistsToMap(favorites)})
 }
 
 type artistIdWrapper struct {
