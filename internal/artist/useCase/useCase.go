@@ -9,15 +9,15 @@ import (
 )
 
 type UseCase interface {
-	GetAll() ([]*artistProto.ArtistDataTransfer, error)
+	GetAll(userId int64) ([]*artistProto.ArtistDataTransfer, error)
 	GetLastId() (int64, error)
 	Create(transfer *artistProto.Artist) error
 	Update(transfer *artistProto.Artist) error
 	Delete(int64) error
-	GetById(int64) (*artistProto.ArtistDataTransfer, error)
-	GetPopular() ([]*artistProto.ArtistDataTransfer, error)
+	GetById(artistId int64, userId int64) (*artistProto.ArtistDataTransfer, error)
+	GetPopular(userId int64) ([]*artistProto.ArtistDataTransfer, error)
 	GetSize() (int64, error)
-	SearchByName(name string) ([]*artistProto.ArtistDataTransfer, error)
+	SearchByName(userId int64, name string) ([]*artistProto.ArtistDataTransfer, error)
 	GetFavorites(int64) ([]*artistProto.ArtistDataTransfer, error)
 	AddToFavorites(userId int64, artistId int64) error
 	RemoveFromFavorites(userId int64, artistId int64) error
@@ -37,7 +37,7 @@ func NewArtistUseCase(albumAgent domain.AlbumAgent, artistAgent domain.ArtistAge
 	}
 }
 
-func (useCase artistUseCase) CastToDTO(artist *artistProto.Artist) (*artistProto.ArtistDataTransfer, error) {
+func (useCase artistUseCase) CastToDTO(userId int64, artist *artistProto.Artist) (*artistProto.ArtistDataTransfer, error) {
 	coverPath, err := Gateway.PathToArtistCover(artist, internal.PngFormat)
 	if err != nil {
 		return nil, err
@@ -51,7 +51,7 @@ func (useCase artistUseCase) CastToDTO(artist *artistProto.Artist) (*artistProto
 	albumsDto := make([]*albumProto.AlbumDataTransfer, len(albums))
 
 	for idx, album := range albums {
-		albumDto, err := Gateway.GetFullAlbumByArtist(useCase.trackAgent, album, artist)
+		albumDto, err := Gateway.GetFullAlbumByArtist(userId, useCase.trackAgent, album, artist)
 		if err != nil {
 			return nil, err
 		}
@@ -67,7 +67,7 @@ func (useCase artistUseCase) CastToDTO(artist *artistProto.Artist) (*artistProto
 	}, nil
 }
 
-func (useCase artistUseCase) GetAll() ([]*artistProto.ArtistDataTransfer, error) {
+func (useCase artistUseCase) GetAll(userId int64) ([]*artistProto.ArtistDataTransfer, error) {
 	albums, err := useCase.artistAgent.GetAll()
 
 	if err != nil {
@@ -77,7 +77,7 @@ func (useCase artistUseCase) GetAll() ([]*artistProto.ArtistDataTransfer, error)
 	dto := make([]*artistProto.ArtistDataTransfer, len(albums))
 
 	for idx, obj := range albums {
-		result, err := useCase.CastToDTO(obj)
+		result, err := useCase.CastToDTO(userId, obj)
 		if err != nil {
 			return nil, err
 		}
@@ -109,20 +109,20 @@ func (useCase artistUseCase) Delete(id int64) error {
 	return err
 }
 
-func (useCase artistUseCase) GetById(id int64) (*artistProto.ArtistDataTransfer, error) {
+func (useCase artistUseCase) GetById(id int64, userId int64) (*artistProto.ArtistDataTransfer, error) {
 	artist, err := useCase.artistAgent.GetById(id)
 	if err != nil {
 		return nil, err
 	}
 
-	dto, err := useCase.CastToDTO(artist)
+	dto, err := useCase.CastToDTO(userId, artist)
 	if err != nil {
 		return nil, err
 	}
 	return dto, err
 }
 
-func (useCase artistUseCase) GetPopular() ([]*artistProto.ArtistDataTransfer, error) {
+func (useCase artistUseCase) GetPopular(userId int64) ([]*artistProto.ArtistDataTransfer, error) {
 	artists, err := useCase.artistAgent.GetPopular()
 
 	if err != nil {
@@ -132,7 +132,7 @@ func (useCase artistUseCase) GetPopular() ([]*artistProto.ArtistDataTransfer, er
 	dto := make([]*artistProto.ArtistDataTransfer, len(artists))
 
 	for idx, obj := range artists {
-		result, err := useCase.CastToDTO(obj)
+		result, err := useCase.CastToDTO(userId, obj)
 		if err != nil {
 			return nil, err
 		}
@@ -145,7 +145,7 @@ func (useCase artistUseCase) GetSize() (int64, error) {
 	return useCase.artistAgent.GetSize()
 }
 
-func (useCase artistUseCase) SearchByName(title string) ([]*artistProto.ArtistDataTransfer, error) {
+func (useCase artistUseCase) SearchByName(userId int64, title string) ([]*artistProto.ArtistDataTransfer, error) {
 	artists, err := useCase.artistAgent.SearchByName(title)
 
 	if err != nil {
@@ -155,7 +155,7 @@ func (useCase artistUseCase) SearchByName(title string) ([]*artistProto.ArtistDa
 	dto := make([]*artistProto.ArtistDataTransfer, len(artists))
 
 	for idx, obj := range artists {
-		result, err := useCase.CastToDTO(obj)
+		result, err := useCase.CastToDTO(userId, obj)
 		if err != nil {
 			return nil, err
 		}
@@ -164,8 +164,8 @@ func (useCase artistUseCase) SearchByName(title string) ([]*artistProto.ArtistDa
 	return dto, nil
 }
 
-func (useCase artistUseCase) GetFavorites(id int64) ([]*artistProto.ArtistDataTransfer, error) {
-	artists, err := useCase.artistAgent.GetFavorites(id)
+func (useCase artistUseCase) GetFavorites(userId int64) ([]*artistProto.ArtistDataTransfer, error) {
+	artists, err := useCase.artistAgent.GetFavorites(userId)
 
 	if err != nil {
 		return nil, err
@@ -174,7 +174,7 @@ func (useCase artistUseCase) GetFavorites(id int64) ([]*artistProto.ArtistDataTr
 	dto := make([]*artistProto.ArtistDataTransfer, len(artists))
 
 	for idx, obj := range artists {
-		result, err := useCase.CastToDTO(obj)
+		result, err := useCase.CastToDTO(userId, obj)
 		if err != nil {
 			return nil, err
 		}

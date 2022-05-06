@@ -36,20 +36,24 @@ func MakeHandler(track TrackUseCase.UseCase, user user_domain.UserUseCase) Handl
 // @Failure      405  {object}  webUtils.Error  "Method is not allowed"
 // @Router       /api/v1/tracks/ [get]
 func (h Handler) GetAll(ctx echo.Context) error {
-	domains, err := h.TrackUseCase.GetAll()
+	userId, err := internal.GetUserId(ctx, h.UserUseCase)
+	if err != nil {
+		userId = -1
+	}
 
+	tracks, err := h.TrackUseCase.GetAll(userId)
 	if err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 	}
 
-	if domains == nil {
-		domains = []*trackProto.TrackDataTransfer{}
+	if tracks == nil {
+		tracks = []*trackProto.TrackDataTransfer{}
 	}
 
 	return ctx.JSON(http.StatusOK,
 		webUtils.Success{
 			Status: webUtils.OK,
-			Result: domains})
+			Result: tracks})
 }
 
 // Create godoc
@@ -134,14 +138,19 @@ func (h Handler) Update(ctx echo.Context) error {
 // @Failure      405  {object}  webUtils.Error  "Method is not allowed"
 // @Router       /api/v1/tracks/{id} [get]
 func (h Handler) Get(ctx echo.Context) error {
-	id, err := internal.GetIdInt64ByFieldId(ctx)
+	userId, err := internal.GetUserId(ctx, h.UserUseCase)
+	if err != nil {
+		userId = -1
+	}
+
+	trackId, err := internal.GetIdInt64ByFieldId(ctx)
 	if err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 	}
-	if id < 0 {
+	if trackId < 0 {
 		return webUtils.WriteErrorEchoServer(ctx, errors.New(internal.IndexOutOfRange), http.StatusBadRequest)
 	}
-	track, err := h.TrackUseCase.GetById(id)
+	track, err := h.TrackUseCase.GetById(trackId, userId)
 
 	if err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
@@ -194,7 +203,12 @@ func (h Handler) Delete(ctx echo.Context) error {
 // @Failure      405  {object}  webUtils.Error  "Method is not allowed"
 // @Router       /api/v1/tracks/popular [get]
 func (h Handler) GetPopular(ctx echo.Context) error {
-	popular, err := h.TrackUseCase.GetPopular()
+	userId, err := internal.GetUserId(ctx, h.UserUseCase)
+	if err != nil {
+		userId = -1
+	}
+
+	popular, err := h.TrackUseCase.GetPopular(userId)
 	if err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 	}
@@ -221,7 +235,6 @@ func (h Handler) Like(ctx echo.Context) error {
 	if err != nil {
 		return internal.UnauthorizedError(ctx)
 	}
-	internal.GetIdInt64ByFieldId(ctx)
 	id, err := internal.GetIdInt64ByFieldId(ctx)
 	if err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
@@ -256,7 +269,6 @@ func (h Handler) LikeCheckByUser(ctx echo.Context) error {
 	if err != nil {
 		return internal.UnauthorizedError(ctx)
 	}
-	internal.GetIdInt64ByFieldId(ctx)
 	id, err := internal.GetIdInt64ByFieldId(ctx)
 	if err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
@@ -408,11 +420,16 @@ func (h Handler) RemoveFromFavorites(ctx echo.Context) error {
 // @Failure      405    {object}  webUtils.Error  "Method is not allowed"
 // @Router       /api/v1/tracks/playlist/{id} [get]
 func (h Handler) GetTracksFromPlaylist(ctx echo.Context) error {
+	userId, err := internal.GetUserId(ctx, h.UserUseCase)
+	if err != nil {
+		userId = -1
+	}
+
 	playlistId, err := internal.GetIdInt64ByFieldId(ctx)
 	if err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 	}
-	tracks, err := h.TrackUseCase.GetTracksFromPlaylist(playlistId)
+	tracks, err := h.TrackUseCase.GetTracksFromPlaylist(playlistId, userId)
 	if err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 	}

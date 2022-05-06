@@ -40,7 +40,7 @@ func Router(e *echo.Echo,
 	playlistHandler := playlistDeliveryHttp.MakeHandler(playlist, user)
 	authHandler := authHttp.MakeHandler(auth)
 	userHandler := userHttp.MakeHandler(user)
-	gatewayHandler := gatewayDeliveryHttp.MakeHandler(album, artist, track)
+	gatewayHandler := gatewayDeliveryHttp.MakeHandler(album, artist, track, user)
 
 	m := auth_middleware.InitMiddleware(auth)
 

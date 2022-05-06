@@ -8,6 +8,7 @@ import (
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/artist/artistProto"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/track/trackProto"
 	TrackUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/track/useCase"
+	user_domain "github.com/go-park-mail-ru/2022_1_Wave/internal/user"
 	"github.com/go-park-mail-ru/2022_1_Wave/pkg/webUtils"
 	"github.com/labstack/echo/v4"
 	"net/http"
@@ -18,13 +19,15 @@ type Handler struct {
 	ArtistUseCase ArtistUseCase.UseCase
 	AlbumUseCase  AlbumUseCase.UseCase
 	TrackUseCase  TrackUseCase.UseCase
+	UserUseCase   user_domain.UserUseCase
 }
 
-func MakeHandler(album AlbumUseCase.UseCase, artist ArtistUseCase.UseCase, track TrackUseCase.UseCase) Handler {
+func MakeHandler(album AlbumUseCase.UseCase, artist ArtistUseCase.UseCase, track TrackUseCase.UseCase, user user_domain.UserUseCase) Handler {
 	return Handler{
 		ArtistUseCase: artist,
 		AlbumUseCase:  album,
 		TrackUseCase:  track,
+		UserUseCase:   user,
 	}
 }
 
@@ -46,6 +49,8 @@ type SearchResult struct {
 // @Failure      405  {object}  webUtils.Error  "Method is not allowed"
 // @Router       /api/v1/search/{toFind} [get]
 func (h Handler) Search(ctx echo.Context) error {
+	userId, _ := constants.GetUserId(ctx, h.UserUseCase)
+
 	searchString := ctx.Param(constants.FieldToFind)
 
 	albumsChan := make(chan []*albumProto.AlbumDataTransfer, 1)
@@ -60,7 +65,7 @@ func (h Handler) Search(ctx echo.Context) error {
 	wg.Add(1)
 	go func(albumsChan chan []*albumProto.AlbumDataTransfer, errorChan chan error, wg *sync.WaitGroup) {
 		defer wg.Done()
-		albums, err := h.AlbumUseCase.SearchByTitle(searchString)
+		albums, err := h.AlbumUseCase.SearchByTitle(userId, searchString)
 		if err != nil {
 			errorChan <- err
 		} else {
@@ -73,7 +78,7 @@ func (h Handler) Search(ctx echo.Context) error {
 	wg.Add(1)
 	go func(artistsChan chan []*artistProto.ArtistDataTransfer, errorChan chan error, wg *sync.WaitGroup) {
 		wg.Done()
-		artists, err := h.ArtistUseCase.SearchByName(searchString)
+		artists, err := h.ArtistUseCase.SearchByName(userId, searchString)
 		if err != nil {
 			errorChan <- err
 		} else {
@@ -86,7 +91,7 @@ func (h Handler) Search(ctx echo.Context) error {
 	wg.Add(1)
 	go func(tracksChan chan []*trackProto.TrackDataTransfer, errorChan chan error, wg *sync.WaitGroup) {
 		wg.Done()
-		tracks, err := h.TrackUseCase.SearchByTitle(searchString)
+		tracks, err := h.TrackUseCase.SearchByTitle(searchString, userId)
 		if err != nil {
 			errorChan <- err
 		} else {

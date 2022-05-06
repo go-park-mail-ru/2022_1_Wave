@@ -40,7 +40,8 @@ func MakeHandler(artist ArtistUseCase.UseCase, track TrackUseCase.UseCase, user 
 // @Failure      405  {object}  webUtils.Error  "Method is not allowed"
 // @Router       /api/v1/artists/ [get]
 func (h Handler) GetAll(ctx echo.Context) error {
-	domains, err := h.ArtistUseCase.GetAll()
+	userId, err := internal.GetUserId(ctx, h.UserUseCase)
+	domains, err := h.ArtistUseCase.GetAll(userId)
 
 	if err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
@@ -138,6 +139,7 @@ func (h Handler) Update(ctx echo.Context) error {
 // @Failure      405  {object}  webUtils.Error  "Method is not allowed"
 // @Router       /api/v1/artists/{id} [get]
 func (h Handler) Get(ctx echo.Context) error {
+	userId, err := internal.GetUserId(ctx, h.UserUseCase)
 	id, err := internal.GetIdInt64ByFieldId(ctx)
 	if err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
@@ -147,7 +149,7 @@ func (h Handler) Get(ctx echo.Context) error {
 		return webUtils.WriteErrorEchoServer(ctx, errors.New(internal.IndexOutOfRange), http.StatusBadRequest)
 	}
 
-	obj, err := h.ArtistUseCase.GetById(id)
+	obj, err := h.ArtistUseCase.GetById(id, userId)
 
 	if err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
@@ -200,7 +202,9 @@ func (h Handler) Delete(ctx echo.Context) error {
 // @Failure      405  {object}  webUtils.Error  "Method is not allowed"
 // @Router       /api/v1/artists/popular [get]
 func (h Handler) GetPopular(ctx echo.Context) error {
-	popular, err := h.ArtistUseCase.GetPopular()
+	userId, err := internal.GetUserId(ctx, h.UserUseCase)
+
+	popular, err := h.ArtistUseCase.GetPopular(userId)
 	if err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 	}
@@ -223,6 +227,11 @@ func (h Handler) GetPopular(ctx echo.Context) error {
 // @Failure      405  {object}  webUtils.Error  "Method is not allowed"
 // @Router       /api/v1/artists/{id}/popular [get]
 func (h Handler) GetPopularTracks(ctx echo.Context) error {
+	userId, err := internal.GetUserId(ctx, h.UserUseCase)
+	if err != nil {
+		userId = -1
+	}
+
 	id, err := internal.GetIdInt64ByFieldId(ctx)
 	if err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
@@ -231,7 +240,7 @@ func (h Handler) GetPopularTracks(ctx echo.Context) error {
 		return webUtils.WriteErrorEchoServer(ctx, errors.New(internal.IndexOutOfRange), http.StatusBadRequest)
 	}
 
-	popular, err := h.TrackUseCase.GetPopularTracksFromArtist(id)
+	popular, err := h.TrackUseCase.GetPopularTracksFromArtist(id, userId)
 	if err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 	}

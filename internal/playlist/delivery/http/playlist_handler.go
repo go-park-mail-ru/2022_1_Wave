@@ -37,7 +37,8 @@ func MakeHandler(playlist PlaylistUseCase.UseCase, user user_domain.UserUseCase)
 // @Failure      405  {object}  webUtils.Error  "Method is not allowed"
 // @Router       /api/v1/playlists/ [get]
 func (h Handler) GetAll(ctx echo.Context) error {
-	playlists, err := h.PlaylistUseCase.GetAll()
+	userId, err := internal.GetUserId(ctx, h.UserUseCase)
+	playlists, err := h.PlaylistUseCase.GetAll(userId)
 	if err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 	}
@@ -175,6 +176,7 @@ func (h Handler) Update(ctx echo.Context) error {
 // @Failure      405  {object}  webUtils.Error  "Method is not allowed"
 // @Router       /api/v1/playlists/{id} [get]
 func (h Handler) Get(ctx echo.Context) error {
+	userId, err := internal.GetUserId(ctx, h.UserUseCase)
 	id, err := internal.GetIdInt64ByFieldId(ctx)
 	if err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
@@ -183,7 +185,7 @@ func (h Handler) Get(ctx echo.Context) error {
 	if id < 0 {
 		return webUtils.WriteErrorEchoServer(ctx, errors.New(internal.IndexOutOfRange), http.StatusBadRequest)
 	}
-	playlist, err := h.PlaylistUseCase.GetById(id)
+	playlist, err := h.PlaylistUseCase.GetById(id, userId)
 
 	if err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
@@ -274,8 +276,7 @@ func (h Handler) Delete(ctx echo.Context) error {
 // @Tags         playlist
 // @Accept       application/json
 // @Produce      application/json
-// @Param        playlistId   query      integer  true  "id of playlists"
-// @Param        trackId   query      integer  true  "id of track"
+// @Param        playlistIdTrackId  body      playlistProto.PlaylistIdTrackId  true  "ids of playlist and track"
 // @Success      200  {object}  webUtils.Success
 // @Failure      400  {object}  webUtils.Error  "Data is invalid"
 // @Failure      405  {object}  webUtils.Error  "Method is not allowed"
@@ -286,15 +287,14 @@ func (h Handler) AddToPlaylist(ctx echo.Context) error {
 		return internal.UnauthorizedError(ctx)
 	}
 
-	playlistId, err := strconv.ParseInt(ctx.QueryParam(internal.PlaylistId), 10, 64)
-	if err != nil {
-		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
+	idHolder := playlistProto.PlaylistIdTrackId{}
+
+	if err := ctx.Bind(&idHolder); err != nil {
+		return err
 	}
 
-	trackId, err := strconv.ParseInt(ctx.QueryParam(internal.TrackId), 10, 64)
-	if err != nil {
-		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
-	}
+	playlistId := idHolder.PlaylistId
+	trackId := idHolder.TrackId
 
 	if err := h.PlaylistUseCase.AddToPlaylist(userId, playlistId, trackId); err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)

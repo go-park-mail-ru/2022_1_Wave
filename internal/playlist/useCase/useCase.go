@@ -9,14 +9,14 @@ import (
 
 type UseCase interface {
 	GetAllOfCurrentUser(userId int64) ([]*playlistProto.PlaylistDataTransfer, error)
-	GetAll() ([]*playlistProto.PlaylistDataTransfer, error)
+	GetAll(userId int64) ([]*playlistProto.PlaylistDataTransfer, error)
 	GetLastIdOfCurrentUser(userId int64) (int64, error)
 	GetLastId() (int64, error)
 	Create(userId int64, playlist *playlistProto.Playlist) error
 	Update(userId int64, playlist *playlistProto.Playlist) error
 	Delete(userId int64, playlistId int64) error
 	GetByIdOfCurrentUser(userId int64, playlistId int64) (*playlistProto.PlaylistDataTransfer, error)
-	GetById(playlistId int64) (*playlistProto.PlaylistDataTransfer, error)
+	GetById(playlistId int64, userId int64) (*playlistProto.PlaylistDataTransfer, error)
 	GetSizeOfCurrentUser(userId int64) (int64, error)
 	GetSize() (int64, error)
 	AddToPlaylist(userId int64, playlistId int64, trackId int64) error
@@ -37,7 +37,7 @@ func NewPlaylistUseCase(playlistAgent domain.PlaylistAgent, artistAgent domain.A
 	}
 }
 
-func (useCase playlistUseCase) CastToDTO(playlist *playlistProto.Playlist) (*playlistProto.PlaylistDataTransfer, error) {
+func (useCase playlistUseCase) CastToDTO(userId int64, playlist *playlistProto.Playlist) (*playlistProto.PlaylistDataTransfer, error) {
 	tracksFromPlaylist, err := useCase.trackAgent.GetTracksFromPlaylist(playlist.Id)
 	if err != nil {
 		return nil, err
@@ -49,7 +49,7 @@ func (useCase playlistUseCase) CastToDTO(playlist *playlistProto.Playlist) (*pla
 		if err != nil {
 			return nil, err
 		}
-		dto[idx], err = Gateway.CastTrackToDto(track, artist)
+		dto[idx], err = Gateway.CastTrackToDto(track, artist, useCase.trackAgent, userId)
 		if err != nil {
 			return nil, err
 		}
@@ -74,7 +74,7 @@ func (useCase playlistUseCase) GetAllOfCurrentUser(userId int64) ([]*playlistPro
 	dto := make([]*playlistProto.PlaylistDataTransfer, len(playlists))
 
 	for idx, obj := range playlists {
-		result, err := useCase.CastToDTO(obj)
+		result, err := useCase.CastToDTO(userId, obj)
 		if err != nil {
 			return nil, err
 		}
@@ -83,7 +83,7 @@ func (useCase playlistUseCase) GetAllOfCurrentUser(userId int64) ([]*playlistPro
 	return dto, nil
 }
 
-func (useCase playlistUseCase) GetAll() ([]*playlistProto.PlaylistDataTransfer, error) {
+func (useCase playlistUseCase) GetAll(userId int64) ([]*playlistProto.PlaylistDataTransfer, error) {
 	playlists, err := useCase.playlistAgent.GetAll()
 
 	if err != nil {
@@ -93,7 +93,7 @@ func (useCase playlistUseCase) GetAll() ([]*playlistProto.PlaylistDataTransfer, 
 	dto := make([]*playlistProto.PlaylistDataTransfer, len(playlists))
 
 	for idx, obj := range playlists {
-		result, err := useCase.CastToDTO(obj)
+		result, err := useCase.CastToDTO(userId, obj)
 		if err != nil {
 			return nil, err
 		}
@@ -139,20 +139,20 @@ func (useCase playlistUseCase) GetByIdOfCurrentUser(userId int64, id int64) (*pl
 		return nil, err
 	}
 
-	dto, err := useCase.CastToDTO(playlist)
+	dto, err := useCase.CastToDTO(userId, playlist)
 	if err != nil {
 		return nil, err
 	}
 	return dto, err
 }
 
-func (useCase playlistUseCase) GetById(id int64) (*playlistProto.PlaylistDataTransfer, error) {
+func (useCase playlistUseCase) GetById(id int64, userId int64) (*playlistProto.PlaylistDataTransfer, error) {
 	playlist, err := useCase.playlistAgent.GetById(id)
 	if err != nil {
 		return nil, err
 	}
 
-	dto, err := useCase.CastToDTO(playlist)
+	dto, err := useCase.CastToDTO(userId, playlist)
 	if err != nil {
 		return nil, err
 	}

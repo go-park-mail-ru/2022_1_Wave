@@ -23,6 +23,7 @@ message TrackDataTransfer {
   int64 likes = 6; // @gotags: json:"likes" example:"5"
   int64 listenings = 7; // @gotags: json:"listenings" example:"500"
   int64 duration = 8; // @gotags: json:"duration" example:"531"
+  bool isLiked = 9; // @gotags: json:"isLiked" example:"true"
 }
 
 message TrackUseCaseResponse {
