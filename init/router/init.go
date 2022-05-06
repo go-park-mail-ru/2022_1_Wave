@@ -49,7 +49,7 @@ func Router(e *echo.Echo,
 	SetAlbumsRoutes(v1, albumHandler)
 	logger.GlobalLogger.Logrus.Warnln("setting albums routes")
 
-	SetArtistsRoutes(v1, artistHandler)
+	SetArtistsRoutes(v1, artistHandler, trackHandler)
 	logger.GlobalLogger.Logrus.Warnln("setting artists routes")
 
 	SetTracksRoutes(v1, trackHandler)
@@ -98,7 +98,7 @@ func SetAlbumsRoutes(apiVersion *echo.Group, handler albumDeliveryHttp.Handler) 
 }
 
 // SetArtistsRoutes artists
-func SetArtistsRoutes(apiVersion *echo.Group, handler artistDeliveryHttp.Handler) {
+func SetArtistsRoutes(apiVersion *echo.Group, handler artistDeliveryHttp.Handler, trackHandler trackDeliveryHttp.Handler) {
 	artistRoutes := apiVersion.Group(artistsPrefix)
 
 	artistRoutes.GET(idEchoPattern, handler.Get)
@@ -106,7 +106,7 @@ func SetArtistsRoutes(apiVersion *echo.Group, handler artistDeliveryHttp.Handler
 	artistRoutes.POST(locate, handler.Create)
 	artistRoutes.PUT(locate, handler.Update)
 	artistRoutes.GET(popularPrefix, handler.GetPopular)
-	artistRoutes.GET(idEchoPattern+popularPrefix, handler.GetPopularTracks)
+	artistRoutes.GET(idEchoPattern+popularPrefix, trackHandler.GetPopularTracks)
 	artistRoutes.GET(favoritesPrefix, handler.GetFavorites)
 	artistRoutes.POST(favoritesPrefix, handler.AddToFavorites)
 	artistRoutes.DELETE(favoritesPrefix+idEchoPattern, handler.RemoveFromFavorites)

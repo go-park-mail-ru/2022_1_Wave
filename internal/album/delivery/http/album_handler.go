@@ -26,6 +26,22 @@ func MakeHandler(album AlbumUseCase.UseCase, user user_domain.UserUseCase) Handl
 	}
 }
 
+func albumsToMap(albums []*albumProto.AlbumDataTransfer) map[int64]*albumProto.AlbumDataTransfer {
+	albumMap := map[int64]*albumProto.AlbumDataTransfer{}
+	for _, obj := range albums {
+		albumMap[obj.Id] = obj
+	}
+	return albumMap
+}
+
+//func albumCoversToMap(albums []*albumProto.AlbumCoverDataTransfer) map[int64]*albumProto.AlbumCoverDataTransfer {
+//	covers := map[int64]*albumProto.AlbumCoverDataTransfer{}
+//	for _, obj := range albums {
+//		covers[obj.] = obj
+//	}
+//	return covers
+//}
+
 // GetAll godoc
 // @Summary      GetAll
 // @Description  getting all albums
@@ -39,19 +55,19 @@ func MakeHandler(album AlbumUseCase.UseCase, user user_domain.UserUseCase) Handl
 func (h Handler) GetAll(ctx echo.Context) error {
 	userId, err := internal.GetUserId(ctx, h.UserUseCase)
 
-	domains, err := h.AlbumUseCase.GetAll(userId)
+	albums, err := h.AlbumUseCase.GetAll(userId)
 	if err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 	}
 
-	if domains == nil {
-		domains = []*albumProto.AlbumDataTransfer{}
+	if albums == nil {
+		albums = []*albumProto.AlbumDataTransfer{}
 	}
 
 	return ctx.JSON(http.StatusOK,
 		webUtils.Success{
 			Status: webUtils.OK,
-			Result: domains})
+			Result: albumsToMap(albums)})
 }
 
 // GetAllCovers godoc
@@ -367,7 +383,7 @@ func (h Handler) GetPopular(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK,
 		webUtils.Success{
 			Status: webUtils.OK,
-			Result: popular})
+			Result: albumsToMap(popular)})
 }
 
 // GetFavorites godoc
@@ -393,7 +409,7 @@ func (h Handler) GetFavorites(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK,
 		webUtils.Success{
 			Status: webUtils.OK,
-			Result: favorites})
+			Result: albumsToMap(favorites)})
 }
 
 type albumIdWrapper struct {

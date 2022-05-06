@@ -97,11 +97,11 @@ func CastTrackToDto(track *trackProto.Track, artist *artistProto.Artist, trackAg
 }
 
 // --------------------------------------
-func CastTracksByArtistToDto(userId int64, trackAgent domain.TrackAgent, tracks []*trackProto.Track, artist *artistProto.Artist) ([]*trackProto.TrackDataTransfer, error) {
+func CastTracksByArtistToDto(userId int64, trackAgent domain.TrackAgent, tracks []*trackProto.Track, artist *artistProto.Artist) (map[int64]*trackProto.TrackDataTransfer, error) {
 	var err error
-	tracksDto := make([]*trackProto.TrackDataTransfer, len(tracks))
-	for idx, track := range tracks {
-		tracksDto[idx], err = CastTrackToDto(track, artist, trackAgent, userId)
+	tracksDto := map[int64]*trackProto.TrackDataTransfer{}
+	for _, track := range tracks {
+		tracksDto[track.Id], err = CastTrackToDto(track, artist, trackAgent, userId)
 		if err != nil {
 			return nil, err
 		}

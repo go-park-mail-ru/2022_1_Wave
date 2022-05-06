@@ -19,7 +19,7 @@ message AlbumDataTransfer {
   string title = 2; // @gotags: json:"title" example:"Mercury"
   string artist = 3; // @gotags: json:"artist" example:"Hexed"
   string cover = 4; // @gotags: json:"cover" example:"assets/album_1.png"
-  repeated track.TrackDataTransfer Tracks = 5; // @gotags: json:"tracks"
+  map<int64, track.TrackDataTransfer> Tracks = 5; // @gotags: json:"tracks"
 }
 
 message AlbumCover {

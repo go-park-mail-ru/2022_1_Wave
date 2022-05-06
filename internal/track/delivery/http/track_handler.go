@@ -25,6 +25,14 @@ func MakeHandler(track TrackUseCase.UseCase, user user_domain.UserUseCase) Handl
 	}
 }
 
+func toMap(tracks []*trackProto.TrackDataTransfer) map[int64]*trackProto.TrackDataTransfer {
+	trackMap := map[int64]*trackProto.TrackDataTransfer{}
+	for _, obj := range tracks {
+		trackMap[obj.Id] = obj
+	}
+	return trackMap
+}
+
 // GetAll godoc
 // @Summary      GetAll
 // @Description  getting all tracks
@@ -53,7 +61,7 @@ func (h Handler) GetAll(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK,
 		webUtils.Success{
 			Status: webUtils.OK,
-			Result: tracks})
+			Result: toMap(tracks)})
 }
 
 // Create godoc
@@ -216,7 +224,43 @@ func (h Handler) GetPopular(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK,
 		webUtils.Success{
 			Status: webUtils.OK,
-			Result: popular})
+			Result: toMap(popular)})
+}
+
+// GetPopularTracks godoc
+// @Summary      GetPopularTracks
+// @Description  getting top20 popular tracks of this artist
+// @Tags         artist
+// @Accept          application/json
+// @Produce      application/json
+// @Param        id   path      integer  true  "id of artist which need to be getted"
+// @Success      200  {object}  webUtils.Success
+// @Failure      400  {object}  webUtils.Error  "Data is invalid"
+// @Failure      405  {object}  webUtils.Error  "Method is not allowed"
+// @Router       /api/v1/artists/{id}/popular [get]
+func (h Handler) GetPopularTracks(ctx echo.Context) error {
+	userId, err := internal.GetUserId(ctx, h.UserUseCase)
+	if err != nil {
+		userId = -1
+	}
+
+	id, err := internal.GetIdInt64ByFieldId(ctx)
+	if err != nil {
+		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
+	}
+	if id < 0 {
+		return webUtils.WriteErrorEchoServer(ctx, errors.New(internal.IndexOutOfRange), http.StatusBadRequest)
+	}
+
+	popular, err := h.TrackUseCase.GetPopularTracksFromArtist(id, userId)
+	if err != nil {
+		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
+	}
+
+	return ctx.JSON(http.StatusOK,
+		webUtils.Success{
+			Status: webUtils.OK,
+			Result: toMap(popular)})
 }
 
 // Like godoc
@@ -341,7 +385,7 @@ func (h Handler) GetFavorites(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK,
 		webUtils.Success{
 			Status: webUtils.OK,
-			Result: favorites})
+			Result: toMap(favorites)})
 }
 
 type trackIdWrapper struct {
@@ -442,5 +486,5 @@ func (h Handler) GetTracksFromPlaylist(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK,
 		webUtils.Success{
 			Status: webUtils.OK,
-			Result: tracks})
+			Result: toMap(tracks)})
 }
