@@ -26,6 +26,14 @@ func MakeHandler(playlist PlaylistUseCase.UseCase, user user_domain.UserUseCase)
 	}
 }
 
+func ToMap(playlists []*playlistProto.PlaylistDataTransfer) map[int64]*playlistProto.PlaylistDataTransfer {
+	playlistMap := map[int64]*playlistProto.PlaylistDataTransfer{}
+	for _, obj := range playlists {
+		playlistMap[obj.Id] = obj
+	}
+	return playlistMap
+}
+
 // GetAll godoc
 // @Summary      GetAll
 // @Description  getting all playlists
@@ -50,7 +58,7 @@ func (h Handler) GetAll(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK,
 		webUtils.Success{
 			Status: webUtils.OK,
-			Result: playlists})
+			Result: ToMap(playlists)})
 }
 
 // GetAllOfCurrentUser godoc
@@ -81,7 +89,7 @@ func (h Handler) GetAllOfCurrentUser(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK,
 		webUtils.Success{
 			Status: webUtils.OK,
-			Result: playlists})
+			Result: ToMap(playlists)})
 }
 
 // Create godoc
