@@ -48,14 +48,14 @@ func (useCase artistUseCase) CastToDTO(userId int64, artist *artistProto.Artist)
 		return nil, err
 	}
 
-	albumsDto := make([]*albumProto.AlbumDataTransfer, len(albums))
+	albumsDto := map[int64]*albumProto.AlbumDataTransfer{}
 
-	for idx, album := range albums {
+	for _, album := range albums {
 		albumDto, err := Gateway.GetFullAlbumByArtist(userId, useCase.trackAgent, album, artist)
 		if err != nil {
 			return nil, err
 		}
-		albumsDto[idx] = albumDto
+		albumsDto[album.Id] = albumDto
 	}
 
 	return &artistProto.ArtistDataTransfer{
