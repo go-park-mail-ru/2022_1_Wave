@@ -396,36 +396,41 @@ func (h Handler) GetFavorites(ctx echo.Context) error {
 			Result: favorites})
 }
 
+type albumIdWrapper struct {
+	AlbumId int64 `json:"albumId" example:"4"`
+}
+
 // AddToFavorites godoc
 // @Summary      AddToFavorites
 // @Description  add to favorite
 // @Tags         album
 // @Accept          application/json
 // @Produce      application/json
-// @Param        id  path      integer  true  "albumId"
+// @Param        albumId  body      albumIdWrapper  true  "albumId"
 // @Success      200    {object}  webUtils.Success
 // @Failure      400    {object}  webUtils.Error  "Data is invalid"
 // @Failure      405    {object}  webUtils.Error  "Method is not allowed"
-// @Router       /api/v1/albums/favorites/{id} [post]
+// @Router       /api/v1/albums/favorites [post]
 func (h Handler) AddToFavorites(ctx echo.Context) error {
 	userId, err := internal.GetUserId(ctx, h.UserUseCase)
 	if err != nil {
 		return internal.UnauthorizedError(ctx)
 	}
 
-	albumId, err := strconv.ParseInt(ctx.Param(internal.FieldId), 10, 64)
-	if err != nil {
-		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
+	holder := albumIdWrapper{}
+
+	if err := ctx.Bind(&holder); err != nil {
+		return err
 	}
 
-	if err := h.AlbumUseCase.AddToFavorites(userId, albumId); err != nil {
+	if err := h.AlbumUseCase.AddToFavorites(userId, holder.AlbumId); err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 	}
 
 	return ctx.JSON(http.StatusOK,
 		webUtils.Success{
 			Status: webUtils.OK,
-			Result: internal.SuccessAddedToFavorites + "(" + fmt.Sprint(albumId) + ")"})
+			Result: internal.SuccessAddedToFavorites + "(" + fmt.Sprint(holder.AlbumId) + ")"})
 }
 
 // RemoveFromFavorites godoc
