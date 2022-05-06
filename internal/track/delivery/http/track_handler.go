@@ -230,7 +230,7 @@ func (h Handler) GetPopular(ctx echo.Context) error {
 // GetPopularTracks godoc
 // @Summary      GetPopularTracks
 // @Description  getting top20 popular tracks of this artist
-// @Tags         artist
+// @Tags         track
 // @Accept          application/json
 // @Produce      application/json
 // @Param        id   path      integer  true  "id of artist which need to be getted"
