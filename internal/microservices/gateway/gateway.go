@@ -79,6 +79,7 @@ func CastTrackToDtoWithoutArtistName(track *trackProto.Track, trackAgent domain.
 		Title:      track.Title,
 		Artist:     "",
 		ArtistId:   track.ArtistId,
+		AlbumId:    track.AlbumId,
 		Cover:      cover,
 		Src:        src,
 		Likes:      track.CountLikes,
