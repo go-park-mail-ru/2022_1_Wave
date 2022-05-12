@@ -33,11 +33,12 @@ func CastAlbumToDtoWithoutArtistNameAndTracks(album *albumProto.Album) (*albumPr
 	}
 
 	return &albumProto.AlbumDataTransfer{
-		Id:     album.Id,
-		Title:  album.Title,
-		Artist: "",
-		Cover:  cover,
-		Tracks: nil,
+		Id:       album.Id,
+		Title:    album.Title,
+		Artist:   "",
+		ArtistId: album.ArtistId,
+		Cover:    cover,
+		Tracks:   nil,
 	}, nil
 }
 
@@ -77,6 +78,7 @@ func CastTrackToDtoWithoutArtistName(track *trackProto.Track, trackAgent domain.
 		Id:         track.Id,
 		Title:      track.Title,
 		Artist:     "",
+		ArtistId:   track.ArtistId,
 		Cover:      cover,
 		Src:        src,
 		Likes:      track.CountLikes,

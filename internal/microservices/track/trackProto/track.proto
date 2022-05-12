@@ -18,12 +18,13 @@ message TrackDataTransfer {
   int64 id = 1; // @gotags: json:"id" example:"1"
   string title = 2; // @gotags: json:"title" example:"Mercury"
   string artist = 3; // @gotags: json:"artist" example:"Hexed"
-  string cover = 4; // @gotags: json:"cover" example:"assets/track_1.png"
-  string src = 5; // @gotags: json:"src" example:"assets/track_1.mp4"
-  int64 likes = 6; // @gotags: json:"likes" example:"5"
-  int64 listenings = 7; // @gotags: json:"listenings" example:"500"
-  int64 duration = 8; // @gotags: json:"duration" example:"531"
-  bool isLiked = 9; // @gotags: json:"isLiked" example:"true"
+  int64 artist_id = 4; // @gotags: json:"artistId" example:"8" db:"artist_id" validate:"min=0,nonnil"
+  string cover = 5; // @gotags: json:"cover" example:"assets/track_1.png"
+  string src = 6; // @gotags: json:"src" example:"assets/track_1.mp4"
+  int64 likes = 7; // @gotags: json:"likes" example:"5"
+  int64 listenings = 8; // @gotags: json:"listenings" example:"500"
+  int64 duration = 9; // @gotags: json:"duration" example:"531"
+  bool isLiked = 10; // @gotags: json:"isLiked" example:"true"
 }
 
 message TrackUseCaseResponse {
