@@ -1,7 +1,6 @@
-package test
+package ArtistPostgres
 
 import (
-	ArtistPostgres "github.com/go-park-mail-ru/2022_1_Wave/internal/artist/repository/postgres"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/artist/artistProto"
 	"github.com/jmoiron/sqlx"
 	"github.com/stretchr/testify/assert"
@@ -25,10 +24,10 @@ func TestInsertArtistSuccess(t *testing.T) {
 		CountListenings: 1000,
 	}
 
-	query := `INSERT INTO artist \(name, count_followers, count_listening\) VALUES \(\$1, \$2, \$3\) RETURNING id`
+	query := `INSERT INTO artist \(name, count_followers, count_listening, count_likes\) VALUES \(\$1, \$2, \$3, \$4\) RETURNING id`
 
-	mock.ExpectExec(query).WithArgs(artist.Name, artist.CountFollowers, artist.CountListenings).WillReturnResult(sqlmock.NewResult(1, 1))
-	a := ArtistPostgres.NewArtistPostgresRepo(sqlxDb)
+	mock.ExpectExec(query).WithArgs(artist.Name, artist.CountFollowers, artist.CountListenings, artist.CountLikes).WillReturnResult(sqlmock.NewResult(1, 1))
+	a := NewArtistPostgresRepo(sqlxDb)
 	err = a.Create(artist)
 
 	assert.NoError(t, err)
@@ -50,10 +49,10 @@ func TestUpdateArtistSuccess(t *testing.T) {
 		CountListenings: 1111110,
 	}
 
-	query1 := `UPDATE artist SET name \= \$1, count_followers \= \$2, count_listening \= \$3 WHERE id \= \$4`
-	mock.ExpectExec(query1).WithArgs(al1.Name, al1.CountFollowers, al1.CountListenings, al1.Id).WillReturnResult(sqlmock.NewResult(int64(al1.Id), 1))
+	query1 := `UPDATE artist SET name \= \$1, count_followers \= \$2, count_listening \= \$3, count_likes \= \$4 WHERE id \= \$5`
+	mock.ExpectExec(query1).WithArgs(al1.Name, al1.CountFollowers, al1.CountListenings, al1.CountLikes, al1.Id).WillReturnResult(sqlmock.NewResult(int64(al1.Id), 1))
 
-	a := ArtistPostgres.NewArtistPostgresRepo(sqlxDb)
+	a := NewArtistPostgresRepo(sqlxDb)
 
 	err = a.Update(al1)
 	assert.NoError(t, err)
@@ -70,7 +69,7 @@ func TestDeleteArtistSuccess(t *testing.T) {
 	query := `DELETE FROM artist WHERE id \= \$1`
 	mock.ExpectExec(query).WithArgs(1).WillReturnResult(sqlmock.NewResult(1, 1))
 
-	a := ArtistPostgres.NewArtistPostgresRepo(sqlxDb)
+	a := NewArtistPostgresRepo(sqlxDb)
 	err = a.Delete(1)
 	assert.NoError(t, err)
 }
@@ -88,7 +87,7 @@ func TestSelectArtistByIdSuccess(t *testing.T) {
 	query := `SELECT \* FROM artist WHERE id \= \$1`
 	mock.ExpectQuery(query).WithArgs(10).WillReturnRows(rows)
 
-	a := ArtistPostgres.NewArtistPostgresRepo(sqlxDb)
+	a := NewArtistPostgresRepo(sqlxDb)
 	user, err := a.SelectByID(10)
 
 	assert.NoError(t, err)
@@ -110,7 +109,7 @@ func TestSelectAllArtistsSuccess(t *testing.T) {
 	query := `SELECT \* FROM artist ORDER BY id`
 	mock.ExpectQuery(query).WillReturnRows(rows)
 
-	a := ArtistPostgres.NewArtistPostgresRepo(sqlxDb)
+	a := NewArtistPostgresRepo(sqlxDb)
 	user, err := a.GetAll()
 
 	assert.NoError(t, err)
@@ -132,7 +131,7 @@ func TestSelectPopularArtistsSuccess(t *testing.T) {
 	query := `SELECT \* FROM artist ORDER BY count_listening DESC LIMIT \$1`
 	mock.ExpectQuery(query).WillReturnRows(rows)
 
-	a := ArtistPostgres.NewArtistPostgresRepo(sqlxDb)
+	a := NewArtistPostgresRepo(sqlxDb)
 	user, err := a.GetPopular()
 
 	assert.NoError(t, err)
@@ -151,7 +150,7 @@ func TestGetLastIdArtistsSuccess(t *testing.T) {
 	query := `SELECT max\(id\) from artist`
 	mock.ExpectQuery(query).WillReturnRows(rows)
 
-	a := ArtistPostgres.NewArtistPostgresRepo(sqlxDb)
+	a := NewArtistPostgresRepo(sqlxDb)
 	id, err := a.GetLastId()
 	assert.NoError(t, err)
 	assert.Equal(t, int64(100), id)
@@ -170,7 +169,7 @@ func TestGetSizeArtistsSuccess(t *testing.T) {
 	query := `SELECT count\(\*\) From artist`
 	mock.ExpectQuery(query).WillReturnRows(rows)
 
-	a := ArtistPostgres.NewArtistPostgresRepo(sqlxDb)
+	a := NewArtistPostgresRepo(sqlxDb)
 	size, err := a.GetSize()
 	assert.NoError(t, err)
 	assert.Equal(t, int64(100), size)

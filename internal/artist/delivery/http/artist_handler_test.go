@@ -1,49 +1,29 @@
-package test
+package artistDeliveryHttp
 
-import (
-	"bytes"
-	"encoding/json"
-	"fmt"
-	"github.com/bxcodec/faker"
-	constants "github.com/go-park-mail-ru/2022_1_Wave/internal"
-	"github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/gateway/gatewayProto"
-	"github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/track/trackProto"
-	"github.com/go-park-mail-ru/2022_1_Wave/internal/test/mocks"
-	"github.com/go-park-mail-ru/2022_1_Wave/internal/tools"
-	trackDeliveryHttp "github.com/go-park-mail-ru/2022_1_Wave/internal/track/delivery/http"
-	"github.com/go-park-mail-ru/2022_1_Wave/pkg/webUtils"
-	"github.com/labstack/echo/v4"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
-	"io/ioutil"
-	"net/http"
-	"net/http/httptest"
-	"strconv"
-	"strings"
-	"testing"
-)
+/*
+func TestGetAllArtists(t *testing.T) {
+	var mockArtists = &artistProto.ArtistsResponse{Artists: make([]*artistProto.ArtistDataTransfer, 10)}
 
-func TestGetAllTracks(t *testing.T) {
-	var mockTracks = &trackProto.TracksResponse{Tracks: make([]*trackProto.TrackDataTransfer, 10)}
-
-	err := faker.FakeData(&mockTracks)
+	err := faker.FakeData(mockArtists)
 	assert.NoError(t, err)
 
 	e := echo.New()
 
-	req, err := http.NewRequest(echo.GET, "/tracks/", strings.NewReader(""))
+	req, err := http.NewRequest(echo.GET, "/artists/", strings.NewReader(""))
 	assert.NoError(t, err)
 
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
-	c.SetPath("/tracks/")
+	c.SetPath("/artists/")
 
 	mockTrackUseCase := new(mocks.TrackAgent)
+	mockArtistUseCase := new(mocks.ArtistAgent)
 
-	mockTrackUseCase.On("GetAll").Return(mockTracks, nil)
+	mockArtistUseCase.On("GetAll").Return(mockArtists, nil)
 
-	handler := trackDeliveryHttp.Handler{
-		TrackUseCase: mockTrackUseCase,
+	handler := Handler{
+		ArtistUseCase: mockArtistUseCase,
+		TrackUseCase:  mockTrackUseCase,
 	}
 
 	err = handler.GetAll(c)
@@ -59,37 +39,39 @@ func TestGetAllTracks(t *testing.T) {
 	require.NoError(t, err)
 
 	resultMap := result.Result.(map[string]interface{})
-	tracks := resultMap["tracks"]
+	artists := resultMap["artists"]
 
-	for idx, obj := range tracks.([]interface{}) {
-		track, err := tools.CreateTrackDataTransferFromInterface(obj)
+	for idx, obj := range artists.([]interface{}) {
+		artist, err := tools.CreateArtistDataTransferFromInterface(obj)
 		require.NoError(t, err)
-		require.Equal(t, mockTracks.Tracks[idx], track)
+		require.Equal(t, mockArtists.Artists[idx], artist)
 	}
 }
 
-func TestGetTrack(t *testing.T) {
-	var mockTrack trackProto.TrackDataTransfer
-	err := faker.FakeData(&mockTrack)
+func TestGetArtist(t *testing.T) {
+	var mockArtist artistProto.ArtistDataTransfer
+	err := faker.FakeData(&mockArtist)
 	assert.NoError(t, err)
 
 	e := echo.New()
 
-	req, err := http.NewRequest(echo.GET, "/tracks/"+strconv.Itoa(int(mockTrack.Id)), strings.NewReader(""))
+	req, err := http.NewRequest(echo.GET, "/artists/"+strconv.Itoa(int(mockArtist.Id)), strings.NewReader(""))
 	assert.NoError(t, err)
 
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
-	c.SetPath("/tracks/:id")
+	c.SetPath("/artists/:id")
 	c.SetParamNames("id")
-	c.SetParamValues(strconv.Itoa(int(mockTrack.Id)))
+	c.SetParamValues(strconv.Itoa(int(mockArtist.Id)))
 
 	mockTrackUseCase := new(mocks.TrackAgent)
+	mockArtistUseCase := new(mocks.ArtistAgent)
 
-	mockTrackUseCase.On("GetById", &gatewayProto.IdArg{Id: mockTrack.Id}).Return(&mockTrack, nil)
+	mockArtistUseCase.On("GetById", &gatewayProto.IdArg{Id: mockArtist.Id}).Return(&mockArtist, nil)
 
-	handler := trackDeliveryHttp.Handler{
-		TrackUseCase: mockTrackUseCase,
+	handler := Handler{
+		ArtistUseCase: mockArtistUseCase,
+		TrackUseCase:  mockTrackUseCase,
 	}
 
 	err = handler.Get(c)
@@ -104,33 +86,34 @@ func TestGetTrack(t *testing.T) {
 	err = json.Unmarshal(body, &result)
 	require.NoError(t, err)
 
-	album, err := tools.CreateTrackDataTransferFromInterface(result.Result)
+	artist, err := tools.CreateArtistDataTransferFromInterface(result.Result)
 	require.NoError(t, err)
-	require.Equal(t, &mockTrack, album)
+	require.Equal(t, &mockArtist, artist)
 }
 
-func TestUpdateTrack(t *testing.T) {
-	var mockTrack trackProto.Track
-	err := faker.FakeData(&mockTrack)
+func TestUpdateArtist(t *testing.T) {
+	var mockArtist artistProto.Artist
+	err := faker.FakeData(&mockArtist)
 	assert.NoError(t, err)
 
 	e := echo.New()
 
-	dataToSend, err := json.Marshal(&mockTrack)
-	req, err := http.NewRequest(echo.PUT, "/tracks/"+strconv.Itoa(int(mockTrack.Id)), bytes.NewBuffer(dataToSend))
+	dataToSend, err := json.Marshal(&mockArtist)
+	req, err := http.NewRequest(echo.PUT, "/artists/"+strconv.Itoa(int(mockArtist.Id)), bytes.NewBuffer(dataToSend))
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	rec := httptest.NewRecorder()
 
 	assert.NoError(t, err)
 
 	c := e.NewContext(req, rec)
-	c.SetPath("/tracks/")
+	c.SetPath("/artists/")
 
-	mockTrackUseCase := new(mocks.TrackAgent)
-	mockTrackUseCase.On("Update", &mockTrack).Return(nil)
+	mockArtistUseCase := new(mocks.ArtistAgent)
+	mockArtistUseCase.On("Update", &mockArtist).Return(nil)
 
-	handler := trackDeliveryHttp.Handler{
-		TrackUseCase: mockTrackUseCase,
+	handler := Handler{
+		ArtistUseCase: mockArtistUseCase,
+		TrackUseCase:  nil,
 	}
 
 	err = handler.Update(c)
@@ -147,35 +130,35 @@ func TestUpdateTrack(t *testing.T) {
 
 	expected := webUtils.Success{
 		Status: webUtils.OK,
-		Result: constants.SuccessUpdated + "(" + fmt.Sprint(mockTrack.Id) + ")",
+		Result: constants.SuccessUpdated + "(" + fmt.Sprint(mockArtist.Id) + ")",
 	}
 
 	require.Equal(t, expected, result)
 }
 
-func TestCreateTrack(t *testing.T) {
-	var mockTrack trackProto.Track
-	err := faker.FakeData(&mockTrack)
+func TestCreateArtist(t *testing.T) {
+	var mockArtist artistProto.Artist
+	err := faker.FakeData(&mockArtist)
 	assert.NoError(t, err)
 
 	e := echo.New()
 
-	dataToSend, err := json.Marshal(&mockTrack)
-	req, err := http.NewRequest(echo.POST, "/tracks/"+strconv.Itoa(int(mockTrack.Id)), bytes.NewBuffer(dataToSend))
+	dataToSend, err := json.Marshal(&mockArtist)
+	req, err := http.NewRequest(echo.POST, "/artists/"+strconv.Itoa(int(mockArtist.Id)), bytes.NewBuffer(dataToSend))
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	rec := httptest.NewRecorder()
 
 	assert.NoError(t, err)
 
 	c := e.NewContext(req, rec)
-	c.SetPath("/tracks/")
+	c.SetPath("/artists/")
 
-	mockTrackUseCase := new(mocks.TrackAgent)
-	mockTrackUseCase.On("Create", &mockTrack).Return(nil)
-	mockTrackUseCase.On("GetLastId").Return(&gatewayProto.IntResponse{Data: mockTrack.Id}, nil)
-
-	handler := trackDeliveryHttp.Handler{
-		TrackUseCase: mockTrackUseCase,
+	mockArtistUseCase := new(mocks.ArtistAgent)
+	mockArtistUseCase.On("Create", &mockArtist).Return(nil)
+	mockArtistUseCase.On("GetLastId").Return(&gatewayProto.IntResponse{Data: mockArtist.Id}, nil)
+	handler := Handler{
+		ArtistUseCase: mockArtistUseCase,
+		TrackUseCase:  nil,
 	}
 
 	err = handler.Create(c)
@@ -192,33 +175,34 @@ func TestCreateTrack(t *testing.T) {
 
 	expected := webUtils.Success{
 		Status: webUtils.OK,
-		Result: constants.SuccessCreated + "(Data:" + fmt.Sprint(mockTrack.Id) + ")",
+		Result: constants.SuccessCreated + "(Data:" + fmt.Sprint(mockArtist.Id) + ")",
 	}
 
 	require.Equal(t, expected, result)
 }
 
-func TestDeleteTrack(t *testing.T) {
-	var mockTrack trackProto.Track
-	err := faker.FakeData(&mockTrack)
+func TestDeleteArtist(t *testing.T) {
+	var mockArtist artistProto.ArtistDataTransfer
+	err := faker.FakeData(&mockArtist)
 	assert.NoError(t, err)
 
 	e := echo.New()
 
-	req, err := http.NewRequest(echo.DELETE, "/tracks/"+strconv.Itoa(int(mockTrack.Id)), strings.NewReader(""))
+	req, err := http.NewRequest(echo.DELETE, "/artists/"+strconv.Itoa(int(mockArtist.Id)), strings.NewReader(""))
 	assert.NoError(t, err)
 
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
-	c.SetPath("/tracks/:id")
+	c.SetPath("/artist/:id")
 	c.SetParamNames("id")
-	c.SetParamValues(strconv.Itoa(int(mockTrack.Id)))
+	c.SetParamValues(strconv.Itoa(int(mockArtist.Id)))
 
-	mockTrackUseCase := new(mocks.TrackAgent)
-	mockTrackUseCase.On("Delete", &gatewayProto.IdArg{Id: mockTrack.Id}).Return(nil)
-
-	handler := trackDeliveryHttp.Handler{
-		TrackUseCase: mockTrackUseCase,
+	mockArtistUseCase := new(mocks.ArtistAgent)
+	mockArtistUseCase.On("Delete", &gatewayProto.IdArg{Id: mockArtist.Id}).Return(nil)
+	mockArtistUseCase.On("GetLastId").Return(mockArtist.Id, nil)
+	handler := Handler{
+		ArtistUseCase: mockArtistUseCase,
+		TrackUseCase:  nil,
 	}
 
 	err = handler.Delete(c)
@@ -235,11 +219,11 @@ func TestDeleteTrack(t *testing.T) {
 
 	expected := webUtils.Success{
 		Status: webUtils.OK,
-		Result: constants.SuccessDeleted + "(" + fmt.Sprint(mockTrack.Id) + ")",
+		Result: constants.SuccessDeleted + "(" + fmt.Sprint(mockArtist.Id) + ")",
 	}
 
 	require.Equal(t, expected, result)
-}
+}*/
 
 //func TestGetSelfUser(t *testing.T) {
 //	var mockUser domain.User

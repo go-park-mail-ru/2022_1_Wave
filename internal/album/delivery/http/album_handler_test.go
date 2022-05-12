@@ -1,4 +1,4 @@
-package test
+package albumDeliveryHttp
 
 import (
 	"bytes"
@@ -6,10 +6,8 @@ import (
 	"fmt"
 	"github.com/bxcodec/faker"
 	constants "github.com/go-park-mail-ru/2022_1_Wave/internal"
-	albumDeliveryHttp "github.com/go-park-mail-ru/2022_1_Wave/internal/album/delivery/http"
+	mocks2 "github.com/go-park-mail-ru/2022_1_Wave/internal/album/mocks"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/album/albumProto"
-	"github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/gateway/gatewayProto"
-	"github.com/go-park-mail-ru/2022_1_Wave/internal/test/mocks"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/tools"
 	"github.com/go-park-mail-ru/2022_1_Wave/pkg/webUtils"
 	"github.com/labstack/echo/v4"
@@ -24,7 +22,7 @@ import (
 )
 
 func TestGetEmptyAlbums(t *testing.T) {
-	var mockAlbums = &albumProto.AlbumsResponse{Albums: nil}
+	var mockAlbums = make([]*albumProto.AlbumDataTransfer, 0)
 	e := echo.New()
 
 	req, err := http.NewRequest(echo.GET, "/albums/", strings.NewReader(""))
@@ -34,10 +32,10 @@ func TestGetEmptyAlbums(t *testing.T) {
 	c := e.NewContext(req, rec)
 	c.SetPath("/albums/")
 
-	mockAlbumUseCase := new(mocks.AlbumAgent)
+	mockAlbumUseCase := new(mocks2.UseCase)
 	mockAlbumUseCase.On("GetAll").Return(mockAlbums, nil)
 
-	handler := albumDeliveryHttp.Handler{
+	handler := Handler{
 		AlbumUseCase: mockAlbumUseCase,
 	}
 
@@ -53,12 +51,12 @@ func TestGetEmptyAlbums(t *testing.T) {
 	err = json.Unmarshal(body, &result)
 	require.NoError(t, err)
 
-	resultInterface := result.Result.(map[string]interface{})
+	resultInterface := result.Result.([]interface{})
 	require.Equal(t, len(resultInterface), 0)
 }
 
 func TestGetAllAlbums(t *testing.T) {
-	var mockAlbums = &albumProto.AlbumsResponse{Albums: make([]*albumProto.AlbumDataTransfer, 10)}
+	var mockAlbums = make([]*albumProto.AlbumDataTransfer, 10)
 
 	err := faker.FakeData(&mockAlbums)
 	assert.NoError(t, err)
@@ -72,10 +70,10 @@ func TestGetAllAlbums(t *testing.T) {
 	c := e.NewContext(req, rec)
 	c.SetPath("/albums/")
 
-	mockAlbumUseCase := new(mocks.AlbumAgent)
+	mockAlbumUseCase := new(mocks2.UseCase)
 	mockAlbumUseCase.On("GetAll").Return(mockAlbums, nil)
 
-	handler := albumDeliveryHttp.Handler{
+	handler := Handler{
 		AlbumUseCase: mockAlbumUseCase,
 	}
 
@@ -91,14 +89,13 @@ func TestGetAllAlbums(t *testing.T) {
 	err = json.Unmarshal(body, &result)
 	require.NoError(t, err)
 
-	resultMap := result.Result.(map[string]interface{})
-	albums := resultMap["albums"]
+	//	albums := resultMap["albums"]
 	//fmt.Println(albums)
 
-	for idx, obj := range albums.([]interface{}) {
+	for idx, obj := range result.Result.([]interface{}) {
 		album, err := tools.CreateAlbumDataTransferFromInterface(obj)
 		require.NoError(t, err)
-		require.Equal(t, mockAlbums.Albums[idx], album)
+		require.Equal(t, mockAlbums[idx], album)
 	}
 }
 
@@ -118,10 +115,10 @@ func TestGetAlbum(t *testing.T) {
 	c.SetParamNames("id")
 	c.SetParamValues(strconv.Itoa(int(mockAlbum.Id)))
 
-	mockAlbumUseCase := new(mocks.AlbumAgent)
-	mockAlbumUseCase.On("GetById", &gatewayProto.IdArg{Id: mockAlbum.Id}).Return(&mockAlbum, nil)
+	mockAlbumUseCase := new(mocks2.UseCase)
+	mockAlbumUseCase.On("GetById", mockAlbum.Id).Return(&mockAlbum, nil)
 
-	handler := albumDeliveryHttp.Handler{
+	handler := Handler{
 		AlbumUseCase: mockAlbumUseCase,
 	}
 
@@ -159,10 +156,10 @@ func TestUpdateAlbum(t *testing.T) {
 	c := e.NewContext(req, rec)
 	c.SetPath("/albums/")
 
-	mockAlbumUseCase := new(mocks.AlbumAgent)
+	mockAlbumUseCase := new(mocks2.UseCase)
 	mockAlbumUseCase.On("Update", &mockAlbum).Return(nil)
 
-	handler := albumDeliveryHttp.Handler{
+	handler := Handler{
 		AlbumUseCase: mockAlbumUseCase,
 	}
 
@@ -203,7 +200,7 @@ func TestCreateAlbumError(t *testing.T) {
 	c := e.NewContext(req, rec)
 	c.SetPath("/albums/")
 
-	handler := albumDeliveryHttp.Handler{
+	handler := Handler{
 		AlbumUseCase: nil,
 	}
 	err = handler.Create(c)
@@ -219,7 +216,7 @@ func TestCreateAlbumError(t *testing.T) {
 	c = e.NewContext(req, rec)
 	c.SetPath("/albums/")
 
-	handler = albumDeliveryHttp.Handler{
+	handler = Handler{
 		AlbumUseCase: nil,
 	}
 	err = handler.Create(c)
@@ -243,11 +240,11 @@ func TestCreateAlbum(t *testing.T) {
 	c := e.NewContext(req, rec)
 	c.SetPath("/albums/")
 
-	mockAlbumUseCase := new(mocks.AlbumAgent)
+	mockAlbumUseCase := new(mocks2.UseCase)
 	mockAlbumUseCase.On("Create", &mockAlbum).Return(nil)
-	mockAlbumUseCase.On("GetLastId").Return(&gatewayProto.IntResponse{Data: mockAlbum.Id}, nil)
+	mockAlbumUseCase.On("GetLastId").Return(mockAlbum.Id, nil)
 
-	handler := albumDeliveryHttp.Handler{
+	handler := Handler{
 		AlbumUseCase: mockAlbumUseCase,
 	}
 
@@ -265,7 +262,7 @@ func TestCreateAlbum(t *testing.T) {
 
 	expected := webUtils.Success{
 		Status: webUtils.OK,
-		Result: constants.SuccessCreated + "(Data:" + fmt.Sprint(mockAlbum.Id) + ")",
+		Result: constants.SuccessCreated + "(" + fmt.Sprint(mockAlbum.Id) + ")",
 	}
 
 	require.Equal(t, expected, result)
@@ -287,10 +284,10 @@ func TestDeleteAlbum(t *testing.T) {
 	c.SetParamNames("id")
 	c.SetParamValues(strconv.Itoa(int(mockAlbum.Id)))
 
-	mockAlbumUseCase := new(mocks.AlbumAgent)
-	mockAlbumUseCase.On("Delete", &gatewayProto.IdArg{Id: mockAlbum.Id}).Return(nil)
+	mockAlbumUseCase := new(mocks2.UseCase)
+	mockAlbumUseCase.On("Delete", mockAlbum.Id).Return(nil)
 
-	handler := albumDeliveryHttp.Handler{
+	handler := Handler{
 		AlbumUseCase: mockAlbumUseCase,
 	}
 

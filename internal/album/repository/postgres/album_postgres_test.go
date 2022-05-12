@@ -1,7 +1,6 @@
-package test
+package AlbumPostgres
 
 import (
-	AlbumPostgres "github.com/go-park-mail-ru/2022_1_Wave/internal/album/repository/postgres"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/album/albumProto"
 	_ "github.com/jackc/pgx"
 	"github.com/jmoiron/sqlx"
@@ -30,7 +29,7 @@ func TestInsertAlbumSuccess(t *testing.T) {
 	query := `INSERT INTO album \(title, artist_id, count_likes, count_listening, date\) VALUES \(\$1, \$2, \$3, \$4, \$5\) RETURNING id`
 
 	mock.ExpectExec(query).WithArgs(album.Title, album.ArtistId, album.CountLikes, album.CountListenings, album.Date).WillReturnResult(sqlmock.NewResult(1, 1))
-	a := AlbumPostgres.NewAlbumPostgresRepo(sqlxDb)
+	a := NewAlbumPostgresRepo(sqlxDb)
 	err = a.Create(album)
 
 	assert.NoError(t, err)
@@ -56,7 +55,7 @@ func TestUpdateAlbumSuccess(t *testing.T) {
 	query1 := `UPDATE album SET title \= \$1, artist_id \= \$2, count_likes \= \$3, count_listening \= \$4, date \= \$5 WHERE id \= \$6`
 	mock.ExpectExec(query1).WithArgs(al1.Title, al1.ArtistId, al1.CountLikes, al1.CountListenings, al1.Date, al1.Id).WillReturnResult(sqlmock.NewResult(int64(al1.Id), 1))
 
-	a := AlbumPostgres.NewAlbumPostgresRepo(sqlxDb)
+	a := NewAlbumPostgresRepo(sqlxDb)
 
 	err = a.Update(al1)
 	assert.NoError(t, err)
@@ -73,7 +72,7 @@ func TestDeleteAlbumSuccess(t *testing.T) {
 	query := `DELETE FROM album WHERE id \= \$1`
 	mock.ExpectExec(query).WithArgs(1).WillReturnResult(sqlmock.NewResult(1, 1))
 
-	a := AlbumPostgres.NewAlbumPostgresRepo(sqlxDb)
+	a := NewAlbumPostgresRepo(sqlxDb)
 	err = a.Delete(1)
 	assert.NoError(t, err)
 }
@@ -91,7 +90,7 @@ func TestSelectAlbumByIdSuccess(t *testing.T) {
 	query := `SELECT \* FROM album WHERE id \= \$1`
 	mock.ExpectQuery(query).WithArgs(10).WillReturnRows(rows)
 
-	a := AlbumPostgres.NewAlbumPostgresRepo(sqlxDb)
+	a := NewAlbumPostgresRepo(sqlxDb)
 	user, err := a.SelectByID(10)
 
 	assert.NoError(t, err)
@@ -113,7 +112,7 @@ func TestSelectAllAlbumsSuccess(t *testing.T) {
 	query := `SELECT \* FROM album ORDER BY id`
 	mock.ExpectQuery(query).WillReturnRows(rows)
 
-	a := AlbumPostgres.NewAlbumPostgresRepo(sqlxDb)
+	a := NewAlbumPostgresRepo(sqlxDb)
 	user, err := a.GetAll()
 
 	assert.NoError(t, err)
@@ -135,7 +134,7 @@ func TestSelectPopularAlbumsSuccess(t *testing.T) {
 	query := `SELECT \* FROM album ORDER BY count_listening DESC LIMIT \$1`
 	mock.ExpectQuery(query).WillReturnRows(rows)
 
-	a := AlbumPostgres.NewAlbumPostgresRepo(sqlxDb)
+	a := NewAlbumPostgresRepo(sqlxDb)
 	user, err := a.GetPopular()
 
 	assert.NoError(t, err)
@@ -154,7 +153,7 @@ func TestGetLastIdAlbumsSuccess(t *testing.T) {
 	query := `SELECT max\(id\) from album`
 	mock.ExpectQuery(query).WillReturnRows(rows)
 
-	a := AlbumPostgres.NewAlbumPostgresRepo(sqlxDb)
+	a := NewAlbumPostgresRepo(sqlxDb)
 	id, err := a.GetLastId()
 	assert.NoError(t, err)
 	assert.Equal(t, int64(100), id)
@@ -173,7 +172,7 @@ func TestGetSizeAlbumsSuccess(t *testing.T) {
 	query := `SELECT count\(\*\) From album`
 	mock.ExpectQuery(query).WillReturnRows(rows)
 
-	a := AlbumPostgres.NewAlbumPostgresRepo(sqlxDb)
+	a := NewAlbumPostgresRepo(sqlxDb)
 	size, err := a.GetSize()
 	assert.NoError(t, err)
 	assert.Equal(t, int64(100), size)
@@ -222,7 +221,7 @@ func TestGetAlbumsFromArtistSuccess(t *testing.T) {
 	query := `SELECT \* FROM album WHERE artist_id \= \$1`
 	mock.ExpectQuery(query).WithArgs(5).WillReturnRows(rows)
 
-	a := AlbumPostgres.NewAlbumPostgresRepo(sqlxDb)
+	a := NewAlbumPostgresRepo(sqlxDb)
 	albums, err := a.GetAlbumsFromArtist(5)
 	assert.NoError(t, err)
 	assert.Equal(t, expected, albums)

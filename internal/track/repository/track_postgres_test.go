@@ -1,8 +1,7 @@
-package test
+package TrackPostgres
 
 import (
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/track/trackProto"
-	TrackPostgres "github.com/go-park-mail-ru/2022_1_Wave/internal/track/repository"
 	"github.com/jmoiron/sqlx"
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/DATA-DOG/go-sqlmock.v1"
@@ -29,7 +28,7 @@ func TestInsertTrackSuccess(t *testing.T) {
 	query := `INSERT INTO track \(album_id, artist_id, title, duration, count_likes, count_listening\) VALUES \(\$1, \$2, \$3, \$4, \$5\, \$6\) RETURNING id`
 
 	mock.ExpectExec(query).WithArgs(track.AlbumId, track.ArtistId, track.Title, track.Duration, track.CountLikes, track.CountListenings).WillReturnResult(sqlmock.NewResult(1, 1))
-	a := TrackPostgres.NewTrackPostgresRepo(sqlxDb)
+	a := NewTrackPostgresRepo(sqlxDb)
 	err = a.Create(track)
 
 	assert.NoError(t, err)
@@ -55,7 +54,7 @@ func TestUpdateTrackSuccess(t *testing.T) {
 	query1 := `UPDATE track SET album_id \= \$1, artist_id \= \$2, title \= \$3, duration \= \$4, count_likes \= \$5, count_listening \= \$6 WHERE id \= \$7`
 	mock.ExpectExec(query1).WithArgs(tr.AlbumId, tr.ArtistId, tr.Title, tr.Duration, tr.CountLikes, tr.CountListenings, tr.Id).WillReturnResult(sqlmock.NewResult(int64(tr.Id), 1))
 
-	a := TrackPostgres.NewTrackPostgresRepo(sqlxDb)
+	a := NewTrackPostgresRepo(sqlxDb)
 
 	err = a.Update(tr)
 	assert.NoError(t, err)
@@ -72,7 +71,7 @@ func TestDeleteTrackSuccess(t *testing.T) {
 	query := `DELETE FROM track WHERE id \= \$1`
 	mock.ExpectExec(query).WithArgs(1).WillReturnResult(sqlmock.NewResult(1, 1))
 
-	a := TrackPostgres.NewTrackPostgresRepo(sqlxDb)
+	a := NewTrackPostgresRepo(sqlxDb)
 	err = a.Delete(1)
 	assert.NoError(t, err)
 }
@@ -90,7 +89,7 @@ func TestSelectTrackByIdSuccess(t *testing.T) {
 	query := `SELECT \* FROM track WHERE id \= \$1`
 	mock.ExpectQuery(query).WithArgs(10).WillReturnRows(rows)
 
-	a := TrackPostgres.NewTrackPostgresRepo(sqlxDb)
+	a := NewTrackPostgresRepo(sqlxDb)
 	user, err := a.SelectByID(10)
 
 	assert.NoError(t, err)
@@ -112,7 +111,7 @@ func TestSelectAllTracksSuccess(t *testing.T) {
 	query := `SELECT \* FROM track ORDER BY id`
 	mock.ExpectQuery(query).WillReturnRows(rows)
 
-	a := TrackPostgres.NewTrackPostgresRepo(sqlxDb)
+	a := NewTrackPostgresRepo(sqlxDb)
 	user, err := a.GetAll()
 
 	assert.NoError(t, err)
@@ -134,7 +133,7 @@ func TestSelectPopularTracksSuccess(t *testing.T) {
 	query := `SELECT \* FROM track ORDER BY count_listening DESC LIMIT \$1`
 	mock.ExpectQuery(query).WillReturnRows(rows)
 
-	a := TrackPostgres.NewTrackPostgresRepo(sqlxDb)
+	a := NewTrackPostgresRepo(sqlxDb)
 	user, err := a.GetPopular()
 
 	assert.NoError(t, err)
@@ -153,7 +152,7 @@ func TestGetLastIdTracksSuccess(t *testing.T) {
 	query := `SELECT max\(id\) from track`
 	mock.ExpectQuery(query).WillReturnRows(rows)
 
-	a := TrackPostgres.NewTrackPostgresRepo(sqlxDb)
+	a := NewTrackPostgresRepo(sqlxDb)
 	id, err := a.GetLastId()
 	assert.NoError(t, err)
 	assert.Equal(t, int64(100), id)
@@ -172,7 +171,7 @@ func TestGetSizeTracksSuccess(t *testing.T) {
 	query := `SELECT count\(\*\) From track`
 	mock.ExpectQuery(query).WillReturnRows(rows)
 
-	a := TrackPostgres.NewTrackPostgresRepo(sqlxDb)
+	a := NewTrackPostgresRepo(sqlxDb)
 	size, err := a.GetSize()
 	assert.NoError(t, err)
 	assert.Equal(t, int64(100), size)
@@ -224,7 +223,7 @@ func TestSelectPopularTracksFromArtistSuccess(t *testing.T) {
 	query := `SELECT \* FROM track WHERE artist_id \= \$1 ORDER BY count_listening DESC LIMIT \$2`
 	mock.ExpectQuery(query).WillReturnRows(rows)
 
-	a := TrackPostgres.NewTrackPostgresRepo(sqlxDb)
+	a := NewTrackPostgresRepo(sqlxDb)
 	tracks, err := a.GetPopularTracksFromArtist(5)
 
 	assert.NoError(t, err)

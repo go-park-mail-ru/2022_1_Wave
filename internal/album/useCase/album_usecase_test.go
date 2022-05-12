@@ -1,45 +1,45 @@
-package test
+package AlbumUseCase
 
-//func TestAlbumUseCaseGetById(t *testing.T) {
-//	mockAlbumRepo := new(mocks.AlbumRepo)
-//	mockTrackRepo := new(mocks.TrackRepo)
-//	mockArtistRepo := new(mocks.ArtistRepo)
-//	mockAlbumCoverRepo := new(mocks.AlbumCoverRepo)
-//	mockAlbum := domain.Album{}
-//	mockArtist := domain.Artist{}
-//	var mockTracks []domain.Track
-//
-//	err := faker.FakeData(&mockAlbum)
-//	require.NoError(t, err)
-//
-//	err = faker.FakeData(&mockArtist)
-//	require.NoError(t, err)
-//
-//	err = faker.FakeData(&mockTracks)
-//	require.NoError(t, err)
-//
-//	t.Run("success", func(t *testing.T) {
-//		mockAlbumRepo.On("SelectByID", mockAlbum.Id).Return(mockAlbum, nil)
-//		albumUseCase := AlbumUseCase.MakeAlbumUseCase(mockTrackRepo, mockArtistRepo, mockAlbumRepo, mockAlbumCoverRepo)
-//		//mockArtistRepo.On("SelectById", mockAlbum.ArtistId).Return(mockArtist, nil)
-//		//mockTrackRepo.On("GetTracksFromAlbum", mockAlbum.Id).Return(mockTracks, nil)
-//		mockTrackUseCase := new(mocks.TrackUseCaseInterface)
-//
-//		result, err := albumUseCase.GetById(mockTrackUseCase, mockAlbum.Id)
-//
-//		assert.NoError(t, err)
-//		assert.Equal(t, result, useCaseResultUser)
-//	})
-//	//t.Run("error", func(t *testing.T) {
-//	//	mockAlbumRepo.On("SelectByID", uint(2)).Return(nil, errors.New("error select user"))
-//	//	usecase := UserUsecase.NewUserUseCase(mockAlbumRepo, mockSessionRepo)
-//	//	result, err := usecase.GetById(2)
-//	//
-//	//	assert.ErrorIs(t, err, domain.ErrUserDoesNotExist)
-//	//	assert.Nil(t, result)
-//	//})
-//}
+/*
+func TestAlbumUseCaseGetById(t *testing.T) {
+	mockAlbumRepo := new(mocks.AlbumRepo)
+	mockTrackRepo := new(mocks.TrackRepo)
+	mockArtistRepo := new(mocks.ArtistRepo)
+	mockAlbumCoverRepo := new(mocks.AlbumCoverRepo)
+	mockAlbum := domain.Album{}
+	mockArtist := domain.Artist{}
+	var mockTracks []domain.Track
 
+	err := faker.FakeData(&mockAlbum)
+	require.NoError(t, err)
+
+	err = faker.FakeData(&mockArtist)
+	require.NoError(t, err)
+
+	err = faker.FakeData(&mockTracks)
+	require.NoError(t, err)
+
+	t.Run("success", func(t *testing.T) {
+		mockAlbumRepo.On("SelectByID", mockAlbum.Id).Return(mockAlbum, nil)
+		albumUseCase := AlbumUseCase.MakeAlbumUseCase(mockTrackRepo, mockArtistRepo, mockAlbumRepo, mockAlbumCoverRepo)
+		//mockArtistRepo.On("SelectById", mockAlbum.ArtistId).Return(mockArtist, nil)
+		//mockTrackRepo.On("GetTracksFromAlbum", mockAlbum.Id).Return(mockTracks, nil)
+		mockTrackUseCase := new(mocks.TrackUseCaseInterface)
+
+		result, err := albumUseCase.GetById(mockTrackUseCase, mockAlbum.Id)
+
+		assert.NoError(t, err)
+		assert.Equal(t, result, useCaseResultUser)
+	})
+	t.Run("error", func(t *testing.T) {
+		mockAlbumRepo.On("SelectByID", uint(2)).Return(nil, errors.New("error select user"))
+		usecase := UserUsecase.NewUserUseCase(mockAlbumRepo, mockSessionRepo)
+		result, err := usecase.GetById(2)
+		assert.ErrorIs(t, err, domain.ErrUserDoesNotExist)
+		assert.Nil(t, result)
+	})
+}
+*/
 //func TestGetByUsername(t *testing.T) {
 //	mockUserRepo := new(mocks.UserRepo)
 //	mockSessionRepo := new(mocks.SessionRepo)

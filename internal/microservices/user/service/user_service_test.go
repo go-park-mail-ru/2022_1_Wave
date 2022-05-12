@@ -31,11 +31,8 @@ func TestUpdate(t *testing.T) {
 	err := faker.FakeData(&mockUser)
 	assert.NoError(t, err)
 
-	mockUserCopy := mockUser
-	mockUserCopy.ID = 0
-
 	mockUserRepo := new(mocks.UserRepo)
-	mockUserRepo.On("Update", mockUser.ID, &mockUserCopy).Return(nil)
+	mockUserRepo.On("Update", mockUser.ID, &mockUser).Return(nil)
 
 	userService := NewUserService(mockUserRepo)
 
