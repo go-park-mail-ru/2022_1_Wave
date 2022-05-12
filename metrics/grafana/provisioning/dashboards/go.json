@@ -55,7 +55,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "${DS_PROMETHEUS-APL}",
+      "datasource": "Prometheus",
       "editable": true,
       "error": false,
       "fill": 1,
