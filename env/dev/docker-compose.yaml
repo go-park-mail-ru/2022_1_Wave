@@ -4,34 +4,49 @@ volumes:
   prometheus_data: {}
   grafana_data: {}
 
-
 services:
   web:
     image: nginx
     container_name: nginx
+    restart: always
     ports:
       - "80:80"
+      - "443:443"
+      - "127.0.0.1:8080:8080"
     working_dir: /var/www/wave/
     volumes:
-      - ../../../2022_1_Wave:/var/www/wave/
-#      - ../../../2022_1_Wave/public/build:/var/www/wave
       - ../../assets:/var/www/wave/assets
-      - ../../config/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ../../config/nginx/nginx.prod.conf:/etc/nginx/nginx.conf:ro
+      - ../../../../front/2022_1_Wave/build:/var/www/wave
+      - ./certs:/var/www/certs
     depends_on:
       - wave_music
-#      - pgadmin
+
+  nginx-exporter:
+    image: nginx/nginx-prometheus-exporter
+    container_name: nginx-exporter
+    environment:
+      - SCRAPE_URI=http://web:80/metrics
+      - TELEMETRY_PATH=/metrics
+      - NGINX_RETRIES=1
+      - ADMIN_USER=${ADMIN_USER}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD}
+    expose:
+      - 9113
+    depends_on:
+      - web
 
   wave_music:
-    tty: true
-    container_name: api
     image: mausved/wave_music_api_v1
+    container_name: api
+    tty: true
+    restart: always
     expose:
       - 5000
-    working_dir: /var/www/service/
-    entrypoint: ./cmd/api/run.sh
+    working_dir: /var/www/service
+    entrypoint: ./prod.sh
     volumes:
       - ../..:/var/www/service
-      - ./.air.toml:/var/www/service/.air.toml:ro
       - ../../config/config.toml:/var/www/service/config.toml:ro
     environment:
       - DATABASE_CONNECTION=user=postgres password=music dbname=wave host=db port=5432 sslmode=disable
@@ -50,6 +65,7 @@ services:
     container_name: album
     image: mausved/wave_music_api_v1
     working_dir: /var/www/service
+    restart: always
     environment:
       - DATABASE_CONNECTION=user=postgres password=music dbname=wave host=db port=5432 sslmode=disable
     expose:
@@ -63,6 +79,7 @@ services:
     container_name: artist
     image: mausved/wave_music_api_v1
     working_dir: /var/www/service
+    restart: always
     environment:
       - DATABASE_CONNECTION=user=postgres password=music dbname=wave host=db port=5432 sslmode=disable
     expose:
@@ -76,6 +93,7 @@ services:
     container_name: track
     image: mausved/wave_music_api_v1
     working_dir: /var/www/service
+    restart: always
     environment:
       - DATABASE_CONNECTION=user=postgres password=music dbname=wave host=db port=5432 sslmode=disable
     expose:
@@ -89,6 +107,7 @@ services:
     container_name: playlist
     image: mausved/wave_music_api_v1
     working_dir: /var/www/service
+    restart: always
     environment:
       - DATABASE_CONNECTION=user=postgres password=music dbname=wave host=db port=5432 sslmode=disable
     expose:
@@ -102,6 +121,7 @@ services:
     container_name: auth
     image: mausved/wave_music_api_v1
     working_dir: /var/www/service
+    restart: always
     environment:
       - DATABASE_CONNECTION=user=postgres password=music dbname=wave host=db port=5432 sslmode=disable
     expose:
@@ -115,6 +135,7 @@ services:
     container_name: user
     image: mausved/wave_music_api_v1
     working_dir: /var/www/service
+    restart: always
     environment:
       - DATABASE_CONNECTION=user=postgres password=music dbname=wave host=db port=5432 sslmode=disable
     expose:
@@ -127,12 +148,14 @@ services:
   redis:
     image: redis
     container_name: redis
+    restart: always
     expose:
       - 6379
 
   db:
     image: postgres:13
     container_name: postgres
+    restart: always
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=music
@@ -181,21 +204,18 @@ services:
       - '--web.console.templates=/etc/prometheus/consoles'
       - '--storage.tsdb.retention.time=200h'
       - '--web.enable-lifecycle'
+      - '--web.external-url=/monitoring/prometheus/'
+      - '--web.route-prefix=/monitoring/prometheus/'
     restart: unless-stopped
     depends_on:
       - pushgateway
       - nodeexporter
       - redis-exporter
+      - nginx-exporter
       - postgres-exporter
       - alertmanager
       - cadvisor
       - wave_music
-      - track
-      - artist
-      - playlist
-      - album
-      - user
-      - auth
     expose:
       - 9090
 
@@ -245,7 +265,9 @@ services:
     container_name: grafana
     volumes:
       - grafana_data:/var/lib/grafana
+      - ../../metrics/grafana/grafana.ini:/etc/grafana/grafana.ini
       - ../../metrics/grafana/provisioning:/etc/grafana/provisioning
+    user: '104'
     environment:
       - GF_SECURITY_ADMIN_USER=${ADMIN_USER}
       - GF_SECURITY_ADMIN_PASSWORD=${ADMIN_PASSWORD}
@@ -266,9 +288,13 @@ services:
   caddy:
     image: caddy
     container_name: caddy
+    expose:
+      - "3000"
+      - "9090"
+      - "9113"
     ports:
-      - "3000:3000"
-      - "9090:9090"
+      #      - "3000:3000"
+      #      - "9090:9090"
       - "9093:9093"
       - "9091:9091"
       - "9121:9121"
@@ -280,21 +306,3 @@ services:
     restart: unless-stopped
     depends_on:
       - prometheus
-
-#  test_db:
-#    image: postgres:14
-#    environment:
-#      - POSTGRES_USER=test
-#      - POSTGRES_PASSWORD=test
-#      - POSTGRES_DB=test
-#    ports:
-#      - "5500:5432"
-#
-#  pgadmin:
-#    hostname: pgadmin
-#    image: dpage/pgadmin4:6
-#    environment:
-#      PGADMIN_DEFAULT_EMAIL: admin@admin.com
-#      PGADMIN_DEFAULT_PASSWORD: root
-
-
