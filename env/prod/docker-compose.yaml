@@ -19,6 +19,7 @@ services:
       - ./certs:/var/www/certs
     depends_on:
       - wave_music
+      - caddy
 
   wave_music:
     image: mausved/wave_music_api_v1
@@ -179,6 +180,8 @@ services:
       - '--web.console.templates=/etc/prometheus/consoles'
       - '--storage.tsdb.retention.time=200h'
       - '--web.enable-lifecycle'
+      - '--web.external-url=/monitoring/prometheus/'
+      - '--web.route-prefix=/monitoring/prometheus/'
     restart: unless-stopped
     depends_on:
       - pushgateway
@@ -236,7 +239,8 @@ services:
     image: grafana/grafana
     container_name: grafana
     volumes:
-#      - grafana_data:/var/lib/grafana
+      - grafana_data:/var/lib/grafana
+      - ../../metrics/grafana/grafana.ini:/etc/grafana/grafana.ini
       - ../../metrics/grafana/provisioning:/etc/grafana/provisioning
     user: '104'
     environment:
@@ -259,9 +263,12 @@ services:
   caddy:
     image: caddy
     container_name: caddy
+    expose:
+      - "3000"
+      - "9090"
     ports:
-      - "3000:3000"
-      - "9090:9090"
+      #      - "3000:3000"
+      #      - "9090:9090"
       - "9093:9093"
       - "9091:9091"
       - "9121:9121"
