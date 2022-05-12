@@ -33,3 +33,5 @@ src/docs
 
 *pb.go
 *grpc.pb.go
+
+logs/
