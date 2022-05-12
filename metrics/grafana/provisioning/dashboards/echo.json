@@ -41,7 +41,7 @@
         "type": "dashboard"
       },
       {
-        "datasource": "${DS_PROMETHEUS:BACKSTAGE}",
+        "datasource": "Prometheus",
         "enable": true,
         "hide": true,
         "iconColor": "rgba(0, 211, 255, 1)",
