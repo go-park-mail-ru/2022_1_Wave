@@ -134,7 +134,7 @@ func (h Handler) Update(ctx echo.Context) error {
 // @Accept          application/json
 // @Produce      application/json
 // @Param        id   path      integer  true  "id of track which need to be getted"
-// @Success      200  {object}  trackProto.Track
+// @Success      200  {object}  webUtils.Success
 // @Failure      400  {object}  webUtils.Error  "Data is invalid"
 // @Failure      405  {object}  webUtils.Error  "Method is not allowed"
 // @Router       /api/v1/tracks/{id} [get]

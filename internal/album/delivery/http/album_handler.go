@@ -237,7 +237,7 @@ func (h Handler) UpdateCover(ctx echo.Context) error {
 // @Accept          application/json
 // @Produce      application/json
 // @Param        id   path      integer  true  "id of album which need to be getted"
-// @Success      200  {object}  albumProto.Album
+// @Success      200  {object}  webUtils.Success
 // @Failure      400  {object}  webUtils.Error  "Data is invalid"
 // @Failure      405  {object}  webUtils.Error  "Method is not allowed"
 // @Router       /api/v1/albums/{id} [get]
@@ -271,7 +271,7 @@ func (h Handler) Get(ctx echo.Context) error {
 // @Accept       application/json
 // @Produce      application/json
 // @Param        id   path      integer  true  "id of album cover which need to be getted"
-// @Success      200  {object}  albumProto.AlbumCover
+// @Success      200  {object}  webUtils.Success
 // @Failure      400  {object}  webUtils.Error  "Data is invalid"
 // @Failure      405  {object}  webUtils.Error  "Method is not allowed"
 // @Router       /api/v1/albumCovers/{id} [get]
