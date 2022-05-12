@@ -8,9 +8,11 @@ services:
   web:
     image: nginx
     container_name: nginx
+    restart: always
     ports:
       - "80:80"
       - "443:443"
+      - "127.0.0.1:8080:8080"
     working_dir: /var/www/wave/
     volumes:
       - ../../assets:/var/www/wave/assets
@@ -19,12 +21,26 @@ services:
       - ./certs:/var/www/certs
     depends_on:
       - wave_music
-      - caddy
+
+  nginx-exporter:
+    image: nginx/nginx-prometheus-exporter
+    container_name: nginx-exporter
+    environment:
+      - SCRAPE_URI=http://web:80/metrics
+      - TELEMETRY_PATH=/metrics
+      - NGINX_RETRIES=1
+      - ADMIN_USER=${ADMIN_USER}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD}
+    expose:
+      - 9113
+    depends_on:
+      - web
 
   wave_music:
     image: mausved/wave_music_api_v1
     container_name: api
     tty: true
+    restart: always
     expose:
       - 5000
     working_dir: /var/www/service
@@ -49,6 +65,7 @@ services:
     container_name: album
     image: mausved/wave_music_api_v1
     working_dir: /var/www/service
+    restart: always
     environment:
       - DATABASE_CONNECTION=user=postgres password=music dbname=wave host=db port=5432 sslmode=disable
     expose:
@@ -62,6 +79,7 @@ services:
     container_name: artist
     image: mausved/wave_music_api_v1
     working_dir: /var/www/service
+    restart: always
     environment:
       - DATABASE_CONNECTION=user=postgres password=music dbname=wave host=db port=5432 sslmode=disable
     expose:
@@ -75,6 +93,7 @@ services:
     container_name: track
     image: mausved/wave_music_api_v1
     working_dir: /var/www/service
+    restart: always
     environment:
       - DATABASE_CONNECTION=user=postgres password=music dbname=wave host=db port=5432 sslmode=disable
     expose:
@@ -88,6 +107,7 @@ services:
     container_name: playlist
     image: mausved/wave_music_api_v1
     working_dir: /var/www/service
+    restart: always
     environment:
       - DATABASE_CONNECTION=user=postgres password=music dbname=wave host=db port=5432 sslmode=disable
     expose:
@@ -101,6 +121,7 @@ services:
     container_name: auth
     image: mausved/wave_music_api_v1
     working_dir: /var/www/service
+    restart: always
     environment:
       - DATABASE_CONNECTION=user=postgres password=music dbname=wave host=db port=5432 sslmode=disable
     expose:
@@ -114,6 +135,7 @@ services:
     container_name: user
     image: mausved/wave_music_api_v1
     working_dir: /var/www/service
+    restart: always
     environment:
       - DATABASE_CONNECTION=user=postgres password=music dbname=wave host=db port=5432 sslmode=disable
     expose:
@@ -126,12 +148,14 @@ services:
   redis:
     image: redis
     container_name: redis
+    restart: always
     expose:
       - 6379
 
   db:
     image: postgres:13
     container_name: postgres
+    restart: always
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=music
@@ -187,6 +211,7 @@ services:
       - pushgateway
       - nodeexporter
       - redis-exporter
+      - nginx-exporter
       - postgres-exporter
       - alertmanager
       - cadvisor
@@ -266,6 +291,7 @@ services:
     expose:
       - "3000"
       - "9090"
+      - "9113"
     ports:
       #      - "3000:3000"
       #      - "9090:9090"
