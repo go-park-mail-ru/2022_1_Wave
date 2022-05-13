@@ -117,11 +117,11 @@ CREATE INDEX track_search_fr
 --                               @@ plainto_tsquery('Часы');
 
 
-EXPLAIN ANALYSE
-SELECT *
-FROM album
-WHERE to_tsvector("title") @@ plainto_tsquery('rkpnysiugz')
-ORDER BY ts_rank(to_tsvector("title"), plainto_tsquery('rkpnysiugz')) DESC;
+-- EXPLAIN ANALYSE
+-- SELECT *
+-- FROM album
+-- WHERE to_tsvector("title") @@ plainto_tsquery('rkpnysiugz')
+-- ORDER BY ts_rank(to_tsvector("title"), plainto_tsquery('rkpnysiugz')) DESC;
 
 -- EXPLAIN ANALYSE SELECT *
 --                 FROM album
