@@ -24,6 +24,7 @@ services:
   nginx-exporter:
     image: nginx/nginx-prometheus-exporter
     container_name: nginx-exporter
+    restart: always
     environment:
       - SCRAPE_URI=http://web:80/metrics
       - TELEMETRY_PATH=/metrics
