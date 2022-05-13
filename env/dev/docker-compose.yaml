@@ -11,8 +11,6 @@ services:
     restart: always
     ports:
       - "80:80"
-      - "443:443"
-      - "127.0.0.1:8080:8080"
     working_dir: /var/www/wave/
     volumes:
       - ../../assets:/var/www/wave/assets
