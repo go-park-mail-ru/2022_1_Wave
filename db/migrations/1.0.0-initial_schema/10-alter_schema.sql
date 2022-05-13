@@ -342,7 +342,7 @@ ALTER TABLE UserFavoriteTracks
     ADD CONSTRAINT uniq_user_favorite_track UNIQUE (user_id, track_id);
 
 
-SELECT id, album_id, artist_id, title, duration, count_likes, count_listening
-FROM Track
-         JOIN playlisttrack ON playlisttrack.track_id = track.id and playlisttrack.playlist_id = 2
-ORDER BY track.id;
+-- SELECT id, album_id, artist_id, title, duration, count_likes, count_listening
+-- FROM Track
+--          JOIN playlisttrack ON playlisttrack.track_id = track.id and playlisttrack.playlist_id = 2
+-- ORDER BY track.id;
