@@ -1,8 +1,9 @@
 package main
 
 import (
-	"fmt"
+	"github.com/go-park-mail-ru/2022_1_Wave/cmd"
 	InitDb "github.com/go-park-mail-ru/2022_1_Wave/init/db"
+	"github.com/go-park-mail-ru/2022_1_Wave/init/logger"
 	AlbumPostgres "github.com/go-park-mail-ru/2022_1_Wave/internal/album/repository/postgres"
 	ArtistPostgres "github.com/go-park-mail-ru/2022_1_Wave/internal/artist/repository/postgres"
 	TrackGrpc "github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/track/gRPC"
@@ -11,11 +12,7 @@ import (
 	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
 	_ "github.com/jackc/pgx/stdlib"
 	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
-	"google.golang.org/grpc"
 	"log"
-	"net"
-	"net/http"
 	"os"
 )
 
@@ -40,10 +37,16 @@ func init() {
 }
 
 func main() {
+	logs, err := logger.InitLogrus(os.Getenv("port"), os.Getenv("dbType"))
+	if err != nil {
+		log.Fatalln("error to init logrus:", err)
+	}
+
 	sqlxDb, err := InitDb.InitDatabase("DATABASE_CONNECTION")
 	if err != nil {
-		os.Exit(1)
+		logs.Logrus.Fatalln("error to init database: ", os.Getenv("dbType"), err)
 	}
+
 	trackRepo := TrackPostgres.NewTrackPostgresRepo(sqlxDb)
 	artistRepo := ArtistPostgres.NewArtistPostgresRepo(sqlxDb)
 	albumRepo := AlbumPostgres.NewAlbumPostgresRepo(sqlxDb)
@@ -53,29 +56,25 @@ func main() {
 			_ = sqlxDb.Close()
 		}
 	}()
-
-	port := ":8083"
-
-	listen, _ := net.Listen("tcp", port)
-	//if err != nil {
-	//	logger.GlobalLogger.Logrus.Errorf("error listen on %s port: %s", port, err.Error())
-	//}
-
-	httpServer := &http.Server{Handler: promhttp.HandlerFor(reg, promhttp.HandlerOpts{}), Addr: fmt.Sprintf("0.0.0.0:%d", 9083)}
-	server := grpc.NewServer(
-		grpc.StreamInterceptor(grpc_prometheus.StreamServerInterceptor),
-		grpc.UnaryInterceptor(grpc_prometheus.UnaryServerInterceptor),
-	)
+	server, httpServer, listen, err := cmd.MakeServers(reg)
+	if err != nil {
+		logs.Logrus.Fatalln("Error to launch track gRPC service")
+	}
+	defer listen.Close()
 
 	trackProto.RegisterTrackUseCaseServer(server, TrackGrpc.MakeTrackGrpc(trackRepo, artistRepo, albumRepo))
 	grpcMetrics.InitializeMetrics(server)
 	// Start your http server for prometheus.
 	go func() {
 		if err := httpServer.ListenAndServe(); err != nil {
-			log.Fatal("Unable to start a http server.")
+			logs.Logrus.Fatal("Unable to start a http track metrics server.")
 		}
 	}()
-	server.Serve(listen)
+
+	err = server.Serve(listen)
+	if err != nil {
+		logs.Logrus.Errorf("cannot listen port %s: %s", os.Getenv("port"), err.Error())
+	}
 
 	//if err != nil {
 	//	logger.GlobalLogger.Logrus.Errorf("cannot listen port %s: %s", port, err.Error())
