@@ -88,6 +88,8 @@ func SetAlbumsRoutes(apiVersion *echo.Group, handler albumDeliveryHttp.Handler) 
 	albumRoutes.POST(favoritesPrefix, handler.AddToFavorites)
 	albumRoutes.DELETE(favoritesPrefix+idEchoPattern, handler.RemoveFromFavorites)
 	albumRoutes.DELETE(idEchoPattern, handler.Delete)
+	albumRoutes.PUT(likePrefix+idEchoPattern, handler.Like)
+	albumRoutes.GET(likePrefix+idEchoPattern, handler.LikeCheckByUser)
 
 	coverRoutes := apiVersion.Group(albumCoversPrefix)
 	coverRoutes.GET(idEchoPattern, handler.GetCover)
@@ -95,6 +97,7 @@ func SetAlbumsRoutes(apiVersion *echo.Group, handler albumDeliveryHttp.Handler) 
 	coverRoutes.POST(locate, handler.CreateCover)
 	coverRoutes.PUT(locate, handler.UpdateCover)
 	coverRoutes.DELETE(idEchoPattern, handler.DeleteCover)
+
 }
 
 // SetArtistsRoutes artists
@@ -111,6 +114,8 @@ func SetArtistsRoutes(apiVersion *echo.Group, handler artistDeliveryHttp.Handler
 	artistRoutes.POST(favoritesPrefix, handler.AddToFavorites)
 	artistRoutes.DELETE(favoritesPrefix+idEchoPattern, handler.RemoveFromFavorites)
 	artistRoutes.DELETE(idEchoPattern, handler.Delete)
+	artistRoutes.PUT(likePrefix+idEchoPattern, handler.Like)
+	artistRoutes.GET(likePrefix+idEchoPattern, handler.LikeCheckByUser)
 }
 
 // SetTracksRoutes tracks
