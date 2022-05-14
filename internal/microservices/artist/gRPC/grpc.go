@@ -107,3 +107,19 @@ func (useCase ArtistGrpc) RemoveFromFavorites(ctx context.Context, data *gateway
 
 	return &emptypb.Empty{}, nil
 }
+
+func (useCase ArtistGrpc) Like(ctx context.Context, data *gatewayProto.UserIdArtistIdArg) (*emptypb.Empty, error) {
+	if err := (*useCase.ArtistRepo).Like(data.ArtistId, data.UserId); err != nil {
+		return nil, err
+	}
+
+	return &emptypb.Empty{}, nil
+}
+
+func (useCase ArtistGrpc) LikeCheckByUser(ctx context.Context, data *gatewayProto.UserIdArtistIdArg) (*gatewayProto.LikeCheckResponse, error) {
+	liked, err := (*useCase.ArtistRepo).LikeCheckByUser(data.ArtistId, data.UserId)
+	if err != nil {
+		return nil, err
+	}
+	return &gatewayProto.LikeCheckResponse{Ok: liked}, nil
+}

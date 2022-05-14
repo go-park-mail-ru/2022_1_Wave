@@ -18,7 +18,8 @@ message ArtistDataTransfer {
   string name = 2; // @gotags: json:"name" example:"Mercury"
   string cover = 3; // @gotags: json:"cover" example:"assets/artist_1.png"
   int64 likes = 4; // @gotags: json:"likes" example:"5"
-  map<int64, album.AlbumDataTransfer> Albums = 5; // @gotags: json:"albums"
+  bool isLiked = 5; // @gotags: json:"isLiked" example:"true"
+  map<int64, album.AlbumDataTransfer> Albums = 6; // @gotags: json:"albums"
 }
 
 message ArtistUseCaseResponse {
@@ -42,4 +43,6 @@ service ArtistUseCase {
   rpc GetFavorites(gateway.IdArg) returns (ArtistsResponse) {}
   rpc AddToFavorites(gateway.UserIdArtistIdArg) returns (google.protobuf.Empty) {}
   rpc RemoveFromFavorites(gateway.UserIdArtistIdArg) returns (google.protobuf.Empty) {}
+  rpc Like(gateway.UserIdArtistIdArg) returns (google.protobuf.Empty) {};
+  rpc LikeCheckByUser(gateway.UserIdArtistIdArg) returns (gateway.LikeCheckResponse) {};
 }
