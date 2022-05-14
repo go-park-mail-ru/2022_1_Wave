@@ -158,7 +158,7 @@ func (useCase trackUseCase) GetTracksFromAlbum(id int64, userId int64) ([]*track
 }
 
 func (useCase trackUseCase) Like(trackId int64, userId int64) error {
-	err := useCase.trackAgent.Like(trackId, userId)
+	err := useCase.trackAgent.Like(userId, trackId)
 	return err
 }
 

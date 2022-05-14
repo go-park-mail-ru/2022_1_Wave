@@ -127,7 +127,7 @@ func (table TrackRepo) GetPopularTracksFromArtist(artistId int64) ([]*trackProto
 	return tracks, nil
 }
 
-func (table TrackRepo) Like(userId int64, trackId int64) error {
+func (table TrackRepo) Like(trackId int64, userId int64) error {
 	track, err := table.SelectByID(trackId)
 
 	if err != nil {
