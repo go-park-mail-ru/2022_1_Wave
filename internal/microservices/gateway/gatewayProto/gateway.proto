@@ -29,3 +29,7 @@ message UserIdAlbumIdArg {
   int64 albumId = 2;
 }
 
+message LikeCheckResponse {
+  bool ok = 1;
+}
+

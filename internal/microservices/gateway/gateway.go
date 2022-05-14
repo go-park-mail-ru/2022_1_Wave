@@ -26,10 +26,15 @@ func PathToAlbumCover(album *albumProto.Album, fileFormat string) (string, error
 }
 
 // --------------------------------------
-func CastAlbumToDtoWithoutArtistNameAndTracks(album *albumProto.Album) (*albumProto.AlbumDataTransfer, error) {
+func CastAlbumToDtoWithoutArtistNameAndTracks(album *albumProto.Album, albumAgent domain.AlbumAgent, userId int64) (*albumProto.AlbumDataTransfer, error) {
 	cover, err := PathToAlbumCover(album, constants.PngFormat)
 	if err != nil {
 		return nil, err
+	}
+
+	liked, err := albumAgent.LikeCheckByUser(userId, album.Id)
+	if err != nil {
+		liked = false
 	}
 
 	return &albumProto.AlbumDataTransfer{
@@ -39,6 +44,7 @@ func CastAlbumToDtoWithoutArtistNameAndTracks(album *albumProto.Album) (*albumPr
 		ArtistId: album.ArtistId,
 		Cover:    cover,
 		Tracks:   nil,
+		IsLiked:  liked,
 	}, nil
 }
 
@@ -113,7 +119,7 @@ func CastTracksByArtistToDto(userId int64, trackAgent domain.TrackAgent, tracks 
 }
 
 // --------------------------------------
-func GetFullAlbumByArtist(userId int64, trackAgent domain.TrackAgent, album *albumProto.Album, artist *artistProto.Artist) (*albumProto.AlbumDataTransfer, error) {
+func GetFullAlbumByArtist(userId int64, trackAgent domain.TrackAgent, albumAgent domain.AlbumAgent, album *albumProto.Album, artist *artistProto.Artist) (*albumProto.AlbumDataTransfer, error) {
 	tracks, err := trackAgent.GetTracksFromAlbum(album.Id)
 	if err != nil {
 		return nil, err
@@ -124,7 +130,7 @@ func GetFullAlbumByArtist(userId int64, trackAgent domain.TrackAgent, album *alb
 		return nil, err
 	}
 
-	albumDto, err := CastAlbumToDtoWithoutArtistNameAndTracks(album)
+	albumDto, err := CastAlbumToDtoWithoutArtistNameAndTracks(album, albumAgent, userId)
 	if err != nil {
 		return nil, err
 	}
