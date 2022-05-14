@@ -36,10 +36,6 @@ message TracksResponse {
   repeated Track tracks = 1;
 }
 
-message LikeCheckResponse {
-  bool ok = 1;
-}
-
 service TrackUseCase {
   rpc GetAll(google.protobuf.Empty) returns (TracksResponse) {};
   rpc GetLastId(google.protobuf.Empty) returns (gateway.IntResponse) {};
@@ -53,7 +49,7 @@ service TrackUseCase {
   rpc GetPopularTracksFromArtist(gateway.IdArg) returns (TracksResponse) {};
   rpc GetSize(google.protobuf.Empty) returns (gateway.IntResponse) {};
   rpc Like(gateway.UserIdTrackIdArg) returns (google.protobuf.Empty) {};
-  rpc LikeCheckByUser(gateway.UserIdTrackIdArg) returns (LikeCheckResponse) {};
+  rpc LikeCheckByUser(gateway.UserIdTrackIdArg) returns (gateway.LikeCheckResponse) {};
   rpc Listen(gateway.IdArg) returns (google.protobuf.Empty) {};
   rpc SearchByTitle(gateway.StringArg) returns (TracksResponse) {}
   rpc GetFavorites(gateway.IdArg) returns (TracksResponse) {}
