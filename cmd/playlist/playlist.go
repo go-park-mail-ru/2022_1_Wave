@@ -67,6 +67,7 @@ func main() {
 
 	playlistProto.RegisterPlaylistUseCaseServer(server, PlaylistGrpc.MakePlaylistGrpc(trackRepo, artistRepo, albumRepo, playlistRepo))
 	grpcMetrics.InitializeMetrics(server)
+	grpc_prometheus.EnableHandlingTimeHistogram()
 	logs.Logrus.Info("success init metrics: playlist gRPC")
 
 	// Start your http server for prometheus.

@@ -65,6 +65,7 @@ func main() {
 	artistProto.RegisterArtistUseCaseServer(server, ArtistGrpc.MakeArtistGrpc(artistRepo, albumRepo, trackRepo))
 
 	grpcMetrics.InitializeMetrics(server)
+	grpc_prometheus.EnableHandlingTimeHistogram()
 	logs.Logrus.Info("success init metrics: artist gRPC")
 
 	// Start your http server for prometheus.

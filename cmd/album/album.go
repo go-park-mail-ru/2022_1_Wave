@@ -67,6 +67,7 @@ func main() {
 	albumProto.RegisterAlbumUseCaseServer(server, AlbumGrpc.MakeAlbumGrpc(trackRepo, artistRepo, albumRepo, albumCoverRepo))
 
 	grpcMetrics.InitializeMetrics(server)
+	grpc_prometheus.EnableHandlingTimeHistogram()
 	logs.Logrus.Info("success init metrics: album gRPC")
 
 	// Start your http server for prometheus.
