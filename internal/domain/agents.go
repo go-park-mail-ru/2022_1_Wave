@@ -27,6 +27,8 @@ type AlbumAgent interface {
 	GetFavorites(userId int64) ([]*albumProto.Album, error)
 	AddToFavorites(userId int64, albumId int64) error
 	RemoveFromFavorites(userId int64, albumId int64) error
+	Like(userId int64, albumId int64) error
+	LikeCheckByUser(userId int64, albumId int64) (bool, error)
 }
 
 type ArtistAgent interface {
@@ -42,6 +44,8 @@ type ArtistAgent interface {
 	GetFavorites(int64) ([]*artistProto.Artist, error)
 	AddToFavorites(userId int64, artistId int64) error
 	RemoveFromFavorites(userId int64, artistId int64) error
+	Like(userId int64, artistId int64) error
+	LikeCheckByUser(userId int64, artistId int64) (bool, error)
 }
 
 type TrackAgent interface {
