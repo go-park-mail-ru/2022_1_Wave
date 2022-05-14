@@ -44,7 +44,7 @@ services:
     expose:
       - 5000
     working_dir: /var/www/service
-    entrypoint: ./prod.sh
+    entrypoint: ./cmd/api/prod.sh
     volumes:
       - ../..:/var/www/service
       - ../../config/config.toml:/var/www/service/config.toml:ro
@@ -67,11 +67,14 @@ services:
     working_dir: /var/www/service
     restart: always
     environment:
+      - dbType=postgres
+      - port=:8081
+      - exporterPort=:9081
       - DATABASE_CONNECTION=user=postgres password=music dbname=wave host=db port=5432 sslmode=disable
     expose:
       - 8081
       - 9081
-    entrypoint: ./cmd/album/run.sh
+    entrypoint: ./cmd/album/prod.sh
     volumes:
       - ../..:/var/www/service
 
@@ -81,11 +84,14 @@ services:
     working_dir: /var/www/service
     restart: always
     environment:
+      - dbType=postgres
+      - port=:8082
+      - exporterPort=:9082
       - DATABASE_CONNECTION=user=postgres password=music dbname=wave host=db port=5432 sslmode=disable
     expose:
       - 8082
       - 9082
-    entrypoint: ./cmd/artist/run.sh
+    entrypoint: ./cmd/artist/prod.sh
     volumes:
       - ../..:/var/www/service
 
@@ -95,11 +101,14 @@ services:
     working_dir: /var/www/service
     restart: always
     environment:
+      - dbType=postgres
+      - port=:8083
+      - exporterPort=:9083
       - DATABASE_CONNECTION=user=postgres password=music dbname=wave host=db port=5432 sslmode=disable
     expose:
       - 8083
       - 9083
-    entrypoint: ./cmd/track/run.sh
+    entrypoint: ./cmd/track/prod.sh
     volumes:
       - ../..:/var/www/service
 
@@ -109,11 +118,14 @@ services:
     working_dir: /var/www/service
     restart: always
     environment:
+      - dbType=postgres
+      - port=:8084
+      - exporterPort=:9084
       - DATABASE_CONNECTION=user=postgres password=music dbname=wave host=db port=5432 sslmode=disable
     expose:
       - 8084
       - 9084
-    entrypoint: ./cmd/playlist/run.sh
+    entrypoint: ./cmd/playlist/prod.sh
     volumes:
       - ../..:/var/www/service
 
@@ -123,11 +135,14 @@ services:
     working_dir: /var/www/service
     restart: always
     environment:
+      - dbType=redis
+      - port=:8085
+      - exporterPort=:9085
       - DATABASE_CONNECTION=user=postgres password=music dbname=wave host=db port=5432 sslmode=disable
     expose:
       - 8085
       - 9085
-    entrypoint: ./cmd/auth/run.sh
+    entrypoint: ./cmd/auth/prod.sh
     volumes:
       - ../..:/var/www/service
 
@@ -137,11 +152,14 @@ services:
     working_dir: /var/www/service
     restart: always
     environment:
+      - dbType=postgres
+      - port=:8086
+      - exporterPort=:9086
       - DATABASE_CONNECTION=user=postgres password=music dbname=wave host=db port=5432 sslmode=disable
     expose:
       - 8086
       - 9086
-    entrypoint: ./cmd/user/run.sh
+    entrypoint: ./cmd/user/prod.sh
     volumes:
       - ../..:/var/www/service
 
@@ -293,8 +311,6 @@ services:
       - "9090"
       - "9113"
     ports:
-      #      - "3000:3000"
-      #      - "9090:9090"
       - "9093:9093"
       - "9091:9091"
       - "9121:9121"
