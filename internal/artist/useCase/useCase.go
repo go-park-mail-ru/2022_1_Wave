@@ -21,6 +21,8 @@ type UseCase interface {
 	GetFavorites(int64) ([]*artistProto.ArtistDataTransfer, error)
 	AddToFavorites(userId int64, artistId int64) error
 	RemoveFromFavorites(userId int64, artistId int64) error
+	Like(arg int64, userId int64) error
+	LikeCheckByUser(arg int64, userId int64) (bool, error)
 }
 
 type artistUseCase struct {
@@ -51,19 +53,25 @@ func (useCase artistUseCase) CastToDTO(userId int64, artist *artistProto.Artist)
 	albumsDto := map[int64]*albumProto.AlbumDataTransfer{}
 
 	for _, album := range albums {
-		albumDto, err := Gateway.GetFullAlbumByArtist(userId, useCase.trackAgent, album, artist)
+		albumDto, err := Gateway.GetFullAlbumByArtist(userId, useCase.trackAgent, useCase.albumAgent, album, artist)
 		if err != nil {
 			return nil, err
 		}
 		albumsDto[album.Id] = albumDto
 	}
 
+	liked, err := useCase.artistAgent.LikeCheckByUser(userId, artist.Id)
+	if err != nil {
+		liked = false
+	}
+
 	return &artistProto.ArtistDataTransfer{
-		Id:     artist.Id,
-		Name:   artist.Name,
-		Cover:  coverPath,
-		Likes:  artist.CountLikes,
-		Albums: albumsDto,
+		Id:      artist.Id,
+		Name:    artist.Name,
+		Cover:   coverPath,
+		Likes:   artist.CountLikes,
+		Albums:  albumsDto,
+		IsLiked: liked,
 	}, nil
 }
 
@@ -189,4 +197,13 @@ func (useCase artistUseCase) AddToFavorites(userId int64, albumId int64) error {
 
 func (useCase artistUseCase) RemoveFromFavorites(userId int64, albumId int64) error {
 	return useCase.artistAgent.RemoveFromFavorites(userId, albumId)
+}
+
+func (useCase artistUseCase) Like(artistId int64, userId int64) error {
+	err := useCase.artistAgent.Like(userId, artistId)
+	return err
+}
+
+func (useCase artistUseCase) LikeCheckByUser(artistId int64, userId int64) (bool, error) {
+	return useCase.artistAgent.LikeCheckByUser(userId, artistId)
 }

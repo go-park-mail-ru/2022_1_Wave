@@ -232,3 +232,27 @@ func (table ArtistRepo) RemoveFromFavorites(trackId int64, userId int64) error {
 	_, err := table.Sqlx.Exec(query, userId, trackId)
 	return err
 }
+
+func (table ArtistRepo) LikeCheckByUser(artistId int64, userId int64) (bool, error) {
+	artist, err := table.SelectByID(artistId)
+
+	if err != nil {
+		return false, err
+	}
+
+	query := `
+		SELECT artist_id FROM userArtistsLike
+		WHERE artist_id = $1 and user_id = $2`
+
+	likedArtistId := -1
+	err = table.Sqlx.Get(&likedArtistId, query, artist.Id, userId)
+	if err != nil {
+		return false, nil
+	}
+	return true, nil
+	//if likedTrackId <= 0 {
+	//	return false, nil
+	//} else {
+	//	return true, nil
+	//}
+}
