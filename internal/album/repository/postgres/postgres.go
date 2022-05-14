@@ -140,7 +140,7 @@ func (table AlbumRepo) Like(albumId int64, userId int64) error {
 	}
 
 	query := `
-		INSERT INTO useralbumslike (user_id, album_id)
+		INSERT INTO userAlbumsLike (user_id, album_id)
 		VALUES ($1, $2)
 		RETURNING album_id`
 
@@ -230,6 +230,30 @@ func (table AlbumRepo) RemoveFromFavorites(albumId int64, userId int64) error {
 
 	_, err := table.Sqlx.Exec(query, userId, albumId)
 	return err
+}
+
+func (table AlbumRepo) LikeCheckByUser(albumId int64, userId int64) (bool, error) {
+	album, err := table.SelectByID(albumId)
+
+	if err != nil {
+		return false, err
+	}
+
+	query := `
+		SELECT album_id FROM userAlbumsLike
+		WHERE album_id = $1 and user_id = $2`
+
+	likedAlbumId := -1
+	err = table.Sqlx.Get(&likedAlbumId, query, album.Id, userId)
+	if err != nil {
+		return false, nil
+	}
+	return true, nil
+	//if likedTrackId <= 0 {
+	//	return false, nil
+	//} else {
+	//	return true, nil
+	//}
 }
 
 // ----------------------------------------------------------------------

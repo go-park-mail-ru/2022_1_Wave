@@ -26,6 +26,8 @@ type UseCase interface {
 	GetFavorites(userId int64) ([]*albumProto.AlbumDataTransfer, error)
 	AddToFavorites(userId int64, albumId int64) error
 	RemoveFromFavorites(userId int64, albumId int64) error
+	Like(arg int64, userId int64) error
+	LikeCheckByUser(arg int64, userId int64) (bool, error)
 }
 
 type albumUseCase struct {
@@ -47,7 +49,7 @@ func (useCase albumUseCase) CastToDTO(userId int64, album *albumProto.Album) (*a
 	if err != nil {
 		return nil, err
 	}
-	return Gateway.GetFullAlbumByArtist(userId, useCase.trackAgent, album, artist)
+	return Gateway.GetFullAlbumByArtist(userId, useCase.trackAgent, useCase.albumAgent, album, artist)
 }
 
 func (useCase albumUseCase) CastCoverToDTO(cover *albumProto.AlbumCover) (*albumProto.AlbumCoverDataTransfer, error) {
@@ -254,4 +256,13 @@ func (useCase albumUseCase) AddToFavorites(userId int64, albumId int64) error {
 
 func (useCase albumUseCase) RemoveFromFavorites(userId int64, albumId int64) error {
 	return useCase.albumAgent.RemoveFromFavorites(userId, albumId)
+}
+
+func (useCase albumUseCase) Like(albumId int64, userId int64) error {
+	err := useCase.albumAgent.Like(userId, albumId)
+	return err
+}
+
+func (useCase albumUseCase) LikeCheckByUser(albumId int64, userId int64) (bool, error) {
+	return useCase.albumAgent.LikeCheckByUser(userId, albumId)
 }
