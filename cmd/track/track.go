@@ -64,7 +64,6 @@ func main() {
 
 	trackProto.RegisterTrackUseCaseServer(server, TrackGrpc.MakeTrackGrpc(trackRepo, artistRepo, albumRepo))
 	grpcMetrics.InitializeMetrics(server)
-	grpc_prometheus.EnableHandlingTimeHistogram()
 	// Start your http server for prometheus.
 	go func() {
 		if err := httpServer.ListenAndServe(); err != nil {

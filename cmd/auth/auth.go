@@ -56,7 +56,6 @@ func main() {
 
 	proto.RegisterAuthorizationServer(server, auth_service.NewAuthService(authRepo))
 	grpcMetrics.InitializeMetrics(server)
-	grpc_prometheus.EnableHandlingTimeHistogram()
 	logs.Logrus.Info("success init metrics: auth gRPC")
 	// Start your http server for prometheus.
 	go func() {

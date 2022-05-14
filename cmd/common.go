@@ -25,6 +25,8 @@ func MakeServers(reg *prometheus.Registry) (*grpc.Server, *http.Server, net.List
 		grpc.UnaryInterceptor(grpc_prometheus.UnaryServerInterceptor),
 	)
 
+	grpc_prometheus.EnableHandlingTimeHistogram()
+
 	return server, metricsServer, listen, nil
 
 }
