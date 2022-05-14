@@ -20,7 +20,8 @@ message AlbumDataTransfer {
   string artist = 3; // @gotags: json:"artist" example:"Hexed"
   int64 artist_id = 4; // @gotags: json:"artistId" example:"8" db:"artist_id" validate:"min=0,nonnil"
   string cover = 5; // @gotags: json:"cover" example:"assets/album_1.png"
-  repeated track.TrackDataTransfer Tracks = 6; // @gotags: json:"tracks"
+  bool isLiked = 6; // @gotags: json:"isLiked" example:"true"
+  repeated track.TrackDataTransfer Tracks = 7; // @gotags: json:"tracks"
 }
 
 message AlbumCover {
@@ -67,4 +68,6 @@ service AlbumUseCase {
   rpc GetFavorites(gateway.IdArg) returns (AlbumsResponse) {}
   rpc AddToFavorites(gateway.UserIdAlbumIdArg) returns (google.protobuf.Empty) {}
   rpc RemoveFromFavorites(gateway.UserIdAlbumIdArg) returns (google.protobuf.Empty) {}
+  rpc Like(gateway.UserIdAlbumIdArg) returns (google.protobuf.Empty) {};
+  rpc LikeCheckByUser(gateway.UserIdAlbumIdArg) returns (gateway.LikeCheckResponse) {};
 }
