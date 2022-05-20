@@ -8,7 +8,7 @@ echo -e "\033[32m *** PUSHING $dockerProfile/$prefix$1 ***\033[36m"
 docker push -q "$dockerProfile/$prefix$1" &
 
 
-spin
+#spin
 
 if [ $? -eq 0 ]
 then
