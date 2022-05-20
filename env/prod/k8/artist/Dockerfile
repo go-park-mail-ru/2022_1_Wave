@@ -1,7 +1,7 @@
 FROM mausved/wave_music_api_v1:latest AS build_step
 COPY ./ /var/www/service
 WORKDIR /var/www/service/
-RUN bash cmd/artist/reload.sh
+RUN bash cmd/artist/prod.sh
 
 FROM alpine
 RUN apk add --no-cache libc6-compat
