@@ -16,7 +16,7 @@ then
 else
   echo -e "\033[31m *** ERROR DUE PUSHING $dockerProfile/$prefix$1 ***"
   echo -e "\033[0m"
-  return 127
+  exit 127
 fi
 
 echo -e "\033[0m"
