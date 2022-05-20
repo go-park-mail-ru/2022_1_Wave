@@ -14,6 +14,6 @@ jobs:
       - name: Login to DockerHub Registry
         run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
       - name: Build all Docker images
-        run: cd deploy && bash buildDockerAll.sh
+        run: cd deploy && bash dockerBuildAll.sh
       - name: Push all Docker images
-        run: cd deploy && bash pushDockerAll.sh
+        run: cd deploy && bash dockerPushAll.sh
