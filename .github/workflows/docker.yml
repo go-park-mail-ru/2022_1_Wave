@@ -10,8 +10,8 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
+      #      - uses: actions/checkout@v1
       - name: Login to DockerHub Registry
-        run: echo "Qwerty12345" | docker login -u "mausved" --password-stdin
-      - name: Deploy all Docker images
-        run: cd deploy && bash deployAll.sh
+        run: ls .
+#      - name: Deploy all Docker images
+#        run: cd deploy && bash deployAll.sh
