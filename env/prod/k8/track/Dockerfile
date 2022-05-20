@@ -1,0 +1,13 @@
+FROM mausved/wave_music_api_v1:latest AS build_step
+COPY ./ /var/www/service
+WORKDIR /var/www/service/
+RUN bash cmd/track/reload.sh
+
+FROM alpine
+RUN apk add --no-cache libc6-compat
+COPY --from=build_step /var/www/service/tmp/track /var/www/service/
+WORKDIR /var/www/service/
+EXPOSE 8083
+EXPOSE 9083
+RUN chmod +x track
+ENTRYPOINT ["sh", "-c", "./track"]
