@@ -15,6 +15,8 @@ then
   echo -e "\033[32m *** SUCCESS PUSHED $dockerProfile/$prefix$1 ***"
 else
   echo -e "\033[31m *** ERROR DUE PUSHING $dockerProfile/$prefix$1 ***"
+  echo -e "\033[0m"
+  return 127
 fi
 
 echo -e "\033[0m"
