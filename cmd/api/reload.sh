@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # generate grpc
-bash gRPC.sh
+bash cmd/api/gRPC.sh
 
 # swag
 swag init -g cmd/api/main.go

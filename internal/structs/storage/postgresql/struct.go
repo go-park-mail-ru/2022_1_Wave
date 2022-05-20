@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"github.com/go-park-mail-ru/2022_1_Wave/db"
+	InitDb "github.com/go-park-mail-ru/2022_1_Wave/init/db"
 	"github.com/go-park-mail-ru/2022_1_Wave/init/logger"
 	AlbumPostgres "github.com/go-park-mail-ru/2022_1_Wave/internal/album/repository/postgres"
 	AlbumCoverPostgres "github.com/go-park-mail-ru/2022_1_Wave/internal/albumCover/repository"
@@ -36,11 +37,8 @@ type Postgres struct {
 	PlaylistRepo   domain.PlaylistRepo
 }
 
-func (storage Postgres) getPostgres() (*sql.DB, error) {
+func GetPostgres() (*sql.DB, error) {
 	dsn := os.Getenv("DATABASE_CONNECTION")
-	if dsn == "" {
-		dsn = "user=test dbname=test password=test host=localhost port=5500 sslmode=disable"
-	}
 	db, err := sql.Open("pgx", dsn)
 	if err != nil {
 		return nil, err
@@ -55,7 +53,7 @@ func (storage Postgres) getPostgres() (*sql.DB, error) {
 
 func (storage Postgres) Open() (domain.GlobalStorageInterface, error) {
 	var err error
-	db, err := storage.getPostgres()
+	db, err := GetPostgres()
 	if err != nil {
 		return nil, err
 	}
@@ -73,17 +71,20 @@ func (storage Postgres) Init(quantity int64) (domain.GlobalStorageInterface, err
 		return nil, errors.New("quantity for db is negative")
 	}
 
-	proxy, err := storage.Open()
+	sqlxDb, err := InitDb.InitDatabase("DATABASE_CONNECTION")
 	if err != nil {
-		return storage, err
+		return nil, err
 	}
-	storage.Sqlx = proxy.(Postgres).Sqlx
 
-	logger.GlobalLogger.Logrus.Warnln("Finding migrations...")
+	storage.Sqlx = sqlxDb
+
 	path := os.Getenv("DATABASE_MIGRATIONS")
 	if path == "" {
-		path = "../../db/migrations"
+		return storage, nil
 	}
+
+	// migrate and generate
+	logger.GlobalLogger.Logrus.Warnln("Finding migrations...")
 	db.MigrateDB(storage.Sqlx.DB, path)
 
 	storage.AlbumRepo = &AlbumPostgres.AlbumRepo{Sqlx: storage.Sqlx}

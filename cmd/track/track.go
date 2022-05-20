@@ -47,6 +47,8 @@ func main() {
 		logs.Logrus.Fatalln("error to init database: ", os.Getenv("dbType"), err)
 	}
 
+	logs.Logrus.Infoln("success connect to db:", os.Getenv("dbType"))
+
 	trackRepo := TrackPostgres.NewTrackPostgresRepo(sqlxDb)
 	artistRepo := ArtistPostgres.NewArtistPostgresRepo(sqlxDb)
 	albumRepo := AlbumPostgres.NewAlbumPostgresRepo(sqlxDb)
@@ -64,6 +66,7 @@ func main() {
 
 	trackProto.RegisterTrackUseCaseServer(server, TrackGrpc.MakeTrackGrpc(trackRepo, artistRepo, albumRepo))
 	grpcMetrics.InitializeMetrics(server)
+	logs.Logrus.Info("success init metrics: track gRPC")
 	// Start your http server for prometheus.
 	go func() {
 		if err := httpServer.ListenAndServe(); err != nil {

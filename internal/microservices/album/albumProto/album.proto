@@ -35,6 +35,7 @@ message AlbumCoverDataTransfer {
   bool is_dark = 2; // @gotags: json:"isDark" example:"true"
 }
 
+
 message AlbumUseCaseResponse {
   AlbumDataTransfer data = 1;
 }
