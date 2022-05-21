@@ -44,10 +44,10 @@ services:
     entrypoint: ./cmd/api/run.sh
     volumes:
       - ../..:/var/www/service
-      - ./airs/api.toml:/var/www/service/.air.toml:ro
+      - ./airs/api.toml:/var/www/service/cmd/api/.air.toml:ro
       - ../../config/config.toml:/var/www/service/config.toml:ro
     environment:
-      - DATABASE_CONNECTION=user=postgres password=music dbname=wave host=db port=5432 sslmode=disable
+      - DATABASE_CONNECTION=user=postgres password=music dbname=wave host=postgres port=5432 sslmode=disable
       - DATABASE_MIGRATIONS=./db/migrations
     depends_on:
       - track
@@ -68,14 +68,16 @@ services:
       - dbType=postgres
       - port=:8081
       - exporterPort=:9081
-      - DATABASE_CONNECTION=user=postgres password=music dbname=wave host=db port=5432 sslmode=disable
+      - DATABASE_CONNECTION=user=postgres password=music dbname=wave host=postgres port=5432 sslmode=disable
     expose:
       - 8081
       - 9081
     entrypoint: ./cmd/album/run.sh
     volumes:
-      - ./airs/album.toml:/var/www/service/.air.toml:ro
+      - ./airs/album.toml:/var/www/service/cmd/album/.air.toml:ro
       - ../..:/var/www/service
+    depends_on:
+      - db
 
   artist:
     container_name: artist
@@ -86,14 +88,16 @@ services:
       - dbType=postgres
       - port=:8082
       - exporterPort=:9082
-      - DATABASE_CONNECTION=user=postgres password=music dbname=wave host=db port=5432 sslmode=disable
+      - DATABASE_CONNECTION=user=postgres password=music dbname=wave host=postgres port=5432 sslmode=disable
     expose:
       - 8082
       - 9082
     entrypoint: ./cmd/artist/run.sh
     volumes:
-      - ./airs/artist.toml:/var/www/service/.air.toml:ro
+      - ./airs/artist.toml:/var/www/service/cmd/artist/.air.toml:ro
       - ../..:/var/www/service
+    depends_on:
+      - db
 
   track:
     container_name: track
@@ -104,14 +108,16 @@ services:
       - dbType=postgres
       - port=:8083
       - exporterPort=:9083
-      - DATABASE_CONNECTION=user=postgres password=music dbname=wave host=db port=5432 sslmode=disable
+      - DATABASE_CONNECTION=user=postgres password=music dbname=wave host=postgres port=5432 sslmode=disable
     expose:
       - 8083
       - 9083
     entrypoint: ./cmd/track/run.sh
     volumes:
-      - ./airs/track.toml:/var/www/service/.air.toml:ro
+      - ./airs/track.toml:/var/www/service/cmd/track/.air.toml:ro
       - ../..:/var/www/service
+    depends_on:
+      - db
 
   playlist:
     container_name: playlist
@@ -122,14 +128,16 @@ services:
       - dbType=postgres
       - port=:8084
       - exporterPort=:9084
-      - DATABASE_CONNECTION=user=postgres password=music dbname=wave host=db port=5432 sslmode=disable
+      - DATABASE_CONNECTION=user=postgres password=music dbname=wave host=postgres port=5432 sslmode=disable
     expose:
       - 8084
       - 9084
     entrypoint: ./cmd/playlist/run.sh
     volumes:
-      - ./airs/playlist.toml:/var/www/service/.air.toml:ro
+      - ./airs/playlist.toml:/var/www/service/cmd/playlist/.air.toml:ro
       - ../..:/var/www/service
+    depends_on:
+      - db
 
   auth:
     container_name: auth
@@ -140,14 +148,16 @@ services:
       - dbType=redis
       - port=:8085
       - exporterPort=:9085
-      - DATABASE_CONNECTION=user=postgres password=music dbname=wave host=db port=5432 sslmode=disable
+      - DATABASE_CONNECTION=user=postgres password=music dbname=wave host=postgres port=5432 sslmode=disable
     expose:
       - 8085
       - 9085
     entrypoint: ./cmd/auth/run.sh
     volumes:
-      - ./airs/auth.toml:/var/www/service/.air.toml:ro
+      - ./airs/auth.toml:/var/www/service/cmd/auth/.air.toml:ro
       - ../..:/var/www/service
+    depends_on:
+      - db
 
   user:
     container_name: user
@@ -158,14 +168,16 @@ services:
       - dbType=postgres
       - port=:8086
       - exporterPort=:9086
-      - DATABASE_CONNECTION=user=postgres password=music dbname=wave host=db port=5432 sslmode=disable
+      - DATABASE_CONNECTION=user=postgres password=music dbname=wave host=postgres port=5432 sslmode=disable
     expose:
       - 8086
       - 9086
     entrypoint: ./cmd/user/run.sh
     volumes:
-      - ./airs/user.toml:/var/www/service/.air.toml:ro
+      - ./airs/user.toml:/var/www/service/cmd/user/.air.toml:ro
       - ../..:/var/www/service
+    depends_on:
+      - db
 
   redis:
     image: redis
@@ -184,8 +196,10 @@ services:
       - POSTGRES_DB=wave
     expose:
       - 5432
-    volumes:
-      - ../../db/:/var/run/postgresql/
+  #    volumes:
+  #      - data:/var/lib/postgresql/data
+  #    volumes:
+  #      - ../../db/:/var/run/postgresql/
 
   redis-exporter:
     image: oliver006/redis_exporter:alpine
