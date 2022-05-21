@@ -125,8 +125,6 @@ func (storage Postgres) Init(quantity int64) (domain.GlobalStorageInterface, err
 				close(ch)
 				return
 			}
-			mutex.Lock()
-			mutex.Unlock()
 		}
 		close(ch)
 		return
@@ -145,8 +143,6 @@ func (storage Postgres) Init(quantity int64) (domain.GlobalStorageInterface, err
 				close(ch)
 				return
 			}
-			mutex.Lock()
-			mutex.Unlock()
 		}
 		close(ch)
 		return
