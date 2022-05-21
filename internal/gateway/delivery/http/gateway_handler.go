@@ -16,13 +16,13 @@ import (
 )
 
 type Handler struct {
-	ArtistUseCase ArtistUseCase.UseCase
-	AlbumUseCase  AlbumUseCase.UseCase
-	TrackUseCase  TrackUseCase.UseCase
+	ArtistUseCase ArtistUseCase.ArtistUseCase
+	AlbumUseCase  AlbumUseCase.AlbumUseCase
+	TrackUseCase  TrackUseCase.TrackUseCase
 	UserUseCase   user_domain.UserUseCase
 }
 
-func MakeHandler(album AlbumUseCase.UseCase, artist ArtistUseCase.UseCase, track TrackUseCase.UseCase, user user_domain.UserUseCase) Handler {
+func MakeHandler(album AlbumUseCase.AlbumUseCase, artist ArtistUseCase.ArtistUseCase, track TrackUseCase.TrackUseCase, user user_domain.UserUseCase) Handler {
 	return Handler{
 		ArtistUseCase: artist,
 		AlbumUseCase:  album,

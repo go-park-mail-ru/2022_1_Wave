@@ -6,7 +6,7 @@ import (
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/track/trackProto"
 )
 
-type UseCase interface {
+type TrackUseCase interface {
 	GetAll(userId int64) ([]*trackProto.TrackDataTransfer, error)
 	GetLastId() (int64, error)
 	Create(transfer *trackProto.Track) error

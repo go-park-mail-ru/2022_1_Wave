@@ -17,10 +17,10 @@ import (
 
 type Handler struct {
 	UserUseCase  user_domain.UserUseCase
-	AlbumUseCase AlbumUseCase.UseCase
+	AlbumUseCase AlbumUseCase.AlbumUseCase
 }
 
-func MakeHandler(album AlbumUseCase.UseCase, user user_domain.UserUseCase) Handler {
+func MakeHandler(album AlbumUseCase.AlbumUseCase, user user_domain.UserUseCase) Handler {
 	return Handler{
 		UserUseCase:  user,
 		AlbumUseCase: album,

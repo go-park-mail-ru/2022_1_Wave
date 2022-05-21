@@ -18,11 +18,11 @@ import (
 
 type Handler struct {
 	UserUseCase   user_domain.UserUseCase
-	ArtistUseCase ArtistUseCase.UseCase
-	TrackUseCase  TrackUseCase.UseCase
+	ArtistUseCase ArtistUseCase.ArtistUseCase
+	TrackUseCase  TrackUseCase.TrackUseCase
 }
 
-func MakeHandler(artist ArtistUseCase.UseCase, track TrackUseCase.UseCase, user user_domain.UserUseCase) Handler {
+func MakeHandler(artist ArtistUseCase.ArtistUseCase, track TrackUseCase.TrackUseCase, user user_domain.UserUseCase) Handler {
 	return Handler{
 		UserUseCase:   user,
 		ArtistUseCase: artist,

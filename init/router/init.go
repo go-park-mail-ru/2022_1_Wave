@@ -23,10 +23,10 @@ import (
 
 func Router(e *echo.Echo,
 	auth auth_domain.AuthUseCase,
-	album AlbumUseCase.UseCase,
-	artist ArtistUseCase.UseCase,
-	track TrackUseCase.UseCase,
-	playlist PlaylistUseCase.UseCase,
+	album AlbumUseCase.AlbumUseCase,
+	artist ArtistUseCase.ArtistUseCase,
+	track TrackUseCase.TrackUseCase,
+	playlist PlaylistUseCase.PlaylistUseCase,
 	user user_domain.UserUseCase) error {
 
 	//p := prometheus.NewPrometheus("echo", nil)

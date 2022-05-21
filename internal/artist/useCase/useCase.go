@@ -8,7 +8,7 @@ import (
 	Gateway "github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/gateway"
 )
 
-type UseCase interface {
+type ArtistUseCase interface {
 	GetAll(userId int64) ([]*artistProto.ArtistDataTransfer, error)
 	GetLastId() (int64, error)
 	Create(transfer *artistProto.Artist) error

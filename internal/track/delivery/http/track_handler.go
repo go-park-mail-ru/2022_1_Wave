@@ -16,10 +16,10 @@ import (
 
 type Handler struct {
 	UserUseCase  user_domain.UserUseCase
-	TrackUseCase TrackUseCase.UseCase
+	TrackUseCase TrackUseCase.TrackUseCase
 }
 
-func MakeHandler(track TrackUseCase.UseCase, user user_domain.UserUseCase) Handler {
+func MakeHandler(track TrackUseCase.TrackUseCase, user user_domain.UserUseCase) Handler {
 	return Handler{
 		UserUseCase:  user,
 		TrackUseCase: track,
