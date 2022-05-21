@@ -21,6 +21,8 @@ jobs:
         with:
           go-version: 1.17
       - uses: actions/checkout@v3
+      - name: generate gRPC and docs
+        run: chmod +x generateAll.sh && ./generateAll.sh
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v3
         with:
