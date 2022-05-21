@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f ../docker-compose.yaml
+    kompose.version: 1.26.1 (a9d05d509)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: album
+  name: album
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: album
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -f ../docker-compose.yaml
+        kompose.version: 1.26.1 (a9d05d509)
+      creationTimestamp: null
+      labels:
+        io.kompose.service: album
+    spec:
+      containers:
+        - name: album
+          image: mausved/wave_album
+          ports:
+            - containerPort: 8081
+            - containerPort: 9081
+          env:
+            - name: DATABASE_CONNECTION
+              value: user=postgres password=music dbname=wave host=db port=5432 sslmode=disable
+            - name: dbType
+              value: postgres
+            - name: exporterPort
+              value: :9081
+            - name: port
+              value: :8081
+      restartPolicy: Always
+      imagePullSecrets:
+        - name: regcred
+
+status: { }

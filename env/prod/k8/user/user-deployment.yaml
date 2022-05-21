@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f ../docker-compose.yaml
+    kompose.version: 1.26.1 (a9d05d509)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: user
+  name: user
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: user
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -f ../docker-compose.yaml
+        kompose.version: 1.26.1 (a9d05d509)
+      creationTimestamp: null
+      labels:
+        io.kompose.service: user
+    spec:
+      containers:
+        - name: user
+          image: mausved/wave_user
+          ports:
+            - containerPort: 8086
+            - containerPort: 9086
+          env:
+            - name: DATABASE_CONNECTION
+              value: user=postgres password=music dbname=wave host=db port=5432 sslmode=disable
+            - name: dbType
+              value: postgres
+            - name: exporterPort
+              value: :9086
+            - name: port
+              value: :8086
+
+status: { }

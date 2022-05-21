@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f ../docker-compose.yaml
+    kompose.version: 1.26.1 (a9d05d509)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: wave
+  name: wave
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: wave
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -f ../docker-compose.yaml
+        kompose.version: 1.26.1 (a9d05d509)
+      creationTimestamp: null
+      labels:
+        io.kompose.service: wave
+    spec:
+      containers:
+        - name: api
+          image: mausved/wave_api
+          ports:
+            - containerPort: 5000
+          tty: true
+          env:
+            - name: DATABASE_CONNECTION
+              value: user=postgres password=music dbname=wave host=10.100.150.222 port=5432 sslmode=disable
+            - name: DATABASE_MIGRATIONS
+              value: ./db/migrations
+      restartPolicy: Always
+      imagePullSecrets:
+        - name: regcred
+
+status: { }
