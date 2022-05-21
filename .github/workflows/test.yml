@@ -16,6 +16,7 @@ jobs:
       - run: go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
       - run: go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
       - run: go install github.com/favadi/protoc-go-inject-tag@latest
+      - run: go get github.com/mailru/easyjson && go install github.com/mailru/easyjson/...@latest
       - name: generate gRPC and docs
         run: chmod +x generateAll.sh && ./generateAll.sh
       - name: generate easyjson
