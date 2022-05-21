@@ -1,6 +1,7 @@
 package auth_redis_test
 
 import (
+	"github.com/alicebob/miniredis/v2"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/domain"
 	auth_redis "github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/auth/repository/redis"
 	"github.com/stretchr/testify/assert"
