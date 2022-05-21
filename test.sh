@@ -14,5 +14,6 @@ if [ $? -eq 0 ]; then
 else
   echo -e "\033[31m success\033[0m\033[0m"
   exit 127
+fi
 
 #go tool cover -html=cover.out
