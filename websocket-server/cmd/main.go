@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	"github.com/go-park-mail-ru/2022_1_Wave/init/logger"
 	grpc_agent "github.com/go-park-mail-ru/2022_1_Wave/websocket-server/agents"
 	"github.com/go-park-mail-ru/2022_1_Wave/websocket-server/auth/proto"
 	"github.com/go-park-mail-ru/2022_1_Wave/websocket-server/delivery/http"
@@ -16,11 +16,21 @@ import (
 
 func main() {
 	e := echo.New()
+
+	logs, err := logger.InitLogrus("6789", "redis-sync-player")
+	if err != nil {
+		e.Logger.Fatalf("error to init logrus:", err)
+	}
+
+	e.Use(logs.ColoredLogMiddleware)
+	e.Use(logs.JsonLogMiddleware)
+	e.Logger.SetOutput(logs.Logrus.Writer())
+
 	userSyncPlayerRepo := redis.NewUserSyncElemsRepo(os.Getenv("REDIS_ADDR"))
 	useCase := usecase.NewUserSyncPlayerUseCase(userSyncPlayerRepo)
 
 	grpcConn, err := grpc.Dial(os.Getenv("AUTH_GRPC_ADDR"), grpc.WithTransportCredentials(insecure.NewCredentials()))
-	fmt.Println("grpc auth con ", err)
+
 	authClient := proto.NewAuthorizationClient(grpcConn)
 	authAgent := grpc_agent.NewAuthGRPCAgent(authClient)
 

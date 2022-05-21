@@ -1,6 +1,7 @@
 package gRPC
 
 import (
+	"fmt"
 	"github.com/go-park-mail-ru/2022_1_Wave/init/logger"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/album/albumProto"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/artist/artistProto"
@@ -57,6 +58,7 @@ func (launcher *Launcher) MakeUserGrpcClient(address string) proto_user.ProfileC
 
 func (launcher *Launcher) MakeAuthGrpcClient(address string) proto.AuthorizationClient {
 	conn := launcher.createConnection("auth", address)
+	fmt.Println("auth con = ", conn)
 	authClient := proto.NewAuthorizationClient(conn)
 	return authClient
 }

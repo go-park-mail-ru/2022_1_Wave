@@ -2,6 +2,7 @@ package grpc_agent
 
 import (
 	"context"
+	"fmt"
 	auth_domain "github.com/go-park-mail-ru/2022_1_Wave/websocket-server/auth"
 	"github.com/go-park-mail-ru/2022_1_Wave/websocket-server/auth/proto"
 	"time"
@@ -90,7 +91,8 @@ func (a *authGRPCAgent) IsSession(sessionId string) bool {
 }
 
 func (a *authGRPCAgent) IsAuthSession(sessionId string) bool {
-	boolResult, _ := a.authClient.IsAuthSession(context.Background(), &proto.SessionId{SessionId: sessionId})
+	boolResult, err := a.authClient.IsAuthSession(context.Background(), &proto.SessionId{SessionId: sessionId})
+	fmt.Println("auth agent err = ", err)
 
 	return boolResult.GetResult()
 }
