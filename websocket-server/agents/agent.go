@@ -93,6 +93,7 @@ func (a *authGRPCAgent) IsSession(sessionId string) bool {
 func (a *authGRPCAgent) IsAuthSession(sessionId string) bool {
 	boolResult, err := a.authClient.IsAuthSession(context.Background(), &proto.SessionId{SessionId: sessionId})
 	fmt.Println("auth agent err = ", err)
+	fmt.Println("auth agent result = ", boolResult)
 
 	return boolResult.GetResult()
 }

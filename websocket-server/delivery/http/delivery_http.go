@@ -9,6 +9,7 @@ import (
 	"github.com/gomodule/redigo/redis"
 	"github.com/gorilla/websocket"
 	"github.com/labstack/echo/v4"
+	"net/http"
 	"strconv"
 )
 
@@ -95,8 +96,13 @@ func (a *Handler) PlayerStateLoop(c echo.Context) error {
 		return err
 	}
 
+	upgrader.CheckOrigin = func(r *http.Request) bool {
+		return true
+	}
+
 	wsCon, err := upgrader.Upgrade(c.Response(), c.Request(), nil)
 	if err != nil {
+		fmt.Println("err = ", err)
 		return err
 	}
 	defer wsCon.Close()

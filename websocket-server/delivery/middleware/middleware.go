@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"errors"
+	"fmt"
 	auth_domain "github.com/go-park-mail-ru/2022_1_Wave/websocket-server/auth"
 	"github.com/labstack/echo/v4"
 	"net/http"
@@ -38,6 +39,7 @@ func getErrorMiddlewareResponse(err error) *middlewareResponse {
 func (m *HttpMiddleware) Auth(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		cookie, err := c.Cookie("session_id")
+		fmt.Println("cookie = ", cookie)
 		if err != nil || !m.authAgent.IsAuthSession(cookie.Value) {
 			return c.JSON(http.StatusUnauthorized, getErrorMiddlewareResponse(ErrNotAuth))
 		}

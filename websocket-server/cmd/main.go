@@ -38,7 +38,7 @@ func main() {
 
 	middleware := middleware2.InitMiddleware(authAgent)
 
-	e.GET("/player-sync", handler.PlayerStateLoop, middleware.Auth)
+	e.GET("/api/v1/player-sync", handler.PlayerStateLoop, middleware.Auth)
 
 	e.Start("0.0.0.0:6789")
 }
