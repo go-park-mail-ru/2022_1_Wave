@@ -15,11 +15,11 @@ import (
 )
 
 type Handler struct {
-	PlaylistUseCase PlaylistUseCase.UseCase
+	PlaylistUseCase PlaylistUseCase.PlaylistUseCase
 	UserUseCase     user_domain.UserUseCase
 }
 
-func MakeHandler(playlist PlaylistUseCase.UseCase, user user_domain.UserUseCase) Handler {
+func MakeHandler(playlist PlaylistUseCase.PlaylistUseCase, user user_domain.UserUseCase) Handler {
 	return Handler{
 		PlaylistUseCase: playlist,
 		UserUseCase:     user,
