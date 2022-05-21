@@ -1,7 +1,10 @@
 name: Docker Build
 
-on: [ push ]
-#  push:
+on:
+  workflow_run:
+    workflows: [ "Golangci-lint" ]
+    types:
+      - completed
 #    branches: [ master ]
 #  pull_request:
 #    branches: [ master ]
