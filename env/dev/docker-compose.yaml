@@ -18,6 +18,23 @@ services:
       - ../../../../front/2022_1_Wave/build:/var/www/wave
     depends_on:
       - wave_music
+      - websocket_server
+
+  websocket_server:
+    image: mausved/wave_music_api_v1:latest
+    container_name: websocket_server
+    working_dir: /websocket-server
+    environment:
+      - REDIS_ADDR="redis:6379"
+      - AUTH_GRPC_ADDR="auth:8085"
+    expose:
+      - 6789
+    entrypoint: ./cmd/run.sh
+    volumes:
+      - ../../websocket-server:/websocket-server
+    depends_on:
+      - redis
+      - auth
 
   nginx-exporter:
     image: nginx/nginx-prometheus-exporter
