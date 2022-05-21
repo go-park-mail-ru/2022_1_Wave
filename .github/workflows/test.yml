@@ -20,6 +20,6 @@ jobs:
         run: chmod +x generateAll.sh && ./generateAll.sh
       - name: build
         run: go build -v ./...
-      - name: go install github.com/vektra/mockery/v2@latest
+      - run: go install github.com/vektra/mockery/v2@latest
       - name: go tests
         run: chmod +x test.sh && bash test.sh
