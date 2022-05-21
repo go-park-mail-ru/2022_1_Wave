@@ -13,8 +13,8 @@ name: Golangci-lint
 #  # pull-requests: read
 on: [ push ]
 jobs:
-  generate:
-    name: generate
+  golangci-lint:
+    name: lint
     runs-on: ubuntu-latest
     steps:
       - uses: actions/setup-go@v3
