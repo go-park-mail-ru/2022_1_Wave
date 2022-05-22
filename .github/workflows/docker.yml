@@ -86,7 +86,7 @@ jobs:
     name: deploy
     needs:
       - build
-      - lint
+      - golangci-lint
       - test
     steps:
       - uses: actions/checkout@v1
