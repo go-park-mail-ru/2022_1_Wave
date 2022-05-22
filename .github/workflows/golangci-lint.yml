@@ -30,6 +30,8 @@ jobs:
       - run: go install github.com/favadi/protoc-go-inject-tag@latest
       - name: generate gRPC and docs
         run: chmod +x generateAll.sh && ./generateAll.sh
+      - name: generate test mocks
+        run: cd internal/test && bash mocks.sh
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v3
         with:
