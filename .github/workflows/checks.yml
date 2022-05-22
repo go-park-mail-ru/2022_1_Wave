@@ -23,20 +23,13 @@ jobs:
     needs: prepare
     runs-on: ubuntu-latest
     steps:
+      - run: ls -la .
       - name: generate gRPC and docs
         run: chmod +x generateAll.sh && bash ./generateAll.sh
       - name: generate easyjson
         run: chmod +x easyjsonGenerate.sh && bash ./easyjsonGenerate.sh
       - name: generate test mocks
         run: cd internal/test && chmod +x mocks.sh && bash ./mocks.sh
-
-  build:
-    name: build
-    needs: generate
-    runs-on: ubuntu-latest
-    steps:
-      - name: build
-        run: go build -v ./...
 
   golangci-lint:
     name: lint
@@ -49,6 +42,14 @@ jobs:
           version: latest
           skip-pkg-cache: true
           skip-build-cache: true
+
+  build:
+    name: build
+    needs: generate
+    runs-on: ubuntu-latest
+    steps:
+      - name: build
+        run: go build -v ./...
 
   test:
     name: test
