@@ -2,9 +2,9 @@ name: Docker Build
 
 on:
   workflow_run:
-    workflows: [ Test ]
-    types:
-      - completed
+    workflows:
+      - Checks
+    types: [ completed ]
 #    branches: [ master ]
 #  pull_request:
 #    branches: [ master ]
