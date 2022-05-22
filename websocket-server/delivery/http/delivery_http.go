@@ -1,12 +1,14 @@
 package http
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
 	auth_domain "github.com/go-park-mail-ru/2022_1_Wave/websocket-server/auth"
 	"github.com/go-park-mail-ru/2022_1_Wave/websocket-server/domain"
 	"github.com/gomodule/redigo/redis"
+	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
 	"github.com/labstack/echo/v4"
 	"net/http"
@@ -45,7 +47,7 @@ func getRedisChannelName(userId uint) string {
 	return strconv.Itoa(int(userId))
 }
 
-func (a *Handler) initRedisStructs(userId uint) (redisCon redis.Conn, redisPubSub *redis.PubSubConn, err error) {
+func (a *Handler) initRedisStructs(userId uint) (redisCon redis.Conn, redisPubSub *redis.PubSubConn, uid string, err error) {
 	redisCon, err = redis.Dial("tcp", a.redisAddr)
 	if err != nil {
 		return
@@ -53,23 +55,55 @@ func (a *Handler) initRedisStructs(userId uint) (redisCon redis.Conn, redisPubSu
 
 	redisPubSub = &redis.PubSubConn{Conn: redisCon}
 	err = redisPubSub.Subscribe(getRedisChannelName(userId))
-
+	uid = uuid.NewString()
 	return
 }
 
-func (a *Handler) pushToRedisChannel(redisCon redis.Conn, channelName string, message string) {
-	redisCon.Do("PUBLISH", channelName, message)
+func (a *Handler) initRedisConn() (redis.Conn, error) {
+	return redis.Dial("tcp", a.redisAddr)
 }
 
-func (a *Handler) readRedisChannelLoop(redisChannel *redis.PubSubConn, wsCon *websocket.Conn) {
+func (a *Handler) pushToRedisChannel(redisCon redis.Conn, channelName string, message string, uuid string) {
+	fmt.Println("pub message ", message, " to redis channel ", channelName, " from ", redisCon)
+	msg, err := redisCon.Do("PUBLISH", channelName, uuid+message)
+	fmt.Println("redis publish msg = ", msg) // TODO: для публикации нужно создать другое подключение
+	fmt.Println("redis publish err = ", err)
+}
+
+func getUuidAndMessageFromMessage(msg string) (string, string) {
+	uid := msg[:36]
+	msg = msg[36:len(msg)]
+
+	return msg, uid
+}
+
+func (a *Handler) readRedisChannelLoop(redisChannel *redis.PubSubConn, wsCon *websocket.Conn, ctx context.Context, uid string) {
 	defer fmt.Println("end redis channel loop")
 	for {
+		fmt.Println("in redis channel loop")
 		switch v := redisChannel.Receive().(type) {
 		case redis.Message:
-			if wsCon.WriteMessage(websocket.TextMessage, v.Data) != nil {
+			fmt.Println("message from ", wsCon, ":")
+			dataStr := string(v.Data)
+			msg, uidRedisCon := getUuidAndMessageFromMessage(dataStr)
+			if uidRedisCon == uid {
+				continue
+			}
+			if wsCon.WriteMessage(websocket.TextMessage, []byte(msg)) != nil {
 				return
 			}
+		case redis.Error:
+			fmt.Println("redis error")
+			return
+		default:
+			select {
+			case <-ctx.Done():
+				fmt.Println("ctx done")
+				return
+			default:
+			}
 		}
+
 	}
 }
 
@@ -106,10 +140,10 @@ func (a *Handler) PlayerStateLoop(c echo.Context) error {
 
 	wsCon, err := upgrader.Upgrade(c.Response(), c.Request(), nil)
 	if err != nil {
-		fmt.Println("err = ", err)
 		return err
 	}
 	defer wsCon.Close()
+	defer fmt.Println("end loop with websocket")
 
 	// первоначально мы либо получаем текущее состояние плеера и отсылаем пользователю, либо отсылаем сообщение
 	// об отсутствии состояния. в таком случае мы ожидаем, что придет сообщение с обновлением состояния
@@ -126,7 +160,8 @@ func (a *Handler) PlayerStateLoop(c echo.Context) error {
 		return err
 	}
 
-	redisCon, redisPubSub, err := a.initRedisStructs(userId)
+	redisCon, redisPubSub, uidRedisCon, err := a.initRedisStructs(userId)
+	fmt.Println("uid redis con len = ", len(uidRedisCon))
 	if err != nil {
 		return err
 	}
@@ -134,7 +169,15 @@ func (a *Handler) PlayerStateLoop(c echo.Context) error {
 	defer redisPubSub.Close()
 
 	// запускаем бесконечный цикл, в котором будут читаться сообщения из redis channel'а и отправляться клиенту
-	go a.readRedisChannelLoop(redisPubSub, wsCon)
+	readRedisLoopCtx := context.Background()
+	go a.readRedisChannelLoop(redisPubSub, wsCon, readRedisLoopCtx, uidRedisCon)
+	defer readRedisLoopCtx.Done()
+
+	redisConForPublish, err := a.initRedisConn()
+	if err != nil {
+		return err
+	}
+	defer redisConForPublish.Close()
 
 	var clientMessage domain.UserPlayerUpdateStateMessage
 	redisChannelName := getRedisChannelName(userId)
@@ -142,6 +185,7 @@ func (a *Handler) PlayerStateLoop(c echo.Context) error {
 		_, message, err := wsCon.ReadMessage()
 
 		if err != nil {
+			fmt.Println("break 0, err = ", err)
 			break
 		}
 
@@ -149,6 +193,7 @@ func (a *Handler) PlayerStateLoop(c echo.Context) error {
 		if err != nil {
 			messageState, _ = json.Marshal(getInvalidTrackStateFormatMessage())
 			if wsCon.WriteMessage(websocket.TextMessage, messageState) != nil {
+				fmt.Println("break 1")
 				break
 			}
 		} else {
@@ -157,16 +202,18 @@ func (a *Handler) PlayerStateLoop(c echo.Context) error {
 			if err == domain.ErrGetUserPlayerState {
 				messageState, _ = json.Marshal(getNoTrackStateMessage())
 				if wsCon.WriteMessage(websocket.TextMessage, messageState) != nil {
+					fmt.Println("break 2")
 					break
 				}
 			} else if err != nil {
 				messageState, _ = json.Marshal(getInvalidTrackStateFormatMessage())
 				if wsCon.WriteMessage(websocket.TextMessage, messageState) != nil {
+					fmt.Println("break 3")
 					break
 				}
 			} else {
 				// публикуем обновление состояния плеера в redis channel. его считают другие клиенты
-				a.pushToRedisChannel(redisCon, redisChannelName, string(messageState))
+				a.pushToRedisChannel(redisConForPublish, redisChannelName, string(messageState), uidRedisCon)
 			}
 		}
 	}

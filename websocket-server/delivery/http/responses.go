@@ -8,7 +8,7 @@ func getNoTrackStateMessage() *domain.UserPlayerUpdateStateMessage {
 
 func getTrackStateMessage(trackState *domain.UserPlayerState) *domain.UserPlayerUpdateStateMessage {
 	return &domain.UserPlayerUpdateStateMessage{
-		TypePushState: domain.PlayNewTrack,
+		TypePushState: domain.NewTracksQueue,
 		Data:          *trackState,
 	}
 }

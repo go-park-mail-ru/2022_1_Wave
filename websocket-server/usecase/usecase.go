@@ -28,9 +28,10 @@ func (a *userSyncPlayerUseCase) PushTrackUpdateState(userId uint, tracksToAdd []
 }
 
 func (a *userSyncPlayerUseCase) NewTrackQueueUpdateState(userId uint, tracksQueue []uint, queuePosition int, timeStateUpdate time.Time) error {
+	var oldTrack *domain.UserPlayerState
 	oldTrack, err := a.syncPlayerRepo.GetUserPlayerState(userId)
 	if err != nil {
-		return err
+		oldTrack = new(domain.UserPlayerState)
 	}
 
 	oldTrack.TracksQueue = tracksQueue
