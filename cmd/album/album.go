@@ -88,7 +88,7 @@ func main() {
 	go func() {
 		for now := range time.Tick(time.Hour) {
 			if _, err := albumRepo.CountPopularAlbumOfWeek(); err != nil {
-				logs.Logrus.Fatal("Unable to count a inits popular albums of week, time:", now)
+				logs.Logrus.Fatal("Unable to count a inits popular albums of week, time:", now, "err:", err)
 			}
 		}
 	}()
