@@ -2,7 +2,7 @@ name: Docker Build
 
 on:
   workflow_run:
-    workflows: [ Golangci-lint ]
+    workflows: [ Test ]
     types:
       - completed
 #    branches: [ master ]
