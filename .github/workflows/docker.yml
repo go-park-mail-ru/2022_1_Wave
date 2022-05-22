@@ -19,11 +19,11 @@ jobs:
       - run: go install github.com/vektra/mockery/v2@latest
       - uses: actions/checkout@v3
       - name: generate gRPC and docs
-        run: chmod +x generateAll.sh && bash ./generateAll.sh
+        run: chmod +x generateAll.sh && ./generateAll.sh
       - name: generate easyjson
-        run: chmod +x easyjsonGenerate.sh && bash ./easyjsonGenerate.sh
+        run: chmod +x easyjsonGenerate.sh && ./easyjsonGenerate.sh
       - name: generate test mocks
-        run: cd internal/test && chmod +x mocks.sh && bash ./mocks.sh
+        run: cd internal/test && chmod +x mocks.sh && ./mocks.sh
       - name: build
         run: go build -v ./...
 
@@ -44,11 +44,11 @@ jobs:
       - run: go install github.com/favadi/protoc-go-inject-tag@latest
       - run: go install github.com/vektra/mockery/v2@latest
       - name: generate gRPC and docs
-        run: chmod +x generateAll.sh && bash ./generateAll.sh
+        run: chmod +x generateAll.sh && ./generateAll.sh
       - name: generate easyjson
-        run: chmod +x easyjsonGenerate.sh && bash ./easyjsonGenerate.sh
+        run: chmod +x easyjsonGenerate.sh && ./easyjsonGenerate.sh
       - name: generate test mocks
-        run: cd internal/test && chmod +x mocks.sh && bash ./mocks.sh
+        run: cd internal/test && chmod +x mocks.sh && ./mocks.sh
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v3
         with:
@@ -73,13 +73,13 @@ jobs:
       - run: go install github.com/favadi/protoc-go-inject-tag@latest
       - run: go install github.com/vektra/mockery/v2@latest
       - name: generate gRPC and docs
-        run: chmod +x generateAll.sh && bash ./generateAll.sh
+        run: chmod +x generateAll.sh && ./generateAll.sh
       - name: generate easyjson
-        run: chmod +x easyjsonGenerate.sh && bash ./easyjsonGenerate.sh
+        run: chmod +x easyjsonGenerate.sh && ./easyjsonGenerate.sh
       - name: generate test mocks
-        run: cd internal/test && chmod +x mocks.sh && bash ./mocks.sh
+        run: cd internal/test && chmod +x mocks.sh && ./mocks.sh
       - name: go tests
-        run: chmod +x test.sh && bash test.sh
+        run: chmod +x test.sh && test.sh
 
   deploy:
     runs-on: ubuntu-latest
@@ -93,6 +93,6 @@ jobs:
       - name: Login to DockerHub Registry
         run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
       - name: Build all Docker images
-        run: cd deploy && bash dockerBuildAll.sh
+        run: cd deploy && dockerBuildAll.sh
       - name: Push all Docker images
-        run: cd deploy && bash dockerPushAll.sh
+        run: cd deploy && dockerPushAll.sh
