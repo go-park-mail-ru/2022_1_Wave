@@ -47,7 +47,7 @@ func toMap(playlists []*playlistProto.PlaylistDataTransfer) map[int64]*playlistP
 func (h Handler) GetAll(ctx echo.Context) error {
 	userId, err := internal.GetUserId(ctx, h.UserUseCase)
 	if err != nil {
-		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
+		userId = -1
 	}
 	playlists, err := h.PlaylistUseCase.GetAll(userId)
 	if err != nil {
@@ -189,7 +189,7 @@ func (h Handler) Update(ctx echo.Context) error {
 func (h Handler) Get(ctx echo.Context) error {
 	userId, err := internal.GetUserId(ctx, h.UserUseCase)
 	if err != nil {
-		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
+		userId = -1
 	}
 	id, err := internal.GetIdInt64ByFieldId(ctx)
 	if err != nil {

@@ -43,7 +43,7 @@ func MakeHandler(artist ArtistUseCase.ArtistUseCase, track TrackUseCase.TrackUse
 func (h Handler) GetAll(ctx echo.Context) error {
 	userId, err := internal.GetUserId(ctx, h.UserUseCase)
 	if err != nil {
-		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
+		userId = -1
 	}
 	artists, err := h.ArtistUseCase.GetAll(userId)
 
@@ -145,7 +145,7 @@ func (h Handler) Update(ctx echo.Context) error {
 func (h Handler) Get(ctx echo.Context) error {
 	userId, err := internal.GetUserId(ctx, h.UserUseCase)
 	if err != nil {
-		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
+		userId = -1
 	}
 	id, err := internal.GetIdInt64ByFieldId(ctx)
 	if err != nil {
@@ -211,7 +211,7 @@ func (h Handler) Delete(ctx echo.Context) error {
 func (h Handler) GetPopular(ctx echo.Context) error {
 	userId, err := internal.GetUserId(ctx, h.UserUseCase)
 	if err != nil {
-		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
+		userId = -1
 	}
 	popular, err := h.ArtistUseCase.GetPopular(userId)
 	if err != nil {

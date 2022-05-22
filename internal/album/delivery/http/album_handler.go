@@ -48,7 +48,7 @@ func MakeHandler(album AlbumUseCase.AlbumUseCase, user user_domain.UserUseCase) 
 func (h Handler) GetAll(ctx echo.Context) error {
 	userId, err := internal.GetUserId(ctx, h.UserUseCase)
 	if err != nil {
-		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
+		userId = -1
 	}
 	albums, err := h.AlbumUseCase.GetAll(userId)
 	if err != nil {
@@ -246,7 +246,7 @@ func (h Handler) UpdateCover(ctx echo.Context) error {
 func (h Handler) Get(ctx echo.Context) error {
 	userId, err := internal.GetUserId(ctx, h.UserUseCase)
 	if err != nil {
-		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
+		userId = -1
 	}
 	id, err := internal.GetIdInt64ByFieldId(ctx)
 	if err != nil {
@@ -373,7 +373,7 @@ func (h Handler) DeleteCover(ctx echo.Context) error {
 func (h Handler) GetPopular(ctx echo.Context) error {
 	userId, err := internal.GetUserId(ctx, h.UserUseCase)
 	if err != nil {
-		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
+		userId = -1
 	}
 	popular, err := h.AlbumUseCase.GetPopular(userId)
 	if err != nil {
