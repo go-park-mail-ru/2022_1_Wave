@@ -194,9 +194,9 @@ func SetStaticHandle(apiVersion *echo.Group) {
 
 // config
 const (
-	Proto             = "http://"
-	Host              = "localhost"
-	redisDefaultPort  = "6379"
+	//Proto             = "http://"
+	//Host              = "localhost"
+	//redisDefaultPort  = "6379"
 	currentApiVersion = v1Locate
 	apiPath           = apiLocate + currentApiVersion
 )

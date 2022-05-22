@@ -28,10 +28,10 @@ type TrackUseCase interface {
 }
 
 type trackUseCase struct {
-	albumAgent    domain.AlbumAgent
-	artistAgent   domain.ArtistAgent
-	trackAgent    domain.TrackAgent
-	playlistAgent domain.PlaylistAgent
+	albumAgent  domain.AlbumAgent
+	artistAgent domain.ArtistAgent
+	trackAgent  domain.TrackAgent
+	//playlistAgent domain.PlaylistAgent
 }
 
 func NewTrackUseCase(albumAgent domain.AlbumAgent, artistAgent domain.ArtistAgent, trackAgent domain.TrackAgent) *trackUseCase {

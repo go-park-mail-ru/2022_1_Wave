@@ -46,6 +46,9 @@ func toMap(playlists []*playlistProto.PlaylistDataTransfer) map[int64]*playlistP
 // @Router       /api/v1/playlists/ [get]
 func (h Handler) GetAll(ctx echo.Context) error {
 	userId, err := internal.GetUserId(ctx, h.UserUseCase)
+	if err != nil {
+		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
+	}
 	playlists, err := h.PlaylistUseCase.GetAll(userId)
 	if err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
@@ -185,6 +188,9 @@ func (h Handler) Update(ctx echo.Context) error {
 // @Router       /api/v1/playlists/{id} [get]
 func (h Handler) Get(ctx echo.Context) error {
 	userId, err := internal.GetUserId(ctx, h.UserUseCase)
+	if err != nil {
+		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
+	}
 	id, err := internal.GetIdInt64ByFieldId(ctx)
 	if err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)

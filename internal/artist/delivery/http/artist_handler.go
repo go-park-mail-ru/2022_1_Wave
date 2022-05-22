@@ -42,6 +42,9 @@ func MakeHandler(artist ArtistUseCase.ArtistUseCase, track TrackUseCase.TrackUse
 // @Router       /api/v1/artists/ [get]
 func (h Handler) GetAll(ctx echo.Context) error {
 	userId, err := internal.GetUserId(ctx, h.UserUseCase)
+	if err != nil {
+		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
+	}
 	artists, err := h.ArtistUseCase.GetAll(userId)
 
 	if err != nil {
@@ -141,6 +144,9 @@ func (h Handler) Update(ctx echo.Context) error {
 // @Router       /api/v1/artists/{id} [get]
 func (h Handler) Get(ctx echo.Context) error {
 	userId, err := internal.GetUserId(ctx, h.UserUseCase)
+	if err != nil {
+		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
+	}
 	id, err := internal.GetIdInt64ByFieldId(ctx)
 	if err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
@@ -204,7 +210,9 @@ func (h Handler) Delete(ctx echo.Context) error {
 // @Router       /api/v1/artists/popular [get]
 func (h Handler) GetPopular(ctx echo.Context) error {
 	userId, err := internal.GetUserId(ctx, h.UserUseCase)
-
+	if err != nil {
+		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
+	}
 	popular, err := h.ArtistUseCase.GetPopular(userId)
 	if err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
@@ -298,7 +306,9 @@ func (h Handler) RemoveFromFavorites(ctx echo.Context) error {
 	}
 
 	artistId, err := strconv.ParseInt(ctx.Param(internal.FieldId), 10, 64)
-
+	if err != nil {
+		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
+	}
 	if err := h.ArtistUseCase.RemoveFromFavorites(userId, artistId); err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 	}

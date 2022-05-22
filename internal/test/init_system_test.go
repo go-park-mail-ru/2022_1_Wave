@@ -11,7 +11,6 @@ import (
 
 func TestInit(t *testing.T) {
 	dbType := internal.Postgres
-	dbSize := int64(10)
 	e := echo.New()
 
 	logs, err := logger.InitLogrus(":5000", dbType)
@@ -21,5 +20,5 @@ func TestInit(t *testing.T) {
 	e.Use(logs.JsonLogMiddleware)
 	e.Logger.SetOutput(logs.Logrus.Writer())
 	logs.Logrus.Debug("hello from init test")
-	require.NoError(t, system.Init(e, dbSize, dbType))
+	require.NoError(t, system.Init(e))
 }

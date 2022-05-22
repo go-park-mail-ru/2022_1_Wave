@@ -3,7 +3,7 @@ package main
 import (
 	echoprometheus "github.com/globocom/echo-prometheus"
 	"github.com/go-park-mail-ru/2022_1_Wave/config"
-	_ "github.com/go-park-mail-ru/2022_1_Wave/docs"
+	//_ "github.com/go-park-mail-ru/2022_1_Wave/docs"
 	"github.com/go-park-mail-ru/2022_1_Wave/init/logger"
 	"github.com/go-park-mail-ru/2022_1_Wave/init/system"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal"
@@ -16,8 +16,6 @@ const ConfigFilename = "config.toml"
 
 // todo вынести в конфиг
 const port = ":5000"
-
-const randomGeneratedDbSize = 0
 
 func main() {
 	dbType := internal.Postgres
@@ -40,7 +38,7 @@ func main() {
 	}
 	logs.Logrus.Info("config loaded successful")
 
-	if err := system.Init(e, randomGeneratedDbSize, dbType); err != nil {
+	if err := system.Init(e); err != nil {
 		logs.Logrus.Fatal("Error:", err)
 	}
 

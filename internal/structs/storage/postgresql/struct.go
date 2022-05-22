@@ -122,12 +122,13 @@ func (storage Postgres) Init(quantity int64) (domain.GlobalStorageInterface, err
 			albumsCover[i] = domainCreator.AlbumCoverConstructorRandom(id)
 			if err := storage.AlbumCoverRepo.Create(albumsCover[i]); err != nil {
 				ch <- err
-				close(ch)
-				return
+				break
+				//close(ch)
+				//return
 			}
 		}
 		close(ch)
-		return
+		//return
 	}(wg, coverError, mutex)
 
 	// artists
@@ -140,12 +141,13 @@ func (storage Postgres) Init(quantity int64) (domain.GlobalStorageInterface, err
 			artists[i] = domainCreator.ArtistConstructorRandom(id, nameLen, maxFollowers, maxListening)
 			if err := storage.ArtistRepo.Create(artists[i]); err != nil {
 				ch <- err
-				close(ch)
-				return
+				break
+				//close(ch)
+				//return
 			}
 		}
 		close(ch)
-		return
+		//return
 	}(wg, artistError, mutex)
 
 	wg.Wait()

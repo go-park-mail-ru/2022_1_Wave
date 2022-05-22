@@ -35,8 +35,8 @@ const (
 )
 
 const (
-	successLogin  = "you are login"
-	successSignUp = "you are sign up"
+//successLogin  = "you are login"
+//successSignUp = "you are sign up"
 )
 
 func getErrorUserResponse(err error) *UserResponse {
@@ -46,13 +46,13 @@ func getErrorUserResponse(err error) *UserResponse {
 	}
 }
 
-func userSanitize(user *domain.User) {
-	sanitizer := bluemonday.UGCPolicy()
-
-	user.Username = sanitizer.Sanitize(user.Username)
-	user.Email = sanitizer.Sanitize(user.Email)
-	user.Avatar = sanitizer.Sanitize(user.Avatar)
-}
+//func userSanitize(user *domain.User) {
+//	sanitizer := bluemonday.UGCPolicy()
+//
+//	user.Username = sanitizer.Sanitize(user.Username)
+//	user.Email = sanitizer.Sanitize(user.Email)
+//	user.Avatar = sanitizer.Sanitize(user.Avatar)
+//}
 
 func userSanitizeProto(user *user_microservice_domain.User) {
 	sanitizer := bluemonday.UGCPolicy()
@@ -62,14 +62,14 @@ func userSanitizeProto(user *user_microservice_domain.User) {
 	user.Avatar = sanitizer.Sanitize(user.Avatar)
 }
 
-func getSuccessGetUserResponse(user *domain.User) *UserResponse {
-	userSanitize(user)
-
-	return &UserResponse{
-		Status: StatusOK,
-		Result: user,
-	}
-}
+//func getSuccessGetUserResponse(user *domain.User) *UserResponse {
+//	userSanitize(user)
+//
+//	return &UserResponse{
+//		Status: StatusOK,
+//		Result: user,
+//	}
+//}
 
 func getSuccessGetUserResponseProto(user *user_microservice_domain.User) *UserResponseProto {
 	userSanitizeProto(user)

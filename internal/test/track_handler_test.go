@@ -24,7 +24,7 @@ import (
 )
 
 func TestGetAllTracks(t *testing.T) {
-	var mockTracks = &trackProto.TracksResponse{Tracks: make([]*trackProto.TrackDataTransfer, 10)}
+	var mockTracks = &trackProto.TracksResponse{Tracks: make([]*trackProto.Track, 10)}
 
 	err := faker.FakeData(&mockTracks)
 	assert.NoError(t, err)
@@ -38,7 +38,7 @@ func TestGetAllTracks(t *testing.T) {
 	c := e.NewContext(req, rec)
 	c.SetPath("/tracks/")
 
-	mockTrackUseCase := new(mocks.TrackAgent)
+	mockTrackUseCase := new(mocks.TrackUseCase)
 
 	mockTrackUseCase.On("GetAll").Return(mockTracks, nil)
 
@@ -84,7 +84,7 @@ func TestGetTrack(t *testing.T) {
 	c.SetParamNames("id")
 	c.SetParamValues(strconv.Itoa(int(mockTrack.Id)))
 
-	mockTrackUseCase := new(mocks.TrackAgent)
+	mockTrackUseCase := new(mocks.TrackUseCase)
 
 	mockTrackUseCase.On("GetById", &gatewayProto.IdArg{Id: mockTrack.Id}).Return(&mockTrack, nil)
 
@@ -117,6 +117,7 @@ func TestUpdateTrack(t *testing.T) {
 	e := echo.New()
 
 	dataToSend, err := json.Marshal(&mockTrack)
+	assert.NoError(t, err)
 	req, err := http.NewRequest(echo.PUT, "/tracks/"+strconv.Itoa(int(mockTrack.Id)), bytes.NewBuffer(dataToSend))
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	rec := httptest.NewRecorder()
@@ -126,7 +127,7 @@ func TestUpdateTrack(t *testing.T) {
 	c := e.NewContext(req, rec)
 	c.SetPath("/tracks/")
 
-	mockTrackUseCase := new(mocks.TrackAgent)
+	mockTrackUseCase := new(mocks.TrackUseCase)
 	mockTrackUseCase.On("Update", &mockTrack).Return(nil)
 
 	handler := trackDeliveryHttp.Handler{
@@ -161,6 +162,7 @@ func TestCreateTrack(t *testing.T) {
 	e := echo.New()
 
 	dataToSend, err := json.Marshal(&mockTrack)
+	assert.NoError(t, err)
 	req, err := http.NewRequest(echo.POST, "/tracks/"+strconv.Itoa(int(mockTrack.Id)), bytes.NewBuffer(dataToSend))
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	rec := httptest.NewRecorder()
@@ -170,7 +172,7 @@ func TestCreateTrack(t *testing.T) {
 	c := e.NewContext(req, rec)
 	c.SetPath("/tracks/")
 
-	mockTrackUseCase := new(mocks.TrackAgent)
+	mockTrackUseCase := new(mocks.TrackUseCase)
 	mockTrackUseCase.On("Create", &mockTrack).Return(nil)
 	mockTrackUseCase.On("GetLastId").Return(&gatewayProto.IntResponse{Data: mockTrack.Id}, nil)
 
@@ -214,7 +216,7 @@ func TestDeleteTrack(t *testing.T) {
 	c.SetParamNames("id")
 	c.SetParamValues(strconv.Itoa(int(mockTrack.Id)))
 
-	mockTrackUseCase := new(mocks.TrackAgent)
+	mockTrackUseCase := new(mocks.TrackUseCase)
 	mockTrackUseCase.On("Delete", &gatewayProto.IdArg{Id: mockTrack.Id}).Return(nil)
 
 	handler := trackDeliveryHttp.Handler{

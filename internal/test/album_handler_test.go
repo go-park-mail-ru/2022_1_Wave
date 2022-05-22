@@ -34,7 +34,7 @@ func TestGetEmptyAlbums(t *testing.T) {
 	c := e.NewContext(req, rec)
 	c.SetPath("/albums/")
 
-	mockAlbumUseCase := new(mocks.AlbumAgent)
+	mockAlbumUseCase := new(mocks.AlbumUseCase)
 	mockAlbumUseCase.On("GetAll").Return(mockAlbums, nil)
 
 	handler := albumDeliveryHttp.Handler{
@@ -58,7 +58,7 @@ func TestGetEmptyAlbums(t *testing.T) {
 }
 
 func TestGetAllAlbums(t *testing.T) {
-	var mockAlbums = &albumProto.AlbumsResponse{Albums: make([]*albumProto.AlbumDataTransfer, 10)}
+	var mockAlbums = &albumProto.AlbumsResponse{Albums: make([]*albumProto.Album, 10)}
 
 	err := faker.FakeData(&mockAlbums)
 	assert.NoError(t, err)
@@ -72,7 +72,7 @@ func TestGetAllAlbums(t *testing.T) {
 	c := e.NewContext(req, rec)
 	c.SetPath("/albums/")
 
-	mockAlbumUseCase := new(mocks.AlbumAgent)
+	mockAlbumUseCase := new(mocks.AlbumUseCase)
 	mockAlbumUseCase.On("GetAll").Return(mockAlbums, nil)
 
 	handler := albumDeliveryHttp.Handler{
@@ -118,7 +118,7 @@ func TestGetAlbum(t *testing.T) {
 	c.SetParamNames("id")
 	c.SetParamValues(strconv.Itoa(int(mockAlbum.Id)))
 
-	mockAlbumUseCase := new(mocks.AlbumAgent)
+	mockAlbumUseCase := new(mocks.AlbumUseCase)
 	mockAlbumUseCase.On("GetById", &gatewayProto.IdArg{Id: mockAlbum.Id}).Return(&mockAlbum, nil)
 
 	handler := albumDeliveryHttp.Handler{
@@ -150,6 +150,7 @@ func TestUpdateAlbum(t *testing.T) {
 	e := echo.New()
 
 	dataToSend, err := json.Marshal(&mockAlbum)
+	assert.NoError(t, err)
 	req, err := http.NewRequest(echo.PUT, "/albums/"+strconv.Itoa(int(mockAlbum.Id)), bytes.NewBuffer(dataToSend))
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	rec := httptest.NewRecorder()
@@ -159,7 +160,7 @@ func TestUpdateAlbum(t *testing.T) {
 	c := e.NewContext(req, rec)
 	c.SetPath("/albums/")
 
-	mockAlbumUseCase := new(mocks.AlbumAgent)
+	mockAlbumUseCase := new(mocks.AlbumUseCase)
 	mockAlbumUseCase.On("Update", &mockAlbum).Return(nil)
 
 	handler := albumDeliveryHttp.Handler{
@@ -194,6 +195,7 @@ func TestCreateAlbumError(t *testing.T) {
 	e := echo.New()
 
 	dataToSend, err := json.Marshal(mockAlbum)
+	assert.NoError(t, err)
 	req, err := http.NewRequest(echo.POST, "/albums/", bytes.NewBuffer(dataToSend))
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	rec := httptest.NewRecorder()
@@ -210,10 +212,13 @@ func TestCreateAlbumError(t *testing.T) {
 	assert.Error(t, err)
 	mockAlbum2 := albumProto.Album{}
 	err = faker.FakeData(&mockAlbum2)
+	assert.NoError(t, err)
 	mockAlbum2.Id = -50000
 
 	dataToSend, err = json.Marshal(mockAlbum)
+	assert.NoError(t, err)
 	req, err = http.NewRequest(echo.POST, "/albums/"+strconv.Itoa(int(mockAlbum2.Id)), bytes.NewBuffer(dataToSend))
+	assert.NoError(t, err)
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	rec = httptest.NewRecorder()
 	c = e.NewContext(req, rec)
@@ -234,6 +239,7 @@ func TestCreateAlbum(t *testing.T) {
 	e := echo.New()
 
 	dataToSend, err := json.Marshal(&mockAlbum)
+	assert.NoError(t, err)
 	req, err := http.NewRequest(echo.POST, "/albums/"+strconv.Itoa(int(mockAlbum.Id)), bytes.NewBuffer(dataToSend))
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	rec := httptest.NewRecorder()
@@ -243,7 +249,7 @@ func TestCreateAlbum(t *testing.T) {
 	c := e.NewContext(req, rec)
 	c.SetPath("/albums/")
 
-	mockAlbumUseCase := new(mocks.AlbumAgent)
+	mockAlbumUseCase := new(mocks.AlbumUseCase)
 	mockAlbumUseCase.On("Create", &mockAlbum).Return(nil)
 	mockAlbumUseCase.On("GetLastId").Return(&gatewayProto.IntResponse{Data: mockAlbum.Id}, nil)
 
@@ -287,7 +293,7 @@ func TestDeleteAlbum(t *testing.T) {
 	c.SetParamNames("id")
 	c.SetParamValues(strconv.Itoa(int(mockAlbum.Id)))
 
-	mockAlbumUseCase := new(mocks.AlbumAgent)
+	mockAlbumUseCase := new(mocks.AlbumUseCase)
 	mockAlbumUseCase.On("Delete", &gatewayProto.IdArg{Id: mockAlbum.Id}).Return(nil)
 
 	handler := albumDeliveryHttp.Handler{

@@ -24,7 +24,7 @@ import (
 )
 
 func TestGetAllArtists(t *testing.T) {
-	var mockArtists = &artistProto.ArtistsResponse{Artists: make([]*artistProto.ArtistDataTransfer, 10)}
+	var mockArtists = &artistProto.ArtistsResponse{Artists: make([]*artistProto.Artist, 10)}
 
 	err := faker.FakeData(mockArtists)
 	assert.NoError(t, err)
@@ -38,8 +38,8 @@ func TestGetAllArtists(t *testing.T) {
 	c := e.NewContext(req, rec)
 	c.SetPath("/artists/")
 
-	mockTrackUseCase := new(mocks.TrackAgent)
-	mockArtistUseCase := new(mocks.ArtistAgent)
+	mockTrackUseCase := new(mocks.TrackUseCase)
+	mockArtistUseCase := new(mocks.ArtistUseCase)
 
 	mockArtistUseCase.On("GetAll").Return(mockArtists, nil)
 
@@ -86,8 +86,8 @@ func TestGetArtist(t *testing.T) {
 	c.SetParamNames("id")
 	c.SetParamValues(strconv.Itoa(int(mockArtist.Id)))
 
-	mockTrackUseCase := new(mocks.TrackAgent)
-	mockArtistUseCase := new(mocks.ArtistAgent)
+	mockTrackUseCase := new(mocks.TrackUseCase)
+	mockArtistUseCase := new(mocks.ArtistUseCase)
 
 	mockArtistUseCase.On("GetById", &gatewayProto.IdArg{Id: mockArtist.Id}).Return(&mockArtist, nil)
 
@@ -121,6 +121,7 @@ func TestUpdateArtist(t *testing.T) {
 	e := echo.New()
 
 	dataToSend, err := json.Marshal(&mockArtist)
+	assert.NoError(t, err)
 	req, err := http.NewRequest(echo.PUT, "/artists/"+strconv.Itoa(int(mockArtist.Id)), bytes.NewBuffer(dataToSend))
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	rec := httptest.NewRecorder()
@@ -130,7 +131,7 @@ func TestUpdateArtist(t *testing.T) {
 	c := e.NewContext(req, rec)
 	c.SetPath("/artists/")
 
-	mockArtistUseCase := new(mocks.ArtistAgent)
+	mockArtistUseCase := new(mocks.ArtistUseCase)
 	mockArtistUseCase.On("Update", &mockArtist).Return(nil)
 
 	handler := artistDeliveryHttp.Handler{
@@ -166,6 +167,7 @@ func TestCreateArtist(t *testing.T) {
 	e := echo.New()
 
 	dataToSend, err := json.Marshal(&mockArtist)
+	assert.NoError(t, err)
 	req, err := http.NewRequest(echo.POST, "/artists/"+strconv.Itoa(int(mockArtist.Id)), bytes.NewBuffer(dataToSend))
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	rec := httptest.NewRecorder()
@@ -175,7 +177,7 @@ func TestCreateArtist(t *testing.T) {
 	c := e.NewContext(req, rec)
 	c.SetPath("/artists/")
 
-	mockArtistUseCase := new(mocks.ArtistAgent)
+	mockArtistUseCase := new(mocks.ArtistUseCase)
 	mockArtistUseCase.On("Create", &mockArtist).Return(nil)
 	mockArtistUseCase.On("GetLastId").Return(&gatewayProto.IntResponse{Data: mockArtist.Id}, nil)
 	handler := artistDeliveryHttp.Handler{
@@ -219,7 +221,7 @@ func TestDeleteArtist(t *testing.T) {
 	c.SetParamNames("id")
 	c.SetParamValues(strconv.Itoa(int(mockArtist.Id)))
 
-	mockArtistUseCase := new(mocks.ArtistAgent)
+	mockArtistUseCase := new(mocks.ArtistUseCase)
 	mockArtistUseCase.On("Delete", &gatewayProto.IdArg{Id: mockArtist.Id}).Return(nil)
 	mockArtistUseCase.On("GetLastId").Return(mockArtist.Id, nil)
 	handler := artistDeliveryHttp.Handler{
