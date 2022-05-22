@@ -24,7 +24,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: generate gRPC and docs
-        run: chmod +x generateAll.sh && ./generateAll.sh
+        run: chmod +x generateAll.sh && bash ./generateAll.sh
       - name: generate easyjson
         run: chmod +x easyjsonGenerate.sh && bash ./easyjsonGenerate.sh
       - name: generate test mocks
