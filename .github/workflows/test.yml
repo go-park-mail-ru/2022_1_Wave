@@ -5,24 +5,24 @@ jobs:
     name: test
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/setup-go@v3
-        with:
-          go-version: 1.18
-      - uses: actions/checkout@v3
-      - run: sudo apt-get update
-      - run: sudo apt-get install -y protobuf-compiler
-      - run: sudo apt-get install -y golang-goprotobuf-dev
-      - run: go install github.com/swaggo/swag/cmd/swag@latest
-      - run: go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
-      - run: go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
-      - run: go install github.com/favadi/protoc-go-inject-tag@latest
-      - run: go get github.com/mailru/easyjson && go install github.com/mailru/easyjson/...@latest
-      - name: generate gRPC and docs
-        run: chmod +x generateAll.sh && ./generateAll.sh
-      - name: generate easyjson
-        run: chmod +x easyjsonGenerate.sh && bash ./easyjsonGenerate.sh
-      - name: build
-        run: go build -v ./...
-      - run: go install github.com/vektra/mockery/v2@latest
-      - name: go tests
-        run: chmod +x test.sh && bash test.sh
+      #      - uses: actions/setup-go@v3
+      #        with:
+      #          go-version: 1.18
+      #      - uses: actions/checkout@v3
+      - run: ls .
+#      - run: sudo apt-get install -y protobuf-compiler
+#      - run: sudo apt-get install -y golang-goprotobuf-dev
+#      - run: go install github.com/swaggo/swag/cmd/swag@latest
+#      - run: go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
+#      - run: go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
+#      - run: go install github.com/favadi/protoc-go-inject-tag@latest
+#      - run: go get github.com/mailru/easyjson && go install github.com/mailru/easyjson/...@latest
+#      - name: generate gRPC and docs
+#        run: chmod +x generateAll.sh && ./generateAll.sh
+#      - name: generate easyjson
+#        run: chmod +x easyjsonGenerate.sh && bash ./easyjsonGenerate.sh
+#      - name: build
+#        run: go build -v ./...
+#      - run: go install github.com/vektra/mockery/v2@latest
+#      - name: go tests
+#        run: chmod +x test.sh && bash test.sh
