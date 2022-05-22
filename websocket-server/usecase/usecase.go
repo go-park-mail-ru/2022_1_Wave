@@ -15,13 +15,13 @@ func NewUserSyncPlayerUseCase(repo domain.UserSyncPlayerRepo) domain.UserSyncPla
 	}
 }
 
-func (a *userSyncPlayerUseCase) PushTrackUpdateState(userId uint, trackId uint) error {
+func (a *userSyncPlayerUseCase) PushTrackUpdateState(userId uint, tracksToAdd []uint) error {
 	oldTrack, err := a.syncPlayerRepo.GetUserPlayerState(userId)
 	if err != nil {
 		return err
 	}
 
-	oldTrack.TracksQueue = append(oldTrack.TracksQueue, trackId)
+	oldTrack.TracksQueue = append(oldTrack.TracksQueue, tracksToAdd...)
 	err = a.syncPlayerRepo.UpdateUserPlayerState(userId, oldTrack)
 
 	return err

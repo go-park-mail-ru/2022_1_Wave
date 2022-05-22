@@ -44,7 +44,7 @@ type UserSyncPlayerRepo interface {
 }
 
 type UserSyncPlayerUseCase interface {
-	PushTrackUpdateState(userId uint, trackId uint) error
+	PushTrackUpdateState(userId uint, tracksToAdd []uint) error
 	NewTrackQueueUpdateState(userId uint, tracksQueue []uint, queuePosition int, timeStateUpdate time.Time) error
 	NewTrackUpdateState(userId uint, queuePosition int, timeStateUpdate time.Time) error
 	OnPauseUpdateState(userId uint, timeStateUpdate time.Time) error
