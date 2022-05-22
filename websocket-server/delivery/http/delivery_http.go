@@ -75,6 +75,8 @@ func (a *Handler) readRedisChannelLoop(redisChannel *redis.PubSubConn, wsCon *we
 
 func (a *Handler) updateStateMessageProcessing(userId uint, message *domain.UserPlayerUpdateStateMessage) error {
 	switch message.TypePushState {
+	case domain.PushTrackInQueue:
+		return a.userSyncPlayerUseCase.PushTrackUpdateState(userId, message.Data.)
 	case domain.PlayNewTrack:
 		return a.userSyncPlayerUseCase.NewTrackUpdateState(userId, message.Data.TrackId, message.Data.FromIs, message.Data.FromIsId, message.Data.TimeStateUpdate)
 	case domain.OnPause:

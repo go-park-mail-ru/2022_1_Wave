@@ -12,7 +12,9 @@ const (
 )
 
 const (
-	PlayNewTrack            TypePushState = "new_track"
+	PushTrackInQueue        TypePushState = "push_track"
+	NewTracksQueue                        = "new_tracks_queue"
+	NewTrackInQueue                       = "new_track"
 	OnPause                               = "on_pause"
 	OffPause                              = "off_pause"
 	ChangePosition                        = "change_position"
@@ -21,9 +23,8 @@ const (
 )
 
 type UserPlayerState struct {
-	TrackId         uint      `json:"track_id,omitempty"`
-	FromIs          FromIs    `json:"from_is,omitempty"`
-	FromIsId        uint      `json:"from_is_id,omitempty"`
+	TracksQueue     []uint    `json:"tracks_queue,omitempty"`
+	QueuePosition   int       `json:"queue_position,omitempty"`
 	OnPause         bool      `json:"on_pause,omitempty"`
 	LastSecPosition uint      `json:"last_sec_position,omitempty"`
 	TimeStateUpdate time.Time `json:"time_state_update,omitempty"`
@@ -43,7 +44,9 @@ type UserSyncPlayerRepo interface {
 }
 
 type UserSyncPlayerUseCase interface {
-	NewTrackUpdateState(userId uint, trackId uint, fromIs FromIs, fromIsId uint, timeStateUpdate time.Time) error
+	PushTrackUpdateState(userId uint, trackId uint) error
+	NewTrackQueueUpdateState(userId uint, tracksQueue []uint, queuePosition int, timeStateUpdate time.Time) error
+	NewTrackUpdateState(userId uint, queuePosition int, timeStateUpdate time.Time) error
 	OnPauseUpdateState(userId uint, timeStateUpdate time.Time) error
 	OffPauseUpdateState(userId uint, timeStateUpdate time.Time) error
 	ChangePositionUpdateState(userId uint, lastSecPosition uint, timeStateUpdate time.Time) error

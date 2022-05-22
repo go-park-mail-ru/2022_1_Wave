@@ -15,19 +15,44 @@ func NewUserSyncPlayerUseCase(repo domain.UserSyncPlayerRepo) domain.UserSyncPla
 	}
 }
 
-func (a *userSyncPlayerUseCase) NewTrackUpdateState(userId uint, trackId uint, fromIs domain.FromIs, fromIsId uint, timeStateUpdate time.Time) error {
+func (a *userSyncPlayerUseCase) PushTrackUpdateState(userId uint, trackId uint) error {
 	oldTrack, err := a.syncPlayerRepo.GetUserPlayerState(userId)
 	if err != nil {
 		return err
 	}
 
-	if fromIs != "" {
-		oldTrack.FromIs = fromIs
-		oldTrack.FromIsId = fromIsId
+	oldTrack.TracksQueue = append(oldTrack.TracksQueue, trackId)
+	err = a.syncPlayerRepo.UpdateUserPlayerState(userId, oldTrack)
+
+	return err
+}
+
+func (a *userSyncPlayerUseCase) NewTrackQueueUpdateState(userId uint, tracksQueue []uint, queuePosition int, timeStateUpdate time.Time) error {
+	oldTrack, err := a.syncPlayerRepo.GetUserPlayerState(userId)
+	if err != nil {
+		return err
 	}
 
-	oldTrack.TrackId = trackId
+	oldTrack.TracksQueue = tracksQueue
+	oldTrack.QueuePosition = queuePosition
 	oldTrack.TimeStateUpdate = timeStateUpdate
+	oldTrack.OnPause = false
+	oldTrack.LastSecPosition = 0
+
+	err = a.syncPlayerRepo.UpdateUserPlayerState(userId, oldTrack)
+	return err
+}
+
+func (a *userSyncPlayerUseCase) NewTrackUpdateState(userId uint, queuePosition int, timeStateUpdate time.Time) error {
+	oldTrack, err := a.syncPlayerRepo.GetUserPlayerState(userId)
+	if err != nil {
+		return err
+	}
+
+	oldTrack.QueuePosition = queuePosition
+	oldTrack.TimeStateUpdate = timeStateUpdate
+	oldTrack.OnPause = false
+	oldTrack.LastSecPosition = 0
 
 	err = a.syncPlayerRepo.UpdateUserPlayerState(userId, oldTrack)
 
