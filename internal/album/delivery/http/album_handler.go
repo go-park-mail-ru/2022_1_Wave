@@ -27,14 +27,6 @@ func MakeHandler(album AlbumUseCase.AlbumUseCase, user user_domain.UserUseCase) 
 	}
 }
 
-//func albumCoversToMap(albums []*albumProto.AlbumCoverDataTransfer) map[int64]*albumProto.AlbumCoverDataTransfer {
-//	covers := map[int64]*albumProto.AlbumCoverDataTransfer{}
-//	for _, obj := range albums {
-//		covers[obj.] = obj
-//	}
-//	return covers
-//}
-
 // GetAll godoc
 // @Summary      GetAll
 // @Description  getting all albums
@@ -549,4 +541,30 @@ func (h Handler) LikeCheckByUser(ctx echo.Context) error {
 		webUtils.Success{
 			Status: webUtils.OK,
 			Result: liked})
+}
+
+// GetPopularOfWeek godoc
+// @Summary      GetPopularOfTheWeek
+// @Description  getting top20 popular albums of the week
+// @Tags         album
+// @Accept          application/json
+// @Produce      application/json
+// @Success      200  {object}  webUtils.Success
+// @Failure      400  {object}  webUtils.Error  "Data is invalid"
+// @Failure      405  {object}  webUtils.Error  "Method is not allowed"
+// @Router       /api/v1/albums/popular/week [get]
+func (h Handler) GetPopularOfWeek(ctx echo.Context) error {
+	userId, err := internal.GetUserId(ctx, h.UserUseCase)
+	if err != nil {
+		userId = -1
+	}
+	popular, err := h.AlbumUseCase.GetPopularAlbumOfWeek(userId)
+	if err != nil {
+		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
+	}
+
+	return ctx.JSON(http.StatusOK,
+		webUtils.Success{
+			Status: webUtils.OK,
+			Result: utils.AlbumsToMap(popular)})
 }

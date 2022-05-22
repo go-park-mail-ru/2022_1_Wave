@@ -29,6 +29,7 @@ type AlbumAgent interface {
 	RemoveFromFavorites(userId int64, albumId int64) error
 	Like(userId int64, albumId int64) error
 	LikeCheckByUser(userId int64, albumId int64) (bool, error)
+	GetPopularAlbumOfWeekTop20() ([]*albumProto.Album, error)
 }
 
 type ArtistAgent interface {

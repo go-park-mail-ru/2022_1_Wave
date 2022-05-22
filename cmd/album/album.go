@@ -15,6 +15,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	"log"
 	"os"
+	"time"
 )
 
 var (
@@ -50,6 +51,7 @@ func main() {
 	trackRepo := TrackPostgres.NewTrackPostgresRepo(sqlxDb)
 	artistRepo := ArtistPostgres.NewArtistPostgresRepo(sqlxDb)
 	albumRepo := AlbumPostgres.NewAlbumPostgresRepo(sqlxDb)
+
 	albumCoverRepo := AlbumCoverPostgres.NewAlbumCoverPostgresRepo(sqlxDb)
 
 	defer func() {
@@ -76,6 +78,22 @@ func main() {
 		}
 	}()
 
+	//day := (time.Now().Unix() - 345600) % 604800 / 86400
+
+	//const week = 7 * 24 * time.Hour
+	if _, err := albumRepo.CountPopularAlbumOfWeek(); err != nil {
+		logs.Logrus.Fatal("Unable to count a inits popular albums of week, err:", err)
+	}
+	logs.Logrus.Info("Success init start popular albums of week")
+	go func() {
+		for now := range time.Tick(time.Hour) {
+			if _, err := albumRepo.CountPopularAlbumOfWeek(); err != nil {
+				logs.Logrus.Fatal("Unable to count a inits popular albums of week, time:", now)
+			}
+		}
+	}()
+
+	logs.Logrus.Info("Album gRPC ready to listen", os.Getenv("port"))
 	err = server.Serve(listen)
 	if err != nil {
 		logs.Logrus.Errorf("cannot listen port %s: %s", os.Getenv("port"), err.Error())

@@ -28,6 +28,7 @@ type AlbumUseCase interface {
 	RemoveFromFavorites(userId int64, albumId int64) error
 	Like(arg int64, userId int64) error
 	LikeCheckByUser(arg int64, userId int64) (bool, error)
+	GetPopularAlbumOfWeek(userId int64) ([]*albumProto.AlbumDataTransfer, error)
 }
 
 type albumUseCase struct {
@@ -265,4 +266,24 @@ func (useCase albumUseCase) Like(albumId int64, userId int64) error {
 
 func (useCase albumUseCase) LikeCheckByUser(albumId int64, userId int64) (bool, error) {
 	return useCase.albumAgent.LikeCheckByUser(userId, albumId)
+}
+
+func (useCase albumUseCase) GetPopularAlbumOfWeek(userId int64) ([]*albumProto.AlbumDataTransfer, error) {
+	albums, err := useCase.albumAgent.GetPopularAlbumOfWeekTop20()
+
+	if err != nil {
+		return nil, err
+	}
+
+	dto := make([]*albumProto.AlbumDataTransfer, len(albums))
+
+	for idx, obj := range albums {
+		result, err := useCase.CastToDTO(userId, obj)
+		if err != nil {
+			return nil, err
+		}
+		dto[idx] = result
+	}
+	return dto, nil
+
 }

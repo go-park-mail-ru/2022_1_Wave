@@ -1,6 +1,7 @@
 package system
 
 import (
+	"errors"
 	"github.com/go-park-mail-ru/2022_1_Wave/init/gRPC"
 	"github.com/go-park-mail-ru/2022_1_Wave/init/router"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal"
@@ -14,6 +15,7 @@ import (
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/domain"
 	PlaylistGrpcAgent "github.com/go-park-mail-ru/2022_1_Wave/internal/playlist/client/grpc"
 	PlaylistUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/playlist/useCase"
+	structStoragePostgresql "github.com/go-park-mail-ru/2022_1_Wave/internal/structs/storage/postgresql"
 	TrackGrpcAgent "github.com/go-park-mail-ru/2022_1_Wave/internal/track/client/grpc"
 	TrackUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/track/useCase"
 	user_domain "github.com/go-park-mail-ru/2022_1_Wave/internal/user"
@@ -22,7 +24,31 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-func Init(e *echo.Echo) error {
+func Init(e *echo.Echo, quantity int64, dbType string) error {
+	var initedStorage domain.GlobalStorageInterface
+	var err error
+	switch dbType {
+	case internal.Postgres:
+		initedStorage = structStoragePostgresql.Postgres{
+			Sqlx:           nil,
+			SessionRepo:    nil,
+			UserRepo:       nil,
+			AlbumRepo:      nil,
+			AlbumCoverRepo: nil,
+			ArtistRepo:     nil,
+			TrackRepo:      nil,
+			PlaylistRepo:   nil,
+		}
+
+	default:
+		return errors.New(internal.BadType)
+	}
+
+	initedStorage, err = initedStorage.Init(quantity)
+	if err != nil {
+		return err
+	}
+
 	albumAgent, artistAgent, trackAgent, userAgent, authAgent, playlistAgent := makeAgents(internal.Grpc)
 
 	auth := AuthUseCase.NewAuthService(authAgent, userAgent)

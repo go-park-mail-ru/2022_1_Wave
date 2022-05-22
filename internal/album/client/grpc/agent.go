@@ -139,3 +139,8 @@ func (agent GrpcAgent) LikeCheckByUser(userId int64, id int64) (bool, error) {
 	}
 	return liked.Ok, nil
 }
+
+func (agent GrpcAgent) GetPopularAlbumOfWeekTop20() ([]*albumProto.Album, error) {
+	data, err := agent.AlbumGrpc.GetPopularAlbumOfWeekTop20(context.Background(), &emptypb.Empty{})
+	return data.Albums, err
+}

@@ -23,8 +23,10 @@ import (
 	"testing"
 )
 
+const notUser = int64(-1)
+
 func TestGetEmptyAlbums(t *testing.T) {
-	var mockAlbums = &albumProto.AlbumsResponse{Albums: nil}
+	var mockAlbums []*albumProto.AlbumDataTransfer
 	e := echo.New()
 
 	req, err := http.NewRequest(echo.GET, "/albums/", strings.NewReader(""))
@@ -35,7 +37,7 @@ func TestGetEmptyAlbums(t *testing.T) {
 	c.SetPath("/albums/")
 
 	mockAlbumUseCase := new(mocks.AlbumUseCase)
-	mockAlbumUseCase.On("GetAll").Return(mockAlbums, nil)
+	mockAlbumUseCase.On("GetAll", notUser).Return(mockAlbums, nil)
 
 	handler := albumDeliveryHttp.Handler{
 		AlbumUseCase: mockAlbumUseCase,
@@ -58,10 +60,8 @@ func TestGetEmptyAlbums(t *testing.T) {
 }
 
 func TestGetAllAlbums(t *testing.T) {
-	var mockAlbums = &albumProto.AlbumsResponse{Albums: make([]*albumProto.Album, 10)}
-
-	err := faker.FakeData(&mockAlbums)
-	assert.NoError(t, err)
+	var mockAlbums []*albumProto.AlbumDataTransfer
+	assert.NoError(t, faker.FakeData(&mockAlbums))
 
 	e := echo.New()
 
@@ -73,7 +73,7 @@ func TestGetAllAlbums(t *testing.T) {
 	c.SetPath("/albums/")
 
 	mockAlbumUseCase := new(mocks.AlbumUseCase)
-	mockAlbumUseCase.On("GetAll").Return(mockAlbums, nil)
+	mockAlbumUseCase.On("GetAll", notUser).Return(mockAlbums, nil)
 
 	handler := albumDeliveryHttp.Handler{
 		AlbumUseCase: mockAlbumUseCase,
@@ -91,14 +91,20 @@ func TestGetAllAlbums(t *testing.T) {
 	err = json.Unmarshal(body, &result)
 	require.NoError(t, err)
 
+	//fmt.Println(result.Result.(map[string]interface{}))
 	resultMap := result.Result.(map[string]interface{})
+
+	//fmt.Println(resultMap)
+
+	fmt.Println(len(resultMap), len(mockAlbums))
+
 	albums := resultMap["albums"]
 	//fmt.Println(albums)
 
 	for idx, obj := range albums.([]interface{}) {
 		album, err := tools.CreateAlbumDataTransferFromInterface(obj)
 		require.NoError(t, err)
-		require.Equal(t, mockAlbums.Albums[idx], album)
+		require.Equal(t, mockAlbums[idx], album)
 	}
 }
 

@@ -84,6 +84,7 @@ func SetAlbumsRoutes(apiVersion *echo.Group, handler albumDeliveryHttp.Handler) 
 	albumRoutes.POST(locate, handler.Create)
 	albumRoutes.PUT(locate, handler.Update)
 	albumRoutes.GET(popularPrefix, handler.GetPopular)
+	albumRoutes.GET(popularOfWeekPrefix, handler.GetPopularOfWeek)
 	albumRoutes.GET(favoritesPrefix, handler.GetFavorites)
 	albumRoutes.POST(favoritesPrefix, handler.AddToFavorites)
 	albumRoutes.DELETE(favoritesPrefix+idEchoPattern, handler.RemoveFromFavorites)
@@ -203,25 +204,26 @@ const (
 
 // prefixes
 const (
-	apiPrefix         = "/api"
-	v1Prefix          = "/v1"
-	albumsPrefix      = "/albums"
-	albumCoversPrefix = "/albumCovers"
-	artistsPrefix     = "/artists"
-	tracksPrefix      = "/tracks"
-	usersPrefix       = "/users"
-	searchPrefix      = "/search"
-	docsPrefix        = "/docs"
-	popularPrefix     = "/popular"
-	playlistPrefix    = "/playlists"
-	favoritesPrefix   = "/favorites"
-	likePrefix        = "/like"
-	listenPrefix      = "/listen"
-	loginPrefix       = "/login"
-	logoutPrefix      = "/logout"
-	signUpPrefix      = "/signup"
-	getCSRFPrefix     = "/get_csrf"
-	ofUser            = "/ofUser"
+	apiPrefix           = "/api"
+	v1Prefix            = "/v1"
+	albumsPrefix        = "/albums"
+	albumCoversPrefix   = "/albumCovers"
+	artistsPrefix       = "/artists"
+	tracksPrefix        = "/tracks"
+	usersPrefix         = "/users"
+	searchPrefix        = "/search"
+	docsPrefix          = "/docs"
+	popularPrefix       = "/popular"
+	popularOfWeekPrefix = "/popular/week"
+	playlistPrefix      = "/playlists"
+	favoritesPrefix     = "/favorites"
+	likePrefix          = "/like"
+	listenPrefix        = "/listen"
+	loginPrefix         = "/login"
+	logoutPrefix        = "/logout"
+	signUpPrefix        = "/signup"
+	getCSRFPrefix       = "/get_csrf"
+	ofUser              = "/ofUser"
 )
 
 const (
