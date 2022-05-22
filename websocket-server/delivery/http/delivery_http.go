@@ -81,27 +81,26 @@ func (a *Handler) readRedisChannelLoop(redisChannel *redis.PubSubConn, wsCon *we
 	defer fmt.Println("end redis channel loop")
 	for {
 		fmt.Println("in redis channel loop")
+		select {
+		case <-ctx.Done():
+			fmt.Println("ctx done")
+			return
+		default:
+		}
 		switch v := redisChannel.Receive().(type) {
 		case redis.Message:
-			fmt.Println("message from ", wsCon, ":")
 			dataStr := string(v.Data)
 			msg, uidRedisCon := getUuidAndMessageFromMessage(dataStr)
 			if uidRedisCon == uid {
 				continue
 			}
+			fmt.Println("message: ", msg)
 			if wsCon.WriteMessage(websocket.TextMessage, []byte(msg)) != nil {
 				return
 			}
 		case redis.Error:
 			fmt.Println("redis error")
 			return
-		default:
-			select {
-			case <-ctx.Done():
-				fmt.Println("ctx done")
-				return
-			default:
-			}
 		}
 
 	}
@@ -169,9 +168,9 @@ func (a *Handler) PlayerStateLoop(c echo.Context) error {
 	defer redisPubSub.Close()
 
 	// запускаем бесконечный цикл, в котором будут читаться сообщения из redis channel'а и отправляться клиенту
-	readRedisLoopCtx := context.Background()
+	readRedisLoopCtx, finish := context.WithCancel(context.Background())
 	go a.readRedisChannelLoop(redisPubSub, wsCon, readRedisLoopCtx, uidRedisCon)
-	defer readRedisLoopCtx.Done()
+	defer finish()
 
 	redisConForPublish, err := a.initRedisConn()
 	if err != nil {
@@ -213,7 +212,7 @@ func (a *Handler) PlayerStateLoop(c echo.Context) error {
 				}
 			} else {
 				// публикуем обновление состояния плеера в redis channel. его считают другие клиенты
-				a.pushToRedisChannel(redisConForPublish, redisChannelName, string(messageState), uidRedisCon)
+				a.pushToRedisChannel(redisConForPublish, redisChannelName, string(message), uidRedisCon)
 			}
 		}
 	}
