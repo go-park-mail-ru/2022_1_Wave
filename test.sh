@@ -5,9 +5,9 @@ bash mocks.sh
 cd ../..
 
 go list ./...
-#CVPKG=$(go list ./... | grep -Ev 'mocks|*.(P|p)roto' | tr '\n' ',')
+CVPKG=$(go list ./... | grep -Ev 'mocks|*.(P|p)roto' | tr '\n' ',')
 echo -e "\033[32m go tests\033[0m"
-go test . -coverprofile cover.out.tmp ./...
+go test -coverpkg "$CVPKG" -coverprofile cover.out.tmp ./...
 cat cover.out.tmp | grep -v -Ev ".*mocks.*|.*.(P|p)roto.*|.*easyjson.*|.*_generated.go" > cover.out
 go tool cover -func cover.out | grep total
 if [ $? -eq 0 ]; then
