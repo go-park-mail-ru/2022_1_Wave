@@ -3,7 +3,7 @@ package main
 import (
 	echoprometheus "github.com/globocom/echo-prometheus"
 	"github.com/go-park-mail-ru/2022_1_Wave/config"
-	//_ "github.com/go-park-mail-ru/2022_1_Wave/docs"
+	_ "github.com/go-park-mail-ru/2022_1_Wave/docs"
 	"github.com/go-park-mail-ru/2022_1_Wave/init/logger"
 	"github.com/go-park-mail-ru/2022_1_Wave/init/system"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal"
@@ -37,13 +37,13 @@ func main() {
 	if err := config.LoadConfig(ConfigFilename); err != nil {
 		logs.Logrus.Fatal("error to load config:", err)
 	}
-	logs.Logrus.Info("config loaded successful")
+	logs.Logrus.Infoln("config loaded successful")
 
 	if err := system.Init(e, quantity, dbType); err != nil {
 		logs.Logrus.Fatal("Error:", err)
 	}
 
-	logs.Logrus.Info("Success init storage", dbType)
+	logs.Logrus.Info("Success init storage ", dbType)
 	logs.Logrus.Warn("start listening on", port)
 
 	if err := e.Start("0.0.0.0:5000"); err != nil {

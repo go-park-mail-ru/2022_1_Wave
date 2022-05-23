@@ -1,7 +1,6 @@
 package structStoragePostgresql
 
 import (
-	"database/sql"
 	"errors"
 	"github.com/go-park-mail-ru/2022_1_Wave/db"
 	InitDb "github.com/go-park-mail-ru/2022_1_Wave/init/db"
@@ -37,50 +36,23 @@ type Postgres struct {
 	PlaylistRepo   domain.PlaylistRepo
 }
 
-func GetPostgres() (*sql.DB, error) {
-	dsn := os.Getenv("DATABASE_CONNECTION")
-	db, err := sql.Open("pgx", dsn)
-	if err != nil {
-		return nil, err
-	}
-	err = db.Ping() // вот тут будет первое подключение к базе
-	if err != nil {
-		return nil, err
-	}
-	db.SetMaxOpenConns(10)
-	return db, nil
-}
-
-func (storage Postgres) Open() (domain.GlobalStorageInterface, error) {
-	var err error
-	db, err := GetPostgres()
-	if err != nil {
-		return nil, err
-	}
-
-	storage.Sqlx = sqlx.NewDb(db, "pgx")
-	err = storage.Sqlx.Ping() // вот тут будет первое подключение к базе
-	if err != nil {
-		return nil, err
-	}
-	return storage, nil
-}
-
-func (storage Postgres) Init(quantity int64) (domain.GlobalStorageInterface, error) {
+func InitPostgres(quantity int64) error {
+	storage := Postgres{}
 	if quantity < 0 {
-		return nil, errors.New("quantity for db is negative")
+		return errors.New("quantity for db is negative")
 	}
 
 	sqlxDb, err := InitDb.InitDatabase("DATABASE_CONNECTION")
+	logger.GlobalLogger.Logrus.Infoln("Success init db in init...")
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	storage.Sqlx = sqlxDb
 
 	path := os.Getenv("DATABASE_MIGRATIONS")
 	if path == "" {
-		return storage, nil
+		return nil
 	}
 
 	// migrate and generate
@@ -154,13 +126,13 @@ func (storage Postgres) Init(quantity int64) (domain.GlobalStorageInterface, err
 
 	for err := range coverError {
 		if err != nil {
-			return nil, err
+			return err
 		}
 	}
 
 	for err := range artistError {
 		if err != nil {
-			return nil, err
+			return err
 		}
 	}
 
@@ -169,7 +141,7 @@ func (storage Postgres) Init(quantity int64) (domain.GlobalStorageInterface, err
 		id := i + 1
 		albums[i] = domainCreator.AlbumConstructorRandom(id, quantity, albumLen, maxListening, maxLikes)
 		if err := storage.AlbumRepo.Create(albums[i]); err != nil {
-			return storage, err
+			return err
 		}
 	}
 
@@ -179,11 +151,11 @@ func (storage Postgres) Init(quantity int64) (domain.GlobalStorageInterface, err
 		id := i + 1
 		tracks[i] = domainCreator.TrackConstructorRandom(id, albums, songLen, maxDuration, maxLikes, maxListening)
 		if err := storage.TrackRepo.Create(tracks[i]); err != nil {
-			return storage, err
+			return err
 		}
 	}
 
-	return storage, nil
+	return nil
 }
 
 func (storage Postgres) Close() error {

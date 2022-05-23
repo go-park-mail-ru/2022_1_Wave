@@ -3,6 +3,7 @@ package system
 import (
 	"errors"
 	"github.com/go-park-mail-ru/2022_1_Wave/init/gRPC"
+	"github.com/go-park-mail-ru/2022_1_Wave/init/logger"
 	"github.com/go-park-mail-ru/2022_1_Wave/init/router"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal"
 	AlbumGrpcAgent "github.com/go-park-mail-ru/2022_1_Wave/internal/album/client/grpc"
@@ -25,30 +26,20 @@ import (
 )
 
 func Init(e *echo.Echo, quantity int64, dbType string) error {
-	var initedStorage domain.GlobalStorageInterface
+	logger.GlobalLogger.Logrus.Infoln("in init system")
 	var err error
 	switch dbType {
 	case internal.Postgres:
-		initedStorage = structStoragePostgresql.Postgres{
-			Sqlx:           nil,
-			SessionRepo:    nil,
-			UserRepo:       nil,
-			AlbumRepo:      nil,
-			AlbumCoverRepo: nil,
-			ArtistRepo:     nil,
-			TrackRepo:      nil,
-			PlaylistRepo:   nil,
-		}
-
+		err = structStoragePostgresql.InitPostgres(quantity)
 	default:
 		return errors.New(internal.BadType)
 	}
-
-	initedStorage, err = initedStorage.Init(quantity)
 	if err != nil {
 		return err
 	}
 
+	logger.GlobalLogger.Logrus.Infoln("inited...")
+	logger.GlobalLogger.Logrus.Infoln("success init")
 	albumAgent, artistAgent, trackAgent, userAgent, authAgent, playlistAgent := makeAgents(internal.Grpc)
 
 	auth := AuthUseCase.NewAuthService(authAgent, userAgent)

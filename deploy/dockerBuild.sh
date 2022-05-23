@@ -7,7 +7,7 @@ prefix="wave_"
 cd ..
 
 echo -e "\033[32m *** BUILDING $dockerProfile/$prefix$1 ***\033[36m"
-docker build -q -t "$dockerProfile/$prefix$1" -f env/prod/k8/$1/Dockerfile .
+docker build -t "$dockerProfile/$prefix$1" -f env/prod/k8/$1/Dockerfile .
 
 
 #spin

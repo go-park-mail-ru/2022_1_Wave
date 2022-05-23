@@ -9,11 +9,11 @@ tmp_dir = "tmp"
 # Just plain old shell command. You could use `make` as well.
 cmd = "bash ./cmd/user/reload.sh"
 # Binary file yields from `cmd`.
-bin = "tmp/user"
+bin = "tmp/run.user"
 # Customize binary, can setup environment variables when run your app.
 full_bin = "APP_ENV=dev APP_USER=air ./tmp/user"
 # Watch these filename extensions.
-include_ext = ["go", "yaml", "json", "js", ".sql", ".toml", "proto"]
+include_ext = ["user"]
 # Ignore these filename extensions or directories.
 exclude_dir = ["assets", "tmp", "vendor", "frontend/node_modules", "database", "protobuf"]
 # Watch these directories if you specified.

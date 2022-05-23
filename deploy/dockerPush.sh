@@ -5,7 +5,7 @@ dockerProfile="mausved"
 prefix="wave_"
 
 echo -e "\033[32m *** PUSHING $dockerProfile/$prefix$1 ***\033[36m"
-docker push -q "$dockerProfile/$prefix$1"
+docker push "$dockerProfile/$prefix$1"
 
 
 #spin
