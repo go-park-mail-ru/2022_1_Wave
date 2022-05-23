@@ -3,7 +3,7 @@
 cd ../env/prod/k8 || exit
 for dir in *
 do
-  if [ -d "$dir" ] && { [ "$dir" != "redis" ] || [ "$dir" != "postgres" ]; }
+  if [ -d "$dir" ] && [ "$dir" != "redis" ]
   then
     cd ../../../deploy || exit
     bash dockerBuild.sh "$dir"
