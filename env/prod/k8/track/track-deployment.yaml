@@ -39,5 +39,7 @@ spec:
               value: :9083
             - name: port
               value: :8083
+      imagePullSecrets:
+        - name: wave
 
 status: { }

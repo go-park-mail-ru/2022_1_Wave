@@ -30,5 +30,5 @@ spec:
             - containerPort: 6379
       restartPolicy: Always
       imagePullSecrets:
-        - name: regcred
+        - name: wave
 status: { }

@@ -2,17 +2,11 @@ apiVersion: v1
 kind: Service
 metadata:
   name: godeploy
-  labels:
-    k8s-app: nginx-backend
 spec:
   type: LoadBalancer
-  externalTrafficPolicy: Cluster
   selector:
-    k8s-app: nginx-backend
+    app: godeploy
   ports:
-    - port: 80
-      name: http
-      targetPort: http
-    - port: 443
-      name: https
-      targetPort: httpn
+    - protocol: TCP
+      port: 8080
+      targetPort: 80

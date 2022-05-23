@@ -46,9 +46,6 @@ services:
       - ../..:/var/www/service
       - ./airs/api.toml:/var/www/service/cmd/api/.air.toml:ro
       - ../../config/config.toml:/var/www/service/config.toml:ro
-    environment:
-      - DATABASE_CONNECTION=user=postgres password=music dbname=wave host=postgres port=5432 sslmode=disable
-      - DATABASE_MIGRATIONS=./db/migrations
     depends_on:
       - track
       - album
@@ -56,8 +53,6 @@ services:
       - playlist
       - auth
       - user
-      - db
-      - redis
 
   album:
     container_name: album
@@ -158,6 +153,7 @@ services:
       - ../..:/var/www/service
     depends_on:
       - db
+      - redis
 
   user:
     container_name: user
@@ -178,6 +174,7 @@ services:
       - ../..:/var/www/service
     depends_on:
       - db
+      - redis
 
   redis:
     image: redis
@@ -187,7 +184,7 @@ services:
       - 6379
 
   db:
-    image: postgres:13
+    image: mausved/wave_postgres
     container_name: postgres
     restart: always
     environment:

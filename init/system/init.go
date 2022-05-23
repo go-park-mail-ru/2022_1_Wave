@@ -1,7 +1,6 @@
 package system
 
 import (
-	"errors"
 	"github.com/go-park-mail-ru/2022_1_Wave/init/gRPC"
 	"github.com/go-park-mail-ru/2022_1_Wave/init/logger"
 	"github.com/go-park-mail-ru/2022_1_Wave/init/router"
@@ -16,7 +15,6 @@ import (
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/domain"
 	PlaylistGrpcAgent "github.com/go-park-mail-ru/2022_1_Wave/internal/playlist/client/grpc"
 	PlaylistUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/playlist/useCase"
-	structStoragePostgresql "github.com/go-park-mail-ru/2022_1_Wave/internal/structs/storage/postgresql"
 	TrackGrpcAgent "github.com/go-park-mail-ru/2022_1_Wave/internal/track/client/grpc"
 	TrackUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/track/useCase"
 	user_domain "github.com/go-park-mail-ru/2022_1_Wave/internal/user"
@@ -25,23 +23,11 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-func Init(e *echo.Echo, quantity int64, dbType string) error {
+func Init(e *echo.Echo) error {
 	logger.GlobalLogger.Logrus.Infoln("in init system")
-	var err error
-	switch dbType {
-	case internal.Postgres:
-		err = structStoragePostgresql.InitPostgres(quantity)
-	default:
-		return errors.New(internal.BadType)
-	}
-	if err != nil {
-		return err
-	}
 
-	logger.GlobalLogger.Logrus.Infoln("inited...")
-	logger.GlobalLogger.Logrus.Infoln("success init")
 	albumAgent, artistAgent, trackAgent, userAgent, authAgent, playlistAgent := makeAgents(internal.Grpc)
-
+	logger.GlobalLogger.Logrus.Infoln("inited agents...")
 	auth := AuthUseCase.NewAuthService(authAgent, userAgent)
 	user := UserUsecase.NewUserUseCase(userAgent, authAgent)
 
@@ -49,7 +35,8 @@ func Init(e *echo.Echo, quantity int64, dbType string) error {
 	artist := ArtistUseCase.NewArtistUseCase(albumAgent, artistAgent, trackAgent)
 	track := TrackUseCase.NewTrackUseCase(albumAgent, artistAgent, trackAgent)
 	playlist := PlaylistUseCase.NewPlaylistUseCase(playlistAgent, artistAgent, trackAgent)
-
+	logger.GlobalLogger.Logrus.Infoln("inited services...")
+	logger.GlobalLogger.Logrus.Infoln("routing...")
 	return router.Router(e, auth, album, artist, track, playlist, user)
 }
 

@@ -16,7 +16,6 @@ const ConfigFilename = "config.toml"
 
 // todo вынести в конфиг
 const port = ":5000"
-const quantity = int64(0)
 const dbType = internal.Postgres
 
 func main() {
@@ -39,11 +38,10 @@ func main() {
 	}
 	logs.Logrus.Infoln("config loaded successful")
 
-	if err := system.Init(e, quantity, dbType); err != nil {
+	if err := system.Init(e); err != nil {
 		logs.Logrus.Fatal("Error:", err)
 	}
 
-	logs.Logrus.Info("Success init storage ", dbType)
 	logs.Logrus.Warn("start listening on", port)
 
 	if err := e.Start("0.0.0.0:5000"); err != nil {

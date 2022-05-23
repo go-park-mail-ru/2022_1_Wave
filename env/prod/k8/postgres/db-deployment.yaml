@@ -38,6 +38,6 @@ spec:
               value: wave
       restartPolicy: Always
       imagePullSecrets:
-        - name: regcred
+        - name: wave
 
 status: { }

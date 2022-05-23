@@ -6,12 +6,12 @@ RUN go install github.com/mailru/easyjson/...@latest
 RUN bash easyjsonGenerate.sh
 RUN bash cmd/api/prod.sh
 
+
 FROM alpine
 RUN apk add --no-cache libc6-compat
 COPY --from=build_step /var/www/service/tmp/api /var/www/service/
-COPY --from=build_step /var/www/service/db /var/www/service/db
 COPY config/config.toml /var/www/service/
 WORKDIR /var/www/service/
-EXPOSE 5000
+RUN ls .
 RUN chmod +x api
 ENTRYPOINT ["sh", "-c", "./api"]

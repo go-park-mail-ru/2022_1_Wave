@@ -7,7 +7,7 @@ tmp_dir = "tmp"
 
 [build]
 # Just plain old shell command. You could use `make` as well.
-cmd = "bash ./cmd/auth/reload.sh"
+cmd = "./tmp/run.auth"
 # Binary file yields from `cmd`.
 bin = "tmp/run.auth"
 # Customize binary, can setup environment variables when run your app.
