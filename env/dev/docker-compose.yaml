@@ -196,10 +196,10 @@ services:
       - POSTGRES_DB=wave
     expose:
       - 5432
-  #    volumes:
-  #      - data:/var/lib/postgresql/data
-  #    volumes:
-  #      - ../../db/:/var/run/postgresql/
+    #    volumes:
+    #      - data:/var/lib/postgresql/data
+    volumes:
+      - ../../db/:/var/run/postgresql/
 
   redis-exporter:
     image: oliver006/redis_exporter:alpine
