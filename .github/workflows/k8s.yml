@@ -83,9 +83,9 @@ jobs:
       - name: generate easyjson
         run: chmod +x easyjsonGenerate.sh && ./easyjsonGenerate.sh
       - name: generate test mocks
-        run: cd internal/test && chmod +x mocks.sh && ./mocks.sh && cd ../..
+        run: cd internal/test && chmod +x mocks.sh && ./mocks.sh
       - name: go tests
-        run: chmod +x test.sh && test.sh
+        run: chmod +x test.sh && ./test.sh
 
   dockerDeploy:
     runs-on: ubuntu-latest
