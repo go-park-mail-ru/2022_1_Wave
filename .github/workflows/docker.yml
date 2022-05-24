@@ -1,7 +1,31 @@
 name: Docker
 on: [ push ]
 jobs:
-#  build:
+  k8s:
+    runs-on: ubuntu-latest
+    name: k8s
+    needs:
+      - dockerDeploy
+    steps:
+      - uses: actions/checkout@v1
+      - name: k8s install
+        run: |
+          curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+          curl -LO "https://dl.k8s.io/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl.sha256"
+          echo "$(cat kubectl.sha256)  kubectl" | sha256sum --check
+          install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+          kubectl version --client --output=yaml
+      - name: create config
+        run: echo ${{ secrets.K8S_CONFIG }} > k8s.yaml
+      - name: create token
+        run: kubectl get secret $(kubectl get sa dashboard-sa -o jsonpath='{.secrets[0].name}') -o jsonpath='{.data.token}' | base64 --decode > token
+      - name: export config
+        run: export KUBECONFIG="./k8s.yaml"
+      - name: apply all
+        run: kubectl apply -f ./env/prod/k8/ -R
+      - name: restart deployments
+        run: kubectl rollout restart deploy
+  #  build:
   #    name: build
   #    runs-on: ubuntu-latest
   #    steps:
@@ -103,27 +127,3 @@ jobs:
   #      - name: Push all Docker images
   #        run: cd deploy && dockerPushAll.sh
 
-  k8s:
-    runs-on: ubuntu-latest
-    name: k8s
-    needs:
-      - dockerDeploy
-    steps:
-      - uses: actions/checkout@v1
-      - name: k8s install
-        run: |
-          curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-          curl -LO "https://dl.k8s.io/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl.sha256"
-          echo "$(cat kubectl.sha256)  kubectl" | sha256sum --check
-          install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
-          kubectl version --client --output=yaml
-      - name: create config
-        run: echo ${{ secrets.K8S_CONFIG }} > k8s.yaml
-      - name: create token
-        run: kubectl get secret $(kubectl get sa dashboard-sa -o jsonpath='{.secrets[0].name}') -o jsonpath='{.data.token}' | base64 --decode > token
-      - name: export config
-        run: export KUBECONFIG="./k8s.yaml"
-      - name: apply all
-        run: kubectl apply -f ./env/prod/k8/ -R
-      - name: restart deployments
-        run: kubectl rollout restart deploy
