@@ -121,7 +121,8 @@ jobs:
           export PATH="~/.local/bin/kubectl:$PATH"
           kubectl version --client --output=yaml
       - name: create config
-        run: echo "${{ secrets.K8S_CONFIG }}" > k8s.yaml && cat k8s.yaml
+        run: echo "${{ secrets.K8S_CONFIG }}" > k8s.yaml
+      - run: ls .
       - name: export config
         run: export KUBECONFIG="./k8s.yaml"
       - name: create token
