@@ -1,113 +1,115 @@
 name: k8s
 on: [ push ]
 jobs:
-#  build:
-  #    name: build
-  #    runs-on: ubuntu-latest
-  #    steps:
-  #      - uses: actions/setup-go@v3
-  #        with:
-  #          go-version: 1.18
-  #      - uses: actions/checkout@v3
-  #      - name: setting up
-  #        run: |
-  #          sudo apt-get update
-  #          sudo apt-get install -y protobuf-compiler
-  #          sudo apt-get install -y golang-goprotobuf-dev
-  #          go install github.com/swaggo/swag/cmd/swag@latest
-  #          go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
-  #          go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
-  #          go install github.com/favadi/protoc-go-inject-tag@latest
-  #          go install github.com/vektra/mockery/v2@latest
-  #      - uses: actions/checkout@v3
-  #      - name: generate gRPC and docs
-  #        run: chmod +x generateAll.sh && ./generateAll.sh
-  #      - name: generate easyjson
-  #        run: chmod +x easyjsonGenerate.sh && ./easyjsonGenerate.sh
-  #      - name: generate test mocks
-  #        run: cd internal/test && chmod +x mocks.sh && ./mocks.sh
-  #      - name: build
-  #        run: go build -v ./...
+  build:
+    name: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-go@v3
+        with:
+          go-version: 1.18
+      - uses: actions/checkout@v3
+      - name: setting up
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y protobuf-compiler
+          sudo apt-get install -y golang-goprotobuf-dev
+          go install github.com/swaggo/swag/cmd/swag@latest
+          go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
+          go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
+          go install github.com/favadi/protoc-go-inject-tag@latest
+          go install github.com/vektra/mockery/v2@latest
+      - uses: actions/checkout@v3
+      - name: generate gRPC and docs
+        run: chmod +x generateAll.sh && ./generateAll.sh
+      - name: generate easyjson
+        run: chmod +x easyjsonGenerate.sh && ./easyjsonGenerate.sh
+      - name: generate test mocks
+        run: cd internal/test && chmod +x mocks.sh && ./mocks.sh
+      - name: build
+        run: go build -v ./...
 
-  #  golangci-lint:
-  #    name: lint
-  #    runs-on: ubuntu-latest
-  #    steps:
-  #      - uses: actions/setup-go@v3
-  #        with:
-  #          go-version: 1.18
-  #      - uses: actions/checkout@v3
-  #      - name: setting up
-  #        run: |
-  #          sudo apt-get update
-  #          sudo apt-get install -y protobuf-compiler
-  #          sudo apt-get install -y golang-goprotobuf-dev
-  #          go install github.com/swaggo/swag/cmd/swag@latest
-  #          go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
-  #          go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
-  #          go install github.com/favadi/protoc-go-inject-tag@latest
-  #          go install github.com/vektra/mockery/v2@latest
-  #      - name: generate gRPC and docs
-  #        run: chmod +x generateAll.sh && ./generateAll.sh
-  #      - name: generate easyjson
-  #        run: chmod +x easyjsonGenerate.sh && ./easyjsonGenerate.sh
-  #      - name: generate test mocks
-  #        run: cd internal/test && chmod +x mocks.sh && ./mocks.sh
-  #      - name: golangci-lint
-  #        uses: golangci/golangci-lint-action@v3
-  #        with:
-  #          version: latest
-  #          skip-pkg-cache: true
-  #          skip-build-cache: true
-  #
-  #  test:
-  #    name: test
-  #    runs-on: ubuntu-latest
-  #    steps:
-  #      - uses: actions/setup-go@v3
-  #        with:
-  #          go-version: 1.18
-  #      - uses: actions/checkout@v3
-  #      - name: setting up
-  #        run: |
-  #          sudo apt-get update
-  #          sudo apt-get install -y protobuf-compiler
-  #          sudo apt-get install -y golang-goprotobuf-dev
-  #          go install github.com/swaggo/swag/cmd/swag@latest
-  #          go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
-  #          go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
-  #          go install github.com/favadi/protoc-go-inject-tag@latest
-  #          go install github.com/vektra/mockery/v2@latest
-  #      - name: generate gRPC and docs
-  #        run: chmod +x generateAll.sh && ./generateAll.sh
-  #      - name: generate easyjson
-  #        run: chmod +x easyjsonGenerate.sh && ./easyjsonGenerate.sh
-  #      - name: generate test mocks
-  #        run: cd internal/test && chmod +x mocks.sh && ./mocks.sh
-  #      - name: go tests
-  #        run: chmod +x test.sh && test.sh
+  golangci-lint:
+    name: lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-go@v3
+        with:
+          go-version: 1.18
+      - uses: actions/checkout@v3
+      - name: setting up
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y protobuf-compiler
+          sudo apt-get install -y golang-goprotobuf-dev
+          go install github.com/swaggo/swag/cmd/swag@latest
+          go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
+          go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
+          go install github.com/favadi/protoc-go-inject-tag@latest
+          go install github.com/vektra/mockery/v2@latest
+      - name: generate gRPC and docs
+        run: chmod +x generateAll.sh && ./generateAll.sh
+      - name: generate easyjson
+        run: chmod +x easyjsonGenerate.sh && ./easyjsonGenerate.sh
+      - name: generate test mocks
+        run: cd internal/test && chmod +x mocks.sh && ./mocks.sh
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v3
+        with:
+          version: latest
+          skip-pkg-cache: true
+          skip-build-cache:
+            true
+  test:
+    name: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-go@v3
+        with:
+          go-version: 1.18
+      - uses: actions/checkout@v3
+      - name: setting up
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y protobuf-compiler
+          sudo apt-get install -y golang-goprotobuf-dev
+          go install github.com/swaggo/swag/cmd/swag@latest
+          go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
+          go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
+          go install github.com/favadi/protoc-go-inject-tag@latest
+          go install github.com/vektra/mockery/v2@latest
+      - name: generate gRPC and docs
+        run: chmod +x generateAll.sh && ./generateAll.sh
+      - name: generate easyjson
+        run: chmod +x easyjsonGenerate.sh && ./easyjsonGenerate.sh
+      - name: generate test mocks
+        run: cd internal/test && chmod +x mocks.sh && ./mocks.sh
+      - name: go tests
+        run:
+          chmod +x test.sh && test.sh
 
-  #  dockerDeploy:
-  #    runs-on: ubuntu-latest
-  #    name: dockerDeploy
-  #    needs:
-  #      - build
-  #      - golangci-lint
-  #      - test
-  #    steps:
-  #      - uses: actions/checkout@v1
-  #      - name: Login to DockerHub Registry
-  #        run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-  #      - name: Build all Docker images
-  #        run: cd deploy && dockerBuildAll.sh
-  #      - name: Push all Docker images
-  #        run: cd deploy && dockerPushAll.sh
+  dockerDeploy:
+    runs-on: ubuntu-latest
+    name: dockerDeploy
+    needs:
+      - build
+      - golangci-lint
+      - test
+    steps:
+      - uses: actions/checkout@v1
+      - name: Login to DockerHub Registry
+        run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+      - name: Build all Docker images
+        run: cd deploy && dockerBuildAll.sh
+      - name: Push all Docker images
+        run:
+          cd deploy && dockerPushAll.sh
 
   k8s:
     runs-on: ubuntu-latest
     name: k8s
-    #    needs:
-    #      - dockerDeploy
+    needs:
+      - dockerDeploy
     steps:
       - uses: actions/checkout@v1
       - name: k8s install
@@ -125,16 +127,4 @@ jobs:
           echo "${{ secrets.K8S_CONFIG }}" > k8s.yaml
           export KUBECONFIG="$(pwd)/k8s.yaml"
           kubectl apply -f ./env/prod/k8/ -R
-          kubectl rollout restart deployment album
-          kubectl rollout restart deployment alertmanager
-          kubectl rollout restart deployment wave
-          kubectl rollout restart deployment artist
-          kubectl rollout restart deployment auth
-          kubectl rollout restart deployment caddy
-          kubectl rollout restart deployment grafana
-          kubectl rollout restart deployment playlist
-          kubectl rollout restart deployment db
-          kubectl rollout restart deployment prometheus
-          kubectl rollout restart deployment redis
-          kubectl rollout restart deployment track
-          kubectl rollout restart deployment godeploy
+          kubectl rollout restart deploy
