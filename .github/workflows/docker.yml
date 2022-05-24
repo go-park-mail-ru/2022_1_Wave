@@ -122,9 +122,8 @@ jobs:
           kubectl version --client --output=yaml
       - name: create config
         run: echo "${{ secrets.K8S_CONFIG }}" > k8s.yaml
-      - run: ls .
       - name: export config
-        run: export KUBECONFIG="./k8s.yaml"
+        run: export KUBECONFIG="./k8s.yaml" && echo ${KUBECONFIG}
       - name: create token
         run: kubectl get secret $(kubectl get sa dashboard-sa -o jsonpath='{.secrets[0].name}') -o jsonpath='{.data.token}' | base64 --decode > token
       - name: apply all
