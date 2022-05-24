@@ -566,5 +566,5 @@ func (h Handler) GetPopularOfWeek(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK,
 		webUtils.Success{
 			Status: webUtils.OK,
-			Result: utils.AlbumsToMap(popular)})
+			Result: popular})
 }
