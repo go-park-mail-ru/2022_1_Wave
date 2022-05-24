@@ -88,8 +88,6 @@ jobs:
         run: chmod +x generateAll.sh && ./generateAll.sh
       - name: generate easyjson
         run: chmod +x easyjsonGenerate.sh && ./easyjsonGenerate.sh
-      - name: generate test mocks
-        run: cd internal/test && chmod +x mocks.sh && ./mocks.sh
       - name: go tests
         run: chmod +x test.sh && ./test.sh
 
@@ -105,10 +103,10 @@ jobs:
       - name: Login to DockerHub Registry
         run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
       - name: Build all Docker images
-        run: cd deploy && ./dockerBuildAll.sh
+        run: cd deploy && chmod +x && ./dockerBuildAll.sh
       - name: Push all Docker images
         run:
-          cd deploy && ./dockerPushAll.sh
+          cd deploy && chmod +x && ./dockerPushAll.sh
 
   k8s:
     runs-on: ubuntu-latest
