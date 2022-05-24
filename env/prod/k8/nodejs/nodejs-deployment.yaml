@@ -24,10 +24,8 @@ spec:
           ports:
             - containerPort: 8080
           env:
-            - name: DATABASE_CONNECTION
-              value: user=postgres password=music dbname=wave host=db port=5432 sslmode=disable
-            - name: dbType
-              value: postgres
+            - name: WAVEFRONTENV
+              value: production
       restartPolicy: Always
       imagePullSecrets:
         - name: wave
