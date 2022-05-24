@@ -6,15 +6,14 @@ metadata:
     kompose.version: 1.26.1 (a9d05d509)
   creationTimestamp: null
   labels:
-    io.kompose.service: wave
-  name: wave
+    io.kompose.service: pushgateway
+  name: pushgateway
 spec:
   replicas: 1
   selector:
     matchLabels:
-      io.kompose.service: wave
-  strategy:
-    type: Recreate
+      io.kompose.service: pushgateway
+  strategy: { }
   template:
     metadata:
       annotations:
@@ -22,16 +21,14 @@ spec:
         kompose.version: 1.26.1 (a9d05d509)
       creationTimestamp: null
       labels:
-        io.kompose.service: wave
+        io.kompose.service: pushgateway
     spec:
       containers:
-        - name: api
-          image: mausved/wave_api
+        - image: prom/pushgateway
+          name: pushgateway
           ports:
-            - containerPort: 5000
-          tty: true
+            - containerPort: 9091
       restartPolicy: Always
       imagePullSecrets:
         - name: wave
-
 status: { }

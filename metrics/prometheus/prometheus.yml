@@ -16,77 +16,77 @@ scrape_configs:
   - job_name: 'api'
     scrape_interval: 5s
     static_configs:
-      - targets: [ 'wave_music:5000' ]
+      - targets: [ 'wave.default.svc.cluster.local:5000' ]
 
   - job_name: 'album'
     scrape_interval: 5s
     static_configs:
-      - targets: [ 'album:9081' ]
+      - targets: [ 'album.default.svc.cluster.local:9081' ]
 
   - job_name: 'artist'
     scrape_interval: 5s
     static_configs:
-      - targets: [ 'artist:9082' ]
+      - targets: [ 'artist.default.svc.cluster.local:9082' ]
 
   - job_name: 'track'
     scrape_interval: 5s
     static_configs:
-      - targets: [ 'track:9083' ]
+      - targets: [ 'track.default.svc.cluster.local:9083' ]
 
   - job_name: 'playlist'
     scrape_interval: 5s
     static_configs:
-      - targets: [ 'playlist:9084' ]
+      - targets: [ 'playlist.default.svc.cluster.local:9084' ]
 
   - job_name: 'auth'
     scrape_interval: 5s
     static_configs:
-      - targets: [ 'auth:9085' ]
+      - targets: [ 'auth.default.svc.cluster.local:9085' ]
 
   - job_name: 'user'
     scrape_interval: 5s
     static_configs:
-      - targets: [ 'user:9086' ]
+      - targets: [ 'user.default.svc.cluster.local:9086' ]
 
   - job_name: 'nodeexporter'
     scrape_interval: 5s
     static_configs:
-      - targets: [ 'nodeexporter:9100' ]
+      - targets: [ 'nodeexporter.default.svc.cluster.local:9100' ]
 
-  - job_name: 'cadvisor'
-    scrape_interval: 5s
-    static_configs:
-      - targets: [ 'cadvisor:8080' ]
+  #  - job_name: 'cadvisor'
+  #    scrape_interval: 5s
+  #    static_configs:
+  #      - targets: [ 'cadvisor.default.svc.cluster.local:8080' ]
 
   #  - job_name: 'prometheus'
   #    scrape_interval: 10s
   #    static_configs:
   #      - targets: [ 'prometheus:9090' ]
   #
-  - job_name: 'pushgateway'
-    scrape_interval: 10s
-    honor_labels: true
-    static_configs:
-      - targets: [ 'pushgateway:9091' ]
+#  - job_name: 'pushgateway'
+#    scrape_interval: 10s
+#    honor_labels: true
+#    static_configs:
+#      - targets: [ 'pushgateway.default.svc.cluster.local:9091' ]
 
-  - job_name: 'db'
-    scrape_interval: 10s
-    static_configs:
-      - targets: [ 'postgres-exporter:9187' ]
+#  - job_name: 'db'
+#    scrape_interval: 10s
+#    static_configs:
+#      - targets: [ 'postgres-exporter.default.svc.cluster.local:9187' ]
 
-  - job_name: 'nginx'
-    scrape_interval: 10s
-    metrics_path: '/metrics'
-    static_configs:
-      - targets: [ 'nginx-exporter:9113' ]
-
-  - job_name: 'redis'
-    scrape_interval: 10s
-    static_configs:
-      - targets: [ 'redis-exporter:9121' ]
+#  - job_name: 'nginx'
+#    scrape_interval: 10s
+#    metrics_path: '/metrics'
+#    static_configs:
+#      - targets: [ 'nginx-exporter.default.svc.cluster.local:9113' ]
+#
+#  - job_name: 'redis'
+#    scrape_interval: 10s
+#    static_configs:
+#      - targets: [ 'redis-exporter.default.svc.cluster.local:9121' ]
 
 alerting:
   alertmanagers:
     - scheme: http
       static_configs:
-        - targets: [ 'alertmanager:9093' ]
+        - targets: [ 'alertmanager.default.svc.cluster.local:9093' ]

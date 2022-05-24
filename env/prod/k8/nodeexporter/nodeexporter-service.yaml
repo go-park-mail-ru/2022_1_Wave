@@ -6,19 +6,14 @@ metadata:
     kompose.version: 1.26.1 (a9d05d509)
   creationTimestamp: null
   labels:
-    io.kompose.service: nginx
-  name: nginx
+    io.kompose.service: nodeexporter
+  name: nodeexporter
 spec:
   ports:
-    - name: "http"
-      port: 80
-      targetPort: 80
-      protocol: "TCP"
-    - name: "https"
-      port: 443
-      targetPort: 443
-      protocol: "TCP"
+    - name: "9100"
+      port: 9100
+      targetPort: 9100
   selector:
-    io.kompose.service: nginx
+    io.kompose.service: nodeexporter
 status:
   loadBalancer: { }

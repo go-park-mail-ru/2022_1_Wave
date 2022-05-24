@@ -6,19 +6,14 @@ metadata:
     kompose.version: 1.26.1 (a9d05d509)
   creationTimestamp: null
   labels:
-    io.kompose.service: nginx
-  name: nginx
+    io.kompose.service: cadvisor
+  name: cadvisor
 spec:
   ports:
-    - name: "http"
-      port: 80
-      targetPort: 80
-      protocol: "TCP"
-    - name: "https"
-      port: 443
-      targetPort: 443
-      protocol: "TCP"
+    - name: "8080"
+      port: 8080
+      targetPort: 8080
   selector:
-    io.kompose.service: nginx
+    io.kompose.service: cadvisor
 status:
   loadBalancer: { }

@@ -6,13 +6,13 @@ metadata:
     kompose.version: 1.26.1 (a9d05d509)
   creationTimestamp: null
   labels:
-    io.kompose.service: wave
-  name: wave
+    io.kompose.service: alertmanager
+  name: alertmanager
 spec:
   replicas: 1
   selector:
     matchLabels:
-      io.kompose.service: wave
+      io.kompose.service: alertmanager
   strategy:
     type: Recreate
   template:
@@ -22,16 +22,17 @@ spec:
         kompose.version: 1.26.1 (a9d05d509)
       creationTimestamp: null
       labels:
-        io.kompose.service: wave
+        io.kompose.service: alertmanager
     spec:
       containers:
-        - name: api
-          image: mausved/wave_api
+        - args:
+            - --config.file=/etc/alertmanager/config.yml
+            - --storage.path=/alertmanager
+          image: mausved/wave_alertmanager
+          name: alertmanager
           ports:
-            - containerPort: 5000
-          tty: true
+            - containerPort: 9093
       restartPolicy: Always
       imagePullSecrets:
         - name: wave
-
 status: { }

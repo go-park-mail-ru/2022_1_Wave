@@ -1,9 +1,9 @@
 FROM mausved/wave_music_api_v1:latest AS build_step
 COPY ./ /var/www/service
 WORKDIR /var/www/service/
-RUN go get github.com/mailru/easyjson
-RUN go install github.com/mailru/easyjson/...@latest
-RUN bash easyjsonGenerate.sh
+#RUN go get github.com/mailru/easyjson
+#RUN go install github.com/mailru/easyjson/...@latest
+#RUN bash easyjsonGenerate.sh
 RUN bash cmd/auth/prod.sh
 
 FROM alpine

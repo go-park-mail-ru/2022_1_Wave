@@ -6,15 +6,14 @@ metadata:
     kompose.version: 1.26.1 (a9d05d509)
   creationTimestamp: null
   labels:
-    io.kompose.service: wave
-  name: wave
+    io.kompose.service: postgres-exporter
+  name: postgres-exporter
 spec:
   replicas: 1
   selector:
     matchLabels:
-      io.kompose.service: wave
-  strategy:
-    type: Recreate
+      io.kompose.service: postgres-exporter
+  strategy: { }
   template:
     metadata:
       annotations:
@@ -22,16 +21,19 @@ spec:
         kompose.version: 1.26.1 (a9d05d509)
       creationTimestamp: null
       labels:
-        io.kompose.service: wave
+        io.kompose.service: postgres-exporter
     spec:
       containers:
-        - name: api
-          image: mausved/wave_api
-          ports:
-            - containerPort: 5000
-          tty: true
+        - env:
+            - name: ADMIN_PASSWORD
+            - name: ADMIN_USER
+            - name: DATA_SOURCE_NAME
+              value: postgresql://postgres:music@db.default.svc.cluster.local:5432/wave?sslmode=disable
+            - name: USER
+              value: mai
+          image: wrouesnel/postgres_exporter
+          name: postgres-exporter
       restartPolicy: Always
       imagePullSecrets:
         - name: wave
-
 status: { }

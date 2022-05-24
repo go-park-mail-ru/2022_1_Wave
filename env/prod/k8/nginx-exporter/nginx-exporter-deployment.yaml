@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f ../docker-compose.yaml
+    kompose.version: 1.26.1 (a9d05d509)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: nginx-exporter
+  name: nginx-exporter
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: nginx-exporter
+  strategy: { }
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -f ../docker-compose.yaml
+        kompose.version: 1.26.1 (a9d05d509)
+      creationTimestamp: null
+      labels:
+        io.kompose.service: nginx-exporter
+    spec:
+      containers:
+        - env:
+            - name: ADMIN_PASSWORD
+            - name: ADMIN_USER
+            - name: NGINX_RETRIES
+              value: "1"
+            - name: SCRAPE_URI
+              value: http://web.default.svc.cluster.local:80/metrics
+            - name: TELEMETRY_PATH
+              value: /metrics
+          image: nginx/nginx-prometheus-exporter
+          name: nginx-exporter
+          ports:
+            - containerPort: 9113
+      restartPolicy: Always
+      imagePullSecrets:
+        - name: wave
+status: { }

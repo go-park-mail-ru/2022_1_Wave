@@ -6,15 +6,14 @@ metadata:
     kompose.version: 1.26.1 (a9d05d509)
   creationTimestamp: null
   labels:
-    io.kompose.service: wave
-  name: wave
+    io.kompose.service: redis-exporter
+  name: redis-exporter
 spec:
   replicas: 1
   selector:
     matchLabels:
-      io.kompose.service: wave
-  strategy:
-    type: Recreate
+      io.kompose.service: redis-exporter
+  strategy: { }
   template:
     metadata:
       annotations:
@@ -22,16 +21,20 @@ spec:
         kompose.version: 1.26.1 (a9d05d509)
       creationTimestamp: null
       labels:
-        io.kompose.service: wave
+        io.kompose.service: redis-exporter
     spec:
       containers:
-        - name: api
-          image: mausved/wave_api
+        - args:
+            - --redis.addr
+            - redis://redis:6379
+          env:
+            - name: ADMIN_PASSWORD
+            - name: ADMIN_USER
+          image: oliver006/redis_exporter:alpine
+          name: redis-exporter
           ports:
-            - containerPort: 5000
-          tty: true
+            - containerPort: 9121
       restartPolicy: Always
       imagePullSecrets:
         - name: wave
-
 status: { }
