@@ -106,7 +106,7 @@ jobs:
         run: cd deploy && chmod +x dockerBuildAll.sh && ./dockerBuildAll.sh
       - name: Push all Docker images
         run:
-          cd deploy && chmod +x dockerBuildAll.sh && ./dockerPushAll.sh
+          cd deploy && chmod +x dockerPushAll.sh && ./dockerPushAll.sh
 
   k8s:
     runs-on: ubuntu-latest
