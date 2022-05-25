@@ -3,8 +3,9 @@ COPY ./ /var/www/service
 WORKDIR /var/www/service/
 RUN go get github.com/mailru/easyjson
 RUN go install github.com/mailru/easyjson/...@latest
+RUN bash gRPC.sh
 RUN bash easyjsonGenerate.sh
-RUN bash cmd/artist/prod.sh
+RUN go build -o ./tmp/artist ./cmd/artist/artist.go
 
 FROM alpine
 RUN apk add --no-cache libc6-compat
