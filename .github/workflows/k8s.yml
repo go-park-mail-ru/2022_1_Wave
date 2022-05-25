@@ -125,7 +125,7 @@ jobs:
           mv ./kubectl ~/.local/bin/kubectl
           export PATH="~/.local/bin/kubectl:$PATH"
           kubectl version --client --output=yaml
-      - name: create config
+      - name: apply & rollout restart
         run: |
           echo "${{ secrets.K8S_CONFIG }}" > k8s.yaml
           export KUBECONFIG="$(pwd)/k8s.yaml"

@@ -4,6 +4,7 @@ import (
 	"crypto/sha1"
 	"encoding/hex"
 	"errors"
+	"fmt"
 	user_microservice_domain "github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/user"
 	user_domain "github.com/go-park-mail-ru/2022_1_Wave/internal/user"
 	"github.com/google/uuid"
@@ -170,14 +171,15 @@ func (a *UserHandler) UpdateSelfUser(c echo.Context) error {
 // @Failure      400    {object}  webUtils.Error  "invalid field values"
 // @Router       /api/v1/users/upload_avatar [patch]
 func (a *UserHandler) UploadAvatar(c echo.Context) error {
+	fmt.Println("uploading avatar...")
 	form, err := c.MultipartForm()
 	if err != nil {
-		return c.JSON(http.StatusBadRequest, getErrorUserResponse(errors.New(uploadAvatarError)))
+		return c.JSON(http.StatusBadRequest, getErrorUserResponse(err))
 	}
 	file := form.File["avatar"][0]
 	src, err := file.Open()
 	if err != nil {
-		return c.JSON(http.StatusBadRequest, getErrorUserResponse(errors.New(uploadAvatarError)))
+		return c.JSON(http.StatusBadRequest, getErrorUserResponse(err))
 	}
 	defer src.Close()
 
@@ -191,12 +193,12 @@ func (a *UserHandler) UploadAvatar(c echo.Context) error {
 	filename := PathToAvatars + "/" + hex.EncodeToString(hash.Sum(nil)) + "." + strs[len(strs)-1]
 	dst, err := os.Create(filename)
 	if err != nil {
-		return c.JSON(http.StatusBadRequest, getErrorUserResponse(errors.New(uploadAvatarError)))
+		return c.JSON(http.StatusBadRequest, getErrorUserResponse(err))
 	}
 	defer dst.Close()
 
 	if _, err = io.Copy(dst, src); err != nil {
-		return c.JSON(http.StatusBadRequest, getErrorUserResponse(errors.New(uploadAvatarError)))
+		return c.JSON(http.StatusBadRequest, getErrorUserResponse(err))
 	}
 
 	user.Avatar = filename

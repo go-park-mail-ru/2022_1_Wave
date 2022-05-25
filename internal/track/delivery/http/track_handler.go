@@ -405,7 +405,7 @@ func (h Handler) AddToFavorites(ctx echo.Context) error {
 	holder := trackIdWrapper{}
 
 	if err := ctx.Bind(&holder); err != nil {
-		return err
+		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 	}
 
 	if err := h.TrackUseCase.AddToFavorites(userId, holder.TrackId); err != nil {
