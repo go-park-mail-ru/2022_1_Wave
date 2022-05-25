@@ -397,6 +397,7 @@ type trackIdWrapper struct {
 // @Failure      405    {object}  webUtils.Error  "Method is not allowed"
 // @Router       /api/v1/tracks/favorites [post]
 func (h Handler) AddToFavorites(ctx echo.Context) error {
+	fmt.Println("Add favorites handler")
 	userId, err := internal.GetUserId(ctx, h.UserUseCase)
 	if err != nil {
 		return internal.UnauthorizedError(ctx)
@@ -407,6 +408,8 @@ func (h Handler) AddToFavorites(ctx echo.Context) error {
 	if err := ctx.Bind(&holder); err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 	}
+
+	fmt.Println("trackId=", holder.TrackId, "userId=", userId)
 
 	if err := h.TrackUseCase.AddToFavorites(userId, holder.TrackId); err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)

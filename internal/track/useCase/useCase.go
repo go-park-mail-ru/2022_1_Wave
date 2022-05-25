@@ -181,12 +181,12 @@ func (useCase trackUseCase) GetFavorites(userId int64) ([]*trackProto.TrackDataT
 	return useCase.castArray(userId, tracks)
 }
 
-func (useCase trackUseCase) AddToFavorites(userId int64, albumId int64) error {
-	return useCase.trackAgent.AddToFavorites(userId, albumId)
+func (useCase trackUseCase) AddToFavorites(userId int64, trackId int64) error {
+	return useCase.trackAgent.AddToFavorites(userId, trackId)
 }
 
-func (useCase trackUseCase) RemoveFromFavorites(userId int64, albumId int64) error {
-	return useCase.trackAgent.RemoveFromFavorites(userId, albumId)
+func (useCase trackUseCase) RemoveFromFavorites(userId int64, trackId int64) error {
+	return useCase.trackAgent.RemoveFromFavorites(userId, trackId)
 }
 
 func (useCase trackUseCase) GetTracksFromPlaylist(playlistId int64, userId int64) ([]*trackProto.TrackDataTransfer, error) {

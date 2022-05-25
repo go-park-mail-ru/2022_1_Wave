@@ -49,7 +49,8 @@ func (table TrackRepo) Delete(id int64) error {
 }
 
 func (table TrackRepo) SelectByID(id int64) (*trackProto.Track, error) {
-	query := `SELECT * FROM track WHERE id = $1 ORDER BY id;`
+	fmt.Println("id=", id)
+	query := `SELECT * FROM track WHERE id = $1;`
 	holder := trackProto.Track{}
 	if err := table.Sqlx.Get(&holder, query, id); err != nil {
 		return nil, err
@@ -193,7 +194,7 @@ func (table TrackRepo) SearchByTitle(title string) ([]*trackProto.Track, error) 
 }
 
 func (table TrackRepo) AddToFavorites(trackId int64, userId int64) error {
-	fmt.Println("added to favorites")
+	fmt.Println("added to favorites track=", trackId, "user=", userId)
 	if err := table.Like(trackId, userId); err != nil {
 		fmt.Println("like error")
 		return err
