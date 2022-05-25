@@ -191,6 +191,10 @@ func (table TrackRepo) SearchByTitle(title string) ([]*trackProto.Track, error) 
 }
 
 func (table TrackRepo) AddToFavorites(trackId int64, userId int64) error {
+	if err := table.Like(trackId, userId); err != nil {
+		return err
+	}
+
 	track, err := table.SelectByID(trackId)
 	if err != nil {
 		return err
