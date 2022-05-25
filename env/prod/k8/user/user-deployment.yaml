@@ -39,6 +39,18 @@ spec:
               value: :9086
             - name: port
               value: :8086
+            - name: AWS_REGION
+              value: ""
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: secretkey
+                  key: ACCESS_KEY_ID
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: secretkey
+                  key: SECRET_KEY
       imagePullSecrets:
         - name: wave
 
