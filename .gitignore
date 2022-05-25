@@ -26,6 +26,7 @@ assets
 *.jp*
 
 *tmp*
+!metrics/alertmanager/telegram.tmpl
 *s.PGSQL.5432.lock*
 
 docs.go
@@ -33,3 +34,7 @@ src/docs
 
 *pb.go
 *grpc.pb.go
+
+logs/
+
+*secret*

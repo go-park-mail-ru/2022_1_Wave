@@ -7,6 +7,7 @@ import (
 	ArtistUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/artist/useCase"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/artist/artistProto"
 	Gateway "github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/gateway"
+	"github.com/go-park-mail-ru/2022_1_Wave/internal/tools/utils"
 	TrackUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/track/useCase"
 	user_domain "github.com/go-park-mail-ru/2022_1_Wave/internal/user"
 	"github.com/go-park-mail-ru/2022_1_Wave/pkg/webUtils"
@@ -17,11 +18,11 @@ import (
 
 type Handler struct {
 	UserUseCase   user_domain.UserUseCase
-	ArtistUseCase ArtistUseCase.UseCase
-	TrackUseCase  TrackUseCase.UseCase
+	ArtistUseCase ArtistUseCase.ArtistUseCase
+	TrackUseCase  TrackUseCase.TrackUseCase
 }
 
-func MakeHandler(artist ArtistUseCase.UseCase, track TrackUseCase.UseCase, user user_domain.UserUseCase) Handler {
+func MakeHandler(artist ArtistUseCase.ArtistUseCase, track TrackUseCase.TrackUseCase, user user_domain.UserUseCase) Handler {
 	return Handler{
 		UserUseCase:   user,
 		ArtistUseCase: artist,
@@ -40,20 +41,24 @@ func MakeHandler(artist ArtistUseCase.UseCase, track TrackUseCase.UseCase, user 
 // @Failure      405  {object}  webUtils.Error  "Method is not allowed"
 // @Router       /api/v1/artists/ [get]
 func (h Handler) GetAll(ctx echo.Context) error {
-	domains, err := h.ArtistUseCase.GetAll()
+	userId, err := internal.GetUserId(ctx, h.UserUseCase)
+	if err != nil {
+		userId = -1
+	}
+	artists, err := h.ArtistUseCase.GetAll(userId)
 
 	if err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 	}
 
-	if domains == nil {
-		domains = []*artistProto.ArtistDataTransfer{}
+	if artists == nil {
+		artists = []*artistProto.ArtistDataTransfer{}
 	}
 
 	return ctx.JSON(http.StatusOK,
 		webUtils.Success{
 			Status: webUtils.OK,
-			Result: domains})
+			Result: utils.ArtistsToMap(artists)})
 }
 
 // Create godoc
@@ -133,11 +138,15 @@ func (h Handler) Update(ctx echo.Context) error {
 // @Accept          application/json
 // @Produce      application/json
 // @Param        id   path      integer  true  "id of artist which need to be getted"
-// @Success      200  {object}  artistProto.Artist
+// @Success      200  {object}  webUtils.Success
 // @Failure      400  {object}  webUtils.Error  "Data is invalid"
 // @Failure      405  {object}  webUtils.Error  "Method is not allowed"
 // @Router       /api/v1/artists/{id} [get]
 func (h Handler) Get(ctx echo.Context) error {
+	userId, err := internal.GetUserId(ctx, h.UserUseCase)
+	if err != nil {
+		userId = -1
+	}
 	id, err := internal.GetIdInt64ByFieldId(ctx)
 	if err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
@@ -147,7 +156,7 @@ func (h Handler) Get(ctx echo.Context) error {
 		return webUtils.WriteErrorEchoServer(ctx, errors.New(internal.IndexOutOfRange), http.StatusBadRequest)
 	}
 
-	obj, err := h.ArtistUseCase.GetById(id)
+	obj, err := h.ArtistUseCase.GetById(id, userId)
 
 	if err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
@@ -200,7 +209,11 @@ func (h Handler) Delete(ctx echo.Context) error {
 // @Failure      405  {object}  webUtils.Error  "Method is not allowed"
 // @Router       /api/v1/artists/popular [get]
 func (h Handler) GetPopular(ctx echo.Context) error {
-	popular, err := h.ArtistUseCase.GetPopular()
+	userId, err := internal.GetUserId(ctx, h.UserUseCase)
+	if err != nil {
+		userId = -1
+	}
+	popular, err := h.ArtistUseCase.GetPopular(userId)
 	if err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 	}
@@ -208,38 +221,7 @@ func (h Handler) GetPopular(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK,
 		webUtils.Success{
 			Status: webUtils.OK,
-			Result: popular})
-}
-
-// GetPopularTracks godoc
-// @Summary      GetPopularTracks
-// @Description  getting top20 popular tracks of this artist
-// @Tags         artist
-// @Accept          application/json
-// @Produce      application/json
-// @Param        id   path      integer  true  "id of artist which need to be getted"
-// @Success      200  {object}  webUtils.Success
-// @Failure      400  {object}  webUtils.Error  "Data is invalid"
-// @Failure      405  {object}  webUtils.Error  "Method is not allowed"
-// @Router       /api/v1/artists/{id}/popular [get]
-func (h Handler) GetPopularTracks(ctx echo.Context) error {
-	id, err := internal.GetIdInt64ByFieldId(ctx)
-	if err != nil {
-		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
-	}
-	if id < 0 {
-		return webUtils.WriteErrorEchoServer(ctx, errors.New(internal.IndexOutOfRange), http.StatusBadRequest)
-	}
-
-	popular, err := h.TrackUseCase.GetPopularTracksFromArtist(id)
-	if err != nil {
-		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
-	}
-
-	return ctx.JSON(http.StatusOK,
-		webUtils.Success{
-			Status: webUtils.OK,
-			Result: popular})
+			Result: utils.ArtistsToMap(popular)})
 }
 
 // GetFavorites godoc
@@ -266,7 +248,11 @@ func (h Handler) GetFavorites(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK,
 		webUtils.Success{
 			Status: webUtils.OK,
-			Result: favorites})
+			Result: utils.ArtistsToMap(favorites)})
+}
+
+type artistIdWrapper struct {
+	ArtistId int64 `json:"artistId" example:"4"`
 }
 
 // AddToFavorites godoc
@@ -275,30 +261,31 @@ func (h Handler) GetFavorites(ctx echo.Context) error {
 // @Tags         artist
 // @Accept          application/json
 // @Produce      application/json
-// @Param        id  path      integer  true  "artistId"
+// @Param        artistId  body      artistIdWrapper  true  "artistId"
 // @Success      200    {object}  webUtils.Success
 // @Failure      400    {object}  webUtils.Error  "Data is invalid"
 // @Failure      405    {object}  webUtils.Error  "Method is not allowed"
-// @Router       /api/v1/artists/favorites/{id} [post]
+// @Router       /api/v1/artists/favorites [post]
 func (h Handler) AddToFavorites(ctx echo.Context) error {
 	userId, err := internal.GetUserId(ctx, h.UserUseCase)
 	if err != nil {
 		return internal.UnauthorizedError(ctx)
 	}
 
-	artistId, err := strconv.ParseInt(ctx.Param(internal.FieldId), 10, 64)
-	if err != nil {
-		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
+	holder := artistIdWrapper{}
+
+	if err := ctx.Bind(&holder); err != nil {
+		return err
 	}
 
-	if err := h.ArtistUseCase.AddToFavorites(userId, artistId); err != nil {
+	if err := h.ArtistUseCase.AddToFavorites(userId, holder.ArtistId); err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 	}
 
 	return ctx.JSON(http.StatusOK,
 		webUtils.Success{
 			Status: webUtils.OK,
-			Result: internal.SuccessAddedToFavorites + "(" + fmt.Sprint(artistId) + ")"})
+			Result: internal.SuccessAddedToFavorites + "(" + fmt.Sprint(holder.ArtistId) + ")"})
 }
 
 // RemoveFromFavorites godoc
@@ -319,7 +306,9 @@ func (h Handler) RemoveFromFavorites(ctx echo.Context) error {
 	}
 
 	artistId, err := strconv.ParseInt(ctx.Param(internal.FieldId), 10, 64)
-
+	if err != nil {
+		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
+	}
 	if err := h.ArtistUseCase.RemoveFromFavorites(userId, artistId); err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 	}
@@ -328,4 +317,73 @@ func (h Handler) RemoveFromFavorites(ctx echo.Context) error {
 		webUtils.Success{
 			Status: webUtils.OK,
 			Result: internal.SuccessRemoveFromFavorites + "(" + fmt.Sprint(artistId) + ")"})
+}
+
+// Like godoc
+// @Summary      Like
+// @Description  like artist by id
+// @Tags         artist
+// @Accept          application/json
+// @Produce      application/json
+// @Param        id   path      integer  true  "id of artist which need to be liked"
+// @Success      200  {object}  webUtils.Success
+// @Failure      400  {object}  webUtils.Error  "Data is invalid"
+// @Failure      405  {object}  webUtils.Error  "Method is not allowed"
+// @Router       /api/v1/artists/like/{id} [put]
+func (h Handler) Like(ctx echo.Context) error {
+	userId, err := internal.GetUserId(ctx, h.UserUseCase)
+	if err != nil {
+		return internal.UnauthorizedError(ctx)
+	}
+	id, err := internal.GetIdInt64ByFieldId(ctx)
+	if err != nil {
+		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
+	}
+	if id < 0 {
+		return webUtils.WriteErrorEchoServer(ctx, errors.New(internal.IndexOutOfRange), http.StatusBadRequest)
+	}
+
+	if err := h.ArtistUseCase.Like(id, userId); err != nil {
+		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
+	}
+
+	return ctx.JSON(http.StatusOK,
+		webUtils.Success{
+			Status: webUtils.OK,
+			Result: internal.SuccessLiked + "(" + fmt.Sprint(id) + ")"})
+}
+
+// LikeCheckByUser godoc
+// @Summary      LikeCheckByUser
+// @Description  LikeCheckByUser
+// @Tags         artist
+// @Accept          application/json
+// @Produce      application/json
+// @Param        id   path      integer  true  "id of artist which need to check for like"
+// @Success      200  {object}  webUtils.Success
+// @Failure      400  {object}  webUtils.Error  "Data is invalid"
+// @Failure      405  {object}  webUtils.Error  "Method is not allowed"
+// @Router       /api/v1/artists/like/{id} [get]
+func (h Handler) LikeCheckByUser(ctx echo.Context) error {
+	userId, err := internal.GetUserId(ctx, h.UserUseCase)
+	if err != nil {
+		return internal.UnauthorizedError(ctx)
+	}
+	id, err := internal.GetIdInt64ByFieldId(ctx)
+	if err != nil {
+		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
+	}
+	if id < 0 {
+		return webUtils.WriteErrorEchoServer(ctx, errors.New(internal.IndexOutOfRange), http.StatusBadRequest)
+	}
+
+	liked, err := h.ArtistUseCase.LikeCheckByUser(id, userId)
+	if err != nil {
+		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
+	}
+
+	return ctx.JSON(http.StatusOK,
+		webUtils.Success{
+			Status: webUtils.OK,
+			Result: liked})
 }

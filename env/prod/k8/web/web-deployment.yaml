@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: godeploy
+  labels:
+    app: godeploy
+spec:
+  selector:
+    matchLabels:
+      app: godeploy
+  template:
+    metadata:
+      labels:
+        app: godeploy
+    spec:
+      containers:
+        - name: godeploy
+          image: mausved/wave_web
+          ports:
+            - name: "proxy-http"
+              containerPort: 80
+            - name: "proxy-https"
+              containerPort: 443
+      imagePullSecrets:
+        - name: wave

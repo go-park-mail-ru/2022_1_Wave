@@ -120,3 +120,27 @@ func (agent GrpcAgent) RemoveFromFavorites(userId int64, albumId int64) error {
 	})
 	return err
 }
+
+func (agent GrpcAgent) Like(userId int64, id int64) error {
+	_, err := agent.AlbumGrpc.Like(context.Background(), &gatewayProto.UserIdAlbumIdArg{
+		UserId:  userId,
+		AlbumId: id,
+	})
+	return err
+}
+
+func (agent GrpcAgent) LikeCheckByUser(userId int64, id int64) (bool, error) {
+	liked, err := agent.AlbumGrpc.LikeCheckByUser(context.Background(), &gatewayProto.UserIdAlbumIdArg{
+		UserId:  userId,
+		AlbumId: id,
+	})
+	if err != nil {
+		return false, err
+	}
+	return liked.Ok, nil
+}
+
+func (agent GrpcAgent) GetPopularAlbumOfWeekTop20() ([]*albumProto.Album, error) {
+	data, err := agent.AlbumGrpc.GetPopularAlbumOfWeekTop20(context.Background(), &emptypb.Empty{})
+	return data.Albums, err
+}

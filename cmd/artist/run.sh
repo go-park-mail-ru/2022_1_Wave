@@ -1,3 +1,2 @@
 #!/bin/bash
-bash gRPC.sh
-go run cmd/artist/artist.go
+air -c cmd/artist/.air.toml

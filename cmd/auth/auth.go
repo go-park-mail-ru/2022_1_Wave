@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	"github.com/go-park-mail-ru/2022_1_Wave/cmd"
 	"github.com/go-park-mail-ru/2022_1_Wave/init/logger"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/auth/proto"
 	auth_redis "github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/auth/repository/redis"
@@ -9,11 +9,8 @@ import (
 	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
 	_ "github.com/jackc/pgx/stdlib"
 	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
-	"google.golang.org/grpc"
 	"log"
-	"net"
-	"net/http"
+	"os"
 )
 
 var (
@@ -37,6 +34,10 @@ func init() {
 }
 
 func main() {
+	logs, err := logger.InitLogrus(os.Getenv("port"), os.Getenv("dbType"))
+	if err != nil {
+		log.Fatalln("error to init logrus:", err)
+	}
 	//sqlxDb := InitDatabase()
 	authRepo := auth_redis.NewRedisAuthRepo("redis:6379")
 	//userRepo := postgresql.NewUserPostgresRepo(sqlxDb)
@@ -47,31 +48,25 @@ func main() {
 		}
 	}()*/
 
-	port := ":8085"
-	listen, err := net.Listen("tcp", port)
+	server, httpServer, listen, err := cmd.MakeServers(reg)
 	if err != nil {
-		logger.GlobalLogger.Logrus.Errorf("error listen on %s port: %s", port, err.Error())
+		logs.Logrus.Fatalln("error to init database: ", os.Getenv("dbType"), err)
 	}
-
-	httpServer := &http.Server{Handler: promhttp.HandlerFor(reg, promhttp.HandlerOpts{}), Addr: fmt.Sprintf("0.0.0.0:%d", 9085)}
-	server := grpc.NewServer(
-		grpc.StreamInterceptor(grpc_prometheus.StreamServerInterceptor),
-		grpc.UnaryInterceptor(grpc_prometheus.UnaryServerInterceptor),
-	)
+	defer listen.Close()
 
 	proto.RegisterAuthorizationServer(server, auth_service.NewAuthService(authRepo))
 	grpcMetrics.InitializeMetrics(server)
-
+	logs.Logrus.Info("success init metrics: auth gRPC")
 	// Start your http server for prometheus.
 	go func() {
 		if err := httpServer.ListenAndServe(); err != nil {
-			log.Fatal("Unable to start a http server.")
+			logs.Logrus.Fatal("Unable to start a http auth metrics server.")
 		}
 	}()
 
 	//logger.GlobalLogger.Logrus.Printf("started authorization microservice on %s", port)
 	err = server.Serve(listen)
 	if err != nil {
-		logger.GlobalLogger.Logrus.Errorf("cannot listen port %s: %s", port, err.Error())
+		logs.Logrus.Errorf("cannot listen port %s: %s", os.Getenv("port"), err.Error())
 	}
 }

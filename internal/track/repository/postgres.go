@@ -127,7 +127,7 @@ func (table TrackRepo) GetPopularTracksFromArtist(artistId int64) ([]*trackProto
 	return tracks, nil
 }
 
-func (table TrackRepo) Like(userId int64, trackId int64) error {
+func (table TrackRepo) Like(trackId int64, userId int64) error {
 	track, err := table.SelectByID(trackId)
 
 	if err != nil {
@@ -191,6 +191,10 @@ func (table TrackRepo) SearchByTitle(title string) ([]*trackProto.Track, error) 
 }
 
 func (table TrackRepo) AddToFavorites(trackId int64, userId int64) error {
+	if err := table.Like(trackId, userId); err != nil {
+		return err
+	}
+
 	track, err := table.SelectByID(trackId)
 	if err != nil {
 		return err
@@ -219,9 +223,13 @@ func (table TrackRepo) GetFavorites(userId int64) ([]*trackProto.Track, error) {
 }
 
 func (table TrackRepo) RemoveFromFavorites(trackId int64, userId int64) error {
-	query := `DELETE FROM userFavoriteTracks WHERE user_id = $1 and track_id = $2`
-
+	query := `DELETE FROM userTracksLike WHERE user_id = $1 AND track_id = $2`
 	_, err := table.Sqlx.Exec(query, userId, trackId)
+	if err != nil {
+		return err
+	}
+	query = `DELETE FROM userFavoriteTracks WHERE user_id = $1 and track_id = $2`
+	_, err = table.Sqlx.Exec(query, userId, trackId)
 	return err
 }
 

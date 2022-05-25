@@ -19,10 +19,13 @@ type AlbumRepo interface {
 	GetAlbumsFromArtist(artist int64) ([]*albumProto.Album, error)
 	SearchByTitle(title string) ([]*albumProto.Album, error)
 	Like(id int64, userId int64) error
+	LikeCheckByUser(id int64, userId int64) (bool, error)
 	Listen(id int64) error
 	GetFavorites(userId int64) ([]*albumProto.Album, error)
 	AddToFavorites(id int64, userId int64) error
 	RemoveFromFavorites(albumId int64, userId int64) error
+	GetPopularAlbumOfWeekTop20() ([]*albumProto.Album, error)
+	CountPopularAlbumOfWeek() (bool, error)
 }
 
 type AlbumCoverRepo interface {
@@ -46,6 +49,7 @@ type ArtistRepo interface {
 	GetSize() (int64, error)
 	SearchByName(string) ([]*artistProto.Artist, error)
 	Like(id int64, userId int64) error
+	LikeCheckByUser(id int64, userId int64) (bool, error)
 	Listen(id int64) error
 	GetFavorites(userId int64) ([]*artistProto.Artist, error)
 	AddToFavorites(id int64, userId int64) error

@@ -47,7 +47,7 @@ func MigrateDB(db *sql.DB, databaseMigrationsPath string) {
 	res, _ := db.Query("SELECT version FROM migrate_history ORDER BY id DESC LIMIT 1")
 	defer res.Close()
 	lastMigration := &LastMigration{}
-	if res.Next() == false {
+	if !res.Next() {
 		lastMigration.version = "0.0.0"
 	} else if err = res.Scan(&lastMigration.version); err != nil {
 		fmt.Println(lastMigration)

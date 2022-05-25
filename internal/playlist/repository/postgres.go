@@ -1,6 +1,7 @@
 package PlaylistPostgres
 
 import (
+	"fmt"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/domain"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/playlist/playlistProto"
 	"github.com/jmoiron/sqlx"
@@ -77,12 +78,14 @@ func (table PlaylistRepo) Update(userId int64, playlist *playlistProto.Playlist)
 		return err
 	}
 
+	fmt.Println(selected.Title, selected.Id)
+
 	query := `
 		UPDATE playlist
 		SET title = $1
 		WHERE id = $2`
 
-	_, err = table.Sqlx.Exec(query, selected.Title, selected.Id)
+	_, err = table.Sqlx.Exec(query, playlist.Title, selected.Id)
 	return err
 }
 

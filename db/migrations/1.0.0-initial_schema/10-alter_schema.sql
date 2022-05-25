@@ -39,12 +39,11 @@ DROP TABLE if exists Playlist;
 DROP TABLE if exists Users;
 DROP TABLE if exists Track;
 DROP TABLE if exists AlbumCover;
+DROP TABLE IF exists PopularAlbumsByWeek;
 DROP TABLE if exists Album;
 DROP TABLE if exists Single;
 DROP TABLE if exists Artist;
 DROP TABLE if exists place;
-
-
 
 CREATE TABLE Users
 (
@@ -197,17 +196,6 @@ CREATE TABLE Album
       OIDS = FALSE
     );
 
--- CREATE TABLE Single
--- (
---     id         serial  NOT NULL,
---     artist_id  integer NOT NULL UNIQUE,
---     singles_id integer NOT NULL,
---     CONSTRAINT Single_pk PRIMARY KEY (id)
--- ) WITH (
---       OIDS= FALSE
---     );
-
-
 CREATE TABLE Artist
 (
     id              serial       NOT NULL,
@@ -241,6 +229,16 @@ CREATE TABLE AlbumCover
     );
 
 
+CREATE TABLE PopularAlbumsByWeek
+(
+    album_id           integer NOT NULL,
+    last_week_likes    integer default 0,
+    current_week_likes integer default 0,
+    date               bigint  NOt NULL
+) WITH (
+      OIDS = FALSE
+    );
+
 CREATE TABLE UserAlbumsLike
 (
     user_id  integer NOT NULL,
@@ -249,7 +247,8 @@ CREATE TABLE UserAlbumsLike
       OIDS = FALSE
     );
 
-
+ALTER TABLE PopularAlbumsByWeek
+    ADD CONSTRAINT realAlbumId FOREIGN KEY (album_id) REFERENCES Album (id) ON DELETE CASCADE;
 
 ALTER TABLE Track
     ADD CONSTRAINT Tracks_fk1 FOREIGN KEY (artist_id) REFERENCES Artist (id) ON DELETE CASCADE;
@@ -333,15 +332,31 @@ ALTER TABLE UserArtistsLike
     ADD CONSTRAINT uniq_user_artist_like UNIQUE (user_id, artist_id);
 
 ALTER TABLE UserFavoriteAlbums
-    ADD CONSTRAINT uniq_user_favorite_album UNIQUE (album_id);
+    ADD CONSTRAINT uniq_user_favorite_album UNIQUE (user_id, album_id);
 
 ALTER TABLE UserFavoriteArtists
-    ADD CONSTRAINT uniq_user_favorite_artist UNIQUE (artist_id);
+    ADD CONSTRAINT uniq_user_favorite_artist UNIQUE (user_id, artist_id);
 
 ALTER TABLE UserFavoriteTracks
-    ADD CONSTRAINT uniq_user_favorite_track UNIQUE (track_id);
+    ADD CONSTRAINT uniq_user_favorite_track UNIQUE (user_id, track_id);
 
 
-SELECT id, album_id, artist_id, title, duration, count_likes, count_listening FROM Track
-JOIN playlisttrack ON playlisttrack.track_id = track.id and playlisttrack.playlist_id = 2
-ORDER BY track.id;
+-- SELECT id, album_id, artist_id, title, duration, count_likes, count_listening
+-- FROM Track
+--          JOIN playlisttrack ON playlisttrack.track_id = track.id and playlisttrack.playlist_id = 2
+-- ORDER BY track.id;
+--
+--
+-- SELECT id, title, artist_id, album.count_likes, album.count_listening, album.date FROM album
+-- JOIN popularAlbumsByWeek p ON p.album_id = album.id
+-- ORDER BY (p.current_week_likes - p.last_week_likes) DESC
+-- LIMIT 20;
+--
+--
+--
+-- SELECT * from popularalbumsbyweek;
+--
+--
+--
+-- UPDATE album SET count_likes = 40000
+-- WHERE id = 3

@@ -6,6 +6,7 @@ import (
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/domain"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/album/albumProto"
 	"github.com/jmoiron/sqlx"
+	"time"
 )
 
 type AlbumRepo struct {
@@ -140,7 +141,7 @@ func (table AlbumRepo) Like(albumId int64, userId int64) error {
 	}
 
 	query := `
-		INSERT INTO useralbumslike (user_id, album_id)
+		INSERT INTO userAlbumsLike (user_id, album_id)
 		VALUES ($1, $2)
 		RETURNING album_id`
 
@@ -230,6 +231,76 @@ func (table AlbumRepo) RemoveFromFavorites(albumId int64, userId int64) error {
 
 	_, err := table.Sqlx.Exec(query, userId, albumId)
 	return err
+}
+
+func (table AlbumRepo) LikeCheckByUser(albumId int64, userId int64) (bool, error) {
+	album, err := table.SelectByID(albumId)
+
+	if err != nil {
+		return false, err
+	}
+
+	query := `
+		SELECT album_id FROM userAlbumsLike
+		WHERE album_id = $1 and user_id = $2`
+
+	likedAlbumId := -1
+	err = table.Sqlx.Get(&likedAlbumId, query, album.Id, userId)
+	if err != nil {
+		return false, nil
+	}
+	return true, nil
+}
+
+func (table AlbumRepo) CountPopularAlbumOfWeek() (bool, error) {
+	albums, err := table.GetAll()
+	if err != nil {
+		return false, err
+	}
+	for _, album := range albums {
+		query := `SELECT album_id, last_week_likes, current_week_likes, date
+			  	  FROM popularAlbumsByWeek
+			  	  WHERE album_id = $1`
+		holder := albumProto.PopularAlbumOfWeek{}
+		err := table.Sqlx.Get(&holder, query, album.Id)
+		if err != nil {
+			query = `
+					INSERT INTO popularAlbumsByWeek (album_id, last_week_likes, current_week_likes, date)
+					VALUES ($1, $2, $3, $4)
+					RETURNING album_id`
+			if _, err := table.Sqlx.Exec(query, album.Id, 0, 0, time.Now().Unix()); err != nil {
+				return false, err
+			}
+		} else {
+			lastLikes := holder.CurrentWeekLikes
+			currentLikes := album.CountLikes
+			date := time.Now().Unix()
+			query = `
+					 UPDATE popularAlbumsByWeek SET last_week_likes = $1, current_week_likes = $2, date = $3
+					WHERE album_id = $4`
+
+			if _, err := table.Sqlx.Exec(query, lastLikes, currentLikes, date, album.Id); err != nil {
+				return false, err
+			}
+		}
+
+	}
+	return true, nil
+}
+
+func (table AlbumRepo) GetPopularAlbumOfWeekTop20() ([]*albumProto.Album, error) {
+	query := `
+		SELECT id, title, artist_id, album.count_likes, album.count_listening, album.date FROM album
+		JOIN popularAlbumsByWeek p ON p.album_id = album.id 
+		ORDER BY (p.current_week_likes - p.last_week_likes) DESC
+		LIMIT $1;`
+
+	var albums []*albumProto.Album
+	if err := table.Sqlx.Select(&albums, query, constants.Top); err != nil {
+		return nil, err
+	}
+
+	return albums, nil
 }
 
 // ----------------------------------------------------------------------

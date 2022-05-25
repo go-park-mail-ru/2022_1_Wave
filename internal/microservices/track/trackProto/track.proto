@@ -18,11 +18,14 @@ message TrackDataTransfer {
   int64 id = 1; // @gotags: json:"id" example:"1"
   string title = 2; // @gotags: json:"title" example:"Mercury"
   string artist = 3; // @gotags: json:"artist" example:"Hexed"
-  string cover = 4; // @gotags: json:"cover" example:"assets/track_1.png"
-  string src = 5; // @gotags: json:"src" example:"assets/track_1.mp4"
-  int64 likes = 6; // @gotags: json:"likes" example:"5"
-  int64 listenings = 7; // @gotags: json:"listenings" example:"500"
-  int64 duration = 8; // @gotags: json:"duration" example:"531"
+  int64 artist_id = 4; // @gotags: json:"artistId" example:"8"
+  int64 album_id = 5; // @gotags: json:"albumId" example:"8"
+  string cover = 6; // @gotags: json:"cover" example:"assets/track_1.png"
+  string src = 7; // @gotags: json:"src" example:"assets/track_1.mp4"
+  int64 likes = 8; // @gotags: json:"likes" example:"5"
+  int64 listenings = 9; // @gotags: json:"listenings" example:"500"
+  int64 duration = 10; // @gotags: json:"duration" example:"531"
+  bool isLiked = 11; // @gotags: json:"isLiked" example:"true"
 }
 
 message TrackUseCaseResponse {
@@ -31,10 +34,6 @@ message TrackUseCaseResponse {
 
 message TracksResponse {
   repeated Track tracks = 1;
-}
-
-message LikeCheckResponse {
-  bool ok = 1;
 }
 
 service TrackUseCase {
@@ -50,7 +49,7 @@ service TrackUseCase {
   rpc GetPopularTracksFromArtist(gateway.IdArg) returns (TracksResponse) {};
   rpc GetSize(google.protobuf.Empty) returns (gateway.IntResponse) {};
   rpc Like(gateway.UserIdTrackIdArg) returns (google.protobuf.Empty) {};
-  rpc LikeCheckByUser(gateway.UserIdTrackIdArg) returns (LikeCheckResponse) {};
+  rpc LikeCheckByUser(gateway.UserIdTrackIdArg) returns (gateway.LikeCheckResponse) {};
   rpc Listen(gateway.IdArg) returns (google.protobuf.Empty) {};
   rpc SearchByTitle(gateway.StringArg) returns (TracksResponse) {}
   rpc GetFavorites(gateway.IdArg) returns (TracksResponse) {}

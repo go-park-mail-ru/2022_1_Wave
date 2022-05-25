@@ -83,3 +83,22 @@ func (agent GrpcAgent) RemoveFromFavorites(userId int64, albumId int64) error {
 	})
 	return err
 }
+
+func (agent GrpcAgent) Like(userId int64, id int64) error {
+	_, err := agent.ArtistGrpc.Like(context.Background(), &gatewayProto.UserIdArtistIdArg{
+		UserId:   userId,
+		ArtistId: id,
+	})
+	return err
+}
+
+func (agent GrpcAgent) LikeCheckByUser(userId int64, id int64) (bool, error) {
+	liked, err := agent.ArtistGrpc.LikeCheckByUser(context.Background(), &gatewayProto.UserIdArtistIdArg{
+		UserId:   userId,
+		ArtistId: id,
+	})
+	if err != nil {
+		return false, err
+	}
+	return liked.Ok, nil
+}

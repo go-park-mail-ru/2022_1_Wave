@@ -45,6 +45,11 @@ message UserIdPlaylistIdTracksArg {
   int64 track_id = 3;
 }
 
+message PlaylistIdTrackId {
+  int64 playlistId = 1; // @gotags: json:"playlistId" example:"4" db:"playlist_id" validate:"min=0"
+  int64 trackId = 2; // @gotags: json:"trackId" example:"5" db:"track_id" validate:"min=0"
+}
+
 service PlaylistUseCase {
   rpc GetAll(google.protobuf.Empty) returns (PlaylistsResponse) {};
   rpc GetAllOfCurrentUser(gateway.IdArg) returns (PlaylistsResponse) {};

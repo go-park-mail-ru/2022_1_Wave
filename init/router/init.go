@@ -16,6 +16,7 @@ import (
 	trackDeliveryHttp "github.com/go-park-mail-ru/2022_1_Wave/internal/track/delivery/http"
 	TrackUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/track/useCase"
 	user_domain "github.com/go-park-mail-ru/2022_1_Wave/internal/user"
+	"github.com/go-park-mail-ru/2022_1_Wave/internal/user/client/s3"
 	userHttp "github.com/go-park-mail-ru/2022_1_Wave/internal/user/delivery/http"
 	"github.com/labstack/echo/v4"
 	"github.com/swaggo/echo-swagger"
@@ -23,11 +24,12 @@ import (
 
 func Router(e *echo.Echo,
 	auth auth_domain.AuthUseCase,
-	album AlbumUseCase.UseCase,
-	artist ArtistUseCase.UseCase,
-	track TrackUseCase.UseCase,
-	playlist PlaylistUseCase.UseCase,
-	user user_domain.UserUseCase) error {
+	album AlbumUseCase.AlbumUseCase,
+	artist ArtistUseCase.ArtistUseCase,
+	track TrackUseCase.TrackUseCase,
+	playlist PlaylistUseCase.PlaylistUseCase,
+	user user_domain.UserUseCase,
+	s3Handler *s3.Handler) error {
 
 	//p := prometheus.NewPrometheus("echo", nil)
 	//p.Use(e)
@@ -39,8 +41,8 @@ func Router(e *echo.Echo,
 	trackHandler := trackDeliveryHttp.MakeHandler(track, user)
 	playlistHandler := playlistDeliveryHttp.MakeHandler(playlist, user)
 	authHandler := authHttp.MakeHandler(auth)
-	userHandler := userHttp.MakeHandler(user)
-	gatewayHandler := gatewayDeliveryHttp.MakeHandler(album, artist, track)
+	userHandler := userHttp.MakeHandler(user, s3Handler)
+	gatewayHandler := gatewayDeliveryHttp.MakeHandler(album, artist, track, user)
 
 	m := auth_middleware.InitMiddleware(auth)
 
@@ -49,7 +51,7 @@ func Router(e *echo.Echo,
 	SetAlbumsRoutes(v1, albumHandler)
 	logger.GlobalLogger.Logrus.Warnln("setting albums routes")
 
-	SetArtistsRoutes(v1, artistHandler)
+	SetArtistsRoutes(v1, artistHandler, trackHandler)
 	logger.GlobalLogger.Logrus.Warnln("setting artists routes")
 
 	SetTracksRoutes(v1, trackHandler)
@@ -84,10 +86,13 @@ func SetAlbumsRoutes(apiVersion *echo.Group, handler albumDeliveryHttp.Handler) 
 	albumRoutes.POST(locate, handler.Create)
 	albumRoutes.PUT(locate, handler.Update)
 	albumRoutes.GET(popularPrefix, handler.GetPopular)
+	albumRoutes.GET(popularOfWeekPrefix, handler.GetPopularOfWeek)
 	albumRoutes.GET(favoritesPrefix, handler.GetFavorites)
-	albumRoutes.POST(favoritesPrefix+idEchoPattern, handler.AddToFavorites)
+	albumRoutes.POST(favoritesPrefix, handler.AddToFavorites)
 	albumRoutes.DELETE(favoritesPrefix+idEchoPattern, handler.RemoveFromFavorites)
 	albumRoutes.DELETE(idEchoPattern, handler.Delete)
+	albumRoutes.PUT(likePrefix+idEchoPattern, handler.Like)
+	albumRoutes.GET(likePrefix+idEchoPattern, handler.LikeCheckByUser)
 
 	coverRoutes := apiVersion.Group(albumCoversPrefix)
 	coverRoutes.GET(idEchoPattern, handler.GetCover)
@@ -95,10 +100,11 @@ func SetAlbumsRoutes(apiVersion *echo.Group, handler albumDeliveryHttp.Handler) 
 	coverRoutes.POST(locate, handler.CreateCover)
 	coverRoutes.PUT(locate, handler.UpdateCover)
 	coverRoutes.DELETE(idEchoPattern, handler.DeleteCover)
+
 }
 
 // SetArtistsRoutes artists
-func SetArtistsRoutes(apiVersion *echo.Group, handler artistDeliveryHttp.Handler) {
+func SetArtistsRoutes(apiVersion *echo.Group, handler artistDeliveryHttp.Handler, trackHandler trackDeliveryHttp.Handler) {
 	artistRoutes := apiVersion.Group(artistsPrefix)
 
 	artistRoutes.GET(idEchoPattern, handler.Get)
@@ -106,11 +112,13 @@ func SetArtistsRoutes(apiVersion *echo.Group, handler artistDeliveryHttp.Handler
 	artistRoutes.POST(locate, handler.Create)
 	artistRoutes.PUT(locate, handler.Update)
 	artistRoutes.GET(popularPrefix, handler.GetPopular)
-	artistRoutes.GET(idEchoPattern+popularPrefix, handler.GetPopularTracks)
+	artistRoutes.GET(idEchoPattern+popularPrefix, trackHandler.GetPopularTracks)
 	artistRoutes.GET(favoritesPrefix, handler.GetFavorites)
-	artistRoutes.POST(favoritesPrefix+idEchoPattern, handler.AddToFavorites)
+	artistRoutes.POST(favoritesPrefix, handler.AddToFavorites)
 	artistRoutes.DELETE(favoritesPrefix+idEchoPattern, handler.RemoveFromFavorites)
 	artistRoutes.DELETE(idEchoPattern, handler.Delete)
+	artistRoutes.PUT(likePrefix+idEchoPattern, handler.Like)
+	artistRoutes.GET(likePrefix+idEchoPattern, handler.LikeCheckByUser)
 }
 
 // SetTracksRoutes tracks
@@ -123,7 +131,7 @@ func SetTracksRoutes(apiVersion *echo.Group, handler trackDeliveryHttp.Handler) 
 	trackRoutes.PUT(locate, handler.Update)
 	trackRoutes.GET(popularPrefix, handler.GetPopular)
 	trackRoutes.GET(favoritesPrefix, handler.GetFavorites)
-	trackRoutes.POST(favoritesPrefix+idEchoPattern, handler.AddToFavorites)
+	trackRoutes.POST(favoritesPrefix, handler.AddToFavorites)
 	trackRoutes.DELETE(favoritesPrefix+idEchoPattern, handler.RemoveFromFavorites)
 	trackRoutes.DELETE(idEchoPattern, handler.Delete)
 	trackRoutes.PUT(likePrefix+idEchoPattern, handler.Like)
@@ -189,34 +197,35 @@ func SetStaticHandle(apiVersion *echo.Group) {
 
 // config
 const (
-	Proto             = "http://"
-	Host              = "localhost"
-	redisDefaultPort  = "6379"
+	//Proto             = "http://"
+	//Host              = "localhost"
+	//redisDefaultPort  = "6379"
 	currentApiVersion = v1Locate
 	apiPath           = apiLocate + currentApiVersion
 )
 
 // prefixes
 const (
-	apiPrefix         = "/api"
-	v1Prefix          = "/v1"
-	albumsPrefix      = "/albums"
-	albumCoversPrefix = "/albumCovers"
-	artistsPrefix     = "/artists"
-	tracksPrefix      = "/tracks"
-	usersPrefix       = "/users"
-	searchPrefix      = "/search"
-	docsPrefix        = "/docs"
-	popularPrefix     = "/popular"
-	playlistPrefix    = "/playlists"
-	favoritesPrefix   = "/favorites"
-	likePrefix        = "/like"
-	listenPrefix      = "/listen"
-	loginPrefix       = "/login"
-	logoutPrefix      = "/logout"
-	signUpPrefix      = "/signup"
-	getCSRFPrefix     = "/get_csrf"
-	ofUser            = "/ofUser"
+	apiPrefix           = "/api"
+	v1Prefix            = "/v1"
+	albumsPrefix        = "/albums"
+	albumCoversPrefix   = "/albumCovers"
+	artistsPrefix       = "/artists"
+	tracksPrefix        = "/tracks"
+	usersPrefix         = "/users"
+	searchPrefix        = "/search"
+	docsPrefix          = "/docs"
+	popularPrefix       = "/popular"
+	popularOfWeekPrefix = "/popular/week"
+	playlistPrefix      = "/playlists"
+	favoritesPrefix     = "/favorites"
+	likePrefix          = "/like"
+	listenPrefix        = "/listen"
+	loginPrefix         = "/login"
+	logoutPrefix        = "/logout"
+	signUpPrefix        = "/signup"
+	getCSRFPrefix       = "/get_csrf"
+	ofUser              = "/ofUser"
 )
 
 const (

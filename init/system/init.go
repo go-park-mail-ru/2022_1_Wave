@@ -14,101 +14,24 @@ import (
 	auth_grpc_agent "github.com/go-park-mail-ru/2022_1_Wave/internal/auth/client/grpc"
 	AuthUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/auth/usecase"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/domain"
-	auth_domain "github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/auth"
-	user_microservice_domain "github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/user"
 	PlaylistGrpcAgent "github.com/go-park-mail-ru/2022_1_Wave/internal/playlist/client/grpc"
 	PlaylistUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/playlist/useCase"
-	structStoragePostgresql "github.com/go-park-mail-ru/2022_1_Wave/internal/structs/storage/postgresql"
 	TrackGrpcAgent "github.com/go-park-mail-ru/2022_1_Wave/internal/track/client/grpc"
 	TrackUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/track/useCase"
 	user_domain "github.com/go-park-mail-ru/2022_1_Wave/internal/user"
 	user_grpc_agent "github.com/go-park-mail-ru/2022_1_Wave/internal/user/client/grpc"
+	"github.com/go-park-mail-ru/2022_1_Wave/internal/user/client/s3"
 	UserUsecase "github.com/go-park-mail-ru/2022_1_Wave/internal/user/userUseCase"
 	"github.com/labstack/echo/v4"
+	"os"
+	"strings"
 )
 
-const local = "local"
-const database = local
-
-type repoContainer struct {
-	Al   domain.AlbumRepo
-	Alc  domain.AlbumCoverRepo
-	Ar   domain.ArtistRepo
-	Sess auth_domain.AuthRepo
-	Us   user_microservice_domain.UserRepo
-	Tr   domain.TrackRepo
-	Play domain.PlaylistRepo
-}
-
-func Init(e *echo.Echo, quantity int64, dataBaseType string) error {
-	var initedStorage domain.GlobalStorageInterface
-	var err error
-	switch dataBaseType {
-	case internal.Postgres:
-		initedStorage = structStoragePostgresql.Postgres{
-			Sqlx:           nil,
-			SessionRepo:    nil,
-			UserRepo:       nil,
-			AlbumRepo:      nil,
-			AlbumCoverRepo: nil,
-			ArtistRepo:     nil,
-			TrackRepo:      nil,
-			PlaylistRepo:   nil,
-		}
-
-	default:
-		return errors.New(internal.BadType)
-	}
-
-	initedStorage, err = initedStorage.Init(quantity)
-	if err != nil {
-		return err
-	}
-
-	//repoContainer := repoContainer{
-	//	Al:   initedStorage.GetAlbumRepo(),
-	//	Alc:  initedStorage.GetAlbumCoverRepo(),
-	//	Ar:   initedStorage.GetArtistRepo(),
-	//	Sess: initedStorage.GetSessionRepo(),
-	//	Us:   initedStorage.GetUserRepo(),
-	//	Tr:   initedStorage.GetTrackRepo(),
-	//	Play: initedStorage.GetPlaylistRepo(),
-	//}
-	//
-	//albumsQuant, err := repoContainer.Al.GetSize()
-	//if err != nil {
-	//	logger.GlobalLogger.Logrus.Fatal("Error:", err)
-	//}
-	//
-	//artistsQuant, err := repoContainer.Ar.GetSize()
-	//if err != nil {
-	//	logger.GlobalLogger.Logrus.Fatal("Error:", err)
-	//}
-	//
-	//albumCoversQuant, err := repoContainer.Alc.GetSize()
-	//if err != nil {
-	//	logger.GlobalLogger.Logrus.Fatal("Error:", err)
-	//}
-	//
-	//usersQuant, err := repoContainer.Us.GetSize()
-	//if err != nil {
-	//	logger.GlobalLogger.Logrus.Fatal("Error:", err)
-	//}
-	//
-	//tracksQuant, err := repoContainer.Tr.GetSize()
-	//if err != nil {
-	//	logger.GlobalLogger.Logrus.Fatal("Error:", err)
-	//}
-	//
-	//playlistsQuant, err := repoContainer.Play.GetSize()
-	//if err != nil {
-	//	logger.GlobalLogger.Logrus.Fatal("Error:", err)
-	//}
-
-	//printDbQuants(usersQuant, artistsQuant, albumsQuant, albumCoversQuant, tracksQuant, playlistsQuant)
+func Init(e *echo.Echo) error {
+	logger.GlobalLogger.Logrus.Infoln("in init system")
 
 	albumAgent, artistAgent, trackAgent, userAgent, authAgent, playlistAgent := makeAgents(internal.Grpc)
-
+	logger.GlobalLogger.Logrus.Infoln("inited agents...")
 	auth := AuthUseCase.NewAuthService(authAgent, userAgent)
 	user := UserUsecase.NewUserUseCase(userAgent, authAgent)
 
@@ -116,17 +39,42 @@ func Init(e *echo.Echo, quantity int64, dataBaseType string) error {
 	artist := ArtistUseCase.NewArtistUseCase(albumAgent, artistAgent, trackAgent)
 	track := TrackUseCase.NewTrackUseCase(albumAgent, artistAgent, trackAgent)
 	playlist := PlaylistUseCase.NewPlaylistUseCase(playlistAgent, artistAgent, trackAgent)
+	logger.GlobalLogger.Logrus.Infoln("inited services...")
+	logger.GlobalLogger.Logrus.Infoln("routing...")
 
-	return router.Router(e, auth, album, artist, track, playlist, user)
-}
+	AWS_ACCESS_KEY_ID := os.Getenv("AWS_ACCESS_KEY_ID")
+	AWS_SECRET_ACCESS_KEY := os.Getenv("AWS_SECRET_ACCESS_KEY")
+	AWS_REGION := os.Getenv("AWS_REGION")
+	AWS_S3_URL := os.Getenv("AWS_S3_URL")
 
-func printDbQuants(usersQuant int, artistsQuant int64, albumsQuant int64, albumCoversQuant int64, tracksQuant int64, playlistsQuant int64) {
-	logger.GlobalLogger.Logrus.Info("Users:", usersQuant)
-	logger.GlobalLogger.Logrus.Info("Artists:", artistsQuant)
-	logger.GlobalLogger.Logrus.Info("Albums:", albumsQuant)
-	logger.GlobalLogger.Logrus.Info("AlbumCovers:", albumCoversQuant)
-	logger.GlobalLogger.Logrus.Info("Tracks:", tracksQuant)
-	logger.GlobalLogger.Logrus.Info("Playlists:", playlistsQuant)
+	AWS_S3_URL = strings.Split(AWS_S3_URL, "\n")[0]
+
+	if AWS_ACCESS_KEY_ID == "" {
+		return errors.New("invalid AWS_ACCESS_KEY_ID:" + AWS_ACCESS_KEY_ID)
+	}
+
+	if AWS_SECRET_ACCESS_KEY == "" {
+		return errors.New("invalid AWS_SECRET_ACCESS_KEY:" + AWS_SECRET_ACCESS_KEY)
+	}
+
+	if AWS_REGION == "" {
+		return errors.New("invalid AWS_REGION:" + AWS_REGION)
+	}
+
+	if AWS_S3_URL == "" {
+		return errors.New("invalid AWS_S3_URL:" + AWS_S3_URL)
+	}
+
+	awsConfig := &s3.AWSConfig{
+		AccessKeyID:     AWS_ACCESS_KEY_ID,
+		AccessKeySecret: AWS_SECRET_ACCESS_KEY,
+		Region:          AWS_REGION,
+		BaseURL:         AWS_S3_URL,
+	}
+
+	s3Handler := s3.MakeHandler(awsConfig)
+
+	return router.Router(e, auth, album, artist, track, playlist, user, s3Handler)
 }
 
 func makeGrpcClients() (AlbumGrpcAgent.GrpcAgent, ArtistGrpcAgent.GrpcAgent, TrackGrpcAgent.GrpcAgent, user_domain.UserAgent, auth_domain2.AuthAgent, domain.PlaylistAgent) {
