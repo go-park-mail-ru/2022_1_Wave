@@ -131,16 +131,16 @@ jobs:
           echo "${{ secrets.K8S_CONFIG }}" > k8s.yaml
           export KUBECONFIG="$(pwd)/k8s.yaml"
           kubectl apply -f ./env/prod/k8/ -R
-          kubectl rollout restart deployment album
-          kubectl rollout restart deployment alertmanager
-          kubectl rollout restart deployment wave
+          kubectl rollout restart deployment db
+          kubectl rollout restart deployment redis
           kubectl rollout restart deployment artist
           kubectl rollout restart deployment auth
+          kubectl rollout restart deployment playlist
+          kubectl rollout restart deployment track
+          kubectl rollout restart deployment album
+          kubectl rollout restart deployment wave
+          kubectl rollout restart deployment alertmanager
           kubectl rollout restart deployment caddy
           kubectl rollout restart deployment grafana
-          kubectl rollout restart deployment playlist
-          kubectl rollout restart deployment db
           kubectl rollout restart deployment prometheus
-          kubectl rollout restart deployment redis
-          kubectl rollout restart deployment track
-          kubectl rollout restart deployment godeploy 
+          kubectl rollout restart deployment godeploy

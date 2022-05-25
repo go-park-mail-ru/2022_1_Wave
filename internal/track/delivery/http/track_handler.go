@@ -381,8 +381,8 @@ func (h Handler) GetFavorites(ctx echo.Context) error {
 			Result: favorites})
 }
 
-type trackIdWrapper struct {
-	TrackId int64 `json:"trackId" example:"4"`
+type TrackIdWrapper struct {
+	TrackId int `json:"trackId" example:"4" validate:"min=1,nonnil"`
 }
 
 // AddToFavorites godoc
@@ -391,27 +391,24 @@ type trackIdWrapper struct {
 // @Tags         track
 // @Accept          application/json
 // @Produce      application/json
-// @Param        trackId  body      trackIdWrapper  true  "id of track"
+// @Param        trackId  body      TrackIdWrapper  true  "id of track"
 // @Success      200    {object}  webUtils.Success
 // @Failure      400    {object}  webUtils.Error  "Data is invalid"
 // @Failure      405    {object}  webUtils.Error  "Method is not allowed"
 // @Router       /api/v1/tracks/favorites [post]
 func (h Handler) AddToFavorites(ctx echo.Context) error {
-	fmt.Println("Add favorites handler")
 	userId, err := internal.GetUserId(ctx, h.UserUseCase)
 	if err != nil {
 		return internal.UnauthorizedError(ctx)
 	}
 
-	holder := trackIdWrapper{}
+	holder := TrackIdWrapper{}
 
 	if err := ctx.Bind(&holder); err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 	}
 
-	fmt.Println("trackId=", holder.TrackId, "userId=", userId)
-
-	if err := h.TrackUseCase.AddToFavorites(userId, holder.TrackId); err != nil {
+	if err := h.TrackUseCase.AddToFavorites(userId, int64(holder.TrackId)); err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 	}
 
