@@ -1,6 +1,7 @@
 package TrackPostgres
 
 import (
+	"fmt"
 	constants "github.com/go-park-mail-ru/2022_1_Wave/internal"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/domain"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/track/trackProto"
@@ -131,6 +132,7 @@ func (table TrackRepo) Like(trackId int64, userId int64) error {
 	track, err := table.SelectByID(trackId)
 
 	if err != nil {
+		fmt.Println("erorr in likes", err)
 		return err
 	}
 
@@ -191,12 +193,9 @@ func (table TrackRepo) SearchByTitle(title string) ([]*trackProto.Track, error) 
 }
 
 func (table TrackRepo) AddToFavorites(trackId int64, userId int64) error {
+	fmt.Println("added to favorites")
 	if err := table.Like(trackId, userId); err != nil {
-		return err
-	}
-
-	track, err := table.SelectByID(trackId)
-	if err != nil {
+		fmt.Println("like error")
 		return err
 	}
 
@@ -205,8 +204,7 @@ func (table TrackRepo) AddToFavorites(trackId int64, userId int64) error {
 		VALUES ($1, $2)
 		RETURNING track_id`
 
-	// do query
-	_, err = table.Sqlx.Exec(query, userId, track.Id)
+	_, err := table.Sqlx.Exec(query, userId, trackId)
 
 	return err
 }

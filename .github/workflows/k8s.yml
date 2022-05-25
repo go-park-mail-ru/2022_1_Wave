@@ -1,9 +1,5 @@
 name: k8s
-on:
-  pull_request:
-  push:
-    branches:
-      - main
+on: [ push ]
 
 jobs:
   build:
