@@ -38,12 +38,12 @@ spec:
             - name: ADMIN_USER
               valueFrom:
                 secretKeyRef:
-                  name: secretprometheus
+                  name: userwave
                   key: ADMIN_USER
             - name: ADMIN_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: secretprometheus
+                  name: userwave
                   key: ADMIN_PASSWORD
       restartPolicy: Always
       imagePullSecrets:
