@@ -223,9 +223,13 @@ func (table TrackRepo) GetFavorites(userId int64) ([]*trackProto.Track, error) {
 }
 
 func (table TrackRepo) RemoveFromFavorites(trackId int64, userId int64) error {
-	query := `DELETE FROM userFavoriteTracks WHERE user_id = $1 and track_id = $2`
-
+	query := `DELETE FROM userTracksLike WHERE user_id = $1 AND track_id = $2`
 	_, err := table.Sqlx.Exec(query, userId, trackId)
+	if err != nil {
+		return err
+	}
+	query = `DELETE FROM userFavoriteTracks WHERE user_id = $1 and track_id = $2`
+	_, err = table.Sqlx.Exec(query, userId, trackId)
 	return err
 }
 
