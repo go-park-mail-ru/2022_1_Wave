@@ -11,6 +11,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 	"net/http"
+	"os"
 	"strconv"
 	"strings"
 )
@@ -193,7 +194,7 @@ func (a *UserHandler) UploadAvatar(c echo.Context) error {
 
 	filename := PathToAvatars + "/" + hex.EncodeToString(hash.Sum(nil)) + "." + strs[len(strs)-1]
 
-	err = a.S3Handler.UploadObject(src, "mcs8654824681", filename)
+	err = a.S3Handler.UploadObject(src, os.Getenv("AWS_BUCKET_NAME"), filename)
 
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, getErrorUploadAvatar(err))

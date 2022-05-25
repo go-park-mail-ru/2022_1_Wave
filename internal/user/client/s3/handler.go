@@ -1,7 +1,6 @@
 package s3
 
 import (
-	"errors"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -44,6 +43,7 @@ func (a *Handler) CreateSession() {
 				a.AWSConfig.AccessKeySecret,
 				"",
 			),
+			Endpoint: &a.AWSConfig.BaseURL,
 		},
 	))
 }
@@ -62,7 +62,7 @@ func (a *Handler) UploadObject(file multipart.File, bucket string, fileName stri
 	})
 
 	if err != nil {
-		return errors.New("error while upload file to s3")
+		return err
 	}
 
 	return nil

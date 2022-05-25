@@ -30,6 +30,32 @@ spec:
           ports:
             - containerPort: 5000
           tty: true
+          env:
+            - name: AWS_REGION
+              valueFrom:
+                secretKeyRef:
+                  name: secretkey
+                  key: AWS_REGION
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: secretkey
+                  key: ACCESS_KEY_ID
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: secretkey
+                  key: SECRET_KEY
+            - name: AWS_BUCKET_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: secretkey
+                  key: AWS_BUCKET_NAME
+            - name: AWS_S3_URL
+              valueFrom:
+                secretKeyRef:
+                  name: secretkey
+                  key: AWS_S3_URL
       restartPolicy: Always
       imagePullSecrets:
         - name: wave

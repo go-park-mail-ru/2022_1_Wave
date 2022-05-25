@@ -1,6 +1,7 @@
 package system
 
 import (
+	"errors"
 	"github.com/go-park-mail-ru/2022_1_Wave/init/gRPC"
 	"github.com/go-park-mail-ru/2022_1_Wave/init/logger"
 	"github.com/go-park-mail-ru/2022_1_Wave/init/router"
@@ -23,6 +24,7 @@ import (
 	UserUsecase "github.com/go-park-mail-ru/2022_1_Wave/internal/user/userUseCase"
 	"github.com/labstack/echo/v4"
 	"os"
+	"strings"
 )
 
 func Init(e *echo.Echo) error {
@@ -40,11 +42,36 @@ func Init(e *echo.Echo) error {
 	logger.GlobalLogger.Logrus.Infoln("inited services...")
 	logger.GlobalLogger.Logrus.Infoln("routing...")
 
-	awsConfig := &s3.AWSConfig{
-		AccessKeyID:     os.Getenv("AWS_ACCESS_KEY_ID"), // TODO: убедиться, что эти переменные есть
-		AccessKeySecret: os.Getenv("AWS_SECRET_ACCESS_KEY"),
-		Region:          os.Getenv("AWS_REGION"),
+	AWS_ACCESS_KEY_ID := os.Getenv("AWS_ACCESS_KEY_ID")
+	AWS_SECRET_ACCESS_KEY := os.Getenv("AWS_SECRET_ACCESS_KEY")
+	AWS_REGION := os.Getenv("AWS_REGION")
+	AWS_S3_URL := os.Getenv("AWS_S3_URL")
+
+	AWS_S3_URL = strings.Split(AWS_S3_URL, "\n")[0]
+
+	if AWS_ACCESS_KEY_ID == "" {
+		return errors.New("invalid AWS_ACCESS_KEY_ID:" + AWS_ACCESS_KEY_ID)
 	}
+
+	if AWS_SECRET_ACCESS_KEY == "" {
+		return errors.New("invalid AWS_SECRET_ACCESS_KEY:" + AWS_SECRET_ACCESS_KEY)
+	}
+
+	if AWS_REGION == "" {
+		return errors.New("invalid AWS_REGION:" + AWS_REGION)
+	}
+
+	if AWS_S3_URL == "" {
+		return errors.New("invalid AWS_S3_URL:" + AWS_S3_URL)
+	}
+
+	awsConfig := &s3.AWSConfig{
+		AccessKeyID:     AWS_ACCESS_KEY_ID,
+		AccessKeySecret: AWS_SECRET_ACCESS_KEY,
+		Region:          AWS_REGION,
+		BaseURL:         AWS_S3_URL,
+	}
+
 	s3Handler := s3.MakeHandler(awsConfig)
 
 	return router.Router(e, auth, album, artist, track, playlist, user, s3Handler)
