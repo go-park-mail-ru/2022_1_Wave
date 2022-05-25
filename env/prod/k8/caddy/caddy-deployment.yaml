@@ -25,18 +25,7 @@ spec:
         io.kompose.service: caddy
     spec:
       containers:
-        env:
-          - name: ADMIN_USER
-            valueFrom:
-              secretKeyRef:
-                name: secretprometheus
-                key: ADMIN_USER
-          - name: ADMIN_PASSWORD
-            valueFrom:
-              secretKeyRef:
-                name: secretprometheus
-                key: ADMIN_PASSWORD
-          image: mausved/wave_caddy
+        - image: mausved/wave_caddy
           name: caddy
           ports:
             - containerPort: 9093
@@ -45,6 +34,17 @@ spec:
             - containerPort: 3000
             - containerPort: 9090
             - containerPort: 9113
+          env:
+            - name: ADMIN_USER
+              valueFrom:
+                secretKeyRef:
+                  name: secretprometheus
+                  key: ADMIN_USER
+            - name: ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: secretprometheus
+                  key: ADMIN_PASSWORD
       restartPolicy: Always
       imagePullSecrets:
         - name: wave
