@@ -93,3 +93,10 @@ func getSuccessUploadAvatar() *UserAvatarUploadResponse {
 		Result: "successful avatar upload",
 	}
 }
+
+func getErrorUploadAvatar(err error) *UserAvatarUploadResponse {
+	return &UserAvatarUploadResponse{
+		Status: statusFAIL,
+		Result: err.Error(),
+	}
+}

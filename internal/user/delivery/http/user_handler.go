@@ -7,17 +7,17 @@ import (
 	"fmt"
 	user_microservice_domain "github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/user"
 	user_domain "github.com/go-park-mail-ru/2022_1_Wave/internal/user"
+	"github.com/go-park-mail-ru/2022_1_Wave/internal/user/client/s3"
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
-	"io"
 	"net/http"
-	"os"
 	"strconv"
 	"strings"
 )
 
 type UserHandler struct {
 	UserUseCase user_domain.UserUseCase
+	S3Handler   *s3.Handler
 }
 
 const (
@@ -30,9 +30,10 @@ const (
 	PathToAvatars = "assets"
 )
 
-func MakeHandler(userUseCase user_domain.UserUseCase) UserHandler {
+func MakeHandler(userUseCase user_domain.UserUseCase, s3Handler *s3.Handler) UserHandler {
 	return UserHandler{
 		UserUseCase: userUseCase,
+		S3Handler:   s3Handler,
 	}
 }
 
@@ -191,14 +192,11 @@ func (a *UserHandler) UploadAvatar(c echo.Context) error {
 	hash.Write([]byte("user_" + strconv.Itoa(int(user.ID)) + uuid.NewString()))
 
 	filename := PathToAvatars + "/" + hex.EncodeToString(hash.Sum(nil)) + "." + strs[len(strs)-1]
-	dst, err := os.Create(filename)
-	if err != nil {
-		return c.JSON(http.StatusBadRequest, getErrorUserResponse(err))
-	}
-	defer dst.Close()
 
-	if _, err = io.Copy(dst, src); err != nil {
-		return c.JSON(http.StatusBadRequest, getErrorUserResponse(err))
+	err = a.S3Handler.UploadObject(src, "mcs8654824681", filename)
+
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, getErrorUploadAvatar(err))
 	}
 
 	user.Avatar = filename

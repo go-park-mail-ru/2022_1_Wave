@@ -19,8 +19,10 @@ import (
 	TrackUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/track/useCase"
 	user_domain "github.com/go-park-mail-ru/2022_1_Wave/internal/user"
 	user_grpc_agent "github.com/go-park-mail-ru/2022_1_Wave/internal/user/client/grpc"
+	"github.com/go-park-mail-ru/2022_1_Wave/internal/user/client/s3"
 	UserUsecase "github.com/go-park-mail-ru/2022_1_Wave/internal/user/userUseCase"
 	"github.com/labstack/echo/v4"
+	"os"
 )
 
 func Init(e *echo.Echo) error {
@@ -37,7 +39,15 @@ func Init(e *echo.Echo) error {
 	playlist := PlaylistUseCase.NewPlaylistUseCase(playlistAgent, artistAgent, trackAgent)
 	logger.GlobalLogger.Logrus.Infoln("inited services...")
 	logger.GlobalLogger.Logrus.Infoln("routing...")
-	return router.Router(e, auth, album, artist, track, playlist, user)
+
+	awsConfig := &s3.AWSConfig{
+		AccessKeyID:     os.Getenv("AWS_ACCESS_KEY_ID"), // TODO: убедиться, что эти переменные есть
+		AccessKeySecret: os.Getenv("AWS_SECRET_ACCESS_KEY"),
+		Region:          os.Getenv("AWS_REGION"),
+	}
+	s3Handler := s3.MakeHandler(awsConfig)
+
+	return router.Router(e, auth, album, artist, track, playlist, user, s3Handler)
 }
 
 func makeGrpcClients() (AlbumGrpcAgent.GrpcAgent, ArtistGrpcAgent.GrpcAgent, TrackGrpcAgent.GrpcAgent, user_domain.UserAgent, auth_domain2.AuthAgent, domain.PlaylistAgent) {

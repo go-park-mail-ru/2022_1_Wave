@@ -16,6 +16,7 @@ import (
 	trackDeliveryHttp "github.com/go-park-mail-ru/2022_1_Wave/internal/track/delivery/http"
 	TrackUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/track/useCase"
 	user_domain "github.com/go-park-mail-ru/2022_1_Wave/internal/user"
+	"github.com/go-park-mail-ru/2022_1_Wave/internal/user/client/s3"
 	userHttp "github.com/go-park-mail-ru/2022_1_Wave/internal/user/delivery/http"
 	"github.com/labstack/echo/v4"
 	"github.com/swaggo/echo-swagger"
@@ -27,7 +28,8 @@ func Router(e *echo.Echo,
 	artist ArtistUseCase.ArtistUseCase,
 	track TrackUseCase.TrackUseCase,
 	playlist PlaylistUseCase.PlaylistUseCase,
-	user user_domain.UserUseCase) error {
+	user user_domain.UserUseCase,
+	s3Handler *s3.Handler) error {
 
 	//p := prometheus.NewPrometheus("echo", nil)
 	//p.Use(e)
@@ -39,7 +41,7 @@ func Router(e *echo.Echo,
 	trackHandler := trackDeliveryHttp.MakeHandler(track, user)
 	playlistHandler := playlistDeliveryHttp.MakeHandler(playlist, user)
 	authHandler := authHttp.MakeHandler(auth)
-	userHandler := userHttp.MakeHandler(user)
+	userHandler := userHttp.MakeHandler(user, s3Handler)
 	gatewayHandler := gatewayDeliveryHttp.MakeHandler(album, artist, track, user)
 
 	m := auth_middleware.InitMiddleware(auth)
