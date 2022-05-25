@@ -21,10 +21,10 @@ type UserHandler struct {
 }
 
 const (
-	badIdErr          = "bad id"
-	noSessionErr      = "no session"
-	invalidUserJSON   = "invalid json"
-	uploadAvatarError = "upload avatar error"
+	badIdErr        = "bad id"
+	noSessionErr    = "no session"
+	invalidUserJSON = "invalid json"
+	//uploadAvatarError = "upload avatar error"
 
 	SessionIdKey  = "session_id"
 	PathToAvatars = "assets"
