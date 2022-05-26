@@ -54,8 +54,8 @@ jobs:
           go install github.com/mailru/easyjson/...@latest
       - name: generate gRPC and docs
         run: chmod +x generateAll.sh && ./generateAll.sh
-      - name: generate easyjson
-        run: chmod +x easyjsonGenerate.sh && ./easyjsonGenerate.sh
+#      - name: generate easyjson
+#        run: chmod +x easyjsonGenerate.sh && ./easyjsonGenerate.sh
       - name: generate test mocks
         run: cd internal/test && chmod +x mocks.sh && ./mocks.sh
       - name: golangci-lint
@@ -87,8 +87,8 @@ jobs:
           go install github.com/mailru/easyjson/...@latest
       - name: generate gRPC and docs
         run: chmod +x generateAll.sh && ./generateAll.sh
-      - name: generate easyjson
-        run: chmod +x easyjsonGenerate.sh && ./easyjsonGenerate.sh
+#      - name: generate easyjson
+#        run: chmod +x easyjsonGenerate.sh && ./easyjsonGenerate.sh
       - name: go tests
         run: chmod +x test.sh && ./test.sh
 
@@ -100,7 +100,7 @@ jobs:
       - golangci-lint
       - test
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v3
       - name: Login to DockerHub Registry
         run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
       - name: Build all Docker images
