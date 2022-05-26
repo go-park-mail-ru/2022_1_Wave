@@ -388,7 +388,7 @@ func (h Handler) GetFavorites(ctx echo.Context) error {
 // @Tags         track
 // @Accept          application/json
 // @Produce      application/json
-// @Param        trackId  body      TrackIdWrapper  true  "id of track"
+// @Param        trackId  body      structs.TrackIdWrapper  true  "id of track"
 // @Success      200    {object}  webUtils.Success
 // @Failure      400    {object}  webUtils.Error  "Data is invalid"
 // @Failure      405    {object}  webUtils.Error  "Method is not allowed"
