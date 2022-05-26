@@ -92,28 +92,406 @@ jobs:
       - name: go tests
         run: chmod +x test.sh && ./test.sh
 
-  dockerDeploy:
+  buildWaiter:
     runs-on: ubuntu-latest
-    name: dockerDeploy
+    name: checks-waiter
     needs:
       - build
       - golangci-lint
       - test
     steps:
+      - run: echo "go to build images"
+
+
+  #########################################
+
+  dockerAlbum_pre-build:
+    runs-on: ubuntu-latest
+    name: pre-build album image
+    needs:
+      - buildWaiter
+    steps:
       - uses: actions/checkout@v3
       - name: Login to DockerHub Registry
         run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-      - name: Build all Docker images
-        run: cd deploy && chmod +x dockerBuildAll.sh && ./dockerBuildAll.sh
-      - name: Push all Docker images
-        run:
-          cd deploy && chmod +x dockerPushAll.sh && ./dockerPushAll.sh
+      - name: Build image
+        run: cd deploy && chmod +x dockerBuild.sh && ./dockerBuild.sh album
+
+  dockerAlertmanger_pre-build:
+    runs-on: ubuntu-latest
+    name: pre-build alertmanger image
+    needs:
+      - buildWaiter
+    steps:
+      - uses: actions/checkout@v3
+      - name: Login to DockerHub Registry
+        run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+      - name: Build image
+        run: cd deploy && chmod +x dockerBuild.sh && ./dockerBuild.sh alertmanger
+
+  dockerApi_pre-build:
+    runs-on: ubuntu-latest
+    name: pre-build api image
+    needs:
+      - buildWaiter
+    steps:
+      - uses: actions/checkout@v3
+      - name: Login to DockerHub Registry
+        run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+      - name: Build image
+        run: cd deploy && chmod +x dockerBuild.sh && ./dockerBuild.sh api
+
+  dockerArtist_pre-build:
+    runs-on: ubuntu-latest
+    name: pre-build artist image
+    needs:
+      - buildWaiter
+    steps:
+      - uses: actions/checkout@v3
+      - name: Login to DockerHub Registry
+        run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+      - name: Build image
+        run: cd deploy && chmod +x dockerBuild.sh && ./dockerBuild.sh artist
+
+  dockerAuth_pre-build:
+    runs-on: ubuntu-latest
+    name: pre-build auth image
+    needs:
+      - buildWaiter
+    steps:
+      - uses: actions/checkout@v3
+      - name: Login to DockerHub Registry
+        run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+      - name: Build image
+        run: cd deploy && chmod +x dockerBuild.sh && ./dockerBuild.sh auth
+
+  dockerCaddy_pre-build:
+    runs-on: ubuntu-latest
+    name: pre-build caddy image
+    needs:
+      - buildWaiter
+    steps:
+      - uses: actions/checkout@v3
+      - name: Login to DockerHub Registry
+        run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+      - name: Build image
+        run: cd deploy && chmod +x dockerBuild.sh && ./dockerBuild.sh caddy
+
+  dockerGrafana_pre-build:
+    runs-on: ubuntu-latest
+    name: pre-build grafana image
+    needs:
+      - buildWaiter
+    steps:
+      - uses: actions/checkout@v3
+      - name: Login to DockerHub Registry
+        run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+      - name: Build image
+        run: cd deploy && chmod +x dockerBuild.sh && ./dockerBuild.sh grafana
+
+  dockerPlaylist_pre-build:
+    runs-on: ubuntu-latest
+    name: pre-build playlist image
+    needs:
+      - buildWaiter
+    steps:
+      - uses: actions/checkout@v3
+      - name: Login to DockerHub Registry
+        run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+      - name: Build image
+        run: cd deploy && chmod +x dockerBuild.sh && ./dockerBuild.sh playlist
+
+  dockerPostgres_pre-build:
+    runs-on: ubuntu-latest
+    name: pre-build postgres image
+    needs:
+      - buildWaiter
+    steps:
+      - uses: actions/checkout@v3
+      - name: Login to DockerHub Registry
+        run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+      - name: Build image
+        run: cd deploy && chmod +x dockerBuild.sh && ./dockerBuild.sh postgres
+
+  dockerPrometheus_pre-build:
+    runs-on: ubuntu-latest
+    name: pre-build prometheus image
+    needs:
+      - buildWaiter
+    steps:
+      - uses: actions/checkout@v3
+      - name: Login to DockerHub Registry
+        run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+      - name: Build image
+        run: cd deploy && chmod +x dockerBuild.sh && ./dockerBuild.sh prometheus
+
+  dockerRedis_pre-build:
+    runs-on: ubuntu-latest
+    name: pre-build redis image
+    needs:
+      - buildWaiter
+    steps:
+      - uses: actions/checkout@v3
+      - name: Login to DockerHub Registry
+        run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+      - name: Build image
+        run: cd deploy && chmod +x dockerBuild.sh && ./dockerBuild.sh redis
+
+  dockerTrack_pre-build:
+    runs-on: ubuntu-latest
+    name: pre-build track image
+    needs:
+      - buildWaiter
+    steps:
+      - uses: actions/checkout@v3
+      - name: Login to DockerHub Registry
+        run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+      - name: Build image
+        run: cd deploy && chmod +x dockerBuild.sh && ./dockerBuild.sh track
+
+  dockerUser_pre-build:
+    runs-on: ubuntu-latest
+    name: pre-build user image
+    needs:
+      - buildWaiter
+    steps:
+      - uses: actions/checkout@v3
+      - name: Login to DockerHub Registry
+        run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+      - name: Build image
+        run: cd deploy && chmod +x dockerBuild.sh && ./dockerBuild.sh user
+
+  dockerWeb_pre-build:
+    runs-on: ubuntu-latest
+    name: pre-build web image
+    needs:
+      - buildWaiter
+    steps:
+      - uses: actions/checkout@v3
+      - name: Login to DockerHub Registry
+        run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+      - name: Build image
+        run: cd deploy && chmod +x dockerBuild.sh && ./dockerBuild.sh web
+
+  dockerPreBuildWaiter:
+    runs-on: ubuntu-latest
+    name: docker-pre-waiter
+    needs:
+      - dockerAlbum_pre-build
+      - dockerAlertmanager_pre-build
+      - dockerApi_pre-build
+      - dockerArtist_pre-build
+      - dockerAuth_pre-build
+      - dockerCaddy_pre-build
+      - dockerGrafana_pre-build
+      - dockerPlaylist_pre-build
+      - dockerPostgres_pre-build
+      - dockerPrometheus_pre-build
+      - dockerRedis_pre-build
+      - dockerTrack_pre-build
+      - dockerUser_pre-build
+      - dockerWeb_pre-build
+    steps:
+      - run: echo "go to deploy to docker.hub"
+
+  #########################################
+
+  dockerAlbum_deploy:
+    runs-on: ubuntu-latest
+    name: pre-build album image
+    needs:
+      - buildWaiter
+    steps:
+      - uses: actions/checkout@v3
+      - name: Login to DockerHub Registry
+        run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+      - name: Build image
+        run: cd deploy && chmod +x deploy.sh && ./deploy.sh album
+
+  dockerAlertmanger_deploy:
+    runs-on: ubuntu-latest
+    name: pre-build alertmanger image
+    needs:
+      - buildWaiter
+    steps:
+      - uses: actions/checkout@v3
+      - name: Login to DockerHub Registry
+        run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+      - name: Build image
+        run: cd deploy && chmod +x deploy.sh && ./deploy.sh alertmanger
+
+  dockerApi_deploy:
+    runs-on: ubuntu-latest
+    name: pre-build api image
+    needs:
+      - buildWaiter
+    steps:
+      - uses: actions/checkout@v3
+      - name: Login to DockerHub Registry
+        run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+      - name: Build image
+        run: cd deploy && chmod +x deploy.sh && ./deploy.sh api
+
+  dockerArtist_deploy:
+    runs-on: ubuntu-latest
+    name: pre-build artist image
+    needs:
+      - buildWaiter
+    steps:
+      - uses: actions/checkout@v3
+      - name: Login to DockerHub Registry
+        run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+      - name: Build image
+        run: cd deploy && chmod +x deploy.sh && ./deploy.sh artist
+
+  dockerAuth_deploy:
+    runs-on: ubuntu-latest
+    name: pre-build auth image
+    needs:
+      - buildWaiter
+    steps:
+      - uses: actions/checkout@v3
+      - name: Login to DockerHub Registry
+        run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+      - name: Build image
+        run: cd deploy && chmod +x deploy.sh && ./deploy.sh auth
+
+  dockerCaddy_deploy:
+    runs-on: ubuntu-latest
+    name: pre-build caddy image
+    needs:
+      - buildWaiter
+    steps:
+      - uses: actions/checkout@v3
+      - name: Login to DockerHub Registry
+        run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+      - name: Build image
+        run: cd deploy && chmod +x deploy.sh && ./deploy.sh caddy
+
+  dockerGrafana_deploy:
+    runs-on: ubuntu-latest
+    name: pre-build grafana image
+    needs:
+      - buildWaiter
+    steps:
+      - uses: actions/checkout@v3
+      - name: Login to DockerHub Registry
+        run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+      - name: Build image
+        run: cd deploy && chmod +x deploy.sh && ./deploy.sh grafana
+
+  dockerPlaylist_deploy:
+    runs-on: ubuntu-latest
+    name: pre-build playlist image
+    needs:
+      - buildWaiter
+    steps:
+      - uses: actions/checkout@v3
+      - name: Login to DockerHub Registry
+        run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+      - name: Build image
+        run: cd deploy && chmod +x deploy.sh && ./deploy.sh playlist
+
+  dockerPostgres_deploy:
+    runs-on: ubuntu-latest
+    name: pre-build postgres image
+    needs:
+      - buildWaiter
+    steps:
+      - uses: actions/checkout@v3
+      - name: Login to DockerHub Registry
+        run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+      - name: Build image
+        run: cd deploy && chmod +x deploy.sh && ./deploy.sh postgres
+
+  dockerPrometheus_deploy:
+    runs-on: ubuntu-latest
+    name: pre-build prometheus image
+    needs:
+      - buildWaiter
+    steps:
+      - uses: actions/checkout@v3
+      - name: Login to DockerHub Registry
+        run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+      - name: Build image
+        run: cd deploy && chmod +x deploy.sh && ./deploy.sh prometheus
+
+  dockerRedis_deploy:
+    runs-on: ubuntu-latest
+    name: pre-build redis image
+    needs:
+      - buildWaiter
+    steps:
+      - uses: actions/checkout@v3
+      - name: Login to DockerHub Registry
+        run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+      - name: Build image
+        run: cd deploy && chmod +x deploy.sh && ./deploy.sh redis
+
+  dockerTrack_deploy:
+    runs-on: ubuntu-latest
+    name: pre-build track image
+    needs:
+      - buildWaiter
+    steps:
+      - uses: actions/checkout@v3
+      - name: Login to DockerHub Registry
+        run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+      - name: Build image
+        run: cd deploy && chmod +x deploy.sh && ./deploy.sh track
+
+  dockerUser_deploy:
+    runs-on: ubuntu-latest
+    name: pre-build user image
+    needs:
+      - buildWaiter
+    steps:
+      - uses: actions/checkout@v3
+      - name: Login to DockerHub Registry
+        run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+      - name: Build image
+        run: cd deploy && chmod +x deploy.sh && ./deploy.sh user
+
+  dockerWeb_deploy:
+    runs-on: ubuntu-latest
+    name: pre-build web image
+    needs:
+      - buildWaiter
+    steps:
+      - uses: actions/checkout@v3
+      - name: Login to DockerHub Registry
+        run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+      - name: Build image
+        run: cd deploy && chmod +x deploy.sh && ./deploy.sh web
+
+  dockerDeployWaiter:
+    runs-on: ubuntu-latest
+    name: docker-deploy-waiter
+    needs:
+      - dockerAlbum_deploy
+      - dockerAlertmanager_deploy
+      - dockerApi_deploy
+      - dockerArtist_deploy
+      - dockerAuth_deploy
+      - dockerCaddy_deploy
+      - dockerGrafana_deploy
+      - dockerPlaylist_deploy
+      - dockerPostgres_deploy
+      - dockerPrometheus_deploy
+      - dockerRedis_deploy
+      - dockerTrack_deploy
+      - dockerUser_deploy
+      - dockerWeb_deploy
+    steps:
+      - run: echo "go to deploy to docker.hub"
+
+  #########################################
 
   k8s:
     runs-on: ubuntu-latest
     name: k8s
     needs:
-      - dockerDeploy
+      - dockerDeployWaiter
     steps:
       - uses: actions/checkout@v1
       - name: k8s install
