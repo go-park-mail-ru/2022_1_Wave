@@ -113,7 +113,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Set up Docker Buildx
-        uses: docker/setup-buidx-action@v1
+        uses: docker/setup-buildx-action@v1
       - name: Build image
         id: docker_build
         uses: docker/build-push-action@v2
@@ -136,10 +136,21 @@ jobs:
       - buildWaiter
     steps:
       - uses: actions/checkout@v3
-      - name: Login to DockerHub Registry
-        run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
       - name: Build image
-        run: cd deploy && chmod +x dockerBuild.sh && ./dockerBuild.sh alertmanager
+        id: docker_build
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: ./prod/k8/alertmanager/Dockerfile
+          tags: mausved/alertmanager:latest
+          outputs: type=docker,dest=/tmp/alertmanager.tar
+      - name: Upload image as artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: alertmanager
+          path: /tmp/alertmanager.tar
 
   dockerApi_pre-build:
     runs-on: ubuntu-latest
@@ -148,10 +159,21 @@ jobs:
       - buildWaiter
     steps:
       - uses: actions/checkout@v3
-      - name: Login to DockerHub Registry
-        run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
       - name: Build image
-        run: cd deploy && chmod +x dockerBuild.sh && ./dockerBuild.sh api
+        id: docker_build
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: ./prod/k8/api/Dockerfile
+          tags: mausved/api:latest
+          outputs: type=docker,dest=/tmp/api.tar
+      - name: Upload image as artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: api
+          path: /tmp/api.tar
 
   dockerArtist_pre-build:
     runs-on: ubuntu-latest
@@ -160,10 +182,21 @@ jobs:
       - buildWaiter
     steps:
       - uses: actions/checkout@v3
-      - name: Login to DockerHub Registry
-        run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
       - name: Build image
-        run: cd deploy && chmod +x dockerBuild.sh && ./dockerBuild.sh artist
+        id: docker_build
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: ./prod/k8/artist/Dockerfile
+          tags: mausved/artist:latest
+          outputs: type=docker,dest=/tmp/artist.tar
+      - name: Upload image as artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: artist
+          path: /tmp/artist.tar
 
   dockerAuth_pre-build:
     runs-on: ubuntu-latest
@@ -172,10 +205,21 @@ jobs:
       - buildWaiter
     steps:
       - uses: actions/checkout@v3
-      - name: Login to DockerHub Registry
-        run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
       - name: Build image
-        run: cd deploy && chmod +x dockerBuild.sh && ./dockerBuild.sh auth
+        id: docker_build
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: ./prod/k8/auth/Dockerfile
+          tags: mausved/auth:latest
+          outputs: type=docker,dest=/tmp/auth.tar
+      - name: Upload image as artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: auth
+          path: /tmp/auth.tar
 
   dockerCaddy_pre-build:
     runs-on: ubuntu-latest
@@ -184,10 +228,21 @@ jobs:
       - buildWaiter
     steps:
       - uses: actions/checkout@v3
-      - name: Login to DockerHub Registry
-        run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
       - name: Build image
-        run: cd deploy && chmod +x dockerBuild.sh && ./dockerBuild.sh caddy
+        id: docker_build
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: ./prod/k8/caddy/Dockerfile
+          tags: mausved/caddy:latest
+          outputs: type=docker,dest=/tmp/caddy.tar
+      - name: Upload image as artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: caddy
+          path: /tmp/caddy.tar
 
   dockerGrafana_pre-build:
     runs-on: ubuntu-latest
@@ -196,10 +251,21 @@ jobs:
       - buildWaiter
     steps:
       - uses: actions/checkout@v3
-      - name: Login to DockerHub Registry
-        run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
       - name: Build image
-        run: cd deploy && chmod +x dockerBuild.sh && ./dockerBuild.sh grafana
+        id: docker_build
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: ./prod/k8/grafana/Dockerfile
+          tags: mausved/grafana:latest
+          outputs: type=docker,dest=/tmp/grafana.tar
+      - name: Upload image as artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: grafana
+          path: /tmp/grafana.tar
 
   dockerPlaylist_pre-build:
     runs-on: ubuntu-latest
@@ -208,10 +274,21 @@ jobs:
       - buildWaiter
     steps:
       - uses: actions/checkout@v3
-      - name: Login to DockerHub Registry
-        run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
       - name: Build image
-        run: cd deploy && chmod +x dockerBuild.sh && ./dockerBuild.sh playlist
+        id: docker_build
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: ./prod/k8/playlist/Dockerfile
+          tags: mausved/playlist:latest
+          outputs: type=docker,dest=/tmp/playlist.tar
+      - name: Upload image as artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: playlist
+          path: /tmp/playlist.tar
 
   dockerPostgres_pre-build:
     runs-on: ubuntu-latest
@@ -220,10 +297,21 @@ jobs:
       - buildWaiter
     steps:
       - uses: actions/checkout@v3
-      - name: Login to DockerHub Registry
-        run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
       - name: Build image
-        run: cd deploy && chmod +x dockerBuild.sh && ./dockerBuild.sh postgres
+        id: docker_build
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: ./prod/k8/postgres/Dockerfile
+          tags: mausved/postgres:latest
+          outputs: type=docker,dest=/tmp/postgres.tar
+      - name: Upload image as artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: postgres
+          path: /tmp/postgres.tar
 
   dockerPrometheus_pre-build:
     runs-on: ubuntu-latest
@@ -232,10 +320,21 @@ jobs:
       - buildWaiter
     steps:
       - uses: actions/checkout@v3
-      - name: Login to DockerHub Registry
-        run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
       - name: Build image
-        run: cd deploy && chmod +x dockerBuild.sh && ./dockerBuild.sh prometheus
+        id: docker_build
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: ./prod/k8/prometheus/Dockerfile
+          tags: mausved/prometheus:latest
+          outputs: type=docker,dest=/tmp/prometheus.tar
+      - name: Upload image as artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: prometheus
+          path: /tmp/prometheus.tar
 
   dockerTrack_pre-build:
     runs-on: ubuntu-latest
@@ -244,10 +343,21 @@ jobs:
       - buildWaiter
     steps:
       - uses: actions/checkout@v3
-      - name: Login to DockerHub Registry
-        run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
       - name: Build image
-        run: cd deploy && chmod +x dockerBuild.sh && ./dockerBuild.sh track
+        id: docker_build
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: ./prod/k8/track/Dockerfile
+          tags: mausved/track:latest
+          outputs: type=docker,dest=/tmp/track.tar
+      - name: Upload image as artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: track
+          path: /tmp/track.tar
 
   dockerUser_pre-build:
     runs-on: ubuntu-latest
@@ -256,10 +366,21 @@ jobs:
       - buildWaiter
     steps:
       - uses: actions/checkout@v3
-      - name: Login to DockerHub Registry
-        run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
       - name: Build image
-        run: cd deploy && chmod +x dockerBuild.sh && ./dockerBuild.sh user
+        id: docker_build
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: ./prod/k8/user/Dockerfile
+          tags: mausved/user:latest
+          outputs: type=docker,dest=/tmp/user.tar
+      - name: Upload image as artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: user
+          path: /tmp/user.tar
 
   dockerWeb_pre-build:
     runs-on: ubuntu-latest
@@ -268,10 +389,21 @@ jobs:
       - buildWaiter
     steps:
       - uses: actions/checkout@v3
-      - name: Login to DockerHub Registry
-        run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
       - name: Build image
-        run: cd deploy && chmod +x dockerBuild.sh && ./dockerBuild.sh web
+        id: docker_build
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: ./prod/k8/web/Dockerfile
+          tags: mausved/web:latest
+          outputs: type=docker,dest=/tmp/web.tar
+      - name: Upload image as artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: web
+          path: /tmp/web.tar
 
   dockerPreBuildWaiter:
     runs-on: ubuntu-latest
@@ -327,8 +459,19 @@ jobs:
       - uses: actions/checkout@v3
       - name: Login to DockerHub Registry
         run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-      - name: Build image
-        run: cd deploy && chmod +x deploy.sh && ./deploy.sh alertmanager
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      - name: Download artefact
+        uses: actions/download-artifact@v2
+        with:
+          name: alertmanager
+          path: /tmp
+      - name: Load docker image
+        run: |
+          docker load --input /tmp/alertmanager.tar
+          docker image ls -a
+      - name: Push image
+        run: cd deploy && chmod +x dockerPush.sh && ./dockerPush.sh alertmanager
 
   dockerApi_deploy:
     runs-on: ubuntu-latest
@@ -339,8 +482,19 @@ jobs:
       - uses: actions/checkout@v3
       - name: Login to DockerHub Registry
         run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-      - name: Build image
-        run: cd deploy && chmod +x deploy.sh && ./deploy.sh api
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      - name: Download artefact
+        uses: actions/download-artifact@v2
+        with:
+          name: api
+          path: /tmp
+      - name: Load docker image
+        run: |
+          docker load --input /tmp/api.tar
+          docker image ls -a
+      - name: Push image
+        run: cd deploy && chmod +x dockerPush.sh && ./dockerPush.sh api
 
   dockerArtist_deploy:
     runs-on: ubuntu-latest
@@ -351,8 +505,19 @@ jobs:
       - uses: actions/checkout@v3
       - name: Login to DockerHub Registry
         run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-      - name: Build image
-        run: cd deploy && chmod +x deploy.sh && ./deploy.sh artist
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      - name: Download artefact
+        uses: actions/download-artifact@v2
+        with:
+          name: artist
+          path: /tmp
+      - name: Load docker image
+        run: |
+          docker load --input /tmp/artist.tar
+          docker image ls -a
+      - name: Push image
+        run: cd deploy && chmod +x dockerPush.sh && ./dockerPush.sh artist
 
   dockerAuth_deploy:
     runs-on: ubuntu-latest
@@ -363,8 +528,19 @@ jobs:
       - uses: actions/checkout@v3
       - name: Login to DockerHub Registry
         run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-      - name: Build image
-        run: cd deploy && chmod +x deploy.sh && ./deploy.sh auth
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      - name: Download artefact
+        uses: actions/download-artifact@v2
+        with:
+          name: auth
+          path: /tmp
+      - name: Load docker image
+        run: |
+          docker load --input /tmp/auth.tar
+          docker image ls -a
+      - name: Push image
+        run: cd deploy && chmod +x dockerPush.sh && ./dockerPush.sh auth
 
   dockerCaddy_deploy:
     runs-on: ubuntu-latest
@@ -375,8 +551,19 @@ jobs:
       - uses: actions/checkout@v3
       - name: Login to DockerHub Registry
         run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-      - name: Build image
-        run: cd deploy && chmod +x deploy.sh && ./deploy.sh caddy
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      - name: Download artefact
+        uses: actions/download-artifact@v2
+        with:
+          name: caddy
+          path: /tmp
+      - name: Load docker image
+        run: |
+          docker load --input /tmp/caddy.tar
+          docker image ls -a
+      - name: Push image
+        run: cd deploy && chmod +x dockerPush.sh && ./dockerPush.sh caddy
 
   dockerGrafana_deploy:
     runs-on: ubuntu-latest
@@ -387,8 +574,19 @@ jobs:
       - uses: actions/checkout@v3
       - name: Login to DockerHub Registry
         run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-      - name: Build image
-        run: cd deploy && chmod +x deploy.sh && ./deploy.sh grafana
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      - name: Download artefact
+        uses: actions/download-artifact@v2
+        with:
+          name: grafana
+          path: /tmp
+      - name: Load docker image
+        run: |
+          docker load --input /tmp/grafana.tar
+          docker image ls -a
+      - name: Push image
+        run: cd deploy && chmod +x dockerPush.sh && ./dockerPush.sh grafana
 
   dockerPlaylist_deploy:
     runs-on: ubuntu-latest
@@ -399,8 +597,19 @@ jobs:
       - uses: actions/checkout@v3
       - name: Login to DockerHub Registry
         run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-      - name: Build image
-        run: cd deploy && chmod +x deploy.sh && ./deploy.sh playlist
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      - name: Download artefact
+        uses: actions/download-artifact@v2
+        with:
+          name: playlist
+          path: /tmp
+      - name: Load docker image
+        run: |
+          docker load --input /tmp/playlist.tar
+          docker image ls -a
+      - name: Push image
+        run: cd deploy && chmod +x dockerPush.sh && ./dockerPush.sh playlist
 
   dockerPostgres_deploy:
     runs-on: ubuntu-latest
@@ -411,8 +620,19 @@ jobs:
       - uses: actions/checkout@v3
       - name: Login to DockerHub Registry
         run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-      - name: Build image
-        run: cd deploy && chmod +x deploy.sh && ./deploy.sh postgres
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      - name: Download artefact
+        uses: actions/download-artifact@v2
+        with:
+          name: postgres
+          path: /tmp
+      - name: Load docker image
+        run: |
+          docker load --input /tmp/postgres.tar
+          docker image ls -a
+      - name: Push image
+        run: cd deploy && chmod +x dockerPush.sh && ./dockerPush.sh postgres
 
   dockerPrometheus_deploy:
     runs-on: ubuntu-latest
@@ -423,8 +643,19 @@ jobs:
       - uses: actions/checkout@v3
       - name: Login to DockerHub Registry
         run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-      - name: Build image
-        run: cd deploy && chmod +x deploy.sh && ./deploy.sh prometheus
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      - name: Download artefact
+        uses: actions/download-artifact@v2
+        with:
+          name: prometheus
+          path: /tmp
+      - name: Load docker image
+        run: |
+          docker load --input /tmp/prometheus.tar
+          docker image ls -a
+      - name: Push image
+        run: cd deploy && chmod +x dockerPush.sh && ./dockerPush.sh prometheus
 
   dockerTrack_deploy:
     runs-on: ubuntu-latest
@@ -435,8 +666,19 @@ jobs:
       - uses: actions/checkout@v3
       - name: Login to DockerHub Registry
         run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-      - name: Build image
-        run: cd deploy && chmod +x deploy.sh && ./deploy.sh track
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      - name: Download artefact
+        uses: actions/download-artifact@v2
+        with:
+          name: track
+          path: /tmp
+      - name: Load docker image
+        run: |
+          docker load --input /tmp/track.tar
+          docker image ls -a
+      - name: Push image
+        run: cd deploy && chmod +x dockerPush.sh && ./dockerPush.sh track
 
   dockerUser_deploy:
     runs-on: ubuntu-latest
@@ -447,8 +689,19 @@ jobs:
       - uses: actions/checkout@v3
       - name: Login to DockerHub Registry
         run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-      - name: Build image
-        run: cd deploy && chmod +x deploy.sh && ./deploy.sh user
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      - name: Download artefact
+        uses: actions/download-artifact@v2
+        with:
+          name: user
+          path: /tmp
+      - name: Load docker image
+        run: |
+          docker load --input /tmp/user.tar
+          docker image ls -a
+      - name: Push image
+        run: cd deploy && chmod +x dockerPush.sh && ./dockerPush.sh user
 
   dockerWeb_deploy:
     runs-on: ubuntu-latest
@@ -459,8 +712,19 @@ jobs:
       - uses: actions/checkout@v3
       - name: Login to DockerHub Registry
         run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-      - name: Build image
-        run: cd deploy && chmod +x deploy.sh && ./deploy.sh web
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      - name: Download artefact
+        uses: actions/download-artifact@v2
+        with:
+          name: web
+          path: /tmp
+      - name: Load docker image
+        run: |
+          docker load --input /tmp/web.tar
+          docker image ls -a
+      - name: Push image
+        run: cd deploy && chmod +x dockerPush.sh && ./dockerPush.sh web
 
   dockerDeployWaiter:
     runs-on: ubuntu-latest
