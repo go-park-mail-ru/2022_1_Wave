@@ -383,7 +383,7 @@ func (h Handler) GetFavorites(ctx echo.Context) error {
 
 type TrackIdWrapper struct {
 	TrackId int `json:"trackId" example:"4" validate:"min=1,nonnil"`
-        Dummy int `json:"dummy, omitempty"`
+	//      Dummy int `json:"dummy, omitempty"`
 }
 
 // AddToFavorites godoc
