@@ -308,7 +308,7 @@ jobs:
       - name: Build image
         run: cd deploy && chmod +x deploy.sh && ./deploy.sh album
 
-  dockerAlertmanger_deploy:
+  dockerAlertmanager_deploy:
     runs-on: ubuntu-latest
     name: pre-build alertmanger image
     needs:
