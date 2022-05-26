@@ -3,10 +3,11 @@ package albumDeliveryHttp
 import (
 	"errors"
 	"fmt"
-	internal "github.com/go-park-mail-ru/2022_1_Wave/internal"
+	"github.com/go-park-mail-ru/2022_1_Wave/internal"
 	AlbumUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/album/useCase"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/album/albumProto"
 	Gateway "github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/gateway"
+	"github.com/go-park-mail-ru/2022_1_Wave/internal/structs"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/tools/utils"
 	user_domain "github.com/go-park-mail-ru/2022_1_Wave/internal/user"
 	"github.com/go-park-mail-ru/2022_1_Wave/pkg/webUtils"
@@ -404,17 +405,13 @@ func (h Handler) GetFavorites(ctx echo.Context) error {
 			Result: utils.AlbumsToMap(favorites)})
 }
 
-type albumIdWrapper struct {
-	AlbumId int64 `json:"albumId" example:"4"`
-}
-
 // AddToFavorites godoc
 // @Summary      AddToFavorites
 // @Description  add to favorite
 // @Tags         album
 // @Accept          application/json
 // @Produce      application/json
-// @Param        albumId  body      albumIdWrapper  true  "albumId"
+// @Param        albumId  body      AlbumIdWrapper  true  "albumId"
 // @Success      200    {object}  webUtils.Success
 // @Failure      400    {object}  webUtils.Error  "Data is invalid"
 // @Failure      405    {object}  webUtils.Error  "Method is not allowed"
@@ -425,7 +422,7 @@ func (h Handler) AddToFavorites(ctx echo.Context) error {
 		return internal.UnauthorizedError(ctx)
 	}
 
-	holder := albumIdWrapper{}
+	holder := structs.AlbumIdWrapper{}
 
 	if err := ctx.Bind(&holder); err != nil {
 		return err

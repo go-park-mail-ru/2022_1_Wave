@@ -7,6 +7,7 @@ import (
 	ArtistUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/artist/useCase"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/artist/artistProto"
 	Gateway "github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/gateway"
+	"github.com/go-park-mail-ru/2022_1_Wave/internal/structs"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/tools/utils"
 	TrackUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/track/useCase"
 	user_domain "github.com/go-park-mail-ru/2022_1_Wave/internal/user"
@@ -251,17 +252,13 @@ func (h Handler) GetFavorites(ctx echo.Context) error {
 			Result: utils.ArtistsToMap(favorites)})
 }
 
-type artistIdWrapper struct {
-	ArtistId int64 `json:"artistId" example:"4"`
-}
-
 // AddToFavorites godoc
 // @Summary      AddToFavorites
 // @Description  add to favorite
 // @Tags         artist
 // @Accept          application/json
 // @Produce      application/json
-// @Param        artistId  body      artistIdWrapper  true  "artistId"
+// @Param        artistId  body      structs.ArtistIdWrapper  true  "artistId"
 // @Success      200    {object}  webUtils.Success
 // @Failure      400    {object}  webUtils.Error  "Data is invalid"
 // @Failure      405    {object}  webUtils.Error  "Method is not allowed"
@@ -272,7 +269,7 @@ func (h Handler) AddToFavorites(ctx echo.Context) error {
 		return internal.UnauthorizedError(ctx)
 	}
 
-	holder := artistIdWrapper{}
+	holder := structs.ArtistIdWrapper{}
 
 	if err := ctx.Bind(&holder); err != nil {
 		return err
