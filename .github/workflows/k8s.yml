@@ -275,7 +275,6 @@ jobs:
       - dockerPlaylist_pre-build
       - dockerPostgres_pre-build
       - dockerPrometheus_pre-build
-      - dockerRedis_pre-build
       - dockerTrack_pre-build
       - dockerUser_pre-build
       - dockerWeb_pre-build
@@ -454,7 +453,6 @@ jobs:
       - dockerPlaylist_deploy
       - dockerPostgres_deploy
       - dockerPrometheus_deploy
-      - dockerRedis_deploy
       - dockerTrack_deploy
       - dockerUser_deploy
       - dockerWeb_deploy
