@@ -127,7 +127,7 @@ jobs:
       - name: Login to DockerHub Registry
         run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
       - name: Build image
-        run: cd deploy && chmod +x dockerBuild.sh && ./dockerBuild.sh alertmanger
+        run: cd deploy && chmod +x dockerBuild.sh && ./dockerBuild.sh alertmanager
 
   dockerApi_pre-build:
     runs-on: ubuntu-latest
@@ -318,7 +318,7 @@ jobs:
       - name: Login to DockerHub Registry
         run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
       - name: Build image
-        run: cd deploy && chmod +x deploy.sh && ./deploy.sh alertmanger
+        run: cd deploy && chmod +x deploy.sh && ./deploy.sh alertmanager
 
   dockerApi_deploy:
     runs-on: ubuntu-latest
