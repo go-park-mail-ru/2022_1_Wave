@@ -225,18 +225,6 @@ jobs:
       - name: Build image
         run: cd deploy && chmod +x dockerBuild.sh && ./dockerBuild.sh prometheus
 
-  dockerRedis_pre-build:
-    runs-on: ubuntu-latest
-    name: pre-build redis image
-    needs:
-      - buildWaiter
-    steps:
-      - uses: actions/checkout@v3
-      - name: Login to DockerHub Registry
-        run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-      - name: Build image
-        run: cd deploy && chmod +x dockerBuild.sh && ./dockerBuild.sh redis
-
   dockerTrack_pre-build:
     runs-on: ubuntu-latest
     name: pre-build track image
@@ -415,18 +403,6 @@ jobs:
         run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
       - name: Build image
         run: cd deploy && chmod +x deploy.sh && ./deploy.sh prometheus
-
-  dockerRedis_deploy:
-    runs-on: ubuntu-latest
-    name: deploy redis image
-    needs:
-      - dockerPreBuildWaiter
-    steps:
-      - uses: actions/checkout@v3
-      - name: Login to DockerHub Registry
-        run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-      - name: Build image
-        run: cd deploy && chmod +x deploy.sh && ./deploy.sh redis
 
   dockerTrack_deploy:
     runs-on: ubuntu-latest
