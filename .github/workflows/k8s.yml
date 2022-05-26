@@ -120,7 +120,7 @@ jobs:
         with:
           context: .
           file: ./env/prod/k8/album/Dockerfile
-          tags: mausved/album:latest
+          tags: mausved/wave_album:latest
           outputs: type=docker,dest=/tmp/album.tar
       - name: Upload image as artifact
         uses: actions/upload-artifact@v2
@@ -144,7 +144,7 @@ jobs:
         with:
           context: .
           file: ./env/prod/k8/alertmanager/Dockerfile
-          tags: mausved/alertmanager:latest
+          tags: mausved/wave_alertmanager:latest
           outputs: type=docker,dest=/tmp/alertmanager.tar
       - name: Upload image as artifact
         uses: actions/upload-artifact@v2
@@ -167,7 +167,7 @@ jobs:
         with:
           context: .
           file: ./env/prod/k8/api/Dockerfile
-          tags: mausved/api:latest
+          tags: mausved/wave_api:latest
           outputs: type=docker,dest=/tmp/api.tar
       - name: Upload image as artifact
         uses: actions/upload-artifact@v2
@@ -190,7 +190,7 @@ jobs:
         with:
           context: .
           file: ./env/prod/k8/artist/Dockerfile
-          tags: mausved/artist:latest
+          tags: mausved/wave_artist:latest
           outputs: type=docker,dest=/tmp/artist.tar
       - name: Upload image as artifact
         uses: actions/upload-artifact@v2
@@ -213,7 +213,7 @@ jobs:
         with:
           context: .
           file: ./env/prod/k8/auth/Dockerfile
-          tags: mausved/auth:latest
+          tags: mausved/wave_auth:latest
           outputs: type=docker,dest=/tmp/auth.tar
       - name: Upload image as artifact
         uses: actions/upload-artifact@v2
@@ -236,7 +236,7 @@ jobs:
         with:
           context: .
           file: ./env/prod/k8/caddy/Dockerfile
-          tags: mausved/caddy:latest
+          tags: mausved/wave_caddy:latest
           outputs: type=docker,dest=/tmp/caddy.tar
       - name: Upload image as artifact
         uses: actions/upload-artifact@v2
@@ -259,7 +259,7 @@ jobs:
         with:
           context: .
           file: ./env/prod/k8/grafana/Dockerfile
-          tags: mausved/grafana:latest
+          tags: mausved/wave_grafana:latest
           outputs: type=docker,dest=/tmp/grafana.tar
       - name: Upload image as artifact
         uses: actions/upload-artifact@v2
@@ -282,7 +282,7 @@ jobs:
         with:
           context: .
           file: ./env/prod/k8/playlist/Dockerfile
-          tags: mausved/playlist:latest
+          tags: mausved/wave_playlist:latest
           outputs: type=docker,dest=/tmp/playlist.tar
       - name: Upload image as artifact
         uses: actions/upload-artifact@v2
@@ -305,7 +305,7 @@ jobs:
         with:
           context: .
           file: ./env/prod/k8/postgres/Dockerfile
-          tags: mausved/postgres:latest
+          tags: mausved/wave_postgres:latest
           outputs: type=docker,dest=/tmp/postgres.tar
       - name: Upload image as artifact
         uses: actions/upload-artifact@v2
@@ -328,7 +328,7 @@ jobs:
         with:
           context: .
           file: ./env/prod/k8/prometheus/Dockerfile
-          tags: mausved/prometheus:latest
+          tags: mausved/wave_prometheus:latest
           outputs: type=docker,dest=/tmp/prometheus.tar
       - name: Upload image as artifact
         uses: actions/upload-artifact@v2
@@ -351,7 +351,7 @@ jobs:
         with:
           context: .
           file: ./env/prod/k8/track/Dockerfile
-          tags: mausved/track:latest
+          tags: mausved/wave_track:latest
           outputs: type=docker,dest=/tmp/track.tar
       - name: Upload image as artifact
         uses: actions/upload-artifact@v2
@@ -374,7 +374,7 @@ jobs:
         with:
           context: .
           file: ./env/prod/k8/user/Dockerfile
-          tags: mausved/user:latest
+          tags: mausved/wave_user:latest
           outputs: type=docker,dest=/tmp/user.tar
       - name: Upload image as artifact
         uses: actions/upload-artifact@v2
@@ -397,7 +397,7 @@ jobs:
         with:
           context: .
           file: ./env/prod/k8/web/Dockerfile
-          tags: mausved/web:latest
+          tags: mausved/wave_web:latest
           outputs: type=docker,dest=/tmp/web.tar
       - name: Upload image as artifact
         uses: actions/upload-artifact@v2
