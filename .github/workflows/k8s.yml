@@ -300,7 +300,7 @@ jobs:
     runs-on: ubuntu-latest
     name: pre-build album image
     needs:
-      - buildWaiter
+      - dockerPreBuildWaiter
     steps:
       - uses: actions/checkout@v3
       - name: Login to DockerHub Registry
@@ -312,7 +312,7 @@ jobs:
     runs-on: ubuntu-latest
     name: pre-build alertmanger image
     needs:
-      - buildWaiter
+      - dockerPreBuildWaiter
     steps:
       - uses: actions/checkout@v3
       - name: Login to DockerHub Registry
@@ -324,7 +324,7 @@ jobs:
     runs-on: ubuntu-latest
     name: pre-build api image
     needs:
-      - buildWaiter
+      - dockerPreBuildWaiter
     steps:
       - uses: actions/checkout@v3
       - name: Login to DockerHub Registry
@@ -336,7 +336,7 @@ jobs:
     runs-on: ubuntu-latest
     name: pre-build artist image
     needs:
-      - buildWaiter
+      - dockerPreBuildWaiter
     steps:
       - uses: actions/checkout@v3
       - name: Login to DockerHub Registry
@@ -348,7 +348,7 @@ jobs:
     runs-on: ubuntu-latest
     name: pre-build auth image
     needs:
-      - buildWaiter
+      - dockerPreBuildWaiter
     steps:
       - uses: actions/checkout@v3
       - name: Login to DockerHub Registry
@@ -360,7 +360,7 @@ jobs:
     runs-on: ubuntu-latest
     name: pre-build caddy image
     needs:
-      - buildWaiter
+      - dockerPreBuildWaiter
     steps:
       - uses: actions/checkout@v3
       - name: Login to DockerHub Registry
@@ -372,7 +372,7 @@ jobs:
     runs-on: ubuntu-latest
     name: pre-build grafana image
     needs:
-      - buildWaiter
+      - dockerPreBuildWaiter
     steps:
       - uses: actions/checkout@v3
       - name: Login to DockerHub Registry
@@ -384,7 +384,7 @@ jobs:
     runs-on: ubuntu-latest
     name: pre-build playlist image
     needs:
-      - buildWaiter
+      - dockerPreBuildWaiter
     steps:
       - uses: actions/checkout@v3
       - name: Login to DockerHub Registry
@@ -396,7 +396,7 @@ jobs:
     runs-on: ubuntu-latest
     name: pre-build postgres image
     needs:
-      - buildWaiter
+      - dockerPreBuildWaiter
     steps:
       - uses: actions/checkout@v3
       - name: Login to DockerHub Registry
@@ -408,7 +408,7 @@ jobs:
     runs-on: ubuntu-latest
     name: pre-build prometheus image
     needs:
-      - buildWaiter
+      - dockerPreBuildWaiter
     steps:
       - uses: actions/checkout@v3
       - name: Login to DockerHub Registry
@@ -420,7 +420,7 @@ jobs:
     runs-on: ubuntu-latest
     name: pre-build redis image
     needs:
-      - buildWaiter
+      - dockerPreBuildWaiter
     steps:
       - uses: actions/checkout@v3
       - name: Login to DockerHub Registry
@@ -432,7 +432,7 @@ jobs:
     runs-on: ubuntu-latest
     name: pre-build track image
     needs:
-      - buildWaiter
+      - dockerPreBuildWaiter
     steps:
       - uses: actions/checkout@v3
       - name: Login to DockerHub Registry
@@ -444,7 +444,7 @@ jobs:
     runs-on: ubuntu-latest
     name: pre-build user image
     needs:
-      - buildWaiter
+      - dockerPreBuildWaiter
     steps:
       - uses: actions/checkout@v3
       - name: Login to DockerHub Registry
@@ -456,7 +456,7 @@ jobs:
     runs-on: ubuntu-latest
     name: pre-build web image
     needs:
-      - buildWaiter
+      - dockerPreBuildWaiter
     steps:
       - uses: actions/checkout@v3
       - name: Login to DockerHub Registry
