@@ -40,7 +40,7 @@ func NewArtistUseCase(albumAgent domain.AlbumAgent, artistAgent domain.ArtistAge
 }
 
 func (useCase artistUseCase) CastToDTO(userId int64, artist *artistProto.Artist) (*artistProto.ArtistDataTransfer, error) {
-	coverPath, err := Gateway.PathToArtistCover(artist, internal.PngFormat)
+	coverPath, err := Gateway.PathToArtistCover(artist, internal.ImgFormat)
 	if err != nil {
 		return nil, err
 	}
