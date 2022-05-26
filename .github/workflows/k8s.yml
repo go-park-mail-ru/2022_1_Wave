@@ -117,7 +117,7 @@ jobs:
       - name: Build image
         run: cd deploy && chmod +x dockerBuild.sh && ./dockerBuild.sh album
 
-  dockerAlertmanger_pre-build:
+  dockerAlertmanager_pre-build:
     runs-on: ubuntu-latest
     name: pre-build alertmanger image
     needs:
