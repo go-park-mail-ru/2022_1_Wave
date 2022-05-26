@@ -119,7 +119,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
-          file: ./prod/k8/album/Dockerfile
+          file: ./env/prod/k8/album/Dockerfile
           tags: mausved/album:latest
           outputs: type=docker,dest=/tmp/album.tar
       - name: Upload image as artifact
@@ -143,7 +143,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
-          file: ./prod/k8/alertmanager/Dockerfile
+          file: ./env/prod/k8/alertmanager/Dockerfile
           tags: mausved/alertmanager:latest
           outputs: type=docker,dest=/tmp/alertmanager.tar
       - name: Upload image as artifact
@@ -166,7 +166,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
-          file: ./prod/k8/api/Dockerfile
+          file: ./env/prod/k8/api/Dockerfile
           tags: mausved/api:latest
           outputs: type=docker,dest=/tmp/api.tar
       - name: Upload image as artifact
@@ -189,7 +189,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
-          file: ./prod/k8/artist/Dockerfile
+          file: ./env/prod/k8/artist/Dockerfile
           tags: mausved/artist:latest
           outputs: type=docker,dest=/tmp/artist.tar
       - name: Upload image as artifact
@@ -212,7 +212,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
-          file: ./prod/k8/auth/Dockerfile
+          file: ./env/prod/k8/auth/Dockerfile
           tags: mausved/auth:latest
           outputs: type=docker,dest=/tmp/auth.tar
       - name: Upload image as artifact
@@ -235,7 +235,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
-          file: ./prod/k8/caddy/Dockerfile
+          file: ./env/prod/k8/caddy/Dockerfile
           tags: mausved/caddy:latest
           outputs: type=docker,dest=/tmp/caddy.tar
       - name: Upload image as artifact
@@ -258,7 +258,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
-          file: ./prod/k8/grafana/Dockerfile
+          file: ./env/prod/k8/grafana/Dockerfile
           tags: mausved/grafana:latest
           outputs: type=docker,dest=/tmp/grafana.tar
       - name: Upload image as artifact
@@ -281,7 +281,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
-          file: ./prod/k8/playlist/Dockerfile
+          file: ./env/prod/k8/playlist/Dockerfile
           tags: mausved/playlist:latest
           outputs: type=docker,dest=/tmp/playlist.tar
       - name: Upload image as artifact
@@ -304,7 +304,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
-          file: ./prod/k8/postgres/Dockerfile
+          file: ./env/prod/k8/postgres/Dockerfile
           tags: mausved/postgres:latest
           outputs: type=docker,dest=/tmp/postgres.tar
       - name: Upload image as artifact
@@ -327,7 +327,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
-          file: ./prod/k8/prometheus/Dockerfile
+          file: ./env/prod/k8/prometheus/Dockerfile
           tags: mausved/prometheus:latest
           outputs: type=docker,dest=/tmp/prometheus.tar
       - name: Upload image as artifact
@@ -350,7 +350,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
-          file: ./prod/k8/track/Dockerfile
+          file: ./env/prod/k8/track/Dockerfile
           tags: mausved/track:latest
           outputs: type=docker,dest=/tmp/track.tar
       - name: Upload image as artifact
@@ -373,7 +373,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
-          file: ./prod/k8/user/Dockerfile
+          file: ./env/prod/k8/user/Dockerfile
           tags: mausved/user:latest
           outputs: type=docker,dest=/tmp/user.tar
       - name: Upload image as artifact
@@ -396,7 +396,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
-          file: ./prod/k8/web/Dockerfile
+          file: ./env/prod/k8/web/Dockerfile
           tags: mausved/web:latest
           outputs: type=docker,dest=/tmp/web.tar
       - name: Upload image as artifact
