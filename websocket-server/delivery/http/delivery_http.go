@@ -120,6 +120,8 @@ func (a *Handler) updateStateMessageProcessing(userId uint, message *domain.User
 		return a.userSyncPlayerUseCase.OffPauseUpdateState(userId, message.Data.TimeStateUpdate)
 	case domain.ChangePosition:
 		return a.userSyncPlayerUseCase.ChangePositionUpdateState(userId, message.Data.LastSecPosition, message.Data.TimeStateUpdate)
+	case domain.GetPlayerState:
+		return nil
 	}
 
 	return errors.New("no such push state type")
@@ -189,6 +191,7 @@ func (a *Handler) PlayerStateLoop(c echo.Context) error {
 		}
 
 		err = json.Unmarshal(message, &clientMessage)
+		fmt.Println("clientMessage =", clientMessage)
 		if err != nil {
 			messageState, _ = json.Marshal(getInvalidTrackStateFormatMessage())
 			if wsCon.WriteMessage(websocket.TextMessage, messageState) != nil {
@@ -209,6 +212,19 @@ func (a *Handler) PlayerStateLoop(c echo.Context) error {
 				if wsCon.WriteMessage(websocket.TextMessage, messageState) != nil {
 					fmt.Println("break 3")
 					break
+				}
+			} else if clientMessage.TypePushState == domain.GetPlayerState { // команда для получения состояния плеера
+				state, err := a.userSyncPlayerUseCase.GetTrackState(userId)
+				if err != nil {
+					errMessage, _ := json.Marshal(getNoTrackStateMessage())
+					if wsCon.WriteMessage(websocket.TextMessage, errMessage) != nil {
+						break
+					}
+				} else {
+					stateMsg, _ := json.Marshal(state)
+					if wsCon.WriteMessage(websocket.TextMessage, stateMsg) != nil {
+						break
+					}
 				}
 			} else {
 				// публикуем обновление состояния плеера в redis channel. его считают другие клиенты

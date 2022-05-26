@@ -1,6 +1,8 @@
 package domain
 
-import "time"
+import (
+	"golang.org/x/sys/unix"
+)
 
 type FromIs string
 type TypePushState string
@@ -20,14 +22,15 @@ const (
 	ChangePosition                        = "change_position"
 	NoTrackState                          = "no_track_state"
 	InvalidTrackStateFormat               = "invalid_format"
+	GetPlayerState                        = "get_player_state"
 )
 
 type UserPlayerState struct {
-	TracksQueue     []uint    `json:"tracks_queue,omitempty"`
-	QueuePosition   int       `json:"queue_position,omitempty"`
-	OnPause         bool      `json:"on_pause,omitempty"`
-	LastSecPosition uint      `json:"last_sec_position,omitempty"`
-	TimeStateUpdate time.Time `json:"time_state_update,omitempty"`
+	TracksQueue     []uint      `json:"tracks_queue"`
+	QueuePosition   int         `json:"queue_position"`
+	OnPause         bool        `json:"on_pause"`
+	LastSecPosition uint        `json:"last_sec_position"`
+	TimeStateUpdate unix.Time_t `json:"time_state_update"`
 }
 
 // сообщения такого типа будут приходить от клиента
@@ -45,10 +48,10 @@ type UserSyncPlayerRepo interface {
 
 type UserSyncPlayerUseCase interface {
 	PushTrackUpdateState(userId uint, tracksToAdd []uint) error
-	NewTrackQueueUpdateState(userId uint, tracksQueue []uint, queuePosition int, timeStateUpdate time.Time) error
-	NewTrackUpdateState(userId uint, queuePosition int, timeStateUpdate time.Time) error
-	OnPauseUpdateState(userId uint, timeStateUpdate time.Time) error
-	OffPauseUpdateState(userId uint, timeStateUpdate time.Time) error
-	ChangePositionUpdateState(userId uint, lastSecPosition uint, timeStateUpdate time.Time) error
+	NewTrackQueueUpdateState(userId uint, tracksQueue []uint, queuePosition int, timeStateUpdate unix.Time_t) error
+	NewTrackUpdateState(userId uint, queuePosition int, timeStateUpdate unix.Time_t) error
+	OnPauseUpdateState(userId uint, timeStateUpdate unix.Time_t) error
+	OffPauseUpdateState(userId uint, timeStateUpdate unix.Time_t) error
+	ChangePositionUpdateState(userId uint, lastSecPosition uint, timeStateUpdate unix.Time_t) error
 	GetTrackState(userId uint) (*UserPlayerState, error)
 }
