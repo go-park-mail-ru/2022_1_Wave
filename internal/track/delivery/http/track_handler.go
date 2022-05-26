@@ -6,6 +6,7 @@ import (
 	internal "github.com/go-park-mail-ru/2022_1_Wave/internal"
 	Gateway "github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/gateway"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/track/trackProto"
+	"github.com/go-park-mail-ru/2022_1_Wave/internal/structs"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/tools/utils"
 	TrackUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/track/useCase"
 	user_domain "github.com/go-park-mail-ru/2022_1_Wave/internal/user"
@@ -381,11 +382,6 @@ func (h Handler) GetFavorites(ctx echo.Context) error {
 			Result: favorites})
 }
 
-type TrackIdWrapper struct {
-	TrackId int `json:"trackId" example:"4" validate:"min=1,nonnil"`
-	//      Dummy int `json:"dummy, omitempty"`
-}
-
 // AddToFavorites godoc
 // @Summary      AddToFavorites
 // @Description  add to favorites
@@ -403,7 +399,7 @@ func (h Handler) AddToFavorites(ctx echo.Context) error {
 		return internal.UnauthorizedError(ctx)
 	}
 
-	holder := TrackIdWrapper{}
+	holder := structs.TrackIdWrapper{}
 
 	if err := ctx.Bind(&holder); err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
