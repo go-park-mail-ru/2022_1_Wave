@@ -27,8 +27,6 @@ jobs:
         run: chmod +x generateAll.sh && ./generateAll.sh
       - name: generate easyjson
         run: chmod +x easyjsonGenerate.sh && ./easyjsonGenerate.sh
-      - name: generate test mocks
-        run: cd internal/test && chmod +x mocks.sh && ./mocks.sh
       - name: build
         run: go build -v ./...
 
