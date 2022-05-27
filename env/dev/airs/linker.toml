@@ -7,11 +7,11 @@ tmp_dir = "tmp"
 
 [build]
 # Just plain old shell command. You could use `make` as well.
-cmd = "go build -o ./tmp/run.auth ./cmd/auth/auth.go"
+cmd = "go build -o ./tmp/run.linker ./cmd/linker/linker.go"
 # Binary file yields from `cmd`.
-bin = "tmp/run.auth"
+bin = "tmp/run.linker"
 # Customize binary, can setup environment variables when run your app.
-full_bin = "APP_ENV=dev APP_USER=air ./tmp/run.auth"
+full_bin = "APP_ENV=dev APP_USER=air ./tmp/run.linker"
 # Watch these filename extensions.
 include_ext = ["go"]
 # Ignore these filename extensions or directories.
