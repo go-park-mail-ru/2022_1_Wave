@@ -190,6 +190,7 @@ const (
 	FieldTracks         = "tracks"
 	FieldStr            = "str"
 	FieldToFind         = "toFind"
+	Hash                = "hash"
 )
 
 // others

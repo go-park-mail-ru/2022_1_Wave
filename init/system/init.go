@@ -13,6 +13,8 @@ import (
 	auth_grpc_agent "github.com/go-park-mail-ru/2022_1_Wave/internal/auth/client/grpc"
 	AuthUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/auth/usecase"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/domain"
+	LinkerGrpcAgent "github.com/go-park-mail-ru/2022_1_Wave/internal/linker/client/grpc"
+	LinkerUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/linker/useCase"
 	PlaylistGrpcAgent "github.com/go-park-mail-ru/2022_1_Wave/internal/playlist/client/grpc"
 	PlaylistUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/playlist/useCase"
 	TrackGrpcAgent "github.com/go-park-mail-ru/2022_1_Wave/internal/track/client/grpc"
@@ -29,7 +31,16 @@ import (
 func Init(e *echo.Echo) error {
 	logger.GlobalLogger.Logrus.Infoln("in init system")
 
-	albumAgent, artistAgent, trackAgent, userAgent, authAgent, playlistAgent := makeAgents(internal.Grpc)
+	agents := makeAgents(internal.Grpc)
+
+	albumAgent := agents.Album
+	artistAgent := agents.Artist
+	trackAgent := agents.Track
+	userAgent := agents.User
+	authAgent := agents.Auth
+	playlistAgent := agents.Playlist
+	linkerAgent := agents.Linker
+
 	logger.GlobalLogger.Logrus.Infoln("inited agents...")
 	auth := AuthUseCase.NewAuthService(authAgent, userAgent)
 	user := UserUsecase.NewUserUseCase(userAgent, authAgent)
@@ -38,6 +49,9 @@ func Init(e *echo.Echo) error {
 	artist := ArtistUseCase.NewArtistUseCase(albumAgent, artistAgent, trackAgent)
 	track := TrackUseCase.NewTrackUseCase(albumAgent, artistAgent, trackAgent)
 	playlist := PlaylistUseCase.NewPlaylistUseCase(playlistAgent, artistAgent, trackAgent)
+
+	linker := LinkerUseCase.NewLinkerUseCase(linkerAgent)
+
 	logger.GlobalLogger.Logrus.Infoln("inited services...")
 	logger.GlobalLogger.Logrus.Infoln("routing...")
 
@@ -73,10 +87,20 @@ func Init(e *echo.Echo) error {
 
 	s3Handler := s3.MakeHandler(awsConfig)
 
-	return router.Router(e, auth, album, artist, track, playlist, user, s3Handler)
+	return router.Router(e, auth, album, artist, track, playlist, user, linker, s3Handler)
 }
 
-func makeGrpcClients() (AlbumGrpcAgent.GrpcAgent, ArtistGrpcAgent.GrpcAgent, TrackGrpcAgent.GrpcAgent, user_domain.UserAgent, auth_domain2.AuthAgent, domain.PlaylistAgent) {
+type AgentsContainer struct {
+	Album    domain.AlbumAgent
+	Artist   domain.ArtistAgent
+	Track    domain.TrackAgent
+	User     user_domain.UserAgent
+	Auth     auth_domain2.AuthAgent
+	Playlist domain.PlaylistAgent
+	Linker   domain.LinkerAgent
+}
+
+func makeGrpcClients() *AgentsContainer {
 	grpcLauncher := gRPC.Launcher{}
 
 	albumClient := grpcLauncher.MakeAlbumGrpcClient(":8081")
@@ -85,23 +109,26 @@ func makeGrpcClients() (AlbumGrpcAgent.GrpcAgent, ArtistGrpcAgent.GrpcAgent, Tra
 	playlistClient := grpcLauncher.MakePlaylistGrpcClient(":8084")
 	authClient := grpcLauncher.MakeAuthGrpcClient(":8085")
 	userClient := grpcLauncher.MakeUserGrpcClient(":8086")
+	linkerClient := grpcLauncher.MakeLinkerGrpcClient(":8087")
 
-	albumAgent := AlbumGrpcAgent.MakeAgent(albumClient)
-	artistAgent := ArtistGrpcAgent.MakeAgent(artistClient)
-	trackAgent := TrackGrpcAgent.MakeAgent(trackClient)
-	playlistAgent := PlaylistGrpcAgent.MakeAgent(playlistClient)
-	authAgent := auth_grpc_agent.NewAuthGRPCAgent(authClient)
-	userAgent := user_grpc_agent.NewUserGRPCAgent(userClient)
+	return &AgentsContainer{
+		Album:    AlbumGrpcAgent.MakeAgent(albumClient),
+		Artist:   ArtistGrpcAgent.MakeAgent(artistClient),
+		Track:    TrackGrpcAgent.MakeAgent(trackClient),
+		User:     user_grpc_agent.NewUserGRPCAgent(userClient),
+		Auth:     auth_grpc_agent.NewAuthGRPCAgent(authClient),
+		Playlist: PlaylistGrpcAgent.MakeAgent(playlistClient),
+		Linker:   LinkerGrpcAgent.MakeAgent(linkerClient),
+	}
 
-	return albumAgent, artistAgent, trackAgent, userAgent, authAgent, playlistAgent
 }
 
-func makeAgents(clientsType string) (domain.AlbumAgent, domain.ArtistAgent, domain.TrackAgent, user_domain.UserAgent, auth_domain2.AuthAgent, domain.PlaylistAgent) {
+func makeAgents(clientsType string) *AgentsContainer {
 	switch clientsType {
 	case internal.Grpc:
 		return makeGrpcClients()
 	default:
-		return nil, nil, nil, nil, nil, nil
+		return nil
 	}
 
 }

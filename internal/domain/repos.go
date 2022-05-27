@@ -92,3 +92,8 @@ type PlaylistRepo interface {
 	AddToPlaylist(userId int64, playlistId int64, trackId int64) error
 	RemoveFromPlaylist(userId int64, playlistId int64, trackId int64) error
 }
+
+type LinkerRepo interface {
+	Get(hash string) (string, error)
+	Create(url string) (string, error)
+}

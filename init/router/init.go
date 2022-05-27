@@ -11,6 +11,8 @@ import (
 	authHttp "github.com/go-park-mail-ru/2022_1_Wave/internal/auth/delivery/http"
 	auth_middleware "github.com/go-park-mail-ru/2022_1_Wave/internal/auth/delivery/http/middleware"
 	gatewayDeliveryHttp "github.com/go-park-mail-ru/2022_1_Wave/internal/gateway/delivery/http"
+	linkerDeliveryHttp "github.com/go-park-mail-ru/2022_1_Wave/internal/linker/delivery/http"
+	LinkerUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/linker/useCase"
 	playlistDeliveryHttp "github.com/go-park-mail-ru/2022_1_Wave/internal/playlist/delivery/http"
 	PlaylistUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/playlist/useCase"
 	trackDeliveryHttp "github.com/go-park-mail-ru/2022_1_Wave/internal/track/delivery/http"
@@ -29,10 +31,8 @@ func Router(e *echo.Echo,
 	track TrackUseCase.TrackUseCase,
 	playlist PlaylistUseCase.PlaylistUseCase,
 	user user_domain.UserUseCase,
+	linker LinkerUseCase.LinkerUseCase,
 	s3Handler *s3.Handler) error {
-
-	//p := prometheus.NewPrometheus("echo", nil)
-	//p.Use(e)
 
 	api := e.Group(apiPrefix)
 	v1 := api.Group(v1Prefix)
@@ -41,6 +41,7 @@ func Router(e *echo.Echo,
 	trackHandler := trackDeliveryHttp.MakeHandler(track, user)
 	playlistHandler := playlistDeliveryHttp.MakeHandler(playlist, user)
 	authHandler := authHttp.MakeHandler(auth)
+	linkerHandler := linkerDeliveryHttp.MakeHandler(linker)
 	userHandler := userHttp.MakeHandler(user, s3Handler)
 	gatewayHandler := gatewayDeliveryHttp.MakeHandler(album, artist, track, user)
 
@@ -74,6 +75,9 @@ func Router(e *echo.Echo,
 
 	SetUserRoutes(v1, userHandler, m)
 	logger.GlobalLogger.Logrus.Warnln("setting user routes")
+
+	SetLinkerRoutes(v1, linkerHandler)
+	logger.GlobalLogger.Logrus.Warnln("setting linker routes")
 
 	return nil
 }
@@ -145,20 +149,27 @@ func SetPlaylistsRoutes(apiVersion *echo.Group, handler playlistDeliveryHttp.Han
 	playlistRoutes := apiVersion.Group(playlistPrefix)
 
 	playlistRoutes.GET(locate, handler.GetAll)
-	playlistRoutes.GET(ofUser, handler.GetAllOfCurrentUser)
+	playlistRoutes.GET(ofUserPrefix, handler.GetAllOfCurrentUser)
 	playlistRoutes.POST(locate, handler.Create)
 	playlistRoutes.PUT(locate, handler.Update)
 	playlistRoutes.GET(idEchoPattern, handler.Get)
-	playlistRoutes.GET(ofUser+idEchoPattern, handler.GetOfCurrentUser)
+	playlistRoutes.GET(ofUserPrefix+idEchoPattern, handler.GetOfCurrentUser)
 	playlistRoutes.DELETE(idEchoPattern, handler.Delete)
-	playlistRoutes.POST(ofUser, handler.AddToPlaylist)
-	playlistRoutes.DELETE(ofUser, handler.RemoveFromPlaylist)
+	playlistRoutes.POST(ofUserPrefix, handler.AddToPlaylist)
+	playlistRoutes.DELETE(ofUserPrefix, handler.RemoveFromPlaylist)
 }
 
 // SetGatewayRoutes songs
 func SetGatewayRoutes(apiVersion *echo.Group, handler gatewayDeliveryHttp.Handler) {
 	searchRoutes := apiVersion.Group(searchPrefix)
-	searchRoutes.GET(strEchoPattern, handler.Search)
+	searchRoutes.GET(locate, handler.Search)
+}
+
+// SetLinkerRoutes songs
+func SetLinkerRoutes(apiVersion *echo.Group, handler linkerDeliveryHttp.Handler) {
+	searchRoutes := apiVersion.Group(linkerPrefix)
+	searchRoutes.GET(strEchoHashPattern, handler.Get)
+	searchRoutes.POST(locate, handler.Create)
 }
 
 func SetUserRoutes(apiVersion *echo.Group, handler userHttp.UserHandler, m *auth_middleware.HttpMiddleware) {
@@ -225,7 +236,8 @@ const (
 	logoutPrefix        = "/logout"
 	signUpPrefix        = "/signup"
 	getCSRFPrefix       = "/get_csrf"
-	ofUser              = "/ofUser"
+	ofUserPrefix        = "/ofUser"
+	linkerPrefix        = "/linker"
 )
 
 const (
@@ -241,15 +253,16 @@ const (
 
 // destinations
 const (
-	login          = "login"
-	logout         = "logout"
-	signUp         = "signup"
-	getCSRF        = "get_csrf"
-	self           = "self"
-	popular        = "popular"
-	idMuxPattern   = "{id:[0-9]+}"
-	idEchoPattern  = "/:id"
-	strEchoPattern = "/:toFind"
+	login                = "login"
+	logout               = "logout"
+	signUp               = "signup"
+	getCSRF              = "get_csrf"
+	self                 = "self"
+	popular              = "popular"
+	idMuxPattern         = "{id:[0-9]+}"
+	idEchoPattern        = "/:id"
+	strEchoToFindPattern = "/:toFind"
+	strEchoHashPattern   = "/:hash"
 )
 
 // words
