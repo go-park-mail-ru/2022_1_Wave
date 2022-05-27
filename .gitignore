@@ -32,8 +32,8 @@ assets
 docs.go
 src/docs
 
-*pb.go
-*grpc.pb.go
+#*pb.go
+#*grpc.pb.go
 
 logs/
 

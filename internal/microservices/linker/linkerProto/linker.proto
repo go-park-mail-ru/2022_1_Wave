@@ -1,5 +1,4 @@
 syntax = "proto3";
-import "google/protobuf/empty.proto";
 package linker;
 option go_package = "github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/linker/linkerProto";
 
