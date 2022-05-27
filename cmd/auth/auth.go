@@ -9,7 +9,6 @@ import (
 	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
 	_ "github.com/jackc/pgx/stdlib"
 	"github.com/prometheus/client_golang/prometheus"
-	"log"
 	"os"
 )
 
@@ -36,7 +35,7 @@ func init() {
 func main() {
 	logs, err := logger.InitLogrus(os.Getenv("port"), os.Getenv("dbType"))
 	if err != nil {
-		log.Fatalln("error to init logrus:", err)
+		logs.Logrus.Fatalln("Error to launch auth gRPC service:", err)
 	}
 	//sqlxDb := InitDatabase()
 	authRepo := auth_redis.NewRedisAuthRepo("redis:6379")
@@ -60,7 +59,7 @@ func main() {
 	// Start your http server for prometheus.
 	go func() {
 		if err := httpServer.ListenAndServe(); err != nil {
-			logs.Logrus.Fatal("Unable to start a http auth metrics server.")
+			logs.Logrus.Fatal("Unable to start a http auth metrics server:", err)
 		}
 	}()
 
