@@ -49,7 +49,6 @@ func (table TrackRepo) Delete(id int64) error {
 }
 
 func (table TrackRepo) SelectByID(id int64) (*trackProto.Track, error) {
-	fmt.Println("id=", id)
 	query := `SELECT * FROM track WHERE id = $1;`
 	holder := trackProto.Track{}
 	if err := table.Sqlx.Get(&holder, query, id); err != nil {

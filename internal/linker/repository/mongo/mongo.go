@@ -14,8 +14,8 @@ type LinkerRepo struct {
 	Coll *mongo.Collection
 }
 
-func NewLinkerMongoRepo(coll *mongo.Collection) domain.LinkerRepo {
-	coll.Indexes().CreateOne(
+func NewLinkerMongoRepo(coll *mongo.Collection) (domain.LinkerRepo, error) {
+	_, err := coll.Indexes().CreateOne(
 		context.TODO(),
 		mongo.IndexModel{
 			Keys: bson.D{{
@@ -28,9 +28,13 @@ func NewLinkerMongoRepo(coll *mongo.Collection) domain.LinkerRepo {
 			Options: options.Index().SetUnique(true),
 		})
 
+	if err != nil {
+		return nil, err
+	}
+
 	return &LinkerRepo{
 		Coll: coll,
-	}
+	}, nil
 }
 
 type LinkerPair struct {
