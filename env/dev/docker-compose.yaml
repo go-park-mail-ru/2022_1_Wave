@@ -177,9 +177,9 @@ services:
       - AUTH_GRPC_ADDR=auth:8085
     expose:
       - 6789
-    entrypoint: ./cmd/run.sh
+    entrypoint: ./websocket-server/cmd/run.sh
     volumes:
-      - ../../websocket-server:/websocket-server
+      - ../..:/websocket-server
     depends_on:
       - redis
       - auth

@@ -1,22 +1,6 @@
 package auth_http_test
 
-import (
-	"context"
-	"encoding/json"
-	"github.com/bxcodec/faker"
-	"github.com/go-park-mail-ru/2022_1_Wave/internal/domain"
-	auth_http "github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/auth/delivery/http"
-	"github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/auth/mocks"
-	"github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/auth/proto"
-
-	"github.com/labstack/echo/v4"
-	"github.com/stretchr/testify/assert"
-	"net/http"
-	"net/http/httptest"
-	"strings"
-	"testing"
-)
-
+/*
 func TestLogin(t *testing.T) {
 	var mockUser1 domain.User
 	var mockUser2 domain.User
@@ -114,7 +98,7 @@ func TestLogin(t *testing.T) {
 	assert.Equal(t, http.StatusUnprocessableEntity, rec.Code)
 }
 
-/*
+
 func TestLogout(t *testing.T) {
 	sessionId := "some-session-id"
 

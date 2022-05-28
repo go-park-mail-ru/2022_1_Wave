@@ -2,8 +2,8 @@ package main
 
 import (
 	"github.com/go-park-mail-ru/2022_1_Wave/init/logger"
-	grpc_agent "github.com/go-park-mail-ru/2022_1_Wave/websocket-server/agents"
-	"github.com/go-park-mail-ru/2022_1_Wave/websocket-server/auth/proto"
+	auth_grpc_agent "github.com/go-park-mail-ru/2022_1_Wave/internal/auth/client/grpc"
+	"github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/auth/proto"
 	"github.com/go-park-mail-ru/2022_1_Wave/websocket-server/delivery/http"
 	middleware2 "github.com/go-park-mail-ru/2022_1_Wave/websocket-server/delivery/middleware"
 	"github.com/go-park-mail-ru/2022_1_Wave/websocket-server/repository/redis"
@@ -29,10 +29,15 @@ func main() {
 	userSyncPlayerRepo := redis.NewUserSyncElemsRepo(os.Getenv("REDIS_ADDR"))
 	useCase := usecase.NewUserSyncPlayerUseCase(userSyncPlayerRepo)
 
-	grpcConn, err := grpc.Dial(os.Getenv("AUTH_GRPC_ADDR"), grpc.WithTransportCredentials(insecure.NewCredentials()))
+	grpcAuthConn, err := grpc.Dial(os.Getenv("AUTH_GRPC_ADDR"), grpc.WithTransportCredentials(insecure.NewCredentials()))
 
-	authClient := proto.NewAuthorizationClient(grpcConn)
-	authAgent := grpc_agent.NewAuthGRPCAgent(authClient)
+	authClient := proto.NewAuthorizationClient(grpcAuthConn)
+	authAgent := auth_grpc_agent.NewAuthGRPCAgent(authClient)
+
+	/*grpcTrackConn, err := grpc.Dial(os.Getenv("TRACK_GRPC_ADDR"), grpc.WithTransportCredentials(insecure.NewCredentials()))
+
+	trackClient := trackProto.NewTrackUseCaseClient(grpcTrackConn)
+	trackAgent := TrackGrpcAgent.MakeAgent(trackClient)*/
 
 	handler := http.NewHandler(useCase, os.Getenv("REDIS_ADDR"), authAgent)
 

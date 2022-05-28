@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/track/trackProto"
 	"github.com/go-park-mail-ru/2022_1_Wave/websocket-server/domain"
 	"golang.org/x/sys/unix"
 )
@@ -15,7 +16,7 @@ func NewUserSyncPlayerUseCase(repo domain.UserSyncPlayerRepo) domain.UserSyncPla
 	}
 }
 
-func (a *userSyncPlayerUseCase) PushTrackUpdateState(userId uint, tracksToAdd []uint) error {
+func (a *userSyncPlayerUseCase) PushTrackUpdateState(userId uint, tracksToAdd []trackProto.Track) error {
 	oldTrack, err := a.syncPlayerRepo.GetUserPlayerState(userId)
 	if err != nil {
 		return err
@@ -27,7 +28,7 @@ func (a *userSyncPlayerUseCase) PushTrackUpdateState(userId uint, tracksToAdd []
 	return err
 }
 
-func (a *userSyncPlayerUseCase) NewTrackQueueUpdateState(userId uint, tracksQueue []uint, queuePosition int, timeStateUpdate unix.Time_t) error {
+func (a *userSyncPlayerUseCase) NewTrackQueueUpdateState(userId uint, tracksQueue []trackProto.Track, queuePosition int, lastSecPosition float64, timeStateUpdate unix.Time_t) error {
 	var oldTrack *domain.UserPlayerState
 	oldTrack, err := a.syncPlayerRepo.GetUserPlayerState(userId)
 	if err != nil {
@@ -38,7 +39,7 @@ func (a *userSyncPlayerUseCase) NewTrackQueueUpdateState(userId uint, tracksQueu
 	oldTrack.QueuePosition = queuePosition
 	oldTrack.TimeStateUpdate = timeStateUpdate
 	oldTrack.OnPause = false
-	oldTrack.LastSecPosition = 0
+	oldTrack.LastSecPosition = lastSecPosition
 
 	err = a.syncPlayerRepo.UpdateUserPlayerState(userId, oldTrack)
 	return err

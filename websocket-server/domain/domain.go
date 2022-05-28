@@ -1,6 +1,7 @@
 package domain
 
 import (
+	"github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/track/trackProto"
 	"golang.org/x/sys/unix"
 )
 
@@ -26,11 +27,11 @@ const (
 )
 
 type UserPlayerState struct {
-	TracksQueue     []uint      `json:"tracks_queue"`
-	QueuePosition   int         `json:"queue_position"`
-	OnPause         bool        `json:"on_pause"`
-	LastSecPosition float64     `json:"last_sec_position"`
-	TimeStateUpdate unix.Time_t `json:"time_state_update"`
+	TracksQueue     []trackProto.Track `json:"tracks_queue"`
+	QueuePosition   int                `json:"queue_position"`
+	OnPause         bool               `json:"on_pause"`
+	LastSecPosition float64            `json:"last_sec_position"`
+	TimeStateUpdate unix.Time_t        `json:"time_state_update"`
 }
 
 // сообщения такого типа будут приходить от клиента
@@ -47,8 +48,8 @@ type UserSyncPlayerRepo interface {
 }
 
 type UserSyncPlayerUseCase interface {
-	PushTrackUpdateState(userId uint, tracksToAdd []uint) error
-	NewTrackQueueUpdateState(userId uint, tracksQueue []uint, queuePosition int, timeStateUpdate unix.Time_t) error
+	PushTrackUpdateState(userId uint, tracksToAdd []trackProto.Track) error
+	NewTrackQueueUpdateState(userId uint, tracksQueue []trackProto.Track, queuePosition int, lastSecPosition float64, timeStateUpdate unix.Time_t) error
 	NewTrackUpdateState(userId uint, queuePosition int, timeStateUpdate unix.Time_t) error
 	OnPauseUpdateState(userId uint, timeStateUpdate unix.Time_t) error
 	OffPauseUpdateState(userId uint, timeStateUpdate unix.Time_t) error
