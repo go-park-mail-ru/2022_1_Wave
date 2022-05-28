@@ -11,7 +11,5 @@ FROM alpine
 RUN apk add --no-cache libc6-compat
 COPY --from=build_step /var/www/service/tmp/user /var/www/service/
 WORKDIR /var/www/service/
-EXPOSE 8086
-EXPOSE 9086
 RUN chmod +x user
 ENTRYPOINT ["sh", "-c", "./user"]

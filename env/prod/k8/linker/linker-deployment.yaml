@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f ../docker-compose.yaml
+    kompose.version: 1.26.1 (a9d05d509)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: linker
+  name: linker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: linker
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -f ../docker-compose.yaml
+        kompose.version: 1.26.1 (a9d05d509)
+      creationTimestamp: null
+      labels:
+        io.kompose.service: linker
+    spec:
+      containers:
+        - name: linker
+          image: mausved/wave_linker
+          ports:
+            - containerPort: 8087
+            - containerPort: 9087
+          env:
+            - name: ME_CONFIG_MONGODB_ADMINUSERNAME
+              value: wave
+            - name: ME_CONFIG_MONGODB_ADMINPASSWORD
+              value: wave
+            - name: ME_CONFIG_MONGODB_URL
+              value: mongodb://mongo:27017
+            - name: dbType
+              value: mongo
+            - name: exporterPort
+              value: :9087
+            - name: port
+              value: :8087
+      restartPolicy: Always
+      imagePullSecrets:
+        - name: wave
+
+status: { }
