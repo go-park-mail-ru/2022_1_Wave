@@ -15,18 +15,23 @@ type LinkerRepo struct {
 }
 
 func NewLinkerMongoRepo(coll *mongo.Collection) (domain.LinkerRepo, error) {
-	_, err := coll.Indexes().CreateOne(
+	idxUrl := mongo.IndexModel{
+		Keys:    bson.M{"url": 1},
+		Options: options.Index().SetUnique(true),
+	}
+
+	idxHash := mongo.IndexModel{
+		Keys:    bson.M{"hash": 1},
+		Options: options.Index().SetUnique(true),
+	}
+
+	idxes := make([]mongo.IndexModel, 2)
+	idxes[0] = idxUrl
+	idxes[1] = idxHash
+
+	_, err := coll.Indexes().CreateMany(
 		context.TODO(),
-		mongo.IndexModel{
-			Keys: bson.D{{
-				Name:  "url",
-				Value: 1,
-			}, {
-				Name:  "hash",
-				Value: 1,
-			}},
-			Options: options.Index().SetUnique(true),
-		})
+		idxes)
 
 	if err != nil {
 		return nil, err
