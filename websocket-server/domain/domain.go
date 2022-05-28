@@ -29,7 +29,7 @@ type UserPlayerState struct {
 	TracksQueue     []uint      `json:"tracks_queue"`
 	QueuePosition   int         `json:"queue_position"`
 	OnPause         bool        `json:"on_pause"`
-	LastSecPosition uint        `json:"last_sec_position"`
+	LastSecPosition float64     `json:"last_sec_position"`
 	TimeStateUpdate unix.Time_t `json:"time_state_update"`
 }
 
@@ -52,6 +52,6 @@ type UserSyncPlayerUseCase interface {
 	NewTrackUpdateState(userId uint, queuePosition int, timeStateUpdate unix.Time_t) error
 	OnPauseUpdateState(userId uint, timeStateUpdate unix.Time_t) error
 	OffPauseUpdateState(userId uint, timeStateUpdate unix.Time_t) error
-	ChangePositionUpdateState(userId uint, lastSecPosition uint, timeStateUpdate unix.Time_t) error
+	ChangePositionUpdateState(userId uint, lastSecPosition float64, timeStateUpdate unix.Time_t) error
 	GetTrackState(userId uint) (*UserPlayerState, error)
 }
