@@ -35,10 +35,8 @@ func (h Handler) Get(ctx echo.Context) error {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusNotFound)
 	}
 
-	return ctx.JSON(http.StatusMovedPermanently,
-		webUtils.Success{
-			Status: webUtils.OK,
-			Result: url})
+	ctx.Response().Header().Add("Location", url)
+	return nil
 }
 
 // Create godoc
