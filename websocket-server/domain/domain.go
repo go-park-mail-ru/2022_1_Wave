@@ -51,7 +51,7 @@ type UserSyncPlayerUseCase interface {
 	PushTrackUpdateState(userId uint, tracksToAdd []trackProto.Track) error
 	NewTrackQueueUpdateState(userId uint, tracksQueue []trackProto.Track, queuePosition int, lastSecPosition float64, timeStateUpdate unix.Time_t) error
 	NewTrackUpdateState(userId uint, queuePosition int, timeStateUpdate unix.Time_t) error
-	OnPauseUpdateState(userId uint, timeStateUpdate unix.Time_t) error
+	OnPauseUpdateState(userId uint, lastSecPosition float64, timeStateUpdate unix.Time_t) error
 	OffPauseUpdateState(userId uint, timeStateUpdate unix.Time_t) error
 	ChangePositionUpdateState(userId uint, lastSecPosition float64, timeStateUpdate unix.Time_t) error
 	GetTrackState(userId uint) (*UserPlayerState, error)

@@ -61,13 +61,13 @@ func (a *userSyncPlayerUseCase) NewTrackUpdateState(userId uint, queuePosition i
 	return err
 }
 
-func (a *userSyncPlayerUseCase) OnPauseUpdateState(userId uint, timeStateUpdate unix.Time_t) error {
+func (a *userSyncPlayerUseCase) OnPauseUpdateState(userId uint, lastSecPosition float64, timeStateUpdate unix.Time_t) error {
 	oldTrack, err := a.syncPlayerRepo.GetUserPlayerState(userId)
 	if err != nil {
 		return err
 	}
 
-	oldTrack.LastSecPosition = float64(timeStateUpdate - oldTrack.TimeStateUpdate)
+	oldTrack.LastSecPosition = lastSecPosition
 	oldTrack.TimeStateUpdate = timeStateUpdate
 	oldTrack.OnPause = true
 
