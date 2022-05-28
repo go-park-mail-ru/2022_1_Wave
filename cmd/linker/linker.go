@@ -46,7 +46,10 @@ func main() {
 		logs.Logrus.Fatalln(err)
 	}
 
-	linkerRepo := AlbumPostgres.NewLinkerMongoRepo(collection)
+	linkerRepo, err := AlbumPostgres.NewLinkerMongoRepo(collection)
+	if err != nil {
+		logs.Logrus.Fatalln(err)
+	}
 
 	server, httpServer, listen, err := cmd.MakeServers(reg)
 	if err != nil {
