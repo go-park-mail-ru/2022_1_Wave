@@ -231,7 +231,17 @@ func (a *Handler) PlayerStateLoop(c echo.Context) error {
 				}
 			} else {
 				// публикуем обновление состояния плеера в redis channel. его считают другие клиенты
-				a.pushToRedisChannel(redisConForPublish, redisChannelName, string(message), uidRedisCon)
+				state, err := a.userSyncPlayerUseCase.GetTrackState(userId)
+				if err != nil {
+					messageState, _ = json.Marshal(getNoTrackStateMessage())
+					if err = wsCon.WriteMessage(websocket.TextMessage, messageState); err != nil {
+						fmt.Println("break 6, err = ", err)
+						break
+					}
+				} else {
+					messageState, _ = json.Marshal(state)
+					a.pushToRedisChannel(redisConForPublish, redisChannelName, string(messageState), uidRedisCon)
+				}
 			}
 		}
 	}
