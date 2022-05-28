@@ -15,7 +15,7 @@ full_bin = "APP_ENV=dev APP_USER=air ./tmp/run.linker"
 # Watch these filename extensions.
 include_ext = ["go"]
 # Ignore these filename extensions or directories.
-exclude_dir = ["init", "env", "db", "assets", "tmp", "vendor", "frontend/node_modules", "database", "protobuf", "internal", "metrics", "deploy"]
+exclude_dir = ["env", "db", "assets", "tmp", "vendor", "frontend/node_modules", "database", "protobuf", "metrics", "deploy"]
 # Watch these directories if you specified.
 # Exclude files.
 exclude_file = ["docs/docs.go", "docs/swagger.json"]

@@ -7,7 +7,7 @@ tmp_dir = "tmp"
 
 [build]
 # Just plain old shell command. You could use `make` as well.
-cmd = "bash ./cmd/api/reload.sh"
+cmd = "bash generateAll.sh && go build -o ./tmp/wave.music ./cmd/api/main.go"
 # Binary file yields from `cmd`.
 bin = "tmp/wave.music"
 # Customize binary, can setup environment variables when run your app.
