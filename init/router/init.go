@@ -47,6 +47,9 @@ func Router(e *echo.Echo,
 
 	m := auth_middleware.InitMiddleware(auth)
 
+	SetLinkerRoutes(e, linkerHandler)
+	logger.GlobalLogger.Logrus.Warnln("setting linker routes")
+
 	logger.GlobalLogger.Logrus.Warnln("api version:", v1Prefix)
 
 	SetAlbumsRoutes(v1, albumHandler)
@@ -75,9 +78,6 @@ func Router(e *echo.Echo,
 
 	SetUserRoutes(v1, userHandler, m)
 	logger.GlobalLogger.Logrus.Warnln("setting user routes")
-
-	SetLinkerRoutes(v1, linkerHandler)
-	logger.GlobalLogger.Logrus.Warnln("setting linker routes")
 
 	return nil
 }
@@ -162,14 +162,13 @@ func SetPlaylistsRoutes(apiVersion *echo.Group, handler playlistDeliveryHttp.Han
 // SetGatewayRoutes songs
 func SetGatewayRoutes(apiVersion *echo.Group, handler gatewayDeliveryHttp.Handler) {
 	searchRoutes := apiVersion.Group(searchPrefix)
-	searchRoutes.GET(locate, handler.Search)
+	searchRoutes.GET(strEchoToFindPattern, handler.Search)
 }
 
 // SetLinkerRoutes songs
-func SetLinkerRoutes(apiVersion *echo.Group, handler linkerDeliveryHttp.Handler) {
-	searchRoutes := apiVersion.Group(linkerPrefix)
-	searchRoutes.GET(strEchoHashPattern, handler.Get)
-	searchRoutes.POST(locate, handler.Create)
+func SetLinkerRoutes(e *echo.Echo, handler linkerDeliveryHttp.Handler) {
+	e.GET(strEchoHashPattern, handler.Get)
+	e.POST(locate, handler.Create)
 }
 
 func SetUserRoutes(apiVersion *echo.Group, handler userHttp.UserHandler, m *auth_middleware.HttpMiddleware) {
