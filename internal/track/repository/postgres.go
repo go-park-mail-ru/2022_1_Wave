@@ -1,6 +1,7 @@
 package TrackPostgres
 
 import (
+	"fmt"
 	constants "github.com/go-park-mail-ru/2022_1_Wave/internal"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/domain"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/track/trackProto"
@@ -48,7 +49,8 @@ func (table TrackRepo) Delete(id int64) error {
 }
 
 func (table TrackRepo) SelectByID(id int64) (*trackProto.Track, error) {
-	query := `SELECT * FROM track WHERE id = $1 ORDER BY id;`
+	fmt.Println("id=", id)
+	query := `SELECT * FROM track WHERE id = $1;`
 	holder := trackProto.Track{}
 	if err := table.Sqlx.Get(&holder, query, id); err != nil {
 		return nil, err
@@ -131,6 +133,7 @@ func (table TrackRepo) Like(trackId int64, userId int64) error {
 	track, err := table.SelectByID(trackId)
 
 	if err != nil {
+		fmt.Println("erorr in likes", err)
 		return err
 	}
 
@@ -191,8 +194,7 @@ func (table TrackRepo) SearchByTitle(title string) ([]*trackProto.Track, error) 
 }
 
 func (table TrackRepo) AddToFavorites(trackId int64, userId int64) error {
-	track, err := table.SelectByID(trackId)
-	if err != nil {
+	if err := table.Like(trackId, userId); err != nil {
 		return err
 	}
 
@@ -201,8 +203,7 @@ func (table TrackRepo) AddToFavorites(trackId int64, userId int64) error {
 		VALUES ($1, $2)
 		RETURNING track_id`
 
-	// do query
-	_, err = table.Sqlx.Exec(query, userId, track.Id)
+	_, err := table.Sqlx.Exec(query, userId, trackId)
 
 	return err
 }
@@ -219,9 +220,13 @@ func (table TrackRepo) GetFavorites(userId int64) ([]*trackProto.Track, error) {
 }
 
 func (table TrackRepo) RemoveFromFavorites(trackId int64, userId int64) error {
-	query := `DELETE FROM userFavoriteTracks WHERE user_id = $1 and track_id = $2`
-
+	query := `DELETE FROM userTracksLike WHERE user_id = $1 AND track_id = $2`
 	_, err := table.Sqlx.Exec(query, userId, trackId)
+	if err != nil {
+		return err
+	}
+	query = `DELETE FROM userFavoriteTracks WHERE user_id = $1 and track_id = $2`
+	_, err = table.Sqlx.Exec(query, userId, trackId)
 	return err
 }
 

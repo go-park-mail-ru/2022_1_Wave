@@ -178,3 +178,12 @@ func (useCase AlbumGrpc) LikeCheckByUser(ctx context.Context, data *gatewayProto
 	}
 	return &gatewayProto.LikeCheckResponse{Ok: liked}, nil
 }
+
+func (useCase AlbumGrpc) GetPopularAlbumOfWeekTop20(context.Context, *emptypb.Empty) (*albumProto.AlbumsResponse, error) {
+	albums, err := (*useCase.AlbumRepo).GetPopularAlbumOfWeekTop20()
+	if err != nil {
+		return nil, err
+	}
+
+	return &albumProto.AlbumsResponse{Albums: albums}, nil
+}

@@ -4,11 +4,12 @@ import (
 	"crypto/sha1"
 	"encoding/hex"
 	"errors"
+	"fmt"
 	user_microservice_domain "github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/user"
 	user_domain "github.com/go-park-mail-ru/2022_1_Wave/internal/user"
+	"github.com/go-park-mail-ru/2022_1_Wave/internal/user/client/s3"
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
-	"io"
 	"net/http"
 	"os"
 	"strconv"
@@ -17,21 +18,23 @@ import (
 
 type UserHandler struct {
 	UserUseCase user_domain.UserUseCase
+	S3Handler   *s3.Handler
 }
 
 const (
-	badIdErr          = "bad id"
-	noSessionErr      = "no session"
-	invalidUserJSON   = "invalid json"
-	uploadAvatarError = "upload avatar error"
+	badIdErr        = "bad id"
+	noSessionErr    = "no session"
+	invalidUserJSON = "invalid json"
+	//uploadAvatarError = "upload avatar error"
 
 	SessionIdKey  = "session_id"
 	PathToAvatars = "assets"
 )
 
-func MakeHandler(userUseCase user_domain.UserUseCase) UserHandler {
+func MakeHandler(userUseCase user_domain.UserUseCase, s3Handler *s3.Handler) UserHandler {
 	return UserHandler{
 		UserUseCase: userUseCase,
+		S3Handler:   s3Handler,
 	}
 }
 
@@ -170,14 +173,15 @@ func (a *UserHandler) UpdateSelfUser(c echo.Context) error {
 // @Failure      400    {object}  webUtils.Error  "invalid field values"
 // @Router       /api/v1/users/upload_avatar [patch]
 func (a *UserHandler) UploadAvatar(c echo.Context) error {
+	fmt.Println("uploading avatar...")
 	form, err := c.MultipartForm()
 	if err != nil {
-		return c.JSON(http.StatusBadRequest, getErrorUserResponse(errors.New(uploadAvatarError)))
+		return c.JSON(http.StatusBadRequest, getErrorUserResponse(err))
 	}
 	file := form.File["avatar"][0]
 	src, err := file.Open()
 	if err != nil {
-		return c.JSON(http.StatusBadRequest, getErrorUserResponse(errors.New(uploadAvatarError)))
+		return c.JSON(http.StatusBadRequest, getErrorUserResponse(err))
 	}
 	defer src.Close()
 
@@ -189,14 +193,11 @@ func (a *UserHandler) UploadAvatar(c echo.Context) error {
 	hash.Write([]byte("user_" + strconv.Itoa(int(user.ID)) + uuid.NewString()))
 
 	filename := PathToAvatars + "/" + hex.EncodeToString(hash.Sum(nil)) + "." + strs[len(strs)-1]
-	dst, err := os.Create(filename)
-	if err != nil {
-		return c.JSON(http.StatusBadRequest, getErrorUserResponse(errors.New(uploadAvatarError)))
-	}
-	defer dst.Close()
 
-	if _, err = io.Copy(dst, src); err != nil {
-		return c.JSON(http.StatusBadRequest, getErrorUserResponse(errors.New(uploadAvatarError)))
+	err = a.S3Handler.UploadObject(src, os.Getenv("AWS_BUCKET_NAME"), filename)
+
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, getErrorUploadAvatar(err))
 	}
 
 	user.Avatar = filename

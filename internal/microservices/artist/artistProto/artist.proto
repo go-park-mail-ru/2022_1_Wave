@@ -13,6 +13,8 @@ message Artist {
   int64 count_listenings = 5;  // @gotags: json:"countListening" example:"7654" db:"count_listening" validate:"min=0,nonnil"
 }
 
+
+
 message ArtistDataTransfer {
   int64 id = 1; // @gotags: json:"id" example:"1"
   string name = 2; // @gotags: json:"name" example:"Mercury"

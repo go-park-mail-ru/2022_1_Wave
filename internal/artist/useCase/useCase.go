@@ -8,7 +8,7 @@ import (
 	Gateway "github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/gateway"
 )
 
-type UseCase interface {
+type ArtistUseCase interface {
 	GetAll(userId int64) ([]*artistProto.ArtistDataTransfer, error)
 	GetLastId() (int64, error)
 	Create(transfer *artistProto.Artist) error
@@ -40,7 +40,7 @@ func NewArtistUseCase(albumAgent domain.AlbumAgent, artistAgent domain.ArtistAge
 }
 
 func (useCase artistUseCase) CastToDTO(userId int64, artist *artistProto.Artist) (*artistProto.ArtistDataTransfer, error) {
-	coverPath, err := Gateway.PathToArtistCover(artist, internal.PngFormat)
+	coverPath, err := Gateway.PathToArtistCover(artist, internal.ImgFormat)
 	if err != nil {
 		return nil, err
 	}

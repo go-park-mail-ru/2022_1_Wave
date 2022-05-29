@@ -223,6 +223,6 @@ const (
 
 // formats
 const (
-	PngFormat = ".png"
+	ImgFormat = ".webp"
 	Mp3Format = ".mp3"
 )

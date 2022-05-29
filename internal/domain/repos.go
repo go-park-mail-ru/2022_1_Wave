@@ -24,6 +24,8 @@ type AlbumRepo interface {
 	GetFavorites(userId int64) ([]*albumProto.Album, error)
 	AddToFavorites(id int64, userId int64) error
 	RemoveFromFavorites(albumId int64, userId int64) error
+	GetPopularAlbumOfWeekTop20() ([]*albumProto.Album, error)
+	CountPopularAlbumOfWeek() (bool, error)
 }
 
 type AlbumCoverRepo interface {

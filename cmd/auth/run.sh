@@ -1,2 +1,2 @@
 #!/bin/bash
-air
+air -c cmd/auth/.air.toml

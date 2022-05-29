@@ -7,18 +7,18 @@ tmp_dir = "tmp"
 
 [build]
 # Just plain old shell command. You could use `make` as well.
-cmd = "bash ./cmd/playlist/reload.sh"
+cmd = "./tmp/run.playlist"
 # Binary file yields from `cmd`.
-bin = "tmp/playlist"
+bin = "tmp/run.playlist"
 # Customize binary, can setup environment variables when run your app.
 full_bin = "APP_ENV=dev APP_USER=air ./tmp/playlist"
 # Watch these filename extensions.
-include_ext = ["go", "yaml", "json", "js", ".sql", ".toml", "proto"]
+include_ext = ["playlist"]
 # Ignore these filename extensions or directories.
 exclude_dir = ["assets", "tmp", "vendor", "frontend/node_modules", "database", "protobuf"]
 # Watch these directories if you specified.
 # Exclude files.
-exclude_file = ["docs/docs.go"]
+exclude_file = ["docs/docs.go", "docs/swagger.json"]
 # Exclude specific regular expressions.
 exclude_regex = [".pb.go"]
 # Exclude unchanged files.

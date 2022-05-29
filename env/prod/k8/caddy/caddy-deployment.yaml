@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f ../docker-compose.yaml
+    kompose.version: 1.26.1 (a9d05d509)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: caddy
+  name: caddy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: caddy
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -f ../docker-compose.yaml
+        kompose.version: 1.26.1 (a9d05d509)
+      creationTimestamp: null
+      labels:
+        io.kompose.service: caddy
+    spec:
+      containers:
+        - image: mausved/wave_caddy
+          name: caddy
+          ports:
+            - containerPort: 9093
+            - containerPort: 9091
+            - containerPort: 9121
+            - containerPort: 3000
+            - containerPort: 9090
+            - containerPort: 9113
+          env:
+            - name: ADMIN_USER
+              valueFrom:
+                secretKeyRef:
+                  name: userwave
+                  key: ADMIN_USER
+            - name: ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: userwave
+                  key: ADMIN_PASSWORD
+      restartPolicy: Always
+      imagePullSecrets:
+        - name: wave
+status: { }

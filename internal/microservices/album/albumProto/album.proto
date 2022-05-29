@@ -24,6 +24,13 @@ message AlbumDataTransfer {
   repeated track.TrackDataTransfer Tracks = 7; // @gotags: json:"tracks"
 }
 
+message PopularAlbumOfWeek {
+  int64 id = 1; // @gotags: json:"id" example:"8" db:"album_id" validate:"min=0,nonnil"
+  int64 last_week_likes = 2; // @gotags: json:"lastWeekLikes" example:"54" db:"last_week_likes" validate:"min=0,nonnil"
+  int64 current_week_likes = 3; // @gotags: json:"currentWeekLikes" example:"54" db:"current_week_likes" validate:"min=0,nonnil"
+  int64 date = 4; // @gotags: json:"date" example:"0" db:"date,nonnil"
+}
+
 message AlbumCover {
   int64 id = 1; // @gotags: json:"id" example:"1" db:"id" validate:"min=0,nonnil"
   string quote = 2; // @gotags: json:"quote" example:"some phrases" db:"quote" validate:"max=512,nonnil"
@@ -34,6 +41,7 @@ message AlbumCoverDataTransfer {
   string quote = 1; // @gotags: json:"quote" example:"some phrases"
   bool is_dark = 2; // @gotags: json:"isDark" example:"true"
 }
+
 
 message AlbumUseCaseResponse {
   AlbumDataTransfer data = 1;
@@ -70,4 +78,5 @@ service AlbumUseCase {
   rpc RemoveFromFavorites(gateway.UserIdAlbumIdArg) returns (google.protobuf.Empty) {}
   rpc Like(gateway.UserIdAlbumIdArg) returns (google.protobuf.Empty) {};
   rpc LikeCheckByUser(gateway.UserIdAlbumIdArg) returns (gateway.LikeCheckResponse) {};
+  rpc GetPopularAlbumOfWeekTop20(google.protobuf.Empty) returns (AlbumsResponse) {};
 }

@@ -36,3 +36,5 @@ src/docs
 *grpc.pb.go
 
 logs/
+
+*secret*

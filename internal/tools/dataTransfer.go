@@ -96,14 +96,14 @@ func CreateArtistDataTransferFromInterface(data interface{}) (*artistProto.Artis
 	}
 
 	albumsArray := temp[constants.FieldAlbums].([]interface{})
-	albums := make([]*albumProto.AlbumDataTransfer, len(albumsArray))
+	albums := map[int64]*albumProto.AlbumDataTransfer{}
 	for i, obj := range albumsArray {
 		temp := obj.(map[string]interface{})
 		track, err := CreateAlbumDataTransferFromInterface(temp)
 		if err != nil {
 			return nil, err
 		}
-		albums[i] = track
+		albums[int64(i)] = track
 	}
 
 	return &artistProto.ArtistDataTransfer{

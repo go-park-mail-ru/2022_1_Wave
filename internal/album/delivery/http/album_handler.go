@@ -3,10 +3,11 @@ package albumDeliveryHttp
 import (
 	"errors"
 	"fmt"
-	internal "github.com/go-park-mail-ru/2022_1_Wave/internal"
+	"github.com/go-park-mail-ru/2022_1_Wave/internal"
 	AlbumUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/album/useCase"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/album/albumProto"
 	Gateway "github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/gateway"
+	"github.com/go-park-mail-ru/2022_1_Wave/internal/structs"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/tools/utils"
 	user_domain "github.com/go-park-mail-ru/2022_1_Wave/internal/user"
 	"github.com/go-park-mail-ru/2022_1_Wave/pkg/webUtils"
@@ -17,23 +18,15 @@ import (
 
 type Handler struct {
 	UserUseCase  user_domain.UserUseCase
-	AlbumUseCase AlbumUseCase.UseCase
+	AlbumUseCase AlbumUseCase.AlbumUseCase
 }
 
-func MakeHandler(album AlbumUseCase.UseCase, user user_domain.UserUseCase) Handler {
+func MakeHandler(album AlbumUseCase.AlbumUseCase, user user_domain.UserUseCase) Handler {
 	return Handler{
 		UserUseCase:  user,
 		AlbumUseCase: album,
 	}
 }
-
-//func albumCoversToMap(albums []*albumProto.AlbumCoverDataTransfer) map[int64]*albumProto.AlbumCoverDataTransfer {
-//	covers := map[int64]*albumProto.AlbumCoverDataTransfer{}
-//	for _, obj := range albums {
-//		covers[obj.] = obj
-//	}
-//	return covers
-//}
 
 // GetAll godoc
 // @Summary      GetAll
@@ -47,7 +40,9 @@ func MakeHandler(album AlbumUseCase.UseCase, user user_domain.UserUseCase) Handl
 // @Router       /api/v1/albums/ [get]
 func (h Handler) GetAll(ctx echo.Context) error {
 	userId, err := internal.GetUserId(ctx, h.UserUseCase)
-
+	if err != nil {
+		userId = -1
+	}
 	albums, err := h.AlbumUseCase.GetAll(userId)
 	if err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
@@ -243,7 +238,9 @@ func (h Handler) UpdateCover(ctx echo.Context) error {
 // @Router       /api/v1/albums/{id} [get]
 func (h Handler) Get(ctx echo.Context) error {
 	userId, err := internal.GetUserId(ctx, h.UserUseCase)
-
+	if err != nil {
+		userId = -1
+	}
 	id, err := internal.GetIdInt64ByFieldId(ctx)
 	if err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
@@ -368,6 +365,9 @@ func (h Handler) DeleteCover(ctx echo.Context) error {
 // @Router       /api/v1/albums/popular [get]
 func (h Handler) GetPopular(ctx echo.Context) error {
 	userId, err := internal.GetUserId(ctx, h.UserUseCase)
+	if err != nil {
+		userId = -1
+	}
 	popular, err := h.AlbumUseCase.GetPopular(userId)
 	if err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
@@ -405,17 +405,13 @@ func (h Handler) GetFavorites(ctx echo.Context) error {
 			Result: utils.AlbumsToMap(favorites)})
 }
 
-type albumIdWrapper struct {
-	AlbumId int64 `json:"albumId" example:"4"`
-}
-
 // AddToFavorites godoc
 // @Summary      AddToFavorites
 // @Description  add to favorite
 // @Tags         album
 // @Accept          application/json
 // @Produce      application/json
-// @Param        albumId  body      albumIdWrapper  true  "albumId"
+// @Param        albumId  body      structs.AlbumIdWrapper  true  "albumId"
 // @Success      200    {object}  webUtils.Success
 // @Failure      400    {object}  webUtils.Error  "Data is invalid"
 // @Failure      405    {object}  webUtils.Error  "Method is not allowed"
@@ -426,7 +422,7 @@ func (h Handler) AddToFavorites(ctx echo.Context) error {
 		return internal.UnauthorizedError(ctx)
 	}
 
-	holder := albumIdWrapper{}
+	holder := structs.AlbumIdWrapper{}
 
 	if err := ctx.Bind(&holder); err != nil {
 		return err
@@ -542,4 +538,30 @@ func (h Handler) LikeCheckByUser(ctx echo.Context) error {
 		webUtils.Success{
 			Status: webUtils.OK,
 			Result: liked})
+}
+
+// GetPopularOfWeek godoc
+// @Summary      GetPopularOfTheWeek
+// @Description  getting top20 popular albums of the week
+// @Tags         album
+// @Accept          application/json
+// @Produce      application/json
+// @Success      200  {object}  webUtils.Success
+// @Failure      400  {object}  webUtils.Error  "Data is invalid"
+// @Failure      405  {object}  webUtils.Error  "Method is not allowed"
+// @Router       /api/v1/albums/popular/week [get]
+func (h Handler) GetPopularOfWeek(ctx echo.Context) error {
+	userId, err := internal.GetUserId(ctx, h.UserUseCase)
+	if err != nil {
+		userId = -1
+	}
+	popular, err := h.AlbumUseCase.GetPopularAlbumOfWeek(userId)
+	if err != nil {
+		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
+	}
+
+	return ctx.JSON(http.StatusOK,
+		webUtils.Success{
+			Status: webUtils.OK,
+			Result: popular})
 }

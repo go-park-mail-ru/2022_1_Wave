@@ -6,7 +6,7 @@ import (
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/track/trackProto"
 )
 
-type UseCase interface {
+type TrackUseCase interface {
 	GetAll(userId int64) ([]*trackProto.TrackDataTransfer, error)
 	GetLastId() (int64, error)
 	Create(transfer *trackProto.Track) error
@@ -28,10 +28,10 @@ type UseCase interface {
 }
 
 type trackUseCase struct {
-	albumAgent    domain.AlbumAgent
-	artistAgent   domain.ArtistAgent
-	trackAgent    domain.TrackAgent
-	playlistAgent domain.PlaylistAgent
+	albumAgent  domain.AlbumAgent
+	artistAgent domain.ArtistAgent
+	trackAgent  domain.TrackAgent
+	//playlistAgent domain.PlaylistAgent
 }
 
 func NewTrackUseCase(albumAgent domain.AlbumAgent, artistAgent domain.ArtistAgent, trackAgent domain.TrackAgent) *trackUseCase {
@@ -181,12 +181,12 @@ func (useCase trackUseCase) GetFavorites(userId int64) ([]*trackProto.TrackDataT
 	return useCase.castArray(userId, tracks)
 }
 
-func (useCase trackUseCase) AddToFavorites(userId int64, albumId int64) error {
-	return useCase.trackAgent.AddToFavorites(userId, albumId)
+func (useCase trackUseCase) AddToFavorites(userId int64, trackId int64) error {
+	return useCase.trackAgent.AddToFavorites(userId, trackId)
 }
 
-func (useCase trackUseCase) RemoveFromFavorites(userId int64, albumId int64) error {
-	return useCase.trackAgent.RemoveFromFavorites(userId, albumId)
+func (useCase trackUseCase) RemoveFromFavorites(userId int64, trackId int64) error {
+	return useCase.trackAgent.RemoveFromFavorites(userId, trackId)
 }
 
 func (useCase trackUseCase) GetTracksFromPlaylist(playlistId int64, userId int64) ([]*trackProto.TrackDataTransfer, error) {

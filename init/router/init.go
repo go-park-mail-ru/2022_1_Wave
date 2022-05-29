@@ -16,6 +16,7 @@ import (
 	trackDeliveryHttp "github.com/go-park-mail-ru/2022_1_Wave/internal/track/delivery/http"
 	TrackUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/track/useCase"
 	user_domain "github.com/go-park-mail-ru/2022_1_Wave/internal/user"
+	"github.com/go-park-mail-ru/2022_1_Wave/internal/user/client/s3"
 	userHttp "github.com/go-park-mail-ru/2022_1_Wave/internal/user/delivery/http"
 	"github.com/labstack/echo/v4"
 	"github.com/swaggo/echo-swagger"
@@ -23,11 +24,12 @@ import (
 
 func Router(e *echo.Echo,
 	auth auth_domain.AuthUseCase,
-	album AlbumUseCase.UseCase,
-	artist ArtistUseCase.UseCase,
-	track TrackUseCase.UseCase,
-	playlist PlaylistUseCase.UseCase,
-	user user_domain.UserUseCase) error {
+	album AlbumUseCase.AlbumUseCase,
+	artist ArtistUseCase.ArtistUseCase,
+	track TrackUseCase.TrackUseCase,
+	playlist PlaylistUseCase.PlaylistUseCase,
+	user user_domain.UserUseCase,
+	s3Handler *s3.Handler) error {
 
 	//p := prometheus.NewPrometheus("echo", nil)
 	//p.Use(e)
@@ -39,7 +41,7 @@ func Router(e *echo.Echo,
 	trackHandler := trackDeliveryHttp.MakeHandler(track, user)
 	playlistHandler := playlistDeliveryHttp.MakeHandler(playlist, user)
 	authHandler := authHttp.MakeHandler(auth)
-	userHandler := userHttp.MakeHandler(user)
+	userHandler := userHttp.MakeHandler(user, s3Handler)
 	gatewayHandler := gatewayDeliveryHttp.MakeHandler(album, artist, track, user)
 
 	m := auth_middleware.InitMiddleware(auth)
@@ -84,6 +86,7 @@ func SetAlbumsRoutes(apiVersion *echo.Group, handler albumDeliveryHttp.Handler) 
 	albumRoutes.POST(locate, handler.Create)
 	albumRoutes.PUT(locate, handler.Update)
 	albumRoutes.GET(popularPrefix, handler.GetPopular)
+	albumRoutes.GET(popularOfWeekPrefix, handler.GetPopularOfWeek)
 	albumRoutes.GET(favoritesPrefix, handler.GetFavorites)
 	albumRoutes.POST(favoritesPrefix, handler.AddToFavorites)
 	albumRoutes.DELETE(favoritesPrefix+idEchoPattern, handler.RemoveFromFavorites)
@@ -194,34 +197,35 @@ func SetStaticHandle(apiVersion *echo.Group) {
 
 // config
 const (
-	Proto             = "http://"
-	Host              = "localhost"
-	redisDefaultPort  = "6379"
+	//Proto             = "http://"
+	//Host              = "localhost"
+	//redisDefaultPort  = "6379"
 	currentApiVersion = v1Locate
 	apiPath           = apiLocate + currentApiVersion
 )
 
 // prefixes
 const (
-	apiPrefix         = "/api"
-	v1Prefix          = "/v1"
-	albumsPrefix      = "/albums"
-	albumCoversPrefix = "/albumCovers"
-	artistsPrefix     = "/artists"
-	tracksPrefix      = "/tracks"
-	usersPrefix       = "/users"
-	searchPrefix      = "/search"
-	docsPrefix        = "/docs"
-	popularPrefix     = "/popular"
-	playlistPrefix    = "/playlists"
-	favoritesPrefix   = "/favorites"
-	likePrefix        = "/like"
-	listenPrefix      = "/listen"
-	loginPrefix       = "/login"
-	logoutPrefix      = "/logout"
-	signUpPrefix      = "/signup"
-	getCSRFPrefix     = "/get_csrf"
-	ofUser            = "/ofUser"
+	apiPrefix           = "/api"
+	v1Prefix            = "/v1"
+	albumsPrefix        = "/albums"
+	albumCoversPrefix   = "/albumCovers"
+	artistsPrefix       = "/artists"
+	tracksPrefix        = "/tracks"
+	usersPrefix         = "/users"
+	searchPrefix        = "/search"
+	docsPrefix          = "/docs"
+	popularPrefix       = "/popular"
+	popularOfWeekPrefix = "/popular/week"
+	playlistPrefix      = "/playlists"
+	favoritesPrefix     = "/favorites"
+	likePrefix          = "/like"
+	listenPrefix        = "/listen"
+	loginPrefix         = "/login"
+	logoutPrefix        = "/logout"
+	signUpPrefix        = "/signup"
+	getCSRFPrefix       = "/get_csrf"
+	ofUser              = "/ofUser"
 )
 
 const (

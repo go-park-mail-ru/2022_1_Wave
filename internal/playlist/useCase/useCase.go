@@ -7,7 +7,7 @@ import (
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/track/trackProto"
 )
 
-type UseCase interface {
+type PlaylistUseCase interface {
 	GetAllOfCurrentUser(userId int64) ([]*playlistProto.PlaylistDataTransfer, error)
 	GetAll(userId int64) ([]*playlistProto.PlaylistDataTransfer, error)
 	GetLastIdOfCurrentUser(userId int64) (int64, error)

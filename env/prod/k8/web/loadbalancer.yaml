@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: godeploy
+spec:
+  type: LoadBalancer
+  selector:
+    app: godeploy
+  ports:
+    - protocol: TCP
+      name: "http"
+      port: 443
+      targetPort: 443
+    - protocol: TCP
+      name: "https"
+      port: 80
+      targetPort: 80

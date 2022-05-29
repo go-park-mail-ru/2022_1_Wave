@@ -7,6 +7,7 @@ import (
 	ArtistUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/artist/useCase"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/artist/artistProto"
 	Gateway "github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/gateway"
+	"github.com/go-park-mail-ru/2022_1_Wave/internal/structs"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/tools/utils"
 	TrackUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/track/useCase"
 	user_domain "github.com/go-park-mail-ru/2022_1_Wave/internal/user"
@@ -18,11 +19,11 @@ import (
 
 type Handler struct {
 	UserUseCase   user_domain.UserUseCase
-	ArtistUseCase ArtistUseCase.UseCase
-	TrackUseCase  TrackUseCase.UseCase
+	ArtistUseCase ArtistUseCase.ArtistUseCase
+	TrackUseCase  TrackUseCase.TrackUseCase
 }
 
-func MakeHandler(artist ArtistUseCase.UseCase, track TrackUseCase.UseCase, user user_domain.UserUseCase) Handler {
+func MakeHandler(artist ArtistUseCase.ArtistUseCase, track TrackUseCase.TrackUseCase, user user_domain.UserUseCase) Handler {
 	return Handler{
 		UserUseCase:   user,
 		ArtistUseCase: artist,
@@ -42,6 +43,9 @@ func MakeHandler(artist ArtistUseCase.UseCase, track TrackUseCase.UseCase, user 
 // @Router       /api/v1/artists/ [get]
 func (h Handler) GetAll(ctx echo.Context) error {
 	userId, err := internal.GetUserId(ctx, h.UserUseCase)
+	if err != nil {
+		userId = -1
+	}
 	artists, err := h.ArtistUseCase.GetAll(userId)
 
 	if err != nil {
@@ -141,6 +145,9 @@ func (h Handler) Update(ctx echo.Context) error {
 // @Router       /api/v1/artists/{id} [get]
 func (h Handler) Get(ctx echo.Context) error {
 	userId, err := internal.GetUserId(ctx, h.UserUseCase)
+	if err != nil {
+		userId = -1
+	}
 	id, err := internal.GetIdInt64ByFieldId(ctx)
 	if err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
@@ -204,7 +211,9 @@ func (h Handler) Delete(ctx echo.Context) error {
 // @Router       /api/v1/artists/popular [get]
 func (h Handler) GetPopular(ctx echo.Context) error {
 	userId, err := internal.GetUserId(ctx, h.UserUseCase)
-
+	if err != nil {
+		userId = -1
+	}
 	popular, err := h.ArtistUseCase.GetPopular(userId)
 	if err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
@@ -243,17 +252,13 @@ func (h Handler) GetFavorites(ctx echo.Context) error {
 			Result: utils.ArtistsToMap(favorites)})
 }
 
-type artistIdWrapper struct {
-	ArtistId int64 `json:"artistId" example:"4"`
-}
-
 // AddToFavorites godoc
 // @Summary      AddToFavorites
 // @Description  add to favorite
 // @Tags         artist
 // @Accept          application/json
 // @Produce      application/json
-// @Param        artistId  body      artistIdWrapper  true  "artistId"
+// @Param        artistId  body      structs.ArtistIdWrapper  true  "artistId"
 // @Success      200    {object}  webUtils.Success
 // @Failure      400    {object}  webUtils.Error  "Data is invalid"
 // @Failure      405    {object}  webUtils.Error  "Method is not allowed"
@@ -264,7 +269,7 @@ func (h Handler) AddToFavorites(ctx echo.Context) error {
 		return internal.UnauthorizedError(ctx)
 	}
 
-	holder := artistIdWrapper{}
+	holder := structs.ArtistIdWrapper{}
 
 	if err := ctx.Bind(&holder); err != nil {
 		return err
@@ -298,7 +303,9 @@ func (h Handler) RemoveFromFavorites(ctx echo.Context) error {
 	}
 
 	artistId, err := strconv.ParseInt(ctx.Param(internal.FieldId), 10, 64)
-
+	if err != nil {
+		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
+	}
 	if err := h.ArtistUseCase.RemoveFromFavorites(userId, artistId); err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 	}

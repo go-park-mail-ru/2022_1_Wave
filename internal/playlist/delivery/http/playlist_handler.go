@@ -15,11 +15,11 @@ import (
 )
 
 type Handler struct {
-	PlaylistUseCase PlaylistUseCase.UseCase
+	PlaylistUseCase PlaylistUseCase.PlaylistUseCase
 	UserUseCase     user_domain.UserUseCase
 }
 
-func MakeHandler(playlist PlaylistUseCase.UseCase, user user_domain.UserUseCase) Handler {
+func MakeHandler(playlist PlaylistUseCase.PlaylistUseCase, user user_domain.UserUseCase) Handler {
 	return Handler{
 		PlaylistUseCase: playlist,
 		UserUseCase:     user,
@@ -46,6 +46,9 @@ func toMap(playlists []*playlistProto.PlaylistDataTransfer) map[int64]*playlistP
 // @Router       /api/v1/playlists/ [get]
 func (h Handler) GetAll(ctx echo.Context) error {
 	userId, err := internal.GetUserId(ctx, h.UserUseCase)
+	if err != nil {
+		userId = -1
+	}
 	playlists, err := h.PlaylistUseCase.GetAll(userId)
 	if err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
@@ -185,6 +188,9 @@ func (h Handler) Update(ctx echo.Context) error {
 // @Router       /api/v1/playlists/{id} [get]
 func (h Handler) Get(ctx echo.Context) error {
 	userId, err := internal.GetUserId(ctx, h.UserUseCase)
+	if err != nil {
+		userId = -1
+	}
 	id, err := internal.GetIdInt64ByFieldId(ctx)
 	if err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)

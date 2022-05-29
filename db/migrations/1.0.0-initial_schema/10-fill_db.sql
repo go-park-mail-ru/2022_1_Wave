@@ -22,7 +22,7 @@ VALUES ('A Night At The Opera', 1, 0, 0, 1975),
        ('ZUDWA-DWA', 7, 0, 0, 2003),
        ('Младшая сестра', 8, 0, 0, 2019),
        ('Так закалялась сталь', 9, 0, 0, 2019),
-       ('Out Of Time', 9, 0, 0, 2019);
+       ('Out Of Time', 10, 0, 0, 2019);
 
 -- -- album covers
 INSERT
@@ -127,3 +127,12 @@ CREATE INDEX track_search_fr
 --                 FROM album
 --                 WHERE title = 'rkpnysiugz'
 --                 ORDER BY title DESC;
+
+
+-- SELECT * from popularalbumsbyweek
+--
+-- SELECT id, title, artist_id, count_likes, album.count_listening, album.date
+-- FROM album
+--          JOIN popularAlbumsByWeek p ON p.album_id = album.id
+-- ORDER BY p.count_listening DESC
+-- LIMIT 20;
