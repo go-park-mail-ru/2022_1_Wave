@@ -116,7 +116,7 @@ func (a *Handler) updateStateMessageProcessing(userId uint, message *domain.User
 	case domain.NewTrackInQueue:
 		return a.userSyncPlayerUseCase.NewTrackUpdateState(userId, message.Data.QueuePosition, message.Data.TimeStateUpdate)
 	case domain.OnPause:
-		return a.userSyncPlayerUseCase.OnPauseUpdateState(userId, message.Data.TimeStateUpdate)
+		return a.userSyncPlayerUseCase.OnPauseUpdateState(userId, message.Data.LastSecPosition, message.Data.TimeStateUpdate)
 	case domain.OffPause:
 		return a.userSyncPlayerUseCase.OffPauseUpdateState(userId, message.Data.TimeStateUpdate)
 	case domain.ChangePosition:

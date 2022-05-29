@@ -16,7 +16,7 @@ func NewUserSyncPlayerUseCase(repo domain.UserSyncPlayerRepo) domain.UserSyncPla
 	}
 }
 
-func (a *userSyncPlayerUseCase) PushTrackUpdateState(userId uint, tracksToAdd []trackProto.Track) error {
+func (a *userSyncPlayerUseCase) PushTrackUpdateState(userId uint, tracksToAdd []trackProto.TrackDataTransfer) error {
 	oldTrack, err := a.syncPlayerRepo.GetUserPlayerState(userId)
 	if err != nil {
 		return err
@@ -28,7 +28,7 @@ func (a *userSyncPlayerUseCase) PushTrackUpdateState(userId uint, tracksToAdd []
 	return err
 }
 
-func (a *userSyncPlayerUseCase) NewTrackQueueUpdateState(userId uint, tracksQueue []trackProto.Track, queuePosition int, lastSecPosition float64, timeStateUpdate unix.Time_t) error {
+func (a *userSyncPlayerUseCase) NewTrackQueueUpdateState(userId uint, tracksQueue []trackProto.TrackDataTransfer, queuePosition int, lastSecPosition float64, timeStateUpdate unix.Time_t) error {
 	var oldTrack *domain.UserPlayerState
 	oldTrack, err := a.syncPlayerRepo.GetUserPlayerState(userId)
 	if err != nil {
