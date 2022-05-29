@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f ../docker-compose.yaml
+    kompose.version: 1.26.1 (a9d05d509)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: websocket-server
+  name: websocket-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: websocket-server
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -f ../docker-compose.yaml
+        kompose.version: 1.26.1 (a9d05d509)
+      creationTimestamp: null
+      labels:
+        io.kompose.service: websocket-server
+    spec:
+      containers:
+        - name: websocket-server
+          image: mausved/wave_user
+          ports:
+            - containerPort: 6789
+          env:
+            - name: dbType
+              value: redis
+            - name: REDIS_ADDR
+              value: redis:6379
+            - name: AUTH_GRPC_ADDR
+              value: auth:8085
+      imagePullSecrets:
+        - name: wave
+
+status: { }
