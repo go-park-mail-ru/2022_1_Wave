@@ -1,7 +1,6 @@
 package linkerDeliveryHttp
 
 import (
-	"fmt"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal"
 	LinkerUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/linker/useCase"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/linker/linkerProto"
@@ -30,18 +29,17 @@ func MakeHandler(linker LinkerUseCase.LinkerUseCase) Handler {
 // @Failure      404  {object}  webUtils.Error  "Not found"
 // @Router       /api/v1/linker/{hash} [get]
 func (h Handler) Get(ctx echo.Context) error {
-	fmt.Println("here")
-	fmt.Println(ctx.Request().RequestURI)
 	hash := ctx.Param(internal.Hash)
-	fmt.Println("hash=", hash)
 
 	url, err := h.LinkerUseCase.Get(hash)
+
 	if err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusNotFound)
 	}
 
-	ctx.Response().Header().Add("Location", url)
-	return ctx.JSON(http.StatusMovedPermanently, nil)
+	const httpPart = "http://www."
+	ctx.Response().Header().Set("Location", httpPart+url)
+	return ctx.NoContent(http.StatusMovedPermanently)
 }
 
 // Create godoc
