@@ -4,7 +4,6 @@ import (
 	"crypto/sha1"
 	"encoding/hex"
 	"errors"
-	"fmt"
 	user_microservice_domain "github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/user"
 	user_domain "github.com/go-park-mail-ru/2022_1_Wave/internal/user"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/user/client/s3"
@@ -173,7 +172,6 @@ func (a *UserHandler) UpdateSelfUser(c echo.Context) error {
 // @Failure      400    {object}  webUtils.Error  "invalid field values"
 // @Router       /api/v1/users/upload_avatar [patch]
 func (a *UserHandler) UploadAvatar(c echo.Context) error {
-	fmt.Println("uploading avatar...")
 	form, err := c.MultipartForm()
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, getErrorUserResponse(err))

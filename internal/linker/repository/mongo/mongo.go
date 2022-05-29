@@ -62,11 +62,11 @@ func (collection LinkerRepo) Create(url string) (string, error) {
 
 	insertResult, err := collection.Coll.InsertOne(context.TODO(), data)
 	if err != nil {
-		logger.GlobalLogger.Logrus.Warn("error to insert:", err, "data:", data)
+		logger.GlobalLogger.Logrus.Warn("error to insert:", err, " data:", data)
 		return "", err
 	}
 
-	logger.GlobalLogger.Logrus.Info("success insert single document:", insertResult, "id:", insertResult.InsertedID)
+	logger.GlobalLogger.Logrus.Info("success insert single document:", insertResult, " id:", insertResult.InsertedID)
 	return data.Hash, nil
 }
 
@@ -78,6 +78,6 @@ func (collection LinkerRepo) Get(hash string) (string, error) {
 		return "", err
 	}
 	url := result.Url
-	logger.GlobalLogger.Logrus.Info("success get url by hash:", hash, "hash:", url)
+	logger.GlobalLogger.Logrus.Info("success get url by hash:", hash, " url:", url)
 	return url, nil
 }

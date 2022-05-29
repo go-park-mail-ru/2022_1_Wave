@@ -1,7 +1,6 @@
 package TrackPostgres
 
 import (
-	"fmt"
 	constants "github.com/go-park-mail-ru/2022_1_Wave/internal"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/domain"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/track/trackProto"
@@ -132,7 +131,6 @@ func (table TrackRepo) Like(trackId int64, userId int64) error {
 	track, err := table.SelectByID(trackId)
 
 	if err != nil {
-		fmt.Println("erorr in likes", err)
 		return err
 	}
 
