@@ -54,7 +54,6 @@ services:
       - playlist
       - auth
       - user
-      - mongo
       - linker
 
   album:
@@ -190,7 +189,7 @@ services:
       - exporterPort=:9087
       - ME_CONFIG_MONGODB_ADMINUSERNAME=wave
       - ME_CONFIG_MONGODB_ADMINPASSWORD=wave
-      - ME_CONFIG_MONGODB_URL=mongodb://mongo:27017
+      - ME_CONFIG_MONGODB_URL=mongodb://77.223.123.188:27017
     expose:
       - 8087
       - 9087

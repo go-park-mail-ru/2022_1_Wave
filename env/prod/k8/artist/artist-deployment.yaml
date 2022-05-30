@@ -32,7 +32,7 @@ spec:
             - containerPort: 9082
           env:
             - name: DATABASE_CONNECTION
-              value: user=postgres password=music dbname=wave host=db port=5432 sslmode=disable
+              value: user=postgres password=music dbname=wave host=77.223.123.188 port=5432 sslmode=disable
             - name: dbType
               value: postgres
             - name: exporterPort

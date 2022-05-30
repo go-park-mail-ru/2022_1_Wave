@@ -5,7 +5,7 @@ import (
 	"github.com/go-park-mail-ru/2022_1_Wave/cmd"
 	InitDb "github.com/go-park-mail-ru/2022_1_Wave/init/db"
 	"github.com/go-park-mail-ru/2022_1_Wave/init/logger"
-	AlbumPostgres "github.com/go-park-mail-ru/2022_1_Wave/internal/linker/repository/mongo"
+	"github.com/go-park-mail-ru/2022_1_Wave/internal/linker/repository/mongo"
 	LinkerGrpc "github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/linker/gRPC"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/linker/linkerProto"
 	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
@@ -46,7 +46,9 @@ func main() {
 		logs.Logrus.Fatalln(err)
 	}
 
-	linkerRepo, err := AlbumPostgres.NewLinkerMongoRepo(collection)
+	logs.Logrus.Info("success connect to ", os.Getenv("dbType"), "url:", os.Getenv(mongoUrlEnv))
+
+	linkerRepo, err := LinkerMongo.NewLinkerMongoRepo(collection)
 	if err != nil {
 		logs.Logrus.Fatalln(err)
 	}
