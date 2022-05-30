@@ -382,7 +382,7 @@ jobs:
 
   dockerWebsocket_pre-build:
     runs-on: ubuntu-latest
-    name: pre-build web image
+    name: pre-build websocket image
     needs:
       - buildWaiter
     steps:
@@ -703,7 +703,7 @@ jobs:
 
   dockerWebsocket_deploy:
     runs-on: ubuntu-latest
-    name: deploy web image
+    name: deploy websocket image
     needs:
       - dockerPreBuildWaiter
     steps:
