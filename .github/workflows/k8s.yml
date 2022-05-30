@@ -396,7 +396,7 @@ jobs:
           context: .
           file: ./env/prod/k8/websocket/Dockerfile
           tags: mausved/wave_websocket:latest
-          outputs: type=docker,dest=/tmp/web.tar
+          outputs: type=docker,dest=/tmp/websocket.tar
       - name: Upload image as artifact
         uses: actions/upload-artifact@v2
         with:
