@@ -1,6 +1,6 @@
 #!/bin/bash
 
-bash dockerPullAll.sh
+bash dockerPull.sh
 if [ $? -eq 0 ]; then
   echo -e "\033[32m *** SUCCESS PULLED ALL  ***\033[0m"
 else
