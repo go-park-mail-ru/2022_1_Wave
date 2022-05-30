@@ -27,7 +27,7 @@ func MakeHandler(linker LinkerUseCase.LinkerUseCase) Handler {
 // @Param        hash   path      string  true  "hash to be converted to url"
 // @Success      301  {object}  webUtils.Success
 // @Failure      404  {object}  webUtils.Error  "Not found"
-// @Router       /api/v1/linker/{hash} [get]
+// @Router       /{hash} [get]
 func (h Handler) Get(ctx echo.Context) error {
 	hash := ctx.Param(internal.Hash)
 
@@ -37,8 +37,7 @@ func (h Handler) Get(ctx echo.Context) error {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusNotFound)
 	}
 
-	const httpPart = "http://www."
-	ctx.Response().Header().Set("Location", httpPart+url)
+	ctx.Response().Header().Set("Location", url)
 	return ctx.NoContent(http.StatusMovedPermanently)
 }
 
@@ -51,7 +50,7 @@ func (h Handler) Get(ctx echo.Context) error {
 // @Param        Url  body      linkerProto.UrlWrapper  true  "url to hash"
 // @Success      200    {object}  webUtils.Success
 // @Failure      400    {object}  webUtils.Error  "Data is invalid"
-// @Router       /api/v1/linker/ [post]
+// @Router       / [post]
 func (h Handler) Create(ctx echo.Context) error {
 	url := linkerProto.UrlWrapper{}
 

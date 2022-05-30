@@ -47,10 +47,10 @@ func Router(e *echo.Echo,
 
 	m := auth_middleware.InitMiddleware(auth)
 
-	SetLinkerRoutes(v1, linkerHandler)
-	logger.GlobalLogger.Logrus.Warnln("setting linker routes")
-
 	logger.GlobalLogger.Logrus.Warnln("api version:", v1Prefix)
+
+	SetLinkerRoutes(e, linkerHandler)
+	logger.GlobalLogger.Logrus.Warnln("setting linker routes")
 
 	SetAlbumsRoutes(v1, albumHandler)
 	logger.GlobalLogger.Logrus.Warnln("setting albums routes")
@@ -166,10 +166,10 @@ func SetGatewayRoutes(apiVersion *echo.Group, handler gatewayDeliveryHttp.Handle
 }
 
 // SetLinkerRoutes songs
-func SetLinkerRoutes(apiVersion *echo.Group, handler linkerDeliveryHttp.Handler) {
-	linkerRoutes := apiVersion.Group(linkerPrefix)
-	linkerRoutes.GET(strEchoHashPattern, handler.Get)
-	linkerRoutes.POST(locate, handler.Create)
+func SetLinkerRoutes(e *echo.Echo, handler linkerDeliveryHttp.Handler) {
+	//linkerRoutes := apiVersion.Group(linkerPrefix)
+	e.GET(strEchoHashPattern, handler.Get)
+	e.POST(locate, handler.Create)
 }
 
 func SetUserRoutes(apiVersion *echo.Group, handler userHttp.UserHandler, m *auth_middleware.HttpMiddleware) {
@@ -237,7 +237,7 @@ const (
 	signUpPrefix        = "/signup"
 	getCSRFPrefix       = "/get_csrf"
 	ofUserPrefix        = "/ofUser"
-	linkerPrefix        = "/linker"
+	//linkerPrefix        = "/linker"
 )
 
 const (
