@@ -1,33 +1,37 @@
 package domain
 
-import "time"
+import (
+	"github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/track/trackProto"
+	"golang.org/x/sys/unix"
+)
 
 type FromIs string
 type TypePushState string
 
 const (
 	PlaylistFromIs  FromIs = "playlist"
-	AlbumFromIs            = "album"
-	FavoritesFromIs        = "favorites"
+	AlbumFromIs     FromIs = "album"
+	FavoritesFromIs FromIs = "favorites"
 )
 
 const (
 	PushTrackInQueue        TypePushState = "push_track"
-	NewTracksQueue                        = "new_tracks_queue"
-	NewTrackInQueue                       = "new_track"
-	OnPause                               = "on_pause"
-	OffPause                              = "off_pause"
-	ChangePosition                        = "change_position"
-	NoTrackState                          = "no_track_state"
-	InvalidTrackStateFormat               = "invalid_format"
+	NewTracksQueue          TypePushState = "new_tracks_queue"
+	NewTrackInQueue         TypePushState = "new_track"
+	OnPause                 TypePushState = "on_pause"
+	OffPause                TypePushState = "off_pause"
+	ChangePosition          TypePushState = "change_position"
+	NoTrackState            TypePushState = "no_track_state"
+	InvalidTrackStateFormat TypePushState = "invalid_format"
+	GetPlayerState          TypePushState = "get_player_state"
 )
 
 type UserPlayerState struct {
-	TracksQueue     []uint    `json:"tracks_queue,omitempty"`
-	QueuePosition   int       `json:"queue_position,omitempty"`
-	OnPause         bool      `json:"on_pause,omitempty"`
-	LastSecPosition uint      `json:"last_sec_position,omitempty"`
-	TimeStateUpdate time.Time `json:"time_state_update,omitempty"`
+	TracksQueue     []trackProto.TrackDataTransfer `json:"tracks_queue"`
+	QueuePosition   int                            `json:"queue_position"`
+	OnPause         bool                           `json:"on_pause"`
+	LastSecPosition float64                        `json:"last_sec_position"`
+	TimeStateUpdate unix.Time_t                    `json:"time_state_update"`
 }
 
 // сообщения такого типа будут приходить от клиента
@@ -44,11 +48,11 @@ type UserSyncPlayerRepo interface {
 }
 
 type UserSyncPlayerUseCase interface {
-	PushTrackUpdateState(userId uint, tracksToAdd []uint) error
-	NewTrackQueueUpdateState(userId uint, tracksQueue []uint, queuePosition int, timeStateUpdate time.Time) error
-	NewTrackUpdateState(userId uint, queuePosition int, timeStateUpdate time.Time) error
-	OnPauseUpdateState(userId uint, timeStateUpdate time.Time) error
-	OffPauseUpdateState(userId uint, timeStateUpdate time.Time) error
-	ChangePositionUpdateState(userId uint, lastSecPosition uint, timeStateUpdate time.Time) error
+	PushTrackUpdateState(userId uint, tracksToAdd []trackProto.TrackDataTransfer) error
+	NewTrackQueueUpdateState(userId uint, tracksQueue []trackProto.TrackDataTransfer, queuePosition int, lastSecPosition float64, timeStateUpdate unix.Time_t) error
+	NewTrackUpdateState(userId uint, queuePosition int, timeStateUpdate unix.Time_t) error
+	OnPauseUpdateState(userId uint, lastSecPosition float64, timeStateUpdate unix.Time_t) error
+	OffPauseUpdateState(userId uint, timeStateUpdate unix.Time_t) error
+	ChangePositionUpdateState(userId uint, lastSecPosition float64, timeStateUpdate unix.Time_t) error
 	GetTrackState(userId uint) (*UserPlayerState, error)
 }

@@ -3,7 +3,7 @@ package middleware
 import (
 	"errors"
 	"fmt"
-	auth_domain "github.com/go-park-mail-ru/2022_1_Wave/websocket-server/auth"
+	auth_domain "github.com/go-park-mail-ru/2022_1_Wave/internal/auth"
 	"github.com/labstack/echo/v4"
 	"net/http"
 )
