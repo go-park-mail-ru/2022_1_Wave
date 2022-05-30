@@ -38,12 +38,13 @@ func linkToFormat(link string) (*url.URL, error) {
 		return nil, errors.New("invalid link: " + link)
 	}
 
-	wwwPart := "://www."
+	delim := "://"
+	wwwPart := "www."
 
-	wwwBegin := strings.Index(parsedLink, wwwPart)
+	wwwBegin := strings.Index(parsedLink, delim+wwwPart)
 	if wwwBegin != -1 {
 		wwwEnd := wwwBegin + len(wwwPart)
-		parsedLink = parsedLink[:wwwBegin+3] + parsedLink[wwwEnd:]
+		parsedLink = parsedLink[:wwwBegin+len(delim)] + parsedLink[wwwEnd:]
 	}
 
 	fmt.Println("resultUrl=", parsedLink)
