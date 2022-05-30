@@ -24,9 +24,9 @@ jobs:
           go install github.com/mailru/easyjson/...@latest
       - uses: actions/checkout@v3
       - name: generate gRPC and docs
-        run: chmod +x generateAll.sh && ./generateAll.sh
+        run: cd bash && chmod +x generateAll.sh && ./generateAll.sh
       - name: generate easyjson
-        run: chmod +x easyjsonGenerate.sh && ./easyjsonGenerate.sh
+        run: cd bash && chmod +x easyjsonGenerate.sh && ./easyjsonGenerate.sh
       - name: build
         run: go build -v ./...
 
@@ -51,9 +51,9 @@ jobs:
           go get github.com/mailru/easyjson
           go install github.com/mailru/easyjson/...@latest
       - name: generate gRPC and docs
-        run: chmod +x generateAll.sh && ./generateAll.sh
+        run: cd bash && chmod +x generateAll.sh && ./generateAll.sh
       - name: generate easyjson
-        run: chmod +x easyjsonGenerate.sh && ./easyjsonGenerate.sh
+        run: cd bash && chmod +x easyjsonGenerate.sh && ./easyjsonGenerate.sh
       - name: generate test mocks
         run: cd internal/test && chmod +x mocks.sh && ./mocks.sh
       - name: golangci-lint
@@ -84,9 +84,9 @@ jobs:
           go get github.com/mailru/easyjson
           go install github.com/mailru/easyjson/...@latest
       - name: generate gRPC and docs
-        run: chmod +x generateAll.sh && ./generateAll.sh
+        run: cd bash && chmod +x generateAll.sh && ./generateAll.sh
       - name: generate easyjson
-        run: chmod +x easyjsonGenerate.sh && ./easyjsonGenerate.sh
+        run: cd bash && chmod +x easyjsonGenerate.sh && ./easyjsonGenerate.sh
       - name: go tests
         run:
           chmod +x test.sh && ./test.sh

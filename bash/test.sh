@@ -1,6 +1,6 @@
 #!/bin/bash
 
-cd internal/test || return
+cd ../internal/test || return
 bash mocks.sh
 cd ../..
 

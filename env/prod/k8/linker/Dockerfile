@@ -3,7 +3,8 @@ COPY ./ /var/www/service
 WORKDIR /var/www/service/
 RUN go get github.com/mailru/easyjson
 RUN go install github.com/mailru/easyjson/...@latest
-RUN bash generateAll.sh
+RUN cd bash/ && bash gRPC.sh
+RUN bash easyjsonGenerate.sh && cd ..
 RUN go build -o ./tmp/linker ./cmd/linker/linker.go
 
 FROM alpine
