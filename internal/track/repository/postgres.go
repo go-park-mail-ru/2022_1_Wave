@@ -300,7 +300,7 @@ func (table TrackRepo) CountPopularTrackOfWeek() (bool, error) {
 
 func (table TrackRepo) GetPopularTrackOfWeekTop20() ([]*trackProto.Track, error) {
 	query := `
-		SELECT id, title, artist_id, track.count_likes, track.count_listening, track.duration FROM track
+		SELECT id, title, artist_id, track.count_likes, track.count_listening, track.duration, track.album_id FROM track
 		JOIN popularTracksByWeek p ON p.track_id = track.id 
 		ORDER BY (p.current_week_likes - p.last_week_likes) DESC, count_likes DESC
 		LIMIT $1;`
