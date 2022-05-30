@@ -18,7 +18,7 @@ services:
       - ../../../../front/2022_1_Wave/build:/var/www/wave
     depends_on:
       - wave_music
-      - websocket_server
+#      - websocket_server
 
   #  nginx-exporter:
   #    image: nginx/nginx-prometheus-exporter
@@ -54,7 +54,7 @@ services:
       - playlist
       - auth
       - user
-      - linker
+  #      - linker
 
   album:
     container_name: album
@@ -178,53 +178,53 @@ services:
       - db
       - redis
 
-  linker:
-    container_name: linker
-    image: mausved/wave_music_api_v1
-    working_dir: /var/www/service
-    restart: always
-    environment:
-      - dbType=mongo
-      - port=:8087
-      - exporterPort=:9087
-      - ME_CONFIG_MONGODB_ADMINUSERNAME=wave
-      - ME_CONFIG_MONGODB_ADMINPASSWORD=wave
-      - ME_CONFIG_MONGODB_URL=mongodb://77.223.123.188:27017
-    expose:
-      - 8087
-      - 9087
-    entrypoint: ./cmd/linker/run.sh
-    volumes:
-      - ./airs/linker.toml:/var/www/service/cmd/linker/.air.toml:ro
-      - ../..:/var/www/service
-    depends_on:
-      - mongo
+  #  linker:
+  #    container_name: linker
+  #    image: mausved/wave_music_api_v1
+  #    working_dir: /var/www/service
+  #    restart: always
+  #    environment:
+  #      - dbType=mongo
+  #      - port=:8087
+  #      - exporterPort=:9087
+  #      - ME_CONFIG_MONGODB_ADMINUSERNAME=wave
+  #      - ME_CONFIG_MONGODB_ADMINPASSWORD=wave
+  #      - ME_CONFIG_MONGODB_URL=mongodb://77.223.123.188:27017
+  #    expose:
+  #      - 8087
+  #      - 9087
+  #    entrypoint: ./cmd/linker/run.sh
+  #    volumes:
+  #      - ./airs/linker.toml:/var/www/service/cmd/linker/.air.toml:ro
+  #      - ../..:/var/www/service
+  #    depends_on:
+  #      - mongo
 
-  mongo:
-    image: mongo
-    container_name: mongo
-    restart: always
-    #    environment:
-    #      - MONGO_INITDB_ROOT_USERNAME=wave
-    #      - MONGO_INITDB_ROOT_PASSWORD=wave
-    expose:
-      - 27017
+  #  mongo:
+  #    image: mongo
+  #    container_name: mongo
+  #    restart: always
+  #    #    environment:
+  #    #      - MONGO_INITDB_ROOT_USERNAME=wave
+  #    #      - MONGO_INITDB_ROOT_PASSWORD=wave
+  #    expose:
+  #      - 27017
 
-  websocket_server:
-    image: mausved/wave_music_api_v1:latest
-    container_name: websocket_server
-    working_dir: /websocket-server
-    environment:
-      - REDIS_ADDR=redis:6379
-      - AUTH_GRPC_ADDR=auth:8085
-    expose:
-      - 6789
-    entrypoint: ./websocket-server/cmd/run.sh
-    volumes:
-      - ../..:/websocket-server
-    depends_on:
-      - redis
-      - auth
+  #  websocket_server:
+  #    image: mausved/wave_music_api_v1:latest
+  #    container_name: websocket_server
+  #    working_dir: /websocket-server
+  #    environment:
+  #      - REDIS_ADDR=redis:6379
+  #      - AUTH_GRPC_ADDR=auth:8085
+  #    expose:
+  #      - 6789
+  #    entrypoint: ./websocket-server/cmd/run.sh
+  #    volumes:
+  #      - ../..:/websocket-server
+  #    depends_on:
+  #      - redis
+  #      - auth
 
   redis:
     image: redis
@@ -241,6 +241,8 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=music
       - POSTGRES_DB=wave
+    ports:
+      - "5432:5432"
     expose:
       - 5432
     #    volumes:

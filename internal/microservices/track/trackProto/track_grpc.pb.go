@@ -42,6 +42,7 @@ type TrackUseCaseClient interface {
 	GetFavorites(ctx context.Context, in *gatewayProto.IdArg, opts ...grpc.CallOption) (*TracksResponse, error)
 	AddToFavorites(ctx context.Context, in *gatewayProto.UserIdTrackIdArg, opts ...grpc.CallOption) (*empty.Empty, error)
 	RemoveFromFavorites(ctx context.Context, in *gatewayProto.UserIdTrackIdArg, opts ...grpc.CallOption) (*empty.Empty, error)
+	GetPopularTrackOfWeekTop20(ctx context.Context, in *empty.Empty, opts ...grpc.CallOption) (*TracksResponse, error)
 }
 
 type trackUseCaseClient struct {
@@ -214,6 +215,15 @@ func (c *trackUseCaseClient) RemoveFromFavorites(ctx context.Context, in *gatewa
 	return out, nil
 }
 
+func (c *trackUseCaseClient) GetPopularTrackOfWeekTop20(ctx context.Context, in *empty.Empty, opts ...grpc.CallOption) (*TracksResponse, error) {
+	out := new(TracksResponse)
+	err := c.cc.Invoke(ctx, "/track.TrackUseCase/GetPopularTrackOfWeekTop20", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // TrackUseCaseServer is the server API for TrackUseCase service.
 // All implementations must embed UnimplementedTrackUseCaseServer
 // for forward compatibility
@@ -236,6 +246,7 @@ type TrackUseCaseServer interface {
 	GetFavorites(context.Context, *gatewayProto.IdArg) (*TracksResponse, error)
 	AddToFavorites(context.Context, *gatewayProto.UserIdTrackIdArg) (*empty.Empty, error)
 	RemoveFromFavorites(context.Context, *gatewayProto.UserIdTrackIdArg) (*empty.Empty, error)
+	GetPopularTrackOfWeekTop20(context.Context, *empty.Empty) (*TracksResponse, error)
 	mustEmbedUnimplementedTrackUseCaseServer()
 }
 
@@ -296,6 +307,9 @@ func (UnimplementedTrackUseCaseServer) AddToFavorites(context.Context, *gatewayP
 }
 func (UnimplementedTrackUseCaseServer) RemoveFromFavorites(context.Context, *gatewayProto.UserIdTrackIdArg) (*empty.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RemoveFromFavorites not implemented")
+}
+func (UnimplementedTrackUseCaseServer) GetPopularTrackOfWeekTop20(context.Context, *empty.Empty) (*TracksResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetPopularTrackOfWeekTop20 not implemented")
 }
 func (UnimplementedTrackUseCaseServer) mustEmbedUnimplementedTrackUseCaseServer() {}
 
@@ -634,6 +648,24 @@ func _TrackUseCase_RemoveFromFavorites_Handler(srv interface{}, ctx context.Cont
 	return interceptor(ctx, in, info, handler)
 }
 
+func _TrackUseCase_GetPopularTrackOfWeekTop20_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(empty.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TrackUseCaseServer).GetPopularTrackOfWeekTop20(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/track.TrackUseCase/GetPopularTrackOfWeekTop20",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TrackUseCaseServer).GetPopularTrackOfWeekTop20(ctx, req.(*empty.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // TrackUseCase_ServiceDesc is the grpc.ServiceDesc for TrackUseCase service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -712,6 +744,10 @@ var TrackUseCase_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "RemoveFromFavorites",
 			Handler:    _TrackUseCase_RemoveFromFavorites_Handler,
+		},
+		{
+			MethodName: "GetPopularTrackOfWeekTop20",
+			Handler:    _TrackUseCase_GetPopularTrackOfWeekTop20_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

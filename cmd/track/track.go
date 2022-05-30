@@ -14,6 +14,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	"log"
 	"os"
+	"time"
 )
 
 var (
@@ -73,6 +74,21 @@ func main() {
 			logs.Logrus.Fatal("Unable to start a http track metrics server:", err)
 		}
 	}()
+
+	//const week = 7 * 24 * time.Hour
+	if _, err := trackRepo.CountPopularTrackOfWeek(); err != nil {
+		logs.Logrus.Fatal("Unable to count a inits popular tracks of week, err:", err)
+	}
+	logs.Logrus.Info("Success init start popular tracks of week")
+	go func() {
+		for now := range time.Tick(time.Second * 10) {
+			if _, err := trackRepo.CountPopularTrackOfWeek(); err != nil {
+				logs.Logrus.Fatal("Unable to count a inits popular tracks of week, time:", now, "err:", err)
+			}
+		}
+	}()
+
+	logs.Logrus.Info("Album gRPC ready to listen", os.Getenv("port"))
 
 	err = server.Serve(listen)
 	if err != nil {

@@ -14,6 +14,13 @@ message Track {
   int64 count_listenings = 7; // @gotags: json:"countListening" example:"15632" db:"count_listening" validate:"min=0,nonnil"
 }
 
+message PopularTrackOfWeek {
+  int64 id = 1; // @gotags: json:"id" example:"8" db:"track_id" validate:"min=0,nonnil"
+  int64 last_week_likes = 2; // @gotags: json:"lastWeekLikes" example:"54" db:"last_week_likes" validate:"min=0,nonnil"
+  int64 current_week_likes = 3; // @gotags: json:"currentWeekLikes" example:"54" db:"current_week_likes" validate:"min=0,nonnil"
+  int64 date = 4; // @gotags: json:"date" example:"0" db:"date,nonnil"
+}
+
 message TrackDataTransfer {
   int64 id = 1; // @gotags: json:"id" example:"1"
   string title = 2; // @gotags: json:"title" example:"Mercury"
@@ -55,5 +62,5 @@ service TrackUseCase {
   rpc GetFavorites(gateway.IdArg) returns (TracksResponse) {}
   rpc AddToFavorites(gateway.UserIdTrackIdArg) returns (google.protobuf.Empty) {}
   rpc RemoveFromFavorites(gateway.UserIdTrackIdArg) returns (google.protobuf.Empty) {}
-
+  rpc GetPopularTrackOfWeekTop20(google.protobuf.Empty) returns (TracksResponse) {};
 }

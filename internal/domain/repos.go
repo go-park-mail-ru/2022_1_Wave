@@ -75,6 +75,8 @@ type TrackRepo interface {
 	GetFavorites(userId int64) ([]*trackProto.Track, error)
 	AddToFavorites(id int64, userId int64) error
 	RemoveFromFavorites(trackId int64, userId int64) error
+	GetPopularTrackOfWeekTop20() ([]*trackProto.Track, error)
+	CountPopularTrackOfWeek() (bool, error)
 }
 
 type PlaylistRepo interface {
