@@ -103,9 +103,9 @@ jobs:
 
   #########################################
 
-  dockerAlbum_pre-build:
+  dockerAlbum_build:
     runs-on: ubuntu-latest
-    name: pre-build album image
+    name: build album image
     needs:
       - buildWaiter
     steps:
@@ -127,9 +127,9 @@ jobs:
           path: /tmp/album.tar
 
 
-  dockerAlertmanager_pre-build:
+  dockerAlertmanager_build:
     runs-on: ubuntu-latest
-    name: pre-build alertmanager image
+    name: build alertmanager image
     needs:
       - buildWaiter
     steps:
@@ -150,9 +150,9 @@ jobs:
           name: alertmanager
           path: /tmp/alertmanager.tar
 
-  dockerApi_pre-build:
+  dockerApi_build:
     runs-on: ubuntu-latest
-    name: pre-build api image
+    name: build api image
     needs:
       - buildWaiter
     steps:
@@ -173,9 +173,9 @@ jobs:
           name: api
           path: /tmp/api.tar
 
-  dockerArtist_pre-build:
+  dockerArtist_build:
     runs-on: ubuntu-latest
-    name: pre-build artist image
+    name: build artist image
     needs:
       - buildWaiter
     steps:
@@ -196,9 +196,9 @@ jobs:
           name: artist
           path: /tmp/artist.tar
 
-  dockerAuth_pre-build:
+  dockerAuth_build:
     runs-on: ubuntu-latest
-    name: pre-build auth image
+    name: build auth image
     needs:
       - buildWaiter
     steps:
@@ -219,9 +219,9 @@ jobs:
           name: auth
           path: /tmp/auth.tar
 
-  dockerCaddy_pre-build:
+  dockerCaddy_build:
     runs-on: ubuntu-latest
-    name: pre-build caddy image
+    name: build caddy image
     needs:
       - buildWaiter
     steps:
@@ -242,9 +242,9 @@ jobs:
           name: caddy
           path: /tmp/caddy.tar
 
-  dockerGrafana_pre-build:
+  dockerGrafana_build:
     runs-on: ubuntu-latest
-    name: pre-build grafana image
+    name: build grafana image
     needs:
       - buildWaiter
     steps:
@@ -265,9 +265,9 @@ jobs:
           name: grafana
           path: /tmp/grafana.tar
 
-  dockerPlaylist_pre-build:
+  dockerPlaylist_build:
     runs-on: ubuntu-latest
-    name: pre-build playlist image
+    name: build playlist image
     needs:
       - buildWaiter
     steps:
@@ -288,9 +288,9 @@ jobs:
           name: playlist
           path: /tmp/playlist.tar
 
-  dockerPrometheus_pre-build:
+  dockerPrometheus_build:
     runs-on: ubuntu-latest
-    name: pre-build prometheus image
+    name: build prometheus image
     needs:
       - buildWaiter
     steps:
@@ -311,9 +311,9 @@ jobs:
           name: prometheus
           path: /tmp/prometheus.tar
 
-  dockerTrack_pre-build:
+  dockerTrack_build:
     runs-on: ubuntu-latest
-    name: pre-build track image
+    name: build track image
     needs:
       - buildWaiter
     steps:
@@ -334,9 +334,9 @@ jobs:
           name: track
           path: /tmp/track.tar
 
-  dockerUser_pre-build:
+  dockerUser_build:
     runs-on: ubuntu-latest
-    name: pre-build user image
+    name: build user image
     needs:
       - buildWaiter
     steps:
@@ -357,9 +357,9 @@ jobs:
           name: user
           path: /tmp/user.tar
 
-  dockerWeb_pre-build:
+  dockerWeb_build:
     runs-on: ubuntu-latest
-    name: pre-build web image
+    name: build web image
     needs:
       - buildWaiter
     steps:
@@ -380,9 +380,9 @@ jobs:
           name: web
           path: /tmp/web.tar
 
-  dockerWebsocket_pre-build:
+  dockerWebsocket_build:
     runs-on: ubuntu-latest
-    name: pre-build websocket image
+    name: build websocket image
     needs:
       - buildWaiter
     steps:
@@ -407,19 +407,19 @@ jobs:
     runs-on: ubuntu-latest
     name: docker-pre-waiter
     needs:
-      - dockerAlbum_pre-build
-      - dockerAlertmanager_pre-build
-      - dockerApi_pre-build
-      - dockerArtist_pre-build
-      - dockerAuth_pre-build
-      - dockerCaddy_pre-build
-      - dockerGrafana_pre-build
-      - dockerPlaylist_pre-build
-      - dockerPrometheus_pre-build
-      - dockerTrack_pre-build
-      - dockerUser_pre-build
-      - dockerWeb_pre-build
-      - dockerWebsocket_pre-build
+      - dockerAlbum_build
+      - dockerAlertmanager_build
+      - dockerApi_build
+      - dockerArtist_build
+      - dockerAuth_build
+      - dockerCaddy_build
+      - dockerGrafana_build
+      - dockerPlaylist_build
+      - dockerPrometheus_build
+      - dockerTrack_build
+      - dockerUser_build
+      - dockerWeb_build
+      - dockerWebsocket_build
     steps:
       - run: echo "go to deploy to docker.hub"
 
