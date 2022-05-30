@@ -1,0 +1,19 @@
+version: "3.5"
+
+volumes:
+  postgres_data:
+  redis_data:
+
+services:
+  db:
+    image: mausved/wave_postgres
+    container_name: postgres
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=music
+      - POSTGRES_DB=wave
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
