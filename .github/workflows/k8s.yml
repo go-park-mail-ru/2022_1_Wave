@@ -289,29 +289,6 @@ jobs:
           name: playlist
           path: /tmp/playlist.tar
 
-  dockerPostgres_pre-build:
-    runs-on: ubuntu-latest
-    name: pre-build postgres image
-    needs:
-      - buildWaiter
-    steps:
-      - uses: actions/checkout@v3
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
-      - name: Build image
-        id: docker_build
-        uses: docker/build-push-action@v2
-        with:
-          context: .
-          file: ./env/prod/k8/postgres/Dockerfile
-          tags: mausved/wave_postgres:latest
-          outputs: type=docker,dest=/tmp/postgres.tar
-      - name: Upload image as artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: postgres
-          path: /tmp/postgres.tar
-
   dockerPrometheus_pre-build:
     runs-on: ubuntu-latest
     name: pre-build prometheus image
@@ -404,6 +381,29 @@ jobs:
           name: web
           path: /tmp/web.tar
 
+  dockerWebsocket_pre-build:
+    runs-on: ubuntu-latest
+    name: pre-build web image
+    needs:
+      - buildWaiter
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      - name: Build image
+        id: docker_build
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: ./env/prod/k8/websocket/Dockerfile
+          tags: mausved/wave_websocket:latest
+          outputs: type=docker,dest=/tmp/web.tar
+      - name: Upload image as artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: websocket
+          path: /tmp/websocket.tar
+
   dockerPreBuildWaiter:
     runs-on: ubuntu-latest
     name: docker-pre-waiter
@@ -416,11 +416,11 @@ jobs:
       - dockerCaddy_pre-build
       - dockerGrafana_pre-build
       - dockerPlaylist_pre-build
-      - dockerPostgres_pre-build
       - dockerPrometheus_pre-build
       - dockerTrack_pre-build
       - dockerUser_pre-build
       - dockerWeb_pre-build
+      - dockerWebsocket_pre-build
     steps:
       - run: echo "go to deploy to docker.hub"
 
@@ -610,29 +610,6 @@ jobs:
       - name: Push image
         run: cd deploy && chmod +x dockerPush.sh && ./dockerPush.sh playlist
 
-  dockerPostgres_deploy:
-    runs-on: ubuntu-latest
-    name: deploy postgres image
-    needs:
-      - dockerPreBuildWaiter
-    steps:
-      - uses: actions/checkout@v3
-      - name: Login to DockerHub Registry
-        run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
-      - name: Download artefact
-        uses: actions/download-artifact@v2
-        with:
-          name: postgres
-          path: /tmp
-      - name: Load docker image
-        run: |
-          docker load --input /tmp/postgres.tar
-          docker image ls -a
-      - name: Push image
-        run: cd deploy && chmod +x dockerPush.sh && ./dockerPush.sh postgres
-
   dockerPrometheus_deploy:
     runs-on: ubuntu-latest
     name: deploy prometheus image
@@ -725,6 +702,29 @@ jobs:
       - name: Push image
         run: cd deploy && chmod +x dockerPush.sh && ./dockerPush.sh web
 
+  dockerWebsocket_deploy:
+    runs-on: ubuntu-latest
+    name: deploy web image
+    needs:
+      - dockerPreBuildWaiter
+    steps:
+      - uses: actions/checkout@v3
+      - name: Login to DockerHub Registry
+        run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      - name: Download artefact
+        uses: actions/download-artifact@v2
+        with:
+          name: websocket
+          path: /tmp
+      - name: Load docker image
+        run: |
+          docker load --input /tmp/websocket.tar
+          docker image ls -a
+      - name: Push image
+        run: cd deploy && chmod +x dockerPush.sh && ./dockerPush.sh websocket
+
   dockerDeployWaiter:
     runs-on: ubuntu-latest
     name: docker-deploy-waiter
@@ -737,11 +737,11 @@ jobs:
       - dockerCaddy_deploy
       - dockerGrafana_deploy
       - dockerPlaylist_deploy
-      - dockerPostgres_deploy
       - dockerPrometheus_deploy
       - dockerTrack_deploy
       - dockerUser_deploy
       - dockerWeb_deploy
+      - dockerWebsocket_deploy
     steps:
       - run: echo "go to deploy to k8s"
 
@@ -769,7 +769,7 @@ jobs:
           echo "${{ secrets.K8S_CONFIG }}" > k8s.yaml
           export KUBECONFIG="$(pwd)/k8s.yaml"
           kubectl apply -f ./env/prod/k8/ -R
-          kubectl rollout restart deployment db
+          kubectl rollout restart deployment websocket
           kubectl rollout restart deployment redis
           kubectl rollout restart deployment artist
           kubectl rollout restart deployment auth
