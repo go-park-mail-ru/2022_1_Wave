@@ -259,7 +259,7 @@ CREATE TABLE UserAlbumsLike
 
 
 ALTER TABLE PopularTracksByWeek
-    ADD CONSTAING realAlbumId FOREIGN KEY (track_id) REFERENCES Track (id) ON DELETE CASCADE;
+    ADD CONSTRAINT realAlbumId FOREIGN KEY (track_id) REFERENCES Track (id) ON DELETE CASCADE;
 
 ALTER TABLE PopularAlbumsByWeek
     ADD CONSTRAINT realAlbumId FOREIGN KEY (album_id) REFERENCES Album (id) ON DELETE CASCADE;
