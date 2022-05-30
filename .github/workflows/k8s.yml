@@ -770,20 +770,40 @@ jobs:
           kubectl apply -f ./env/prod/k8/ -R
           
           sleep 10
-          
           kubectl rollout restart deployment godeploy
+          
+          sleep 10
           kubectl rollout restart deployment wave
+          
+          sleep 10
           kubectl rollout restart deployment websocket
+          
+          sleep 10
           kubectl rollout restart deployment redis
+          
+          sleep 10
           kubectl rollout restart deployment artist
+          
+          sleep 10
           kubectl rollout restart deployment auth
+          
+          sleep 10
           kubectl rollout restart deployment playlist
+          
+          sleep 10
           kubectl rollout restart deployment track
+          
+          sleep 10
           kubectl rollout restart deployment album
           
           sleep 10
-          
           kubectl rollout restart deployment caddy
+          
+          sleep 10
           kubectl rollout restart deployment grafana
+          
+          sleep 10
           kubectl rollout restart deployment alertmanager
+          
+          sleep 10
           kubectl rollout restart deployment prometheus
