@@ -81,7 +81,7 @@ func main() {
 	}
 	logs.Logrus.Info("Success init start popular tracks of week")
 	go func() {
-		for now := range time.Tick(time.Second * 10) {
+		for now := range time.Tick(time.Hour) {
 			if _, err := trackRepo.CountPopularTrackOfWeek(); err != nil {
 				logs.Logrus.Fatal("Unable to count a inits popular tracks of week, time:", now, "err:", err)
 			}
