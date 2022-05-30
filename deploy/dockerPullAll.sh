@@ -1,9 +1,12 @@
 #!/bin/bash
 
-bash dockerPull.sh
-if [ $? -eq 0 ]; then
-  echo -e "\033[32m *** SUCCESS PULLED ALL  ***\033[0m"
-else
-  echo -e "\033[31m *** ERROR DUE PULLING ALL ***\033[0m"
-  exit 127
-fi
+cd ../env/prod/k8 || exit
+for dir in *
+do
+  if [ -d "$dir" ] && [ "$dir" != "redis" ] && [ "$dir" != "utils" ] && [ "$dir" != "secrets" ]
+  then
+    cd ../../../deploy || exit
+    bash dockerPull.sh "$dir"
+    cd ../env/prod/k8 || exit
+  fi
+done
