@@ -1,6 +1,7 @@
 package system
 
 import (
+	"errors"
 	"github.com/go-park-mail-ru/2022_1_Wave/init/gRPC"
 	"github.com/go-park-mail-ru/2022_1_Wave/init/logger"
 	"github.com/go-park-mail-ru/2022_1_Wave/init/router"
@@ -62,21 +63,21 @@ func Init(e *echo.Echo) error {
 
 	AWS_S3_URL = strings.Split(AWS_S3_URL, "\n")[0]
 
-	//if AWS_ACCESS_KEY_ID == "" {
-	//	return errors.New("invalid AWS_ACCESS_KEY_ID:" + AWS_ACCESS_KEY_ID)
-	//}
-	//
-	//if AWS_SECRET_ACCESS_KEY == "" {
-	//	return errors.New("invalid AWS_SECRET_ACCESS_KEY:" + AWS_SECRET_ACCESS_KEY)
-	//}
-	//
-	//if AWS_REGION == "" {
-	//	return errors.New("invalid AWS_REGION:" + AWS_REGION)
-	//}
-	//
-	//if AWS_S3_URL == "" {
-	//	return errors.New("invalid AWS_S3_URL:" + AWS_S3_URL)
-	//}
+	if AWS_ACCESS_KEY_ID == "" {
+		return errors.New("invalid AWS_ACCESS_KEY_ID:" + AWS_ACCESS_KEY_ID)
+	}
+
+	if AWS_SECRET_ACCESS_KEY == "" {
+		return errors.New("invalid AWS_SECRET_ACCESS_KEY:" + AWS_SECRET_ACCESS_KEY)
+	}
+
+	if AWS_REGION == "" {
+		return errors.New("invalid AWS_REGION:" + AWS_REGION)
+	}
+
+	if AWS_S3_URL == "" {
+		return errors.New("invalid AWS_S3_URL:" + AWS_S3_URL)
+	}
 
 	awsConfig := &s3.AWSConfig{
 		AccessKeyID:     AWS_ACCESS_KEY_ID,
