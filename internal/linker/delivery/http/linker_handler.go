@@ -1,6 +1,7 @@
 package linkerDeliveryHttp
 
 import (
+	"fmt"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal"
 	LinkerUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/linker/useCase"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/linker/linkerProto"
@@ -39,6 +40,32 @@ func (h Handler) Get(ctx echo.Context) error {
 
 	ctx.Response().Header().Set("Location", url)
 	return ctx.NoContent(http.StatusMovedPermanently)
+}
+
+// Count godoc
+// @Summary      Count
+// @Description  getting counting by bash
+// @Tags         linker
+// @Produce      application/json
+// @Param        hash   path      string  true  "hash to be counted"
+// @Success      200  {object}  webUtils.Success
+// @Failure      404  {object}  webUtils.Error  "Not found"
+// @Router       /count/{hash} [get]
+func (h Handler) Count(ctx echo.Context) error {
+	hash := ctx.Param(internal.Hash)
+
+	fmt.Println("hash=", hash)
+
+	count, err := h.LinkerUseCase.Count(hash)
+
+	if err != nil {
+		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusNotFound)
+	}
+
+	return ctx.JSON(http.StatusOK,
+		webUtils.Success{
+			Status: webUtils.OK,
+			Result: linkerProto.CountResponse{Result: count}})
 }
 
 // Create godoc

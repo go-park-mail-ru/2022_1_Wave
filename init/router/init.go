@@ -171,6 +171,7 @@ func SetLinkerRoutes(e *echo.Echo, handler linkerDeliveryHttp.Handler) {
 	//linkerRoutes := apiVersion.Group(linkerPrefix)
 	e.GET(strEchoHashPattern, handler.Get)
 	e.POST(locate, handler.Create)
+	e.GET(strCountPattern+strEchoHashPattern, handler.Count)
 }
 
 func SetUserRoutes(apiVersion *echo.Group, handler userHttp.UserHandler, m *auth_middleware.HttpMiddleware) {
@@ -264,6 +265,7 @@ const (
 	idEchoPattern        = "/:id"
 	strEchoToFindPattern = "/:toFind"
 	strEchoHashPattern   = "/:hash"
+	strCountPattern      = "/count"
 )
 
 // words

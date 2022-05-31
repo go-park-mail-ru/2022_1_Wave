@@ -90,4 +90,5 @@ type PlaylistAgent interface {
 type LinkerAgent interface {
 	Get(hash string) (string, error)
 	Create(url string) (string, error)
+	Count(hash string) (int64, error)
 }

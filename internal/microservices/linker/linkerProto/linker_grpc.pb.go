@@ -22,8 +22,9 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type LinkerUseCaseClient interface {
-	Get(ctx context.Context, in *UrlWrapper, opts ...grpc.CallOption) (*HashWrapper, error)
+	Get(ctx context.Context, in *HashWrapper, opts ...grpc.CallOption) (*UrlWrapper, error)
 	Create(ctx context.Context, in *UrlWrapper, opts ...grpc.CallOption) (*HashWrapper, error)
+	Count(ctx context.Context, in *HashWrapper, opts ...grpc.CallOption) (*CountResponse, error)
 }
 
 type linkerUseCaseClient struct {
@@ -34,8 +35,8 @@ func NewLinkerUseCaseClient(cc grpc.ClientConnInterface) LinkerUseCaseClient {
 	return &linkerUseCaseClient{cc}
 }
 
-func (c *linkerUseCaseClient) Get(ctx context.Context, in *UrlWrapper, opts ...grpc.CallOption) (*HashWrapper, error) {
-	out := new(HashWrapper)
+func (c *linkerUseCaseClient) Get(ctx context.Context, in *HashWrapper, opts ...grpc.CallOption) (*UrlWrapper, error) {
+	out := new(UrlWrapper)
 	err := c.cc.Invoke(ctx, "/linker.LinkerUseCase/Get", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -52,12 +53,22 @@ func (c *linkerUseCaseClient) Create(ctx context.Context, in *UrlWrapper, opts .
 	return out, nil
 }
 
+func (c *linkerUseCaseClient) Count(ctx context.Context, in *HashWrapper, opts ...grpc.CallOption) (*CountResponse, error) {
+	out := new(CountResponse)
+	err := c.cc.Invoke(ctx, "/linker.LinkerUseCase/Count", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // LinkerUseCaseServer is the server API for LinkerUseCase service.
 // All implementations must embed UnimplementedLinkerUseCaseServer
 // for forward compatibility
 type LinkerUseCaseServer interface {
-	Get(context.Context, *UrlWrapper) (*HashWrapper, error)
+	Get(context.Context, *HashWrapper) (*UrlWrapper, error)
 	Create(context.Context, *UrlWrapper) (*HashWrapper, error)
+	Count(context.Context, *HashWrapper) (*CountResponse, error)
 	mustEmbedUnimplementedLinkerUseCaseServer()
 }
 
@@ -65,11 +76,14 @@ type LinkerUseCaseServer interface {
 type UnimplementedLinkerUseCaseServer struct {
 }
 
-func (UnimplementedLinkerUseCaseServer) Get(context.Context, *UrlWrapper) (*HashWrapper, error) {
+func (UnimplementedLinkerUseCaseServer) Get(context.Context, *HashWrapper) (*UrlWrapper, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Get not implemented")
 }
 func (UnimplementedLinkerUseCaseServer) Create(context.Context, *UrlWrapper) (*HashWrapper, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Create not implemented")
+}
+func (UnimplementedLinkerUseCaseServer) Count(context.Context, *HashWrapper) (*CountResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Count not implemented")
 }
 func (UnimplementedLinkerUseCaseServer) mustEmbedUnimplementedLinkerUseCaseServer() {}
 
@@ -85,7 +99,7 @@ func RegisterLinkerUseCaseServer(s grpc.ServiceRegistrar, srv LinkerUseCaseServe
 }
 
 func _LinkerUseCase_Get_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(UrlWrapper)
+	in := new(HashWrapper)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -97,7 +111,7 @@ func _LinkerUseCase_Get_Handler(srv interface{}, ctx context.Context, dec func(i
 		FullMethod: "/linker.LinkerUseCase/Get",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(LinkerUseCaseServer).Get(ctx, req.(*UrlWrapper))
+		return srv.(LinkerUseCaseServer).Get(ctx, req.(*HashWrapper))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -120,6 +134,24 @@ func _LinkerUseCase_Create_Handler(srv interface{}, ctx context.Context, dec fun
 	return interceptor(ctx, in, info, handler)
 }
 
+func _LinkerUseCase_Count_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(HashWrapper)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(LinkerUseCaseServer).Count(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/linker.LinkerUseCase/Count",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(LinkerUseCaseServer).Count(ctx, req.(*HashWrapper))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // LinkerUseCase_ServiceDesc is the grpc.ServiceDesc for LinkerUseCase service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -134,6 +166,10 @@ var LinkerUseCase_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Create",
 			Handler:    _LinkerUseCase_Create_Handler,
+		},
+		{
+			MethodName: "Count",
+			Handler:    _LinkerUseCase_Count_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

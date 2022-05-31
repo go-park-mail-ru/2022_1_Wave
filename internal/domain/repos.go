@@ -98,4 +98,5 @@ type PlaylistRepo interface {
 type LinkerRepo interface {
 	Get(hash string) (string, error)
 	Create(url string) (string, error)
+	Count(hash string) (int64, error)
 }

@@ -5,7 +5,12 @@ import (
 )
 
 func RandomRune() string {
-	return string('a' + rune(rand.Intn('z'-'a'+1)))
+	letters := []rune{'a', 'A'}
+
+	beginPos := rand.Intn(len(letters))
+	beginLetter := letters[beginPos]
+
+	return string(beginLetter + rune(rand.Intn('z'-'a'+1)))
 }
 
 func RandomWord(maxLen int64) string {
@@ -14,4 +19,14 @@ func RandomWord(maxLen int64) string {
 		word += RandomRune()
 	}
 	return word
+}
+
+var runes = []rune("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
+
+func RandStringRunes(n int) string {
+	b := make([]rune, n)
+	for i := range b {
+		b[i] = runes[rand.Intn(len(runes))]
+	}
+	return string(b)
 }

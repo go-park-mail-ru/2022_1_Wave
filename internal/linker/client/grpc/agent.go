@@ -2,6 +2,7 @@ package LinkerGrpcAgent
 
 import (
 	"context"
+	"fmt"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/linker/linkerProto"
 )
 
@@ -13,12 +14,12 @@ func MakeAgent(gRPC linkerProto.LinkerUseCaseClient) GrpcAgent {
 	return GrpcAgent{LinkerGrpc: gRPC}
 }
 
-func (agent GrpcAgent) Get(url string) (string, error) {
-	hash, err := agent.LinkerGrpc.Get(context.Background(), &linkerProto.UrlWrapper{Url: url})
+func (agent GrpcAgent) Get(hash string) (string, error) {
+	url, err := agent.LinkerGrpc.Get(context.Background(), &linkerProto.HashWrapper{Hash: hash})
 	if err != nil {
 		return "", err
 	}
-	return hash.Hash, nil
+	return url.Url, nil
 }
 
 func (agent GrpcAgent) Create(url string) (string, error) {
@@ -31,4 +32,13 @@ func (agent GrpcAgent) Create(url string) (string, error) {
 	}
 
 	return returnedHash.Hash, nil
+}
+
+func (agent GrpcAgent) Count(hash string) (int64, error) {
+	fmt.Println("in agent count")
+	response, err := agent.LinkerGrpc.Count(context.Background(), &linkerProto.HashWrapper{Hash: hash})
+	if err != nil {
+		return -1, err
+	}
+	return response.Result, nil
 }
