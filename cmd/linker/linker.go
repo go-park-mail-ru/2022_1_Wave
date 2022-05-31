@@ -11,7 +11,9 @@ import (
 	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
 	"github.com/prometheus/client_golang/prometheus"
 	"log"
+	"math/rand"
 	"os"
+	"time"
 )
 
 var (
@@ -32,6 +34,9 @@ func init() {
 	// Register standard server metrics and customized metrics to registry.
 	reg.MustRegister(grpcMetrics, customizedCounterMetric)
 	customizedCounterMetric.WithLabelValues("Test")
+
+	// Seed, unlike the Rand.Seed method, is safe for concurrent use. - official documentation
+	rand.Seed(time.Now().UnixNano())
 }
 
 func main() {
