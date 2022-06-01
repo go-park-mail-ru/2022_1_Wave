@@ -366,6 +366,7 @@ jobs:
       - uses: actions/checkout@v3
       - name: Set up certs
         run: |
+          mkdir env/prod/certs/xyz/ -p
           echo "${{ secrets.FULLCHAIN_ONLINE }}" > env/prod/certs/fullchain.pem
           echo "${{ secrets.PRIVKEY_ONLINE }}" > env/prod/certs/privkey.pem
           echo "${{ secrets.FULLCHAIN_XYZ }}" > env/prod/certs/xyz/fullchain.pem
