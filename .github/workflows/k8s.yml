@@ -370,7 +370,7 @@ jobs:
           echo "${{ secrets.FULLCHAIN_ONLINE }}" > env/prod/certs/fullchain.pem
           echo "${{ secrets.PRIVKEY_ONLINE }}" > env/prod/certs/privkey.pem
           echo "${{ secrets.FULLCHAIN_XYZ }}" > env/prod/certs/xyz/fullchain.pem
-          echo "${{ secrets.PRIVKEY }}" > env/prod/certs/xyz/privkey.pem
+          echo "${{ secrets.PRIVKEY_XYZ }}" > env/prod/certs/xyz/privkey.pem
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
       - name: Build image
