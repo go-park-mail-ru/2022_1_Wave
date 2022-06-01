@@ -53,11 +53,6 @@ scrape_configs:
     static_configs:
       - targets: [ 'linker.default.svc.cluster.local:9087' ]
 
-  - job_name: 'websocket'
-    scrape_interval: 5s
-    static_configs:
-      - targets: [ 'websocket.default.svc.cluster.local:6789' ]
-
 alerting:
   alertmanagers:
     - scheme: http
