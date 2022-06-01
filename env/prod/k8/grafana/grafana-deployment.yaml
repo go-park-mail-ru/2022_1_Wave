@@ -26,10 +26,6 @@ spec:
     spec:
       containers:
         - env:
-            - name: ADMIN_PASSWORD
-            - name: ADMIN_USER
-            - name: GF_SECURITY_ADMIN_PASSWORD
-            - name: GF_SECURITY_ADMIN_USER
             - name: GF_USERS_ALLOW_SIGN_UP
               value: "false"
           image: mausved/wave_grafana

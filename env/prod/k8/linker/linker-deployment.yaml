@@ -31,16 +31,37 @@ spec:
             - containerPort: 8087
             - containerPort: 9087
           env:
+
             - name: MONGO_INITDB_ROOT_USERNAME
-              value: wave
+              valueFrom:
+                secretKeyRef:
+                  name: secretmongo
+                  key: MONGO_INITDB_ROOT_USERNAME
+
             - name: MONGO_INITDB_ROOT_PASSWORD
-              value: music
+              valueFrom:
+                secretKeyRef:
+                  name: secretmongo
+                  key: MONGO_INITDB_ROOT_PASSWORD
+
             - name: MONGO_INITDB_DATABASE
-              value: admin
+              valueFrom:
+                secretKeyRef:
+                  name: secretmongo
+                  key: MONGO_INITDB_DATABASE
+
             - name: ME_CONFIG_MONGODB_URL
-              value: mongodb://77.223.123.188:27017
+              valueFrom:
+                secretKeyRef:
+                  name: secretmongo
+                  key: ME_CONFIG_MONGODB_URL
+
             - name: dbType
-              value: mongo
+              valueFrom:
+                secretKeyRef:
+                  name: secretmongo
+                  key: dbType
+
             - name: exporterPort
               value: :9087
             - name: port

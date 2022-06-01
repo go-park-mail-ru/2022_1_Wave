@@ -30,12 +30,21 @@ spec:
           ports:
             - containerPort: 6789
           env:
-            - name: dbType
-              value: redis
             - name: REDIS_ADDR
-              value: redis:6379
+              valueFrom:
+                secretKeyRef:
+                  name: secretredis
+                  key: REDIS_ADDR
             - name: AUTH_GRPC_ADDR
-              value: auth:8085
+              valueFrom:
+                secretKeyRef:
+                  name: secretredis
+                  key: AUTH_GRPC_ADDR
+            - name: dbType
+              valueFrom:
+                secretKeyRef:
+                  name: secretredis
+                  key: dbType
       imagePullSecrets:
         - name: wave
 
