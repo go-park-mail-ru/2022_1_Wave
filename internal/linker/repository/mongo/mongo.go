@@ -8,8 +8,6 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"gopkg.in/mgo.v2/bson"
-	"math/rand"
-	"time"
 )
 
 type LinkerRepo struct {
@@ -61,7 +59,6 @@ type LinkInfo struct {
 }
 
 func getHash() string {
-	rand.Seed(time.Now().UnixNano())
 	hash := utils.RandStringRunes(length)
 	return hash
 }
