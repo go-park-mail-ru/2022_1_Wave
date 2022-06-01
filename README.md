@@ -4,7 +4,7 @@
 
 ### © Team Wave
 
-![Team Wave](https://wave-music.online/favicon.png "logo")
+![Team Wave](logo.jpg "logo")
 
 ## Team:
 
