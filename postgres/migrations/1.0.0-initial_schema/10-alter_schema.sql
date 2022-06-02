@@ -36,14 +36,13 @@ DROP TABLE if exists UserListenedPlaylist;
 DROP TABLE if exists UserPlayer;
 DROP TABLE if exists PlaylistTrack;
 DROP TABLE if exists Playlist;
-DROP TABLE if exists Users;
-DROP TABLE if exists Track;
-DROP TABLE if exists AlbumCover;
-DROP TABLE IF exists PopularAlbumsByWeek;
-DROP TABLE if exists Album;
-DROP TABLE if exists Single;
-DROP TABLE if exists Artist;
-DROP TABLE if exists place;
+DROP TABLE if exists Users CASCADE;
+DROP TABLE if exists Track CASCADE;
+DROP TABLE if exists AlbumCover CASCADE;
+DROP TABLE IF exists PopularAlbumsByWeek CASCADE;
+DROP TABLE if exists Album CASCADE;
+DROP TABLE if exists Single CASCADE;
+DROP TABLE if exists Artist CASCADE;
 
 CREATE TABLE Users
 (
