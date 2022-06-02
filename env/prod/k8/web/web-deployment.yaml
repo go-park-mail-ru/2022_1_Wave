@@ -17,9 +17,9 @@ spec:
         - name: godeploy
           image: mausved/wave_web
           ports:
-            - name: "proxy-http"
+            - name: "http"
               containerPort: 80
-            - name: "proxy-https"
+            - name: "https"
               containerPort: 443
       imagePullSecrets:
         - name: wave
