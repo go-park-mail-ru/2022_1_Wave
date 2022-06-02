@@ -38,6 +38,17 @@ spec:
           name: prometheus
           ports:
             - containerPort: 9090
+          env:
+            - name: ADMIN_USER
+              valueFrom:
+                secretKeyRef:
+                  name: userwave
+                  key: ADMIN_USER
+            - name: ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: userwave
+                  key: ADMIN_PASSWORD
       restartPolicy: Always
       imagePullSecrets:
         - name: wave

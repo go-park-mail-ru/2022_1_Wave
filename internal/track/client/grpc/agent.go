@@ -151,3 +151,8 @@ func (agent GrpcAgent) GetTracksFromPlaylist(playlistId int64) ([]*trackProto.Tr
 	return data.Tracks, nil
 
 }
+
+func (agent GrpcAgent) GetPopularTrackOfWeekTop20() ([]*trackProto.Track, error) {
+	data, err := agent.TrackGrpc.GetPopularTrackOfWeekTop20(context.Background(), &emptypb.Empty{})
+	return data.Tracks, err
+}

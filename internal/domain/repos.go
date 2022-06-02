@@ -75,6 +75,8 @@ type TrackRepo interface {
 	GetFavorites(userId int64) ([]*trackProto.Track, error)
 	AddToFavorites(id int64, userId int64) error
 	RemoveFromFavorites(trackId int64, userId int64) error
+	GetPopularTrackOfWeekTop20() ([]*trackProto.Track, error)
+	CountPopularTrackOfWeek() (bool, error)
 }
 
 type PlaylistRepo interface {
@@ -91,4 +93,10 @@ type PlaylistRepo interface {
 	GetSize() (int64, error)
 	AddToPlaylist(userId int64, playlistId int64, trackId int64) error
 	RemoveFromPlaylist(userId int64, playlistId int64, trackId int64) error
+}
+
+type LinkerRepo interface {
+	Get(hash string) (string, error)
+	Create(url string) (string, error)
+	Count(hash string) (int64, error)
 }

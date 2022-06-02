@@ -42,7 +42,7 @@ func main() {
 		log.Fatalln("error to init logrus:", err)
 	}
 
-	sqlxDb, err := InitDb.InitDatabase("DATABASE_CONNECTION")
+	sqlxDb, err := InitDb.InitPostgres("DATABASE_CONNECTION")
 	if err != nil {
 		logs.Logrus.Fatalln("error to init database: ", os.Getenv("dbType"), err)
 	}
@@ -58,7 +58,7 @@ func main() {
 
 	server, httpServer, listen, err := cmd.MakeServers(reg)
 	if err != nil {
-		logs.Logrus.Fatalln("Error to launch artist gRPC service")
+		logs.Logrus.Fatalln("Error to launch artist gRPC service:", err)
 	}
 	defer listen.Close()
 
@@ -70,7 +70,7 @@ func main() {
 	// Start your http server for prometheus.
 	go func() {
 		if err := httpServer.ListenAndServe(); err != nil {
-			logs.Logrus.Fatal("Unable to start a http artist metrics server.")
+			logs.Logrus.Fatal("Unable to start a http artist metrics server:", err)
 		}
 	}()
 

@@ -11,6 +11,8 @@ import (
 	authHttp "github.com/go-park-mail-ru/2022_1_Wave/internal/auth/delivery/http"
 	auth_middleware "github.com/go-park-mail-ru/2022_1_Wave/internal/auth/delivery/http/middleware"
 	gatewayDeliveryHttp "github.com/go-park-mail-ru/2022_1_Wave/internal/gateway/delivery/http"
+	linkerDeliveryHttp "github.com/go-park-mail-ru/2022_1_Wave/internal/linker/delivery/http"
+	LinkerUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/linker/useCase"
 	playlistDeliveryHttp "github.com/go-park-mail-ru/2022_1_Wave/internal/playlist/delivery/http"
 	PlaylistUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/playlist/useCase"
 	trackDeliveryHttp "github.com/go-park-mail-ru/2022_1_Wave/internal/track/delivery/http"
@@ -29,10 +31,8 @@ func Router(e *echo.Echo,
 	track TrackUseCase.TrackUseCase,
 	playlist PlaylistUseCase.PlaylistUseCase,
 	user user_domain.UserUseCase,
+	linker LinkerUseCase.LinkerUseCase,
 	s3Handler *s3.Handler) error {
-
-	//p := prometheus.NewPrometheus("echo", nil)
-	//p.Use(e)
 
 	api := e.Group(apiPrefix)
 	v1 := api.Group(v1Prefix)
@@ -41,12 +41,16 @@ func Router(e *echo.Echo,
 	trackHandler := trackDeliveryHttp.MakeHandler(track, user)
 	playlistHandler := playlistDeliveryHttp.MakeHandler(playlist, user)
 	authHandler := authHttp.MakeHandler(auth)
+	linkerHandler := linkerDeliveryHttp.MakeHandler(linker)
 	userHandler := userHttp.MakeHandler(user, s3Handler)
 	gatewayHandler := gatewayDeliveryHttp.MakeHandler(album, artist, track, user)
 
 	m := auth_middleware.InitMiddleware(auth)
 
 	logger.GlobalLogger.Logrus.Warnln("api version:", v1Prefix)
+
+	SetLinkerRoutes(e, linkerHandler)
+	logger.GlobalLogger.Logrus.Warnln("setting linker routes")
 
 	SetAlbumsRoutes(v1, albumHandler)
 	logger.GlobalLogger.Logrus.Warnln("setting albums routes")
@@ -65,9 +69,6 @@ func Router(e *echo.Echo,
 
 	SetDocsPath(v1)
 	logger.GlobalLogger.Logrus.Warnln("setting docs routes")
-
-	SetStaticHandle(v1)
-	logger.GlobalLogger.Logrus.Warnln("setting static routes")
 
 	SetAuthRoutes(v1, authHandler, m)
 	logger.GlobalLogger.Logrus.Warnln("setting auth routes")
@@ -130,6 +131,7 @@ func SetTracksRoutes(apiVersion *echo.Group, handler trackDeliveryHttp.Handler) 
 	trackRoutes.POST(locate, handler.Create)
 	trackRoutes.PUT(locate, handler.Update)
 	trackRoutes.GET(popularPrefix, handler.GetPopular)
+	trackRoutes.GET(popularOfWeekPrefix, handler.GetPopularOfWeek)
 	trackRoutes.GET(favoritesPrefix, handler.GetFavorites)
 	trackRoutes.POST(favoritesPrefix, handler.AddToFavorites)
 	trackRoutes.DELETE(favoritesPrefix+idEchoPattern, handler.RemoveFromFavorites)
@@ -145,20 +147,27 @@ func SetPlaylistsRoutes(apiVersion *echo.Group, handler playlistDeliveryHttp.Han
 	playlistRoutes := apiVersion.Group(playlistPrefix)
 
 	playlistRoutes.GET(locate, handler.GetAll)
-	playlistRoutes.GET(ofUser, handler.GetAllOfCurrentUser)
+	playlistRoutes.GET(ofUserPrefix, handler.GetAllOfCurrentUser)
 	playlistRoutes.POST(locate, handler.Create)
 	playlistRoutes.PUT(locate, handler.Update)
 	playlistRoutes.GET(idEchoPattern, handler.Get)
-	playlistRoutes.GET(ofUser+idEchoPattern, handler.GetOfCurrentUser)
+	playlistRoutes.GET(ofUserPrefix+idEchoPattern, handler.GetOfCurrentUser)
 	playlistRoutes.DELETE(idEchoPattern, handler.Delete)
-	playlistRoutes.POST(ofUser, handler.AddToPlaylist)
-	playlistRoutes.DELETE(ofUser, handler.RemoveFromPlaylist)
+	playlistRoutes.POST(ofUserPrefix, handler.AddToPlaylist)
+	playlistRoutes.DELETE(ofUserPrefix, handler.RemoveFromPlaylist)
 }
 
 // SetGatewayRoutes songs
 func SetGatewayRoutes(apiVersion *echo.Group, handler gatewayDeliveryHttp.Handler) {
 	searchRoutes := apiVersion.Group(searchPrefix)
-	searchRoutes.GET(strEchoPattern, handler.Search)
+	searchRoutes.GET(strEchoToFindPattern, handler.Search)
+}
+
+// SetLinkerRoutes songs
+func SetLinkerRoutes(e *echo.Echo, handler linkerDeliveryHttp.Handler) {
+	e.GET(strEchoHashPattern, handler.Get)
+	e.POST(locate, handler.Create)
+	e.GET(strCountPattern+strEchoHashPattern, handler.Count)
 }
 
 func SetUserRoutes(apiVersion *echo.Group, handler userHttp.UserHandler, m *auth_middleware.HttpMiddleware) {
@@ -185,25 +194,6 @@ func SetDocsPath(apiVersion *echo.Group) {
 	docRoutes.GET(locate+"*", echoSwagger.WrapHandler)
 }
 
-// SetStaticHandle static
-func SetStaticHandle(apiVersion *echo.Group) {
-	// /net/v1/static/img/album/123.jpg -> ./static/img/album/123.jpg
-	//staticHandler := http.StripPrefix(
-	//	GetStaticUrl,
-	//	http.FileServer(http.Dir("./static")),
-	//)
-	//router.Handle(GetStaticUrl, staticHandler)
-}
-
-// config
-const (
-	//Proto             = "http://"
-	//Host              = "localhost"
-	//redisDefaultPort  = "6379"
-	currentApiVersion = v1Locate
-	apiPath           = apiLocate + currentApiVersion
-)
-
 // prefixes
 const (
 	apiPrefix           = "/api"
@@ -225,81 +215,17 @@ const (
 	logoutPrefix        = "/logout"
 	signUpPrefix        = "/signup"
 	getCSRFPrefix       = "/get_csrf"
-	ofUser              = "/ofUser"
+	ofUserPrefix        = "/ofUser"
 )
 
 const (
-	locate        = "/"
-	apiLocate     = "api/"
-	v1Locate      = "v1/"
-	albumsLocate  = "albums/"
-	artistsLocate = "artists/"
-	tracksLocate  = "tracks/"
-	usersLocate   = "users/"
-	AssetsPrefix  = "assets/"
+	locate = "/"
 )
 
 // destinations
 const (
-	login          = "login"
-	logout         = "logout"
-	signUp         = "signup"
-	getCSRF        = "get_csrf"
-	self           = "self"
-	popular        = "popular"
-	idMuxPattern   = "{id:[0-9]+}"
-	idEchoPattern  = "/:id"
-	strEchoPattern = "/:toFind"
-)
-
-// words
-const (
-	Get    = "Get"
-	Update = "Update"
-	Create = "Create"
-	Delete = "Delete"
-)
-
-// albums urls
-const (
-	CreateAlbumUrl       = "/" + apiPath + albumsLocate
-	UpdateAlbumUrl       = CreateAlbumUrl
-	GetAllAlbumsUrl      = "/" + apiPath + albumsLocate
-	GetAlbumUrlWithoutId = GetAllAlbumsUrl
-	GetAlbumUrl          = GetAlbumUrlWithoutId + idMuxPattern
-	GetPopularAlbumsUrl  = GetAllAlbumsUrl + popular
-	DeleteAlbumUrl       = GetAlbumUrl
-)
-
-// artists urls
-const (
-	CreateArtistUrl       = "/" + apiPath + artistsLocate
-	UpdateArtistUrl       = CreateArtistUrl
-	GetAllArtistsUrl      = "/" + apiPath + artistsLocate
-	GetArtistUrlWithoutId = GetAllAlbumsUrl
-	GetArtistUrl          = GetArtistUrlWithoutId + idMuxPattern
-	GetPopularArtistsUrl  = GetAllArtistsUrl + popular
-	DeleteArtistUrl       = GetArtistUrl
-)
-
-// tracks urls
-const (
-	CreateTrackUrl       = "/" + apiPath + tracksLocate
-	UpdateTrackUrl       = CreateTrackUrl
-	GetAllTracksUrl      = "/" + apiPath + tracksLocate
-	GetTrackUrlWithoutId = GetAllTracksUrl
-	GetTrackUrl          = GetTrackUrlWithoutId + idMuxPattern
-	GetPopularTracksUrl  = GetAllTracksUrl + popular
-	DeleteTrackUrl       = GetTrackUrl
-)
-
-// auth urls
-const (
-	LoginUrl       = "/" + apiPath + login
-	LogoutUrl      = "/" + apiPath + logout
-	SignUpUrl      = "/" + apiPath + signUp
-	GetUserUrl     = "/" + apiPath + usersLocate + idMuxPattern
-	GetSelfUserUrl = "/" + apiPath + usersLocate + self
-	GetCSRFAuthUrl = "/" + apiPath + getCSRF
-	GetStaticUrl   = "/" + apiPath + "/static/"
+	idEchoPattern        = "/:id"
+	strEchoToFindPattern = "/:toFind"
+	strEchoHashPattern   = "/:hash"
+	strCountPattern      = "/count"
 )

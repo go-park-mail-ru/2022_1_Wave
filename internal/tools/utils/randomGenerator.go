@@ -4,14 +4,12 @@ import (
 	"math/rand"
 )
 
-func RandomRune() string {
-	return string('a' + rune(rand.Intn('z'-'a'+1)))
-}
+var runes = []rune("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
 
-func RandomWord(maxLen int64) string {
-	word := ""
-	for i := int64(0); i < maxLen; i++ {
-		word += RandomRune()
+func RandStringRunes(n int) string {
+	b := make([]rune, n)
+	for i := range b {
+		b[i] = runes[rand.Intn(len(runes))]
 	}
-	return word
+	return string(b)
 }

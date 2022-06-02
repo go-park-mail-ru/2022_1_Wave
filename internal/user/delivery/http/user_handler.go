@@ -4,7 +4,6 @@ import (
 	"crypto/sha1"
 	"encoding/hex"
 	"errors"
-	"fmt"
 	user_microservice_domain "github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/user"
 	user_domain "github.com/go-park-mail-ru/2022_1_Wave/internal/user"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/user/client/s3"
@@ -25,7 +24,6 @@ const (
 	badIdErr        = "bad id"
 	noSessionErr    = "no session"
 	invalidUserJSON = "invalid json"
-	//uploadAvatarError = "upload avatar error"
 
 	SessionIdKey  = "session_id"
 	PathToAvatars = "assets"
@@ -37,21 +35,6 @@ func MakeHandler(userUseCase user_domain.UserUseCase, s3Handler *s3.Handler) Use
 		S3Handler:   s3Handler,
 	}
 }
-
-//func NewUserHandler(e *echo.Echo, userUseCase domain.UserUseCase, m *http_middleware.HttpMiddleware) {
-//	handler := &UserHandler{
-//		UserUseCase: userUseCase,
-//	}
-//
-//	g := e.Group("/users")
-//
-//	g.GET("/users/:id", handler.GetUser)
-//	g.GET("/users/self", handler.GetSelfUser, m.Auth, m.CSRF)
-//
-//	//g.PUT("/users/:id", handler.UpdateUser)
-//	g.PUT("/users/self", handler.UpdateSelfUser, m.Auth, m.CSRF)
-//	g.PUT("/users/upload_avatar", handler.UploadAvatar, m.Auth, m.CSRF)
-//}
 
 // GetUser godoc
 // @Summary      Get
@@ -103,23 +86,6 @@ func (a *UserHandler) GetSelfUser(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, getSuccessGetUserResponseProto(user))
 }
-
-/*func (a *UserHandler) UpdateUser(c echo.Context) error {
-	userId, err := strconv.Atoi(c.Param("id"))
-	if err != nil {
-		return c.JSON(http.StatusBadRequest, getErrorUserResponse(errors.New(badIdErr)))
-	}
-	var user domain.User
-	err = c.Bind(&user)
-	if err != nil {
-		return c.JSON(http.StatusUnprocessableEntity, getErrorUserResponse(errors.New(invalidUserJSON)))
-	}
-	err = a.userUseCase.Update(uint(userId), &user)
-	if err != nil {
-		return c.JSON(http.StatusBadRequest, getErrorUserResponse(err))
-	}
-	return c.JSON(http.StatusOK, getSuccessUserUpdate(&user))
-}*/
 
 // UpdateSelfUser godoc
 // @Summary      Update
@@ -173,7 +139,6 @@ func (a *UserHandler) UpdateSelfUser(c echo.Context) error {
 // @Failure      400    {object}  webUtils.Error  "invalid field values"
 // @Router       /api/v1/users/upload_avatar [patch]
 func (a *UserHandler) UploadAvatar(c echo.Context) error {
-	fmt.Println("uploading avatar...")
 	form, err := c.MultipartForm()
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, getErrorUserResponse(err))

@@ -7,12 +7,6 @@ import (
 	"time"
 )
 
-//type AccessLogger struct {
-//	LogrusLogger *logrus.Entry
-//}
-
-//var LogrusLogger *logrus.Entry
-
 type LogrusLogger struct {
 	Logrus *logrus.Entry
 }

@@ -1,0 +1,26 @@
+syntax = "proto3";
+package linker;
+option go_package = "github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/linker/linkerProto";
+
+message HashWrapper {
+  string hash = 1;  // @gotags: json:"hash" example:"qweasdzX" validate:"nonnil"
+}
+
+message UrlWrapper {
+  string url = 1; // @gotags: json:"url" example:"wave-music.online/api/v1/playlists/1" validate:"nonnil"
+}
+
+message UrlAndHashWrapper {
+  string url = 1; // @gotags: json:"url" example:"buy.dog/pug" validate:"nonnil"
+  string hash = 2; // @gotags: json:"hash" example:"qweasdzX" validate:"nonnil"
+}
+
+message CountResponse {
+  int64 result = 1; // @gotags: json:"clicks" example:"5" validate:"nonnil"
+}
+
+service LinkerUseCase {
+  rpc Get(HashWrapper) returns (UrlWrapper) {};
+  rpc Create(UrlWrapper) returns (HashWrapper) {};
+  rpc Count(HashWrapper) returns (CountResponse) {};
+}

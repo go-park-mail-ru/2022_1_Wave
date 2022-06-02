@@ -1,9 +1,5 @@
 name: k8s
-on:
-  pull_request:
-  push:
-    branches:
-      - main
+on: [ push ]
 
 jobs:
   build:
@@ -28,11 +24,9 @@ jobs:
           go install github.com/mailru/easyjson/...@latest
       - uses: actions/checkout@v3
       - name: generate gRPC and docs
-        run: chmod +x generateAll.sh && ./generateAll.sh
+        run: cd bash && chmod +x generateAll.sh && ./generateAll.sh
       - name: generate easyjson
-        run: chmod +x easyjsonGenerate.sh && ./easyjsonGenerate.sh
-      - name: generate test mocks
-        run: cd internal/test && chmod +x mocks.sh && ./mocks.sh
+        run: cd bash && chmod +x easyjsonGenerate.sh && ./easyjsonGenerate.sh
       - name: build
         run: go build -v ./...
 
@@ -57,9 +51,9 @@ jobs:
           go get github.com/mailru/easyjson
           go install github.com/mailru/easyjson/...@latest
       - name: generate gRPC and docs
-        run: chmod +x generateAll.sh && ./generateAll.sh
+        run: cd bash && chmod +x generateAll.sh && ./generateAll.sh
       - name: generate easyjson
-        run: chmod +x easyjsonGenerate.sh && ./easyjsonGenerate.sh
+        run: cd bash && chmod +x easyjsonGenerate.sh && ./easyjsonGenerate.sh
       - name: generate test mocks
         run: cd internal/test && chmod +x mocks.sh && ./mocks.sh
       - name: golangci-lint
@@ -90,34 +84,680 @@ jobs:
           go get github.com/mailru/easyjson
           go install github.com/mailru/easyjson/...@latest
       - name: generate gRPC and docs
-        run: chmod +x generateAll.sh && ./generateAll.sh
+        run: cd bash && chmod +x generateAll.sh && ./generateAll.sh
       - name: generate easyjson
-        run: chmod +x easyjsonGenerate.sh && ./easyjsonGenerate.sh
+        run: cd bash && chmod +x easyjsonGenerate.sh && ./easyjsonGenerate.sh
       - name: go tests
-        run: chmod +x test.sh && ./test.sh
+        run: cd bash && chmod +x test.sh && ./test.sh
 
-  dockerDeploy:
+  buildWaiter:
     runs-on: ubuntu-latest
-    name: dockerDeploy
+    name: checks-waiter
     needs:
       - build
       - golangci-lint
       - test
     steps:
-      - uses: actions/checkout@v1
+      - run: echo "go to build images"
+
+
+  #########################################
+
+  dockerAlbum_build:
+    runs-on: ubuntu-latest
+    name: build album image
+    needs:
+      - buildWaiter
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      - name: Build image
+        id: docker_build
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: ./env/prod/k8/album/Dockerfile
+          tags: mausved/wave_album:latest
+          outputs: type=docker,dest=/tmp/album.tar
+      - name: Upload image as artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: album
+          path: /tmp/album.tar
+
+
+  dockerAlertmanager_build:
+    runs-on: ubuntu-latest
+    name: build alertmanager image
+    needs:
+      - buildWaiter
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      - name: Build image
+        id: docker_build
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: ./env/prod/k8/alertmanager/Dockerfile
+          tags: mausved/wave_alertmanager:latest
+          outputs: type=docker,dest=/tmp/alertmanager.tar
+      - name: Upload image as artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: alertmanager
+          path: /tmp/alertmanager.tar
+
+  dockerApi_build:
+    runs-on: ubuntu-latest
+    name: build api image
+    needs:
+      - buildWaiter
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      - name: Build image
+        id: docker_build
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: ./env/prod/k8/api/Dockerfile
+          tags: mausved/wave_api:latest
+          outputs: type=docker,dest=/tmp/api.tar
+      - name: Upload image as artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: api
+          path: /tmp/api.tar
+
+  dockerArtist_build:
+    runs-on: ubuntu-latest
+    name: build artist image
+    needs:
+      - buildWaiter
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      - name: Build image
+        id: docker_build
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: ./env/prod/k8/artist/Dockerfile
+          tags: mausved/wave_artist:latest
+          outputs: type=docker,dest=/tmp/artist.tar
+      - name: Upload image as artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: artist
+          path: /tmp/artist.tar
+
+  dockerAuth_build:
+    runs-on: ubuntu-latest
+    name: build auth image
+    needs:
+      - buildWaiter
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      - name: Build image
+        id: docker_build
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: ./env/prod/k8/auth/Dockerfile
+          tags: mausved/wave_auth:latest
+          outputs: type=docker,dest=/tmp/auth.tar
+      - name: Upload image as artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: auth
+          path: /tmp/auth.tar
+
+  dockerCaddy_build:
+    runs-on: ubuntu-latest
+    name: build caddy image
+    needs:
+      - buildWaiter
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      - name: Build image
+        id: docker_build
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: ./env/prod/k8/caddy/Dockerfile
+          tags: mausved/wave_caddy:latest
+          outputs: type=docker,dest=/tmp/caddy.tar
+      - name: Upload image as artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: caddy
+          path: /tmp/caddy.tar
+
+  dockerGrafana_build:
+    runs-on: ubuntu-latest
+    name: build grafana image
+    needs:
+      - buildWaiter
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      - name: Build image
+        id: docker_build
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: ./env/prod/k8/grafana/Dockerfile
+          tags: mausved/wave_grafana:latest
+          outputs: type=docker,dest=/tmp/grafana.tar
+      - name: Upload image as artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: grafana
+          path: /tmp/grafana.tar
+
+  dockerPlaylist_build:
+    runs-on: ubuntu-latest
+    name: build playlist image
+    needs:
+      - buildWaiter
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      - name: Build image
+        id: docker_build
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: ./env/prod/k8/playlist/Dockerfile
+          tags: mausved/wave_playlist:latest
+          outputs: type=docker,dest=/tmp/playlist.tar
+      - name: Upload image as artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: playlist
+          path: /tmp/playlist.tar
+
+  dockerPrometheus_build:
+    runs-on: ubuntu-latest
+    name: build prometheus image
+    needs:
+      - buildWaiter
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      - name: Build image
+        id: docker_build
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: ./env/prod/k8/prometheus/Dockerfile
+          tags: mausved/wave_prometheus:latest
+          outputs: type=docker,dest=/tmp/prometheus.tar
+      - name: Upload image as artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: prometheus
+          path: /tmp/prometheus.tar
+
+  dockerTrack_build:
+    runs-on: ubuntu-latest
+    name: build track image
+    needs:
+      - buildWaiter
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      - name: Build image
+        id: docker_build
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: ./env/prod/k8/track/Dockerfile
+          tags: mausved/wave_track:latest
+          outputs: type=docker,dest=/tmp/track.tar
+      - name: Upload image as artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: track
+          path: /tmp/track.tar
+
+  dockerUser_build:
+    runs-on: ubuntu-latest
+    name: build user image
+    needs:
+      - buildWaiter
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      - name: Build image
+        id: docker_build
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: ./env/prod/k8/user/Dockerfile
+          tags: mausved/wave_user:latest
+          outputs: type=docker,dest=/tmp/user.tar
+      - name: Upload image as artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: user
+          path: /tmp/user.tar
+
+  dockerWeb_build:
+    runs-on: ubuntu-latest
+    name: build web image
+    needs:
+      - buildWaiter
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up certs
+        run: |
+          mkdir env/prod/certs/xyz/ -p
+          echo "${{ secrets.FULLCHAIN_ONLINE }}" > env/prod/certs/fullchain.pem
+          echo "${{ secrets.PRIVKEY_ONLINE }}" > env/prod/certs/privkey.pem
+          echo "${{ secrets.FULLCHAIN_XYZ }}" > env/prod/certs/xyz/fullchain.pem
+          echo "${{ secrets.PRIVKEY_XYZ }}" > env/prod/certs/xyz/privkey.pem
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      - name: Build image
+        id: docker_build
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: ./env/prod/k8/web/Dockerfile
+          tags: mausved/wave_web:latest
+          outputs: type=docker,dest=/tmp/web.tar
+      - name: Upload image as artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: web
+          path: /tmp/web.tar
+
+  dockerWebsocket_build:
+    runs-on: ubuntu-latest
+    name: build websocket image
+    needs:
+      - buildWaiter
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      - name: Build image
+        id: docker_build
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: ./env/prod/k8/websocket/Dockerfile
+          tags: mausved/wave_websocket:latest
+          outputs: type=docker,dest=/tmp/websocket.tar
+      - name: Upload image as artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: websocket
+          path: /tmp/websocket.tar
+
+  dockerPreBuildWaiter:
+    runs-on: ubuntu-latest
+    name: docker-pre-waiter
+    needs:
+      - dockerAlbum_build
+      - dockerAlertmanager_build
+      - dockerApi_build
+      - dockerArtist_build
+      - dockerAuth_build
+      - dockerCaddy_build
+      - dockerGrafana_build
+      - dockerPlaylist_build
+      - dockerPrometheus_build
+      - dockerTrack_build
+      - dockerUser_build
+      - dockerWeb_build
+      - dockerWebsocket_build
+    steps:
+      - run: echo "go to deploy to docker.hub"
+
+  #########################################
+
+  dockerAlbum_deploy:
+    runs-on: ubuntu-latest
+    name: deploy album image
+    needs:
+      - dockerPreBuildWaiter
+    steps:
+      - uses: actions/checkout@v3
       - name: Login to DockerHub Registry
         run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-      - name: Build all Docker images
-        run: cd deploy && chmod +x dockerBuildAll.sh && ./dockerBuildAll.sh
-      - name: Push all Docker images
-        run:
-          cd deploy && chmod +x dockerPushAll.sh && ./dockerPushAll.sh
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      - name: Download artefact
+        uses: actions/download-artifact@v2
+        with:
+          name: album
+          path: /tmp
+      - name: Load docker image
+        run: |
+          docker load --input /tmp/album.tar
+          docker image ls -a
+      - name: Push image
+        run: cd deploy && chmod +x dockerPush.sh && ./dockerPush.sh album
+
+  dockerAlertmanager_deploy:
+    runs-on: ubuntu-latest
+    name: deploy alertmanager image
+    needs:
+      - dockerPreBuildWaiter
+    steps:
+      - uses: actions/checkout@v3
+      - name: Login to DockerHub Registry
+        run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      - name: Download artefact
+        uses: actions/download-artifact@v2
+        with:
+          name: alertmanager
+          path: /tmp
+      - name: Load docker image
+        run: |
+          docker load --input /tmp/alertmanager.tar
+          docker image ls -a
+      - name: Push image
+        run: cd deploy && chmod +x dockerPush.sh && ./dockerPush.sh alertmanager
+
+  dockerApi_deploy:
+    runs-on: ubuntu-latest
+    name: deploy api image
+    needs:
+      - dockerPreBuildWaiter
+    steps:
+      - uses: actions/checkout@v3
+      - name: Login to DockerHub Registry
+        run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      - name: Download artefact
+        uses: actions/download-artifact@v2
+        with:
+          name: api
+          path: /tmp
+      - name: Load docker image
+        run: |
+          docker load --input /tmp/api.tar
+          docker image ls -a
+      - name: Push image
+        run: cd deploy && chmod +x dockerPush.sh && ./dockerPush.sh api
+
+  dockerArtist_deploy:
+    runs-on: ubuntu-latest
+    name: deploy artist image
+    needs:
+      - dockerPreBuildWaiter
+    steps:
+      - uses: actions/checkout@v3
+      - name: Login to DockerHub Registry
+        run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      - name: Download artefact
+        uses: actions/download-artifact@v2
+        with:
+          name: artist
+          path: /tmp
+      - name: Load docker image
+        run: |
+          docker load --input /tmp/artist.tar
+          docker image ls -a
+      - name: Push image
+        run: cd deploy && chmod +x dockerPush.sh && ./dockerPush.sh artist
+
+  dockerAuth_deploy:
+    runs-on: ubuntu-latest
+    name: deploy auth image
+    needs:
+      - dockerPreBuildWaiter
+    steps:
+      - uses: actions/checkout@v3
+      - name: Login to DockerHub Registry
+        run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      - name: Download artefact
+        uses: actions/download-artifact@v2
+        with:
+          name: auth
+          path: /tmp
+      - name: Load docker image
+        run: |
+          docker load --input /tmp/auth.tar
+          docker image ls -a
+      - name: Push image
+        run: cd deploy && chmod +x dockerPush.sh && ./dockerPush.sh auth
+
+  dockerCaddy_deploy:
+    runs-on: ubuntu-latest
+    name: deploy caddy image
+    needs:
+      - dockerPreBuildWaiter
+    steps:
+      - uses: actions/checkout@v3
+      - name: Login to DockerHub Registry
+        run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      - name: Download artefact
+        uses: actions/download-artifact@v2
+        with:
+          name: caddy
+          path: /tmp
+      - name: Load docker image
+        run: |
+          docker load --input /tmp/caddy.tar
+          docker image ls -a
+      - name: Push image
+        run: cd deploy && chmod +x dockerPush.sh && ./dockerPush.sh caddy
+
+  dockerGrafana_deploy:
+    runs-on: ubuntu-latest
+    name: deploy grafana image
+    needs:
+      - dockerPreBuildWaiter
+    steps:
+      - uses: actions/checkout@v3
+      - name: Login to DockerHub Registry
+        run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      - name: Download artefact
+        uses: actions/download-artifact@v2
+        with:
+          name: grafana
+          path: /tmp
+      - name: Load docker image
+        run: |
+          docker load --input /tmp/grafana.tar
+          docker image ls -a
+      - name: Push image
+        run: cd deploy && chmod +x dockerPush.sh && ./dockerPush.sh grafana
+
+  dockerPlaylist_deploy:
+    runs-on: ubuntu-latest
+    name: deploy playlist image
+    needs:
+      - dockerPreBuildWaiter
+    steps:
+      - uses: actions/checkout@v3
+      - name: Login to DockerHub Registry
+        run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      - name: Download artefact
+        uses: actions/download-artifact@v2
+        with:
+          name: playlist
+          path: /tmp
+      - name: Load docker image
+        run: |
+          docker load --input /tmp/playlist.tar
+          docker image ls -a
+      - name: Push image
+        run: cd deploy && chmod +x dockerPush.sh && ./dockerPush.sh playlist
+
+  dockerPrometheus_deploy:
+    runs-on: ubuntu-latest
+    name: deploy prometheus image
+    needs:
+      - dockerPreBuildWaiter
+    steps:
+      - uses: actions/checkout@v3
+      - name: Login to DockerHub Registry
+        run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      - name: Download artefact
+        uses: actions/download-artifact@v2
+        with:
+          name: prometheus
+          path: /tmp
+      - name: Load docker image
+        run: |
+          docker load --input /tmp/prometheus.tar
+          docker image ls -a
+      - name: Push image
+        run: cd deploy && chmod +x dockerPush.sh && ./dockerPush.sh prometheus
+
+  dockerTrack_deploy:
+    runs-on: ubuntu-latest
+    name: deploy track image
+    needs:
+      - dockerPreBuildWaiter
+    steps:
+      - uses: actions/checkout@v3
+      - name: Login to DockerHub Registry
+        run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      - name: Download artefact
+        uses: actions/download-artifact@v2
+        with:
+          name: track
+          path: /tmp
+      - name: Load docker image
+        run: |
+          docker load --input /tmp/track.tar
+          docker image ls -a
+      - name: Push image
+        run: cd deploy && chmod +x dockerPush.sh && ./dockerPush.sh track
+
+  dockerUser_deploy:
+    runs-on: ubuntu-latest
+    name: deploy user image
+    needs:
+      - dockerPreBuildWaiter
+    steps:
+      - uses: actions/checkout@v3
+      - name: Login to DockerHub Registry
+        run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      - name: Download artefact
+        uses: actions/download-artifact@v2
+        with:
+          name: user
+          path: /tmp
+      - name: Load docker image
+        run: |
+          docker load --input /tmp/user.tar
+          docker image ls -a
+      - name: Push image
+        run: cd deploy && chmod +x dockerPush.sh && ./dockerPush.sh user
+
+  dockerWeb_deploy:
+    runs-on: ubuntu-latest
+    name: deploy web image
+    needs:
+      - dockerPreBuildWaiter
+    steps:
+      - uses: actions/checkout@v3
+      - name: Login to DockerHub Registry
+        run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      - name: Download artefact
+        uses: actions/download-artifact@v2
+        with:
+          name: web
+          path: /tmp
+      - name: Load docker image
+        run: |
+          docker load --input /tmp/web.tar
+          docker image ls -a
+      - name: Push image
+        run: cd deploy && chmod +x dockerPush.sh && ./dockerPush.sh web
+
+  dockerWebsocket_deploy:
+    runs-on: ubuntu-latest
+    name: deploy websocket image
+    needs:
+      - dockerPreBuildWaiter
+    steps:
+      - uses: actions/checkout@v3
+      - name: Login to DockerHub Registry
+        run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      - name: Download artefact
+        uses: actions/download-artifact@v2
+        with:
+          name: websocket
+          path: /tmp
+      - name: Load docker image
+        run: |
+          docker load --input /tmp/websocket.tar
+          docker image ls -a
+      - name: Push image
+        run: cd deploy && chmod +x dockerPush.sh && ./dockerPush.sh websocket
+
+  dockerDeployWaiter:
+    runs-on: ubuntu-latest
+    name: docker-deploy-waiter
+    needs:
+      - dockerAlbum_deploy
+      - dockerAlertmanager_deploy
+      - dockerApi_deploy
+      - dockerArtist_deploy
+      - dockerAuth_deploy
+      - dockerCaddy_deploy
+      - dockerGrafana_deploy
+      - dockerPlaylist_deploy
+      - dockerPrometheus_deploy
+      - dockerTrack_deploy
+      - dockerUser_deploy
+      - dockerWeb_deploy
+      - dockerWebsocket_deploy
+    steps:
+      - run: echo "go to deploy to k8s"
+
+  #########################################
 
   k8s:
     runs-on: ubuntu-latest
     name: k8s
     needs:
-      - dockerDeploy
+      - dockerDeployWaiter
     steps:
       - uses: actions/checkout@v1
       - name: k8s install
@@ -135,16 +775,42 @@ jobs:
           echo "${{ secrets.K8S_CONFIG }}" > k8s.yaml
           export KUBECONFIG="$(pwd)/k8s.yaml"
           kubectl apply -f ./env/prod/k8/ -R
-          kubectl rollout restart deployment album
-          kubectl rollout restart deployment alertmanager
+          
+          sleep 10
+          kubectl rollout restart deployment godeploy
+          
+          sleep 10
           kubectl rollout restart deployment wave
-          kubectl rollout restart deployment artist
-          kubectl rollout restart deployment auth
-          kubectl rollout restart deployment caddy
-          kubectl rollout restart deployment grafana
-          kubectl rollout restart deployment playlist
-          kubectl rollout restart deployment db
-          kubectl rollout restart deployment prometheus
+          
+          sleep 10
+          kubectl rollout restart deployment websocket
+          
+          sleep 10
           kubectl rollout restart deployment redis
+          
+          sleep 10
+          kubectl rollout restart deployment artist
+          
+          sleep 10
+          kubectl rollout restart deployment auth
+          
+          sleep 10
+          kubectl rollout restart deployment playlist
+          
+          sleep 10
           kubectl rollout restart deployment track
-          kubectl rollout restart deployment godeploy 
+          
+          sleep 10
+          kubectl rollout restart deployment album
+          
+          sleep 10
+          kubectl rollout restart deployment caddy
+          
+          sleep 10
+          kubectl rollout restart deployment grafana
+          
+          sleep 10
+          kubectl rollout restart deployment alertmanager
+          
+          sleep 10
+          kubectl rollout restart deployment prometheus

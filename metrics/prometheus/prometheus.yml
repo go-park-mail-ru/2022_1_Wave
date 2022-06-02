@@ -48,6 +48,11 @@ scrape_configs:
     static_configs:
       - targets: [ 'user.default.svc.cluster.local:9086' ]
 
+  - job_name: 'linker'
+    scrape_interval: 5s
+    static_configs:
+      - targets: [ 'linker.default.svc.cluster.local:9087' ]
+
 alerting:
   alertmanagers:
     - scheme: http

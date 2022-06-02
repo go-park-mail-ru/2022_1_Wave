@@ -3,15 +3,13 @@ COPY ./ /var/www/service
 WORKDIR /var/www/service/
 RUN go get github.com/mailru/easyjson
 RUN go install github.com/mailru/easyjson/...@latest
-RUN bash gRPC.sh
-RUN bash easyjsonGenerate.sh
+RUN cd bash/ && bash gRPC.sh
+RUN cd bash/ bash easyjsonGenerate.sh
 RUN go build -o ./tmp/artist ./cmd/artist/artist.go
 
 FROM alpine
 RUN apk add --no-cache libc6-compat
 COPY --from=build_step /var/www/service/tmp/artist /var/www/service/
 WORKDIR /var/www/service/
-EXPOSE 8082
-EXPOSE 9082
 RUN chmod +x artist
 ENTRYPOINT ["sh", "-c", "./artist"]

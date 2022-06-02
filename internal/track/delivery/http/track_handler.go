@@ -6,6 +6,7 @@ import (
 	internal "github.com/go-park-mail-ru/2022_1_Wave/internal"
 	Gateway "github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/gateway"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/track/trackProto"
+	"github.com/go-park-mail-ru/2022_1_Wave/internal/structs"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/tools/utils"
 	TrackUseCase "github.com/go-park-mail-ru/2022_1_Wave/internal/track/useCase"
 	user_domain "github.com/go-park-mail-ru/2022_1_Wave/internal/user"
@@ -381,17 +382,13 @@ func (h Handler) GetFavorites(ctx echo.Context) error {
 			Result: favorites})
 }
 
-type trackIdWrapper struct {
-	TrackId int64 `json:"trackId" example:"4"`
-}
-
 // AddToFavorites godoc
 // @Summary      AddToFavorites
 // @Description  add to favorites
 // @Tags         track
 // @Accept          application/json
 // @Produce      application/json
-// @Param        trackId  body      trackIdWrapper  true  "id of track"
+// @Param        trackId  body      structs.TrackIdWrapper  true  "id of track"
 // @Success      200    {object}  webUtils.Success
 // @Failure      400    {object}  webUtils.Error  "Data is invalid"
 // @Failure      405    {object}  webUtils.Error  "Method is not allowed"
@@ -402,13 +399,13 @@ func (h Handler) AddToFavorites(ctx echo.Context) error {
 		return internal.UnauthorizedError(ctx)
 	}
 
-	holder := trackIdWrapper{}
+	holder := structs.TrackIdWrapper{}
 
 	if err := ctx.Bind(&holder); err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 	}
 
-	if err := h.TrackUseCase.AddToFavorites(userId, holder.TrackId); err != nil {
+	if err := h.TrackUseCase.AddToFavorites(userId, int64(holder.TrackId)); err != nil {
 		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
 	}
 
@@ -480,4 +477,30 @@ func (h Handler) GetTracksFromPlaylist(ctx echo.Context) error {
 		webUtils.Success{
 			Status: webUtils.OK,
 			Result: utils.TracksToMap(tracks)})
+}
+
+// GetPopularOfWeek godoc
+// @Summary      GetPopularOfTheWeek
+// @Description  getting top20 popular tracks of the week
+// @Tags         track
+// @Accept          application/json
+// @Produce      application/json
+// @Success      200  {object}  webUtils.Success
+// @Failure      400  {object}  webUtils.Error  "Data is invalid"
+// @Failure      405  {object}  webUtils.Error  "Method is not allowed"
+// @Router       /api/v1/tracks/popular/week [get]
+func (h Handler) GetPopularOfWeek(ctx echo.Context) error {
+	userId, err := internal.GetUserId(ctx, h.UserUseCase)
+	if err != nil {
+		userId = -1
+	}
+	popular, err := h.TrackUseCase.GetPopularTrackOfWeek(userId)
+	if err != nil {
+		return webUtils.WriteErrorEchoServer(ctx, err, http.StatusBadRequest)
+	}
+
+	return ctx.JSON(http.StatusOK,
+		webUtils.Success{
+			Status: webUtils.OK,
+			Result: popular})
 }

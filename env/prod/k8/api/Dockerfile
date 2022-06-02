@@ -3,8 +3,8 @@ COPY ./ /var/www/service
 WORKDIR /var/www/service/
 RUN go get github.com/mailru/easyjson
 RUN go install github.com/mailru/easyjson/...@latest
-RUN bash generateAll.sh
-RUN bash easyjsonGenerate.sh
+RUN cd bash && bash generateAll.sh
+RUN cd bash && bash easyjsonGenerate.sh
 RUN go build -o ./tmp/api ./cmd/api/main.go
 
 

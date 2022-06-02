@@ -32,38 +32,19 @@ spec:
             - containerPort: 9086
           env:
             - name: DATABASE_CONNECTION
-              value: user=postgres password=music dbname=wave host=db port=5432 sslmode=disable
+              valueFrom:
+                secretKeyRef:
+                  name: secretdb
+                  key: DATABASE_CONNECTION
             - name: dbType
-              value: postgres
+              valueFrom:
+                secretKeyRef:
+                  name: secretdb
+                  key: dbType
             - name: exporterPort
               value: :9086
             - name: port
               value: :8086
-            - name: AWS_REGION
-              valueFrom:
-                secretKeyRef:
-                  name: secretkey
-                  key: AWS_REGION
-            - name: AWS_ACCESS_KEY_ID
-              valueFrom:
-                secretKeyRef:
-                  name: secretkey
-                  key: ACCESS_KEY_ID
-            - name: AWS_SECRET_ACCESS_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: secretkey
-                  key: SECRET_KEY
-            - name: AWS_BUCKET_NAME
-              valueFrom:
-                secretKeyRef:
-                  name: secretkey
-                  key: AWS_BUCKET_NAME
-            - name: AWS_S3_URL
-              valueFrom:
-                secretKeyRef:
-                  name: secretkey
-                  key: AWS_S3_URL
       imagePullSecrets:
         - name: wave
 

@@ -1,6 +1,5 @@
 package test
 
-/*
 import (
 	"encoding/json"
 	"github.com/bxcodec/faker"
@@ -86,4 +85,4 @@ func TestGetAllAlbums(t *testing.T) {
 	err = json.Unmarshal(body, &result)
 	require.NoError(t, err)
 
-}*/
+}

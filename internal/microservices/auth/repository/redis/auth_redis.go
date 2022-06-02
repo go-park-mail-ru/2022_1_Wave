@@ -204,6 +204,5 @@ func (a *redisAuthRepo) DeleteSession(sessionId string) error {
 
 func (a *redisAuthRepo) GetSize() (int, error) {
 	var size int
-	//todo вывести размер хранилища
 	return size, nil
 }

@@ -7,15 +7,15 @@ tmp_dir = "tmp"
 
 [build]
 # Just plain old shell command. You could use `make` as well.
-cmd = "./tmp/run.auth"
+cmd = "go build -o ./tmp/run.auth ./cmd/auth/auth.go"
 # Binary file yields from `cmd`.
 bin = "tmp/run.auth"
 # Customize binary, can setup environment variables when run your app.
-full_bin = "APP_ENV=dev APP_USER=air ./tmp/auth"
+full_bin = "APP_ENV=dev APP_USER=air ./tmp/run.auth"
 # Watch these filename extensions.
-include_ext = ["auth"]
+include_ext = ["go"]
 # Ignore these filename extensions or directories.
-exclude_dir = ["assets", "tmp", "vendor", "frontend/node_modules", "database", "protobuf"]
+exclude_dir = ["env", "db", "assets", "tmp", "vendor", "frontend/node_modules", "database", "protobuf", "metrics", "deploy"]
 # Watch these directories if you specified.
 # Exclude files.
 exclude_file = ["docs/docs.go", "docs/swagger.json"]

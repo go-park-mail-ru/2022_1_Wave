@@ -68,6 +68,7 @@ type TrackAgent interface {
 	AddToFavorites(userId int64, trackId int64) error
 	RemoveFromFavorites(userId int64, artistId int64) error
 	GetTracksFromPlaylist(playlistId int64) ([]*trackProto.Track, error)
+	GetPopularTrackOfWeekTop20() ([]*trackProto.Track, error)
 }
 
 type PlaylistAgent interface {
@@ -84,4 +85,10 @@ type PlaylistAgent interface {
 	GetSize() (int64, error)
 	AddToPlaylist(userId int64, playlistId int64, trackId int64) error
 	RemoveFromPlaylist(userId int64, playlistId int64, trackId int64) error
+}
+
+type LinkerAgent interface {
+	Get(hash string) (string, error)
+	Create(url string) (string, error)
+	Count(hash string) (int64, error)
 }

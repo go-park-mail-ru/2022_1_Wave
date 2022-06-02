@@ -7,15 +7,15 @@ tmp_dir = "tmp"
 
 [build]
 # Just plain old shell command. You could use `make` as well.
-cmd = "./tmp/run.artist"
+cmd = "go build -o ./tmp/run.artist ./cmd/artist/artist.go"
 # Binary file yields from `cmd`.
 bin = "tmp/run.artist"
 # Customize binary, can setup environment variables when run your app.
-full_bin = "APP_ENV=dev APP_USER=air ./tmp/artist"
+full_bin = "APP_ENV=dev APP_USER=air ./tmp/run.artist"
 # Watch these filename extensions.
-include_ext = ["artist"]
+include_ext = ["go"]
 # Ignore these filename extensions or directories.
-exclude_dir = ["assets", "tmp", "vendor", "frontend/node_modules", "database", "protobuf"]
+exclude_dir = ["env", "db", "assets", "tmp", "vendor", "frontend/node_modules", "database", "protobuf", "metrics", "deploy"]
 # Watch these directories if you specified.
 # Exclude files.
 exclude_file = ["docs/docs.go", "docs/swagger.json"]

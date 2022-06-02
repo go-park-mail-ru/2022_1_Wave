@@ -8,10 +8,10 @@ spec:
     app: godeploy
   ports:
     - protocol: TCP
-      name: "http"
+      name: "balancer-https"
       port: 443
-      targetPort: 443
+      targetPort: "https"
     - protocol: TCP
-      name: "https"
+      name: "balancer-http"
       port: 80
-      targetPort: 80
+      targetPort: "http"

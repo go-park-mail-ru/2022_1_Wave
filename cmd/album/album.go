@@ -44,14 +44,14 @@ func main() {
 		log.Fatalln("error to init logrus:", err)
 	}
 
-	sqlxDb, err := InitDb.InitDatabase("DATABASE_CONNECTION")
+	sqlxDb, err := InitDb.InitPostgres("DATABASE_CONNECTION")
 	if err != nil {
-		logs.Logrus.Fatalln("error to init database: ", os.Getenv("dbType"), err)
+		logs.Logrus.Fatalln("error to init database: ", os.Getenv("dbType"), "err", err)
 	}
+
 	trackRepo := TrackPostgres.NewTrackPostgresRepo(sqlxDb)
 	artistRepo := ArtistPostgres.NewArtistPostgresRepo(sqlxDb)
 	albumRepo := AlbumPostgres.NewAlbumPostgresRepo(sqlxDb)
-
 	albumCoverRepo := AlbumCoverPostgres.NewAlbumCoverPostgresRepo(sqlxDb)
 
 	defer func() {
@@ -62,7 +62,7 @@ func main() {
 
 	server, httpServer, listen, err := cmd.MakeServers(reg)
 	if err != nil {
-		logs.Logrus.Fatalln("Error to launch album gRPC service")
+		logs.Logrus.Fatalln("Error to launch album gRPC service:", err)
 	}
 	defer listen.Close()
 
@@ -74,13 +74,10 @@ func main() {
 	// Start your http server for prometheus.
 	go func() {
 		if err := httpServer.ListenAndServe(); err != nil {
-			logs.Logrus.Fatal("Unable to start a http album metrics server.")
+			logs.Logrus.Fatal("Unable to start a http album metrics server:", err)
 		}
 	}()
 
-	//day := (time.Now().Unix() - 345600) % 604800 / 86400
-
-	//const week = 7 * 24 * time.Hour
 	if _, err := albumRepo.CountPopularAlbumOfWeek(); err != nil {
 		logs.Logrus.Fatal("Unable to count a inits popular albums of week, err:", err)
 	}

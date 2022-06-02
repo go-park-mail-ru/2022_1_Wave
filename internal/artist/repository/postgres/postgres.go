@@ -198,8 +198,7 @@ func (table ArtistRepo) SearchByName(title string) ([]*artistProto.Artist, error
 }
 
 func (table ArtistRepo) AddToFavorites(artistId int64, userId int64) error {
-	artist, err := table.SelectByID(artistId)
-	if err != nil {
+	if err := table.Like(artistId, userId); err != nil {
 		return err
 	}
 
@@ -209,7 +208,7 @@ func (table ArtistRepo) AddToFavorites(artistId int64, userId int64) error {
 		RETURNING artist_id`
 
 	// do query
-	_, err = table.Sqlx.Exec(query, userId, artist.Id)
+	_, err := table.Sqlx.Exec(query, userId, artistId)
 
 	return err
 }
@@ -250,9 +249,4 @@ func (table ArtistRepo) LikeCheckByUser(artistId int64, userId int64) (bool, err
 		return false, nil
 	}
 	return true, nil
-	//if likedTrackId <= 0 {
-	//	return false, nil
-	//} else {
-	//	return true, nil
-	//}
 }

@@ -172,3 +172,12 @@ func (useCase TrackGrpc) GetTracksFromPlaylist(ctx context.Context, data *gatewa
 
 	return &trackProto.TracksResponse{Tracks: tracks}, nil
 }
+
+func (useCase TrackGrpc) GetPopularTrackOfWeekTop20(context.Context, *emptypb.Empty) (*trackProto.TracksResponse, error) {
+	tracks, err := (*useCase.TrackRepo).GetPopularTrackOfWeekTop20()
+	if err != nil {
+		return nil, err
+	}
+
+	return &trackProto.TracksResponse{Tracks: tracks}, nil
+}

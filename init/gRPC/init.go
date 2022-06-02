@@ -5,6 +5,7 @@ import (
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/album/albumProto"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/artist/artistProto"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/auth/proto"
+	"github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/linker/linkerProto"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/playlist/playlistProto"
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/track/trackProto"
 	proto_user "github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/user/proto"
@@ -59,4 +60,10 @@ func (launcher *Launcher) MakeAuthGrpcClient(address string) proto.Authorization
 	conn := launcher.createConnection("auth", address)
 	authClient := proto.NewAuthorizationClient(conn)
 	return authClient
+}
+
+func (launcher *Launcher) MakeLinkerGrpcClient(address string) linkerProto.LinkerUseCaseClient {
+	conn := launcher.createConnection("linker", address)
+	linkerManager := linkerProto.NewLinkerUseCaseClient(conn)
+	return linkerManager
 }

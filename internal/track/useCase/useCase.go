@@ -25,13 +25,13 @@ type TrackUseCase interface {
 	AddToFavorites(userId int64, trackId int64) error
 	RemoveFromFavorites(userId int64, trackId int64) error
 	GetTracksFromPlaylist(playlistId int64, userId int64) ([]*trackProto.TrackDataTransfer, error)
+	GetPopularTrackOfWeek(userId int64) ([]*trackProto.TrackDataTransfer, error)
 }
 
 type trackUseCase struct {
 	albumAgent  domain.AlbumAgent
 	artistAgent domain.ArtistAgent
 	trackAgent  domain.TrackAgent
-	//playlistAgent domain.PlaylistAgent
 }
 
 func NewTrackUseCase(albumAgent domain.AlbumAgent, artistAgent domain.ArtistAgent, trackAgent domain.TrackAgent) *trackUseCase {
@@ -181,12 +181,12 @@ func (useCase trackUseCase) GetFavorites(userId int64) ([]*trackProto.TrackDataT
 	return useCase.castArray(userId, tracks)
 }
 
-func (useCase trackUseCase) AddToFavorites(userId int64, albumId int64) error {
-	return useCase.trackAgent.AddToFavorites(userId, albumId)
+func (useCase trackUseCase) AddToFavorites(userId int64, trackId int64) error {
+	return useCase.trackAgent.AddToFavorites(userId, trackId)
 }
 
-func (useCase trackUseCase) RemoveFromFavorites(userId int64, albumId int64) error {
-	return useCase.trackAgent.RemoveFromFavorites(userId, albumId)
+func (useCase trackUseCase) RemoveFromFavorites(userId int64, trackId int64) error {
+	return useCase.trackAgent.RemoveFromFavorites(userId, trackId)
 }
 
 func (useCase trackUseCase) GetTracksFromPlaylist(playlistId int64, userId int64) ([]*trackProto.TrackDataTransfer, error) {
@@ -196,4 +196,24 @@ func (useCase trackUseCase) GetTracksFromPlaylist(playlistId int64, userId int64
 	}
 
 	return useCase.castArray(userId, tracks)
+}
+
+func (useCase trackUseCase) GetPopularTrackOfWeek(userId int64) ([]*trackProto.TrackDataTransfer, error) {
+	tracks, err := useCase.trackAgent.GetPopularTrackOfWeekTop20()
+
+	if err != nil {
+		return nil, err
+	}
+
+	dto := make([]*trackProto.TrackDataTransfer, len(tracks))
+
+	for idx, obj := range tracks {
+		result, err := useCase.CastToDTO(obj, userId)
+		if err != nil {
+			return nil, err
+		}
+		dto[idx] = result
+	}
+	return dto, nil
+
 }

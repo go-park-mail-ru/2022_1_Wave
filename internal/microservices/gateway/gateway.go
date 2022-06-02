@@ -27,7 +27,7 @@ func PathToAlbumCover(album *albumProto.Album, fileFormat string) (string, error
 
 // --------------------------------------
 func CastAlbumToDtoWithoutArtistNameAndTracks(album *albumProto.Album, albumAgent domain.AlbumAgent, userId int64) (*albumProto.AlbumDataTransfer, error) {
-	cover, err := PathToAlbumCover(album, constants.PngFormat)
+	cover, err := PathToAlbumCover(album, constants.ImgFormat)
 	if err != nil {
 		return nil, err
 	}
@@ -65,7 +65,7 @@ func PathToTrackFileByAlbumId(fileFormat string, albumId int64) (string, error) 
 
 // --------------------------------------
 func CastTrackToDtoWithoutArtistName(track *trackProto.Track, trackAgent domain.TrackAgent, userId int64) (*trackProto.TrackDataTransfer, error) {
-	cover, err := PathToTrackFileByAlbumId(constants.PngFormat, track.AlbumId)
+	cover, err := PathToTrackFileByAlbumId(constants.ImgFormat, track.AlbumId)
 	if err != nil {
 		return nil, err
 	}

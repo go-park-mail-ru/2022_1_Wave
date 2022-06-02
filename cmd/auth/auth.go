@@ -9,7 +9,6 @@ import (
 	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
 	_ "github.com/jackc/pgx/stdlib"
 	"github.com/prometheus/client_golang/prometheus"
-	"log"
 	"os"
 )
 
@@ -36,17 +35,9 @@ func init() {
 func main() {
 	logs, err := logger.InitLogrus(os.Getenv("port"), os.Getenv("dbType"))
 	if err != nil {
-		log.Fatalln("error to init logrus:", err)
+		logs.Logrus.Fatalln("Error to launch auth gRPC service:", err)
 	}
-	//sqlxDb := InitDatabase()
 	authRepo := auth_redis.NewRedisAuthRepo("redis:6379")
-	//userRepo := postgresql.NewUserPostgresRepo(sqlxDb)
-
-	/*defer func() {
-		if sqlxDb != nil {
-			_ = sqlxDb.Close()
-		}
-	}()*/
 
 	server, httpServer, listen, err := cmd.MakeServers(reg)
 	if err != nil {
@@ -60,11 +51,10 @@ func main() {
 	// Start your http server for prometheus.
 	go func() {
 		if err := httpServer.ListenAndServe(); err != nil {
-			logs.Logrus.Fatal("Unable to start a http auth metrics server.")
+			logs.Logrus.Fatal("Unable to start a http auth metrics server:", err)
 		}
 	}()
 
-	//logger.GlobalLogger.Logrus.Printf("started authorization microservice on %s", port)
 	err = server.Serve(listen)
 	if err != nil {
 		logs.Logrus.Errorf("cannot listen port %s: %s", os.Getenv("port"), err.Error())

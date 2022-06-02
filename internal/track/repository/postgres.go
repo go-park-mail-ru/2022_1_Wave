@@ -6,6 +6,7 @@ import (
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/track/trackProto"
 	"github.com/jmoiron/sqlx"
 	"os"
+	"time"
 )
 
 type TrackRepo struct {
@@ -48,7 +49,7 @@ func (table TrackRepo) Delete(id int64) error {
 }
 
 func (table TrackRepo) SelectByID(id int64) (*trackProto.Track, error) {
-	query := `SELECT * FROM track WHERE id = $1 ORDER BY id;`
+	query := `SELECT * FROM track WHERE id = $1;`
 	holder := trackProto.Track{}
 	if err := table.Sqlx.Get(&holder, query, id); err != nil {
 		return nil, err
@@ -195,18 +196,12 @@ func (table TrackRepo) AddToFavorites(trackId int64, userId int64) error {
 		return err
 	}
 
-	track, err := table.SelectByID(trackId)
-	if err != nil {
-		return err
-	}
-
 	query := `
 		INSERT INTO userfavoritetracks (user_id, track_id)
 		VALUES ($1, $2)
 		RETURNING track_id`
 
-	// do query
-	_, err = table.Sqlx.Exec(query, userId, track.Id)
+	_, err := table.Sqlx.Exec(query, userId, trackId)
 
 	return err
 }
@@ -265,4 +260,55 @@ func (table TrackRepo) LikeCheckByUser(trackId int64, userId int64) (bool, error
 	//} else {
 	//	return true, nil
 	//}
+}
+
+func (table TrackRepo) CountPopularTrackOfWeek() (bool, error) {
+	tracks, err := table.GetAll()
+	if err != nil {
+		return false, err
+	}
+	for _, track := range tracks {
+		query := `SELECT track_id, last_week_likes, current_week_likes, date
+			  	  FROM popularTracksByWeek
+			  	  WHERE track_id = $1`
+		holder := trackProto.PopularTrackOfWeek{}
+		err := table.Sqlx.Get(&holder, query, track.Id)
+		if err != nil {
+			query = `
+					INSERT INTO popularTracksByWeek (track_id, last_week_likes, current_week_likes, date)
+					VALUES ($1, $2, $3, $4)
+					RETURNING track_id`
+			if _, err := table.Sqlx.Exec(query, track.Id, 0, 0, time.Now().Unix()); err != nil {
+				return false, err
+			}
+		} else {
+			lastLikes := holder.CurrentWeekLikes
+			currentLikes := track.CountLikes
+			date := time.Now().Unix()
+			query = `
+					 UPDATE popularTracksByWeek SET last_week_likes = $1, current_week_likes = $2, date = $3
+					WHERE track_id = $4`
+
+			if _, err := table.Sqlx.Exec(query, lastLikes, currentLikes, date, track.Id); err != nil {
+				return false, err
+			}
+		}
+
+	}
+	return true, nil
+}
+
+func (table TrackRepo) GetPopularTrackOfWeekTop20() ([]*trackProto.Track, error) {
+	query := `
+		SELECT id, title, artist_id, track.count_likes, track.count_listening, track.duration, track.album_id FROM track
+		JOIN popularTracksByWeek p ON p.track_id = track.id 
+		ORDER BY (p.current_week_likes - p.last_week_likes) DESC, count_likes DESC
+		LIMIT $1;`
+
+	var tracks []*trackProto.Track
+	if err := table.Sqlx.Select(&tracks, query, constants.Top); err != nil {
+		return nil, err
+	}
+
+	return tracks, nil
 }
