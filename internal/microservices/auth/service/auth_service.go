@@ -12,19 +12,6 @@ type authService struct {
 	proto.UnsafeAuthorizationServer
 }
 
-/*
-type AuthorizationServer interface {
-	GetSession(context.Context, *SessionId) (*Session, error)
-	SetNewUnauthorizedSession(context.Context, *Empty) (*SessionId, error)
-	SetNewAuthorizedSession(context.Context, *UserId) (*SessionId, error)
-	MakeSessionAuthorized(context.Context, *UserSessionId) (*SessionId, error)
-	MakeSessionUnauthorized(context.Context, *SessionId) (*SessionId, error)
-	DeleteSession(context.Context, *SessionId) (*Empty, error)
-	IsSession(context.Context, *SessionId) (*Empty, error)
-	IsAuthSession(context.Context, *SessionId) (*BoolResult, error)
-}
-*/
-
 func NewAuthService(authRepo auth_microservice_domain.AuthRepo) proto.AuthorizationServer {
 	return &authService{authRepo: authRepo}
 }

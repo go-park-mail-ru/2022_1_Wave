@@ -22,11 +22,6 @@ type AuthHandler struct {
 	AuthUseCase auth_domain.AuthUseCase
 }
 
-//var Handler AuthHandler
-//var M *http_middleware.HttpMiddleware
-
-//var csrfTokenExpire = time.Hour * 1
-
 func formSessionCookie(sessionId string) *http.Cookie {
 	return &http.Cookie{
 		Name:     SessionIdKey,

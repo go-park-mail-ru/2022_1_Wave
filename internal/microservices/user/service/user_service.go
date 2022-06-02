@@ -6,17 +6,6 @@ import (
 	"github.com/go-park-mail-ru/2022_1_Wave/internal/microservices/user/proto"
 )
 
-/*
-type ProfileServer interface {
-	Create(context.Context, *User) (*Empty, error)
-	Update(context.Context, *User) (*Empty, error)
-	Delete(context.Context, *UserId) (*Empty, error)
-	GetById(context.Context, *UserId) (*User, error)
-	GetByUsername(context.Context, *Username) (*User, error)
-	GetByEmail(context.Context, *Email) (*User, error)
-}
-*/
-
 type userService struct {
 	userRepo user_microservice_domain.UserRepo
 	proto.UnimplementedProfileServer

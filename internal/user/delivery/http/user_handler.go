@@ -24,7 +24,6 @@ const (
 	badIdErr        = "bad id"
 	noSessionErr    = "no session"
 	invalidUserJSON = "invalid json"
-	//uploadAvatarError = "upload avatar error"
 
 	SessionIdKey  = "session_id"
 	PathToAvatars = "assets"
@@ -36,21 +35,6 @@ func MakeHandler(userUseCase user_domain.UserUseCase, s3Handler *s3.Handler) Use
 		S3Handler:   s3Handler,
 	}
 }
-
-//func NewUserHandler(e *echo.Echo, userUseCase domain.UserUseCase, m *http_middleware.HttpMiddleware) {
-//	handler := &UserHandler{
-//		UserUseCase: userUseCase,
-//	}
-//
-//	g := e.Group("/users")
-//
-//	g.GET("/users/:id", handler.GetUser)
-//	g.GET("/users/self", handler.GetSelfUser, m.Auth, m.CSRF)
-//
-//	//g.PUT("/users/:id", handler.UpdateUser)
-//	g.PUT("/users/self", handler.UpdateSelfUser, m.Auth, m.CSRF)
-//	g.PUT("/users/upload_avatar", handler.UploadAvatar, m.Auth, m.CSRF)
-//}
 
 // GetUser godoc
 // @Summary      Get

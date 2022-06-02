@@ -121,21 +121,6 @@ func (a *redisSessionRepo) SetNewUnauthorizedSession(expires time.Duration) (str
 	return sessionId, nil
 }
 
-/*func (a *redisSessionRepo) SetNewSession(expires time.Duration, userId uint) (string, error) {
-	client := a.pool.Get()
-	defer client.Close()
-
-	sessionId := generateSessionId(true, userId)
-
-	err := setSession(client, sessionId, true, userId, expires)
-
-	if err != nil {
-		return "", domain.ErrSetSession
-	}
-
-	return sessionId, nil
-}*/
-
 func (a *redisSessionRepo) changeSession(sessionId string, isAuthorized bool, userId uint) error {
 	session, err := a.GetSession(sessionId)
 	if err != nil {

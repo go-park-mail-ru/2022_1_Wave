@@ -20,7 +20,6 @@ func NewUserPostgresRepo(db *sqlx.DB) domain.UserRepo {
 func (a *UserPostrgesRepo) Insert(user *domain.User) error {
 	_, err := a.DB.Exec(insertUserCommand, user.Username, user.Email, user.Avatar, user.Password)
 	fmt.Println("user password in db = ", user.Password)
-	//_, err := a.DB.NamedQuery(insertUserCommand, user)
 	if err != nil {
 		fmt.Println(err)
 		return ErrorInsertUser
