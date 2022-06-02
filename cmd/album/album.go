@@ -78,9 +78,6 @@ func main() {
 		}
 	}()
 
-	//day := (time.Now().Unix() - 345600) % 604800 / 86400
-
-	//const week = 7 * 24 * time.Hour
 	if _, err := albumRepo.CountPopularAlbumOfWeek(); err != nil {
 		logs.Logrus.Fatal("Unable to count a inits popular albums of week, err:", err)
 	}

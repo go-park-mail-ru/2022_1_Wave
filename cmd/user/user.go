@@ -67,7 +67,6 @@ func main() {
 			logs.Logrus.Fatal("Unable to start a http user metrics server:", err)
 		}
 	}()
-	//logger.GlobalLogger.Logrus.Printf("started profile microservice on %s", port)
 	err = server.Serve(listen)
 	if err != nil {
 		logs.Logrus.Errorf("cannot listen port %s: %s", os.Getenv("port"), err.Error())

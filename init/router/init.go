@@ -70,9 +70,6 @@ func Router(e *echo.Echo,
 	SetDocsPath(v1)
 	logger.GlobalLogger.Logrus.Warnln("setting docs routes")
 
-	SetStaticHandle(v1)
-	logger.GlobalLogger.Logrus.Warnln("setting static routes")
-
 	SetAuthRoutes(v1, authHandler, m)
 	logger.GlobalLogger.Logrus.Warnln("setting auth routes")
 
@@ -168,7 +165,6 @@ func SetGatewayRoutes(apiVersion *echo.Group, handler gatewayDeliveryHttp.Handle
 
 // SetLinkerRoutes songs
 func SetLinkerRoutes(e *echo.Echo, handler linkerDeliveryHttp.Handler) {
-	//linkerRoutes := apiVersion.Group(linkerPrefix)
 	e.GET(strEchoHashPattern, handler.Get)
 	e.POST(locate, handler.Create)
 	e.GET(strCountPattern+strEchoHashPattern, handler.Count)
@@ -198,25 +194,6 @@ func SetDocsPath(apiVersion *echo.Group) {
 	docRoutes.GET(locate+"*", echoSwagger.WrapHandler)
 }
 
-// SetStaticHandle static
-func SetStaticHandle(apiVersion *echo.Group) {
-	// /net/v1/static/img/album/123.jpg -> ./static/img/album/123.jpg
-	//staticHandler := http.StripPrefix(
-	//	GetStaticUrl,
-	//	http.FileServer(http.Dir("./static")),
-	//)
-	//router.Handle(GetStaticUrl, staticHandler)
-}
-
-// config
-const (
-	//Proto             = "http://"
-	//Host              = "localhost"
-	//redisDefaultPort  = "6379"
-	currentApiVersion = v1Locate
-	apiPath           = apiLocate + currentApiVersion
-)
-
 // prefixes
 const (
 	apiPrefix           = "/api"
@@ -239,83 +216,16 @@ const (
 	signUpPrefix        = "/signup"
 	getCSRFPrefix       = "/get_csrf"
 	ofUserPrefix        = "/ofUser"
-	//linkerPrefix        = "/linker"
 )
 
 const (
-	locate        = "/"
-	apiLocate     = "api/"
-	v1Locate      = "v1/"
-	albumsLocate  = "albums/"
-	artistsLocate = "artists/"
-	tracksLocate  = "tracks/"
-	usersLocate   = "users/"
-	AssetsPrefix  = "assets/"
+	locate = "/"
 )
 
 // destinations
 const (
-	login                = "login"
-	logout               = "logout"
-	signUp               = "signup"
-	getCSRF              = "get_csrf"
-	self                 = "self"
-	popular              = "popular"
-	idMuxPattern         = "{id:[0-9]+}"
 	idEchoPattern        = "/:id"
 	strEchoToFindPattern = "/:toFind"
 	strEchoHashPattern   = "/:hash"
 	strCountPattern      = "/count"
-)
-
-// words
-const (
-	Get    = "Get"
-	Update = "Update"
-	Create = "Create"
-	Delete = "Delete"
-)
-
-// albums urls
-const (
-	CreateAlbumUrl       = "/" + apiPath + albumsLocate
-	UpdateAlbumUrl       = CreateAlbumUrl
-	GetAllAlbumsUrl      = "/" + apiPath + albumsLocate
-	GetAlbumUrlWithoutId = GetAllAlbumsUrl
-	GetAlbumUrl          = GetAlbumUrlWithoutId + idMuxPattern
-	GetPopularAlbumsUrl  = GetAllAlbumsUrl + popular
-	DeleteAlbumUrl       = GetAlbumUrl
-)
-
-// artists urls
-const (
-	CreateArtistUrl       = "/" + apiPath + artistsLocate
-	UpdateArtistUrl       = CreateArtistUrl
-	GetAllArtistsUrl      = "/" + apiPath + artistsLocate
-	GetArtistUrlWithoutId = GetAllAlbumsUrl
-	GetArtistUrl          = GetArtistUrlWithoutId + idMuxPattern
-	GetPopularArtistsUrl  = GetAllArtistsUrl + popular
-	DeleteArtistUrl       = GetArtistUrl
-)
-
-// tracks urls
-const (
-	CreateTrackUrl       = "/" + apiPath + tracksLocate
-	UpdateTrackUrl       = CreateTrackUrl
-	GetAllTracksUrl      = "/" + apiPath + tracksLocate
-	GetTrackUrlWithoutId = GetAllTracksUrl
-	GetTrackUrl          = GetTrackUrlWithoutId + idMuxPattern
-	GetPopularTracksUrl  = GetAllTracksUrl + popular
-	DeleteTrackUrl       = GetTrackUrl
-)
-
-// auth urls
-const (
-	LoginUrl       = "/" + apiPath + login
-	LogoutUrl      = "/" + apiPath + logout
-	SignUpUrl      = "/" + apiPath + signUp
-	GetUserUrl     = "/" + apiPath + usersLocate + idMuxPattern
-	GetSelfUserUrl = "/" + apiPath + usersLocate + self
-	GetCSRFAuthUrl = "/" + apiPath + getCSRF
-	GetStaticUrl   = "/" + apiPath + "/static/"
 )

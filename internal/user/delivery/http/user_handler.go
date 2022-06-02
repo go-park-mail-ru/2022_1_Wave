@@ -87,23 +87,6 @@ func (a *UserHandler) GetSelfUser(c echo.Context) error {
 	return c.JSON(http.StatusOK, getSuccessGetUserResponseProto(user))
 }
 
-/*func (a *UserHandler) UpdateUser(c echo.Context) error {
-	userId, err := strconv.Atoi(c.Param("id"))
-	if err != nil {
-		return c.JSON(http.StatusBadRequest, getErrorUserResponse(errors.New(badIdErr)))
-	}
-	var user domain.User
-	err = c.Bind(&user)
-	if err != nil {
-		return c.JSON(http.StatusUnprocessableEntity, getErrorUserResponse(errors.New(invalidUserJSON)))
-	}
-	err = a.userUseCase.Update(uint(userId), &user)
-	if err != nil {
-		return c.JSON(http.StatusBadRequest, getErrorUserResponse(err))
-	}
-	return c.JSON(http.StatusOK, getSuccessUserUpdate(&user))
-}*/
-
 // UpdateSelfUser godoc
 // @Summary      Update
 // @Description  updating user by session_id

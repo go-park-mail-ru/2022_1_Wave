@@ -37,15 +37,7 @@ func main() {
 	if err != nil {
 		logs.Logrus.Fatalln("Error to launch auth gRPC service:", err)
 	}
-	//sqlxDb := InitDatabase()
 	authRepo := auth_redis.NewRedisAuthRepo("redis:6379")
-	//userRepo := postgresql.NewUserPostgresRepo(sqlxDb)
-
-	/*defer func() {
-		if sqlxDb != nil {
-			_ = sqlxDb.Close()
-		}
-	}()*/
 
 	server, httpServer, listen, err := cmd.MakeServers(reg)
 	if err != nil {
@@ -63,7 +55,6 @@ func main() {
 		}
 	}()
 
-	//logger.GlobalLogger.Logrus.Printf("started authorization microservice on %s", port)
 	err = server.Serve(listen)
 	if err != nil {
 		logs.Logrus.Errorf("cannot listen port %s: %s", os.Getenv("port"), err.Error())

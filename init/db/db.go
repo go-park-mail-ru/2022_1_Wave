@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"fmt"
 	"github.com/jmoiron/sqlx"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -42,8 +41,6 @@ func InitMongo(urlEnv string, databaseName string, collectionName string, ctx co
 		Password:                os.Getenv("MONGO_INITDB_ROOT_PASSWORD"),
 		PasswordSet:             false,
 	}
-
-	fmt.Println(credential)
 
 	mongoUrl := os.Getenv(urlEnv)
 	mongoType := os.Getenv("dbType")

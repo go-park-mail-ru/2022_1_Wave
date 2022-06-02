@@ -75,7 +75,6 @@ func main() {
 		}
 	}()
 
-	//const week = 7 * 24 * time.Hour
 	if _, err := trackRepo.CountPopularTrackOfWeek(); err != nil {
 		logs.Logrus.Fatal("Unable to count a inits popular tracks of week, err:", err)
 	}
@@ -95,7 +94,4 @@ func main() {
 		logs.Logrus.Errorf("cannot listen port %s: %s", os.Getenv("port"), err.Error())
 	}
 
-	//if err != nil {
-	//	logger.GlobalLogger.Logrus.Errorf("cannot listen port %s: %s", port, err.Error())
-	//}
 }
