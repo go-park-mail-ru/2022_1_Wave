@@ -16,5 +16,3 @@ else
   echo -e "\033[31m ERROR\033[0m\033[0m"
   exit 127
 fi
-
-#go tool cover -html=cover.out

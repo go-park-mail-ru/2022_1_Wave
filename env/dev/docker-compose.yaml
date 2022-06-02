@@ -18,21 +18,6 @@ services:
       - ../../../../front/2022_1_Wave/build:/var/www/wave
     depends_on:
       - wave_music
-#      - websocket_server
-
-  #  nginx-exporter:
-  #    image: nginx/nginx-prometheus-exporter
-  #    container_name: nginx-exporter
-  #    environment:
-  #      - SCRAPE_URI=http://web:80/metrics
-  #      - TELEMETRY_PATH=/metrics
-  #      - NGINX_RETRIES=1
-  #      - ADMIN_USER=${ADMIN_USER}
-  #      - ADMIN_PASSWORD=${ADMIN_PASSWORD}
-  #    expose:
-  #      - 9113
-  #    depends_on:
-  #      - web
 
   wave_music:
     image: mausved/wave_dev
@@ -183,41 +168,6 @@ services:
     depends_on:
       - db
       - redis
-
-#  linker:
-#    container_name: linker
-#    image: mausved/wave_dev
-#    working_dir: /var/www/service
-#    restart: always
-#    environment:
-#      - dbType=mongo
-#      - port=:8087
-#      - exporterPort=:9087
-#      - ME_CONFIG_MONGODB_URL=mongodb://mongo:27017
-#      - MONGO_INITDB_DATABASE=temp
-#      - MONGO_INITDB_ROOT_USERNAME=temp
-#      - MONGO_INITDB_ROOT_PASSWORD=temp
-#    expose:
-#      - 8087
-#      - 9087
-#    entrypoint: ./cmd/linker/run.sh
-#    volumes:
-#      - ./airs/linker.toml:/var/www/service/cmd/linker/.air.toml:ro
-#      - ../..:/var/www/service
-#    depends_on:
-#      - mongo
-
-#  mongo:
-#    image: mongo
-#    container_name: mongo
-#    restart: always
-#    ports:
-#      - "27017:27017"
-#    expose:
-#      - 27017
-#    volumes:
-#      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
-
 
   websocket_server:
     image: mausved/wave_dev

@@ -249,9 +249,4 @@ func (table ArtistRepo) LikeCheckByUser(artistId int64, userId int64) (bool, err
 		return false, nil
 	}
 	return true, nil
-	//if likedTrackId <= 0 {
-	//	return false, nil
-	//} else {
-	//	return true, nil
-	//}
 }

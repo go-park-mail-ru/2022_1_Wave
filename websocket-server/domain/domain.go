@@ -9,12 +9,6 @@ type FromIs string
 type TypePushState string
 
 const (
-	PlaylistFromIs  FromIs = "playlist"
-	AlbumFromIs     FromIs = "album"
-	FavoritesFromIs FromIs = "favorites"
-)
-
-const (
 	PushTrackInQueue        TypePushState = "push_track"
 	NewTracksQueue          TypePushState = "new_tracks_queue"
 	NewTrackInQueue         TypePushState = "new_track"

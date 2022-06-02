@@ -37,11 +37,6 @@ func main() {
 	authClient := proto.NewAuthorizationClient(grpcAuthConn)
 	authAgent := auth_grpc_agent.NewAuthGRPCAgent(authClient)
 
-	/*grpcTrackConn, err := grpc.Dial(os.Getenv("TRACK_GRPC_ADDR"), grpc.WithTransportCredentials(insecure.NewCredentials()))
-
-	trackClient := trackProto.NewTrackUseCaseClient(grpcTrackConn)
-	trackAgent := TrackGrpcAgent.MakeAgent(trackClient)*/
-
 	handler := http.NewHandler(useCase, os.Getenv("REDIS_ADDR"), authAgent)
 
 	middleware := middleware2.InitMiddleware(authAgent)

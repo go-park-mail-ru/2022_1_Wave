@@ -4,8 +4,6 @@ import (
 	"github.com/google/uuid"
 )
 
-//const secret = "secret_key"
-
 func CreateCSRF() string {
 	return uuid.NewString()
 }
