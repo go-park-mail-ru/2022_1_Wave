@@ -88,9 +88,11 @@ func (table AlbumRepo) GetAll() ([]*albumProto.Album, error) {
 
 func (table AlbumRepo) GetPopular() ([]*albumProto.Album, error) {
 	query := `
-			SELECT *
+			SELECT album.id, album.title, album.artist_id, album.count_likes, album.count_listening, album.date
 			FROM album
-			ORDER BY count_listening DESC
+			JOIN track t on album.id = t.album_id
+			GROUP BY album.id
+			ORDER BY sum(t.count_likes) DESC
 			LIMIT $1;`
 
 	var albums []*albumProto.Album

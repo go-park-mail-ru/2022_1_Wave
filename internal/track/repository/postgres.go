@@ -73,7 +73,7 @@ func (table TrackRepo) GetPopular() ([]*trackProto.Track, error) {
 	query := `
 			SELECT *
 			FROM track
-			ORDER BY count_listening DESC
+			ORDER BY count_likes DESC
 			LIMIT $1;`
 
 	var tracks []*trackProto.Track
@@ -109,7 +109,7 @@ func (table TrackRepo) GetSize() (int64, error) {
 
 func (table TrackRepo) GetTracksFromAlbum(albumId int64) ([]*trackProto.Track, error) {
 	var tracks []*trackProto.Track
-	if err := table.Sqlx.Select(&tracks, `SELECT * FROM track WHERE album_id = $1 ORDER BY id`, albumId); err != nil {
+	if err := table.Sqlx.Select(&tracks, `SELECT * FROM track WHERE album_id = $1 ORDER BY count_likes DESC`, albumId); err != nil {
 		return nil, err
 	}
 	return tracks, nil
@@ -120,7 +120,7 @@ func (table TrackRepo) GetPopularTracksFromArtist(artistId int64) ([]*trackProto
 	if err := table.Sqlx.Select(&tracks, `
 			SELECT * FROM track
 			WHERE artist_id = $1
-			ORDER BY count_listening DESC
+			ORDER BY count_likes DESC
 			LIMIT $2;`, artistId, constants.Top); err != nil {
 		return nil, err
 	}
@@ -255,11 +255,6 @@ func (table TrackRepo) LikeCheckByUser(trackId int64, userId int64) (bool, error
 		return false, nil
 	}
 	return true, nil
-	//if likedTrackId <= 0 {
-	//	return false, nil
-	//} else {
-	//	return true, nil
-	//}
 }
 
 func (table TrackRepo) CountPopularTrackOfWeek() (bool, error) {

@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: godeployconfig
+data:
+  proxy-read-timeout: "1000s"
+  proxy-connect-timeout: "1000s"
