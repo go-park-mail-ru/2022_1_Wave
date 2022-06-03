@@ -16,16 +16,16 @@ func TracksToMap(tracks []*trackProto.TrackDataTransfer) map[int64]*trackProto.T
 
 func ArtistsToMap(artists []*artistProto.ArtistDataTransfer) map[int64]*artistProto.ArtistDataTransfer {
 	artistMap := map[int64]*artistProto.ArtistDataTransfer{}
-	for _, obj := range artists {
-		artistMap[obj.Id] = obj
+	for idx, obj := range artists {
+		artistMap[int64(idx+1)] = obj
 	}
 	return artistMap
 }
 
 func AlbumsToMap(albums []*albumProto.AlbumDataTransfer) map[int64]*albumProto.AlbumDataTransfer {
 	albumMap := map[int64]*albumProto.AlbumDataTransfer{}
-	for _, obj := range albums {
-		albumMap[obj.Id] = obj
+	for idx, obj := range albums {
+		albumMap[int64(idx+1)] = obj
 	}
 	return albumMap
 }

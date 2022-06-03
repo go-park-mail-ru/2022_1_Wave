@@ -4,6 +4,10 @@ metadata:
   annotations:
     kompose.cmd: kompose convert -f ../docker-compose.yaml
     kompose.version: 1.26.1 (a9d05d509)
+    kubectl.kubernetes.io/proxy-read-timeout: "1000s"
+    kubectl.kubernetes.io/proxy-connect-timeout: "1000s"
+    nginx.org/proxy-read-timeout: "1000s"
+    nginx.org/proxy-connect-timeout: "1000s"
   creationTimestamp: null
   labels:
     io.kompose.service: nginx

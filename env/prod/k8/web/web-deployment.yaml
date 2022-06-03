@@ -2,6 +2,11 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: godeploy
+  annotations:
+    kubectl.kubernetes.io/proxy-read-timeout: "1000s"
+    kubectl.kubernetes.io/proxy-connect-timeout: "1000s"
+    nginx.org/proxy-read-timeout: "1000s"
+    nginx.org/proxy-connect-timeout: "1000s"
   labels:
     app: godeploy
 spec:
@@ -21,5 +26,9 @@ spec:
               containerPort: 80
             - name: "https"
               containerPort: 443
+      volumes:
+        - name: webconfig
+          configMap:
+            name: godeployconfig
       imagePullSecrets:
         - name: wave
